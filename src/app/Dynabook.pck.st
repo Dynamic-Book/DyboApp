@@ -1,203 +1,203 @@
-'From Cuis 6.0 [latest update: #5958] on 31 July 2023 at 11:15:00 am'!
+'From Cuis 6.0 [latest update: #5958] on 31 July 2023 at 11:52:00 am'!
 'Description '!
-!provides: 'Dyna' 1 49!
+!provides: 'Dynabook' 1 0!
 !requires: 'Goodies' 1 10 nil!
-!requires: 'UI-Panel' 1 74 nil!
-!requires: 'UI-Mold' 1 10 nil!
+!requires: 'UI-Mold' 1 13 nil!
+!requires: 'UI-Panel' 1 91 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
-SystemOrganization addCategory: #Dyna!
-SystemOrganization addCategory: 'Dyna-System'!
-SystemOrganization addCategory: #'Dyna-Core'!
-SystemOrganization addCategory: #'Dyna-UI'!
+SystemOrganization addCategory: 'Dynabook'!
+SystemOrganization addCategory: 'Dynabook-System'!
+SystemOrganization addCategory: 'Dynabook-Core'!
+SystemOrganization addCategory: 'Dynabook-UI'!
 
 
-!classDefinition: #DyBPlatform category: 'Dyna-System'!
+!classDefinition: #DyBPlatform category: 'Dynabook-System'!
 Object subclass: #DyBPlatform
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-System'!
-!classDefinition: 'DyBPlatform class' category: 'Dyna-System'!
+	category: 'Dynabook-System'!
+!classDefinition: 'DyBPlatform class' category: 'Dynabook-System'!
 DyBPlatform class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBAgenda category: #'Dyna-Core'!
+!classDefinition: #DyBAgenda category: 'Dynabook-Core'!
 Object subclass: #DyBAgenda
 	instanceVariableNames: 'start end daysOff assignments'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBAgenda class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBAgenda class' category: 'Dynabook-Core'!
 DyBAgenda class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBAssignment category: #'Dyna-Core'!
+!classDefinition: #DyBAssignment category: 'Dynabook-Core'!
 Object subclass: #DyBAssignment
 	instanceVariableNames: 'date timeSlot task'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBAssignment class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBAssignment class' category: 'Dynabook-Core'!
 DyBAssignment class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBClassGroup category: #'Dyna-Core'!
+!classDefinition: #DyBClassGroup category: 'Dynabook-Core'!
 Object subclass: #DyBClassGroup
 	instanceVariableNames: 'number headTeacher students courses'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBClassGroup class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBClassGroup class' category: 'Dynabook-Core'!
 DyBClassGroup class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBCourse category: #'Dyna-Core'!
+!classDefinition: #DyBCourse category: 'Dynabook-Core'!
 Object subclass: #DyBCourse
 	instanceVariableNames: 'subject color teacher courseHours binder'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBCourse class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBCourse class' category: 'Dynabook-Core'!
 DyBCourse class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBCourseHour category: #'Dyna-Core'!
+!classDefinition: #DyBCourseHour category: 'Dynabook-Core'!
 Object subclass: #DyBCourseHour
 	instanceVariableNames: 'room dayOfWeek timeSlots'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBCourseHour class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBCourseHour class' category: 'Dynabook-Core'!
 DyBCourseHour class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBData category: #'Dyna-Core'!
+!classDefinition: #DyBData category: 'Dynabook-Core'!
 Object subclass: #DyBData
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBData class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBData class' category: 'Dynabook-Core'!
 DyBData class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBDayInterval category: #'Dyna-Core'!
+!classDefinition: #DyBDayInterval category: 'Dynabook-Core'!
 Object subclass: #DyBDayInterval
 	instanceVariableNames: 'start end'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBDayInterval class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBDayInterval class' category: 'Dynabook-Core'!
 DyBDayInterval class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBPerson category: #'Dyna-Core'!
+!classDefinition: #DyBPerson category: 'Dynabook-Core'!
 Object subclass: #DyBPerson
 	instanceVariableNames: 'lastName firstName email'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBPerson class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBPerson class' category: 'Dynabook-Core'!
 DyBPerson class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBStudent category: #'Dyna-Core'!
+!classDefinition: #DyBStudent category: 'Dynabook-Core'!
 DyBPerson subclass: #DyBStudent
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBStudent class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBStudent class' category: 'Dynabook-Core'!
 DyBStudent class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBTeacher category: #'Dyna-Core'!
+!classDefinition: #DyBTeacher category: 'Dynabook-Core'!
 DyBPerson subclass: #DyBTeacher
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBTeacher class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBTeacher class' category: 'Dynabook-Core'!
 DyBTeacher class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBSchool category: #'Dyna-Core'!
+!classDefinition: #DyBSchool category: 'Dynabook-Core'!
 Object subclass: #DyBSchool
 	instanceVariableNames: 'name phone email timeSlots classGroups'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBSchool class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBSchool class' category: 'Dynabook-Core'!
 DyBSchool class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBSubject category: #'Dyna-Core'!
+!classDefinition: #DyBSubject category: 'Dynabook-Core'!
 Object subclass: #DyBSubject
 	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBSubject class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBSubject class' category: 'Dynabook-Core'!
 DyBSubject class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBTimeSlot category: #'Dyna-Core'!
+!classDefinition: #DyBTimeSlot category: 'Dynabook-Core'!
 Object subclass: #DyBTimeSlot
 	instanceVariableNames: 'name startTime endTime'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBTimeSlot class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBTimeSlot class' category: 'Dynabook-Core'!
 DyBTimeSlot class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBUserData category: #'Dyna-Core'!
+!classDefinition: #DyBUserData category: 'Dynabook-Core'!
 Object subclass: #DyBUserData
 	instanceVariableNames: 'user schools agenda'
 	classVariableNames: 'Current'
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBUserData class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBUserData class' category: 'Dynabook-Core'!
 DyBUserData class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBinder category: #'Dyna-Core'!
+!classDefinition: #DyBinder category: 'Dynabook-Core'!
 Object subclass: #DyBinder
 	instanceVariableNames: 'topics last resources'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyBinder class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyBinder class' category: 'Dynabook-Core'!
 DyBinder class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyTopic category: #'Dyna-Core'!
+!classDefinition: #DyTopic category: 'Dynabook-Core'!
 Object subclass: #DyTopic
 	instanceVariableNames: 'title color documents'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-Core'!
-!classDefinition: 'DyTopic class' category: #'Dyna-Core'!
+	category: 'Dynabook-Core'!
+!classDefinition: 'DyTopic class' category: 'Dynabook-Core'!
 DyTopic class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBEditorVisitor category: #'Dyna-UI'!
+!classDefinition: #DyBEditorVisitor category: 'Dynabook-UI'!
 Object subclass: #DyBEditorVisitor
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-UI'!
-!classDefinition: 'DyBEditorVisitor class' category: #'Dyna-UI'!
+	category: 'Dynabook-UI'!
+!classDefinition: 'DyBEditorVisitor class' category: 'Dynabook-UI'!
 DyBEditorVisitor class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBViewerVisitor category: #'Dyna-UI'!
+!classDefinition: #DyBViewerVisitor category: 'Dynabook-UI'!
 Object subclass: #DyBViewerVisitor
 	instanceVariableNames: 'visitedModel'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dyna-UI'!
-!classDefinition: 'DyBViewerVisitor class' category: #'Dyna-UI'!
+	category: 'Dynabook-UI'!
+!classDefinition: 'DyBViewerVisitor class' category: 'Dynabook-UI'!
 DyBViewerVisitor class
 	instanceVariableNames: ''!
 
@@ -1267,7 +1267,7 @@ visitUserData: userData
 		addMorph: (self paneFor: userData agenda label: 'Agenda' translated).
 	^ self plugView: column! !
 
-!ProtoObject methodsFor: '*Dyna' stamp: 'hlsf 7/1/2023 12:19:17'!
+!ProtoObject methodsFor: '*Dynabook' stamp: 'hlsf 7/1/2023 12:19:17'!
 treePointsTo: anObject
 " Are my instances and sub instances hold a reference of anObject"
 	^ (self statePointsTo: anObject) or: [ |attributesToVisit |
@@ -1277,10 +1277,10 @@ treePointsTo: anObject
 		attributesToVisit anySatisfy: [:attribute | 
 			attribute == anObject or: [attribute treePointsTo: anObject		] 		] ]! !
 
-!Date methodsFor: '*Dyna-printing' stamp: 'hlsf 7/29/2023 15:51:19'!
+!Date methodsFor: '*Dynabook-printing' stamp: 'hlsf 7/29/2023 15:51:19'!
 ddmmyy
 	^ self printFormat: #(1 2 3 $/ 1 2 1)! !
 
-!Date methodsFor: '*Dyna-printing' stamp: 'hlsf 7/29/2023 15:48:49'!
+!Date methodsFor: '*Dynabook-printing' stamp: 'hlsf 7/29/2023 15:48:49'!
 ddmmyyyy
 	^ self printFormat: #(1 2 3 $/ 1 1 1)! !
