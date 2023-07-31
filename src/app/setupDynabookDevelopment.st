@@ -44,7 +44,8 @@ morph _ Workspace openWorkspace.
 morph model actualContents: 'ChangeSet installNewUpdates.
 DyBSystem beDevelopment.
 DyBSystem beWorkstation.
-Dynabook new.'.
+Dynabook new.
+(BreadcrumbsPane on: DyBUserData current with: DyBViewerVisitor ) openInWorld.'.
 morph 
 	morphPosition: 0 @ (area height // 2);
 	morphExtent: extent x @ (2 / 3 * extent y).

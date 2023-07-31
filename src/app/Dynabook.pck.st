@@ -1,10 +1,11 @@
-'From Cuis 6.0 [latest update: #5958] on 31 July 2023 at 11:52:00 am'!
+'From Cuis 6.0 [latest update: #5967] on 31 July 2023 at 11:48:18 pm'!
 'Description '!
-!provides: 'Dynabook' 1 0!
+!provides: 'Dynabook' 1 1!
+!requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
-!requires: 'Goodies' 1 9 nil!
+!requires: 'Gettext' 1 26 nil!
 SystemOrganization addCategory: 'Dynabook'!
 SystemOrganization addCategory: 'Dynabook-System'!
 SystemOrganization addCategory: 'Dynabook-Core'!
