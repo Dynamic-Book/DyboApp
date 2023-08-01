@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5967] on 31 July 2023 at 11:48:18 pm'!
+'From Cuis 6.0 [latest update: #5967] on 1 August 2023 at 12:30:49 pm'!
 'Description '!
-!provides: 'Dynabook' 1 1!
+!provides: 'Dynabook' 1 2!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -12,6 +12,16 @@ SystemOrganization addCategory: 'Dynabook-Core'!
 SystemOrganization addCategory: 'Dynabook-UI'!
 
 
+!classDefinition: #DyBDomain category: 'Dynabook-System'!
+Object subclass: #DyBDomain
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-System'!
+!classDefinition: 'DyBDomain class' category: 'Dynabook-System'!
+DyBDomain class
+	instanceVariableNames: ''!
+
 !classDefinition: #DyBPlatform category: 'Dynabook-System'!
 Object subclass: #DyBPlatform
 	instanceVariableNames: ''
@@ -20,6 +30,46 @@ Object subclass: #DyBPlatform
 	category: 'Dynabook-System'!
 !classDefinition: 'DyBPlatform class' category: 'Dynabook-System'!
 DyBPlatform class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyBDevelopment category: 'Dynabook-System'!
+DyBPlatform subclass: #DyBDevelopment
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-System'!
+!classDefinition: 'DyBDevelopment class' category: 'Dynabook-System'!
+DyBDevelopment class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyBPresenter category: 'Dynabook-System'!
+Object subclass: #DyBPresenter
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-System'!
+!classDefinition: 'DyBPresenter class' category: 'Dynabook-System'!
+DyBPresenter class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyBSystem category: 'Dynabook-System'!
+Object subclass: #DyBSystem
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-System'!
+!classDefinition: 'DyBSystem class' category: 'Dynabook-System'!
+DyBSystem class
+	instanceVariableNames: 'platform'!
+
+!classDefinition: #Dynabook category: 'Dynabook-System'!
+Object subclass: #Dynabook
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-System'!
+!classDefinition: 'Dynabook class' category: 'Dynabook-System'!
+Dynabook class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyBAgenda category: 'Dynabook-Core'!
@@ -203,6 +253,17 @@ DyBViewerVisitor class
 	instanceVariableNames: ''!
 
 
+!DyBPlatform commentStamp: '<historical>' prior: 0!
+Access to preferences, path, information in deployment mode.
+Pattern: strategy!
+
+!DyBDevelopment commentStamp: '<historical>' prior: 0!
+Access to preferences, path, information in development mode.!
+
+!DyBSystem commentStamp: '<historical>' prior: 0!
+I map settings/preferences to the underneath hardware/os plateform
+Pattern: strategy!
+
 !DyBAgenda commentStamp: 'hlsf 7/28/2023 19:46:23' prior: 0!
 The place to record teacher/student assignments or other events. It follows the user times slots as described in its related school instances:
 - start, a Date first day of school
@@ -256,6 +317,45 @@ I visit the model of user data to provide an editor!
 
 !DyBViewerVisitor commentStamp: '<historical>' prior: 0!
 I visit the model of user data to provide a viewer linked to an editor.!
+
+!DyBPlatform methodsFor: 'user interface' stamp: 'hlsf 8/1/2023 12:17:10'!
+toolbarSize
+	^ 64! !
+
+!DyBPlatform methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:12:16'!
+iconsPath
+	^ self rootPath / 'icons'! !
+
+!DyBPlatform methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:04:45'!
+rootPath
+"Dynabook/ directory"
+	^ DirectoryEntry smalltalkImageDirectory parent parent! !
+
+!DyBDevelopment methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:12:23'!
+iconsPath
+	^ self rootPath / 'graphics' / 'icons'! !
+
+!DyBDevelopment methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:06:02'!
+rootPath
+"dynabook/ directory"
+	^ DirectoryEntry smalltalkImageDirectory / 'dynabook'! !
+
+!DyBSystem class methodsFor: 'class initialization' stamp: 'hlsf 8/1/2023 12:14:32'!
+beApplication
+	platform := DyBPlatform new! !
+
+!DyBSystem class methodsFor: 'class initialization' stamp: 'hlsf 8/1/2023 12:14:19'!
+beDevelopment
+	platform := DyBDevelopment new! !
+
+!DyBSystem class methodsFor: 'user interface' stamp: 'hlsf 8/1/2023 12:23:35'!
+toolbarSize
+" Size of the squared icons in the top toolbar"
+	^ platform toolbarSize ! !
+
+!DyBSystem class methodsFor: 'path' stamp: 'hlsf 8/1/2023 11:53:04'!
+iconsPath
+	^ platform iconsPath! !
 
 !DyBAgenda methodsFor: 'initialization' stamp: 'hlsf 7/29/2023 16:36:04'!
 initialize

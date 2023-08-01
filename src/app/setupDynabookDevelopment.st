@@ -43,7 +43,7 @@ morph _ BrowserWindow openBrowser
 morph _ Workspace openWorkspace.
 morph model actualContents: 'ChangeSet installNewUpdates.
 DyBSystem beDevelopment.
-DyBSystem beWorkstation.
+DyBSystem beApplication.
 Dynabook new.
 (BreadcrumbsPane on: DyBUserData current with: DyBViewerVisitor ) openInWorld.'.
 morph 
