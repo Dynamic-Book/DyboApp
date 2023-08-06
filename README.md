@@ -33,9 +33,9 @@ wget -O cogspur.tgz https://github.com/OpenSmalltalk/opensmalltalk-vm/releases/l
 tar -zxvf cogspur.tgz
 mv ./sqcogspur64linuxht ./VM
 ```
-2. Clone the dynabook repo in Cuis-Smalltalk-dev
+2. Clone the dynabook repo in Cuis-Smalltalk-Dev
 ```
-cd Cuis-Smalltalk-dev
+cd Cuis-Smalltalk-Dev
 git clone git@github.com:hilaire/dynabook.git
 ```
 
