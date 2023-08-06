@@ -11,13 +11,34 @@ save time. It anticipates the needs of the user according to their
 location and time of use, at home, school, in which class, and with
 which students.
 
-The pedagogical documents are based on hand annotated pdf documents
-(with a stylus) and interactive Morphs plugged in when needed. These
-documents are organized in topics and binders. The plugged Morphs are
-retrieved from existing libraries or user coded, both are Smalltalk
-written.
+# Installation
 
-The administrative contents are organized in objects described in the
-Objects chapter, Administrative section. The pedagogical objects are
-described in the Pedagogical and Document sections.
+Instructions to install the Dynabook.app in a Cuis-Smalltalk developer
+environment.
 
+1. Set up your Cuis-Smalltalk dev environment
+```
+mkdir Cuis
+cd Cuis
+# Install Cuis image and packages
+git clone https://github.com/hilaire/dynabook.git
+git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-Dev.git
+cd Cuis-Smalltalk-Dev
+./clonePackageRepos.sh
+./pullAllRepos.sh
+```
+2. Install Virtual Machine
+```
+wget -O cogspur.tgz https://github.com/OpenSmalltalk/opensmalltalk-vm/releases/download/202112201228/squeak.cog.spur_linux64x64.tar.gz
+tar -zxvf cogspur.tgz
+mv ./sqcogspur64linuxht ./cogspur
+```
+3. Start the Dynabook.app IDE
+```
+./dynabook/startIDE.sh
+```
+A new image dynabookIDE.image is built. In the image execute
+`DyBSystem beDevelopment`, execute `Dynabook new` (to come) to start the
+application.
+
+Have an interesting exploration!
