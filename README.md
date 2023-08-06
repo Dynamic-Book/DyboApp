@@ -33,6 +33,12 @@ wget -O cogspur.tgz https://github.com/OpenSmalltalk/opensmalltalk-vm/releases/l
 tar -zxvf cogspur.tgz
 mv ./sqcogspur64linuxht ./VM
 ```
+2. Clone the dynabook repo in Cuis-Smalltalk-dev
+```
+cd Cuis-Smalltalk-dev
+git clone git@github.com:hilaire/dynabook.git
+```
+
 3. Start the Dynabook.app IDE
 ```
 ./dynabook/startIDE.sh
