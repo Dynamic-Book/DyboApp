@@ -1,4 +1,4 @@
-# Introdction
+# Introduction
 
 The cashier register is a boring computer designed for efficiency. The
 Dynabook, both software and hardware, wants to bring this efficiency
@@ -42,3 +42,7 @@ A new image dynabookIDE.image is built. In the image execute
 application.
 
 Have an interesting exploration!
+
+## License
+
+Copyright Hilaire Fernandes 2023

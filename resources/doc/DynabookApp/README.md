@@ -27,10 +27,6 @@ described in the Objects chapter, Administrative section. The
 pedagogical objects are described in the Pedagogical and Document
 sections.
 
-## Licensing
-
-Copyright Hilaire Fernandes 2023
-
 ## Collaboration
 
 The domain of development is vast, both in software and hardware
