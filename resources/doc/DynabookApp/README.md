@@ -413,7 +413,7 @@ chronological order, however the points overlap.
 * Test Dynabook hardware and software with one classroom (30 users,
   students and teachers)
 
-## Principles
+## A2. Principles
 
 To have a lot of systems for the users to experiment with.
 
@@ -428,7 +428,7 @@ Touching is **grounding**, seeing is **recognizing**, language is
 
 Bent the GUI to the task the user needs to conduct.
 
-## People to contact
+## A3. People to contact
 
 * Caula, David (imppao), graphisme
 * Dickey, Ken (ken.dickey@whidbey.com), Smalltalker
@@ -439,13 +439,13 @@ Bent the GUI to the task the user needs to conduct.
 * Pettiaux, Nicolas (@npettiaux@mamot.fr), advocacy
 * Vuletich, Juan (juan@cuis.st), Cuis-Smalltalk architect
 
-## Related projects
+## A4. Related projects
 
 Related project to observe, to learn from, to collaborate with.
 
 * MNT Research (https://mntre.com) , open hardware laptop
 
-## Further readings
+## A5. Further readings
 
 * Be a Geometer, dynabook, https://blog.drgeo.eu/search/label/dynabook
 * 
