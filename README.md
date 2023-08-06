@@ -29,9 +29,9 @@ cd Cuis-Smalltalk-Dev
 ```
 2. Install Virtual Machine
 ```
-wget -O cogspur.tgz https://github.com/OpenSmalltalk/opensmalltalk-vm/releases/download/202112201228/squeak.cog.spur_linux64x64.tar.gz
+wget -O cogspur.tgz https://github.com/OpenSmalltalk/opensmalltalk-vm/releases/latest/download/squeak.cog.spur_linux64x64.tar.gz
 tar -zxvf cogspur.tgz
-mv ./sqcogspur64linuxht ./cogspur
+mv ./sqcogspur64linuxht ./VM
 ```
 3. Start the Dynabook.app IDE
 ```
