@@ -9,6 +9,8 @@ The cashier register is a boring computer designed for efficiency. The
 Dynabook, both software and hardware, wants to bring this efficiency
 to teachers and students to manage their job of teaching and learning.
 
+![A closed Dynabook](images/image6.png)
+
 The Dynabook App is the main user application of the Dynabook
 device. It is through this app that teachers and students interact the
 most. Its features are interconnected to maximize user comfort and to
@@ -389,20 +391,29 @@ additional cost.
 GUI design principle : **Doing** (body centered) with **Images**
 (visually centered) makes **Symbols** (symbolically centered).
 
-Touching is grounding, seeing is recognizing, language is understanding.
+Touching is **grounding**, seeing is **recognizing**, language is
+**understanding**.
+
 Bent the GUI to the task the user needs to conduct.
-People to contact
-    • Caula, David (imppao), graphisme
-    • Dickey, Ken (ken.dickey@whidbey.com), Smalltalker
-    • Goldberg, Adele (), Smalltalk author, educator
-    • Lup Yuen Lee, (@lupyuen@qoto.org), Pine phone hardware
-    • MNT Research, CEO (@mntmn@mastodon.social), open hardware laptop
-    • Oberson, Paul, SEM prospective
-    • Pettiaux, Nicolas (@npettiaux@mamot.fr), advocacy
-    • Vuletich, Juan (juan@cuis.st), Cuis-Smalltalk architect
-Related projects
+
+## People to contact
+
+* Caula, David (imppao), graphisme
+* Dickey, Ken (ken.dickey@whidbey.com), Smalltalker
+* Goldberg, Adele (), Smalltalk author, educator
+* Lup Yuen Lee, (@lupyuen@qoto.org), Pine phone hardware
+* MNT Research, CEO (@mntmn@mastodon.social), open hardware laptop
+* Oberson, Paul, SEM prospective
+* Pettiaux, Nicolas (@npettiaux@mamot.fr), advocacy
+* Vuletich, Juan (juan@cuis.st), Cuis-Smalltalk architect
+
+## Related projects
+
 Related project to observe, to learn from, to collaborate with.
-    • MNT Research (https://mntre.com) , open hardware laptop
-Further readings
-    • Be a Geometer, dynabook, https://blog.drgeo.eu/search/label/dynabook
-    • 
+
+* MNT Research (https://mntre.com) , open hardware laptop
+
+## Further readings
+
+* Be a Geometer, dynabook, https://blog.drgeo.eu/search/label/dynabook
+* 
