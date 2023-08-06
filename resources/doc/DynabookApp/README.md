@@ -9,7 +9,7 @@ The cashier register is a boring computer designed for efficiency. The
 Dynabook, both software and hardware, wants to bring this efficiency
 to teachers and students to manage their job of teaching and learning.
 
-![A closed Dynabook](images/image6.png)
+![A closed Dynabook](images/image2-sm.png)
 
 The Dynabook App is the main user application of the Dynabook
 device. It is through this app that teachers and students interact the
@@ -44,6 +44,8 @@ management, software.
 Describe the objects involved in the user activities and their
 relations. They are necessary to adapt to the activities the user
 (learner or educator) needs to conduct.
+
+![Business objects diagram](images/image16.png)
 
 ## Administrative
 
@@ -190,6 +192,8 @@ share her understanding with others? How can she...
 The content of the Dynabook is organized in interactive document
 objects.
 
+![A document with live objects annotated](images/image15.png)
+
 **Document**
 
 It is the root of a tree of Morphs. In a document, diversified Morphs
@@ -212,6 +216,11 @@ object which itself is attached to a page.
 
 Below, samples of preliminary works on the paper morph handwriting:
 
+![Handwritten text](images/image8.png)
+
+![Handwritten text](images/image7.png)
+
+![Handwritten text](images/image9.png)
 
 https://mamot.fr/system/media_attachments/files/110/129/414/451/277/255/original/c675cb84990e1108.mp4
 
@@ -229,6 +238,8 @@ Dynabook app.
 
 ## Start Page
 
+![Start page](images/image11.png)
+
 The **Start page** always shows a list of recent activities. There are
 the edited documents and the tasks. These items are sorted according
 to the time of edition of the documents and the due date of the
@@ -241,6 +252,8 @@ visible all along the workflow in the Dynabook app.
 
 ## Task Page
 
+![Task page](images/image4.png)
+
 In the task page, the user quickly adds a task for the next
 course. The Dynabook tries to guess the class, the day and the period
 according to the current date and time. If Dynabook guessing is wrong,
@@ -252,6 +265,8 @@ open for further details. A click on the Task button returns to the
 previous task page.
 
 ## Binder
+
+![Binder page](images/image3.png)
 
 From the binder, the user finds the taught classes (teacher) or the
 attended courses (student). The documents in each binder are organized
@@ -289,6 +304,8 @@ its circular sub-toolbars.
 
 ## Preferences Editor
 
+![Business objects editor](images/image5.png)
+
 In the preference editor, the user browses in the administrative data
 necessary to the application, to meaningfully present the information
 to its user.
@@ -306,6 +323,8 @@ decorated panel, selecting ‘1035’, then the ‘edit’ quick button (the
 second one) leads to the ‘1035’ object. Then the navigation can
 continue to the ‘Mathematic’ course and so on.
 
+![Flow of the business objects editor](images/image17.png)
+
 # UI Development
 
 ## Widgets
@@ -313,6 +332,8 @@ continue to the ‘Mathematic’ course and so on.
 A set of widgets to develop.
 
 **DecoratedPluggableMorph**
+
+![Decorated panel](images/image10.png)
 
 This widget, a sort of **decorated panel**, presents content
 surrounded with a line, titled with a label and an optional collection
@@ -340,6 +361,8 @@ time slots and the quick buttons present the ‘add’, ‘edit’ and
 
 **PreviewMorph**
 
+![Preview morph](images/image14.png)
+
 This morph presents the preview of a file on disk. The name of the
 file is presented at its button with an optional collection of quick
 action buttons.
@@ -358,9 +381,18 @@ used to browse the administrative objects, both for viewing and to
 edition. Below, at the left a view of a school object, at the right
 its edition.
 
+![Breadcrumb of the business objects](images/image1.png)
+
+![Breadcrumb of the business objects](images/image13.png)
+
 # Hardware
 
 ## Concept
+
+![Dynabook concept, laptop mode](images/image18.png)
+
+![Dynabook concept, notebook mode](images/image6.png)
+
 
 # Annexes
 
