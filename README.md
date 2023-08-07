@@ -21,11 +21,11 @@ environment.
 mkdir Cuis
 cd Cuis
 # Install Cuis image and packages
-git clone git@github.com:hilaire/dynabook.git
 git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-Dev.git
 cd Cuis-Smalltalk-Dev
 ./clonePackageRepos.sh
 ./pullAllRepos.sh
+git clone git@github.com:hilaire/dynabook.git
 ```
 2. Install Virtual Machine
 ```
