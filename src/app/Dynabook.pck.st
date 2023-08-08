@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5967] on 8 August 2023 at 7:35:05 pm'!
+'From Cuis 6.0 [latest update: #5967] on 8 August 2023 at 7:38:23 pm'!
 'Description '!
-!provides: 'Dynabook' 1 3!
+!provides: 'Dynabook' 1 4!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -216,6 +216,16 @@ Object subclass: #DyBViewerVisitor
 DyBViewerVisitor class
 	instanceVariableNames: ''!
 
+!classDefinition: #Dynabook category: #'Dynabook-Presenter'!
+Object subclass: #Dynabook
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-Presenter'!
+!classDefinition: 'Dynabook class' category: #'Dynabook-Presenter'!
+Dynabook class
+	instanceVariableNames: ''!
+
 !classDefinition: #DyBDomain category: #'Dynabook-System'!
 Object subclass: #DyBDomain
 	instanceVariableNames: ''
@@ -265,16 +275,6 @@ Object subclass: #DyBSystem
 !classDefinition: 'DyBSystem class' category: #'Dynabook-System'!
 DyBSystem class
 	instanceVariableNames: 'platform'!
-
-!classDefinition: #Dynabook category: #'Dynabook-System'!
-Object subclass: #Dynabook
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-System'!
-!classDefinition: 'Dynabook class' category: #'Dynabook-System'!
-Dynabook class
-	instanceVariableNames: ''!
 
 
 !DyBDocument commentStamp: '<historical>' prior: 0!
@@ -336,6 +336,9 @@ I visit the model of user data to provide an editor!
 
 !DyBViewerVisitor commentStamp: '<historical>' prior: 0!
 I visit the model of user data to provide a viewer linked to an editor.!
+
+!Dynabook commentStamp: '<historical>' prior: 0!
+A presenter for a Dynabook application.!
 
 !DyBPlatform commentStamp: '<historical>' prior: 0!
 Access to preferences, path, information in deployment mode.
