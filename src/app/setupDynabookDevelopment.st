@@ -42,10 +42,10 @@ morph _ BrowserWindow openBrowser
 "Open a Workspace with some default contents"
 morph _ Workspace openWorkspace.
 morph model actualContents: 'ChangeSet installNewUpdates.
-DyBSystem beDevelopment.
-DyBSystem beApplication.
+DySystem beDevelopment.
+DySystem beApplication.
 Dynabook new.
-(BreadcrumbsPane on: DyBUserData current with: DyBViewerVisitor ) openInWorld.'.
+(BreadcrumbsPane on: DyUserData current with: DyViewerVisitor ) openInWorld.'.
 morph 
 	morphPosition: 0 @ (area height // 2);
 	morphExtent: extent x @ (2 / 3 * extent y).
