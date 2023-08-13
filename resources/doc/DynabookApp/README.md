@@ -262,7 +262,7 @@ previous task page.
 
 ## Binder
 
-![Binder page](images/image3.png)
+![Binder page](images/image12.png)
 
 From the binder, the user finds the taught classes (teacher) or the
 attended courses (student). The documents in each binder are organized
@@ -286,6 +286,8 @@ views opens the document editor. From the ‘Recent Documents’ panel,
 the user can create a new document and import a pdf document.
 
 ## Document Editor
+
+![Document editor](images/image12.png)
 
 In the document editor, the user can annotate imported PDF
 documents. On the top of its view, a horizontal toolbar gives access
