@@ -287,7 +287,7 @@ the user can create a new document and import a pdf document.
 
 ## Document Editor
 
-![Document editor](images/images3.png)
+![Document editor](images/image3.png)
 
 In the document editor, the user can annotate imported PDF
 documents. On the top of its view, a horizontal toolbar gives access
