@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 13 August 2023 at 12:04:52 pm'!
+'From Cuis 6.0 [latest update: #5979] on 14 August 2023 at 10:39:22 pm'!
 'Description '!
-!provides: 'Dynabook' 1 6!
+!provides: 'Dynabook' 1 10!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -207,14 +207,24 @@ Object subclass: #DyUserData
 DyUserData class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyUIManager category: 'Dynabook-View'!
-Object subclass: #DyUIManager
-	instanceVariableNames: 'presenter view'
+!classDefinition: #DyControlManager category: 'Dynabook-View'!
+Object subclass: #DyControlManager
+	instanceVariableNames: 'presenter view icons'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
-!classDefinition: 'DyUIManager class' category: 'Dynabook-View'!
-DyUIManager class
+!classDefinition: 'DyControlManager class' category: 'Dynabook-View'!
+DyControlManager class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyIconManager category: 'Dynabook-View'!
+Object subclass: #DyIconManager
+	instanceVariableNames: 'forms path'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-View'!
+!classDefinition: 'DyIconManager class' category: 'Dynabook-View'!
+DyIconManager class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyEditorVisitor category: 'Dynabook-View-Business'!
@@ -239,7 +249,7 @@ DyViewerVisitor class
 
 !classDefinition: #Dynabook category: 'Dynabook-Presenter'!
 Object subclass: #Dynabook
-	instanceVariableNames: ''
+	instanceVariableNames: 'domain controlsManager selectedSection'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Presenter'!
@@ -255,16 +265,6 @@ Object subclass: #DyCommand
 	category: 'Dynabook-Presenter-Command'!
 !classDefinition: 'DyCommand class' category: 'Dynabook-Presenter-Command'!
 DyCommand class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyDomain category: 'Dynabook-System'!
-Object subclass: #DyDomain
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-System'!
-!classDefinition: 'DyDomain class' category: 'Dynabook-System'!
-DyDomain class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyPlatform category: 'Dynabook-System'!
@@ -285,16 +285,6 @@ DyPlatform subclass: #DyDevelopment
 	category: 'Dynabook-System'!
 !classDefinition: 'DyDevelopment class' category: 'Dynabook-System'!
 DyDevelopment class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyPresenter category: 'Dynabook-System'!
-Object subclass: #DyPresenter
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-System'!
-!classDefinition: 'DyPresenter class' category: 'Dynabook-System'!
-DyPresenter class
 	instanceVariableNames: ''!
 
 !classDefinition: #DySystem category: 'Dynabook-System'!
@@ -364,6 +354,14 @@ I am a Singleton, the root of the user data, both administrative and pedagogical
 - user: a teacher or student 
 - schools: collection of schools the student is enrolled in or the teacher teaches in
 - agenda of the user!
+
+!DyControlManager commentStamp: '<historical>' prior: 0!
+A manager for the Dynabook user interface controls!
+
+!DyIconManager commentStamp: '<historical>' prior: 0!
+I load icons from files (both PNG and SVG) and cached them in a dictionary (forms instance variable).
+I can manage different size of the same icon. 
+When asked for an icon with the message get: #blank32, I will search in the path for blank.svg, fallback to blank.png, then scale at squared size 32.!
 
 !DyEditorVisitor commentStamp: '<historical>' prior: 0!
 I visit the model of user data to provide an editor!
@@ -1008,6 +1006,99 @@ schoolOf: anObject
 new
 	self error: 'Class ', self name, ' has only one instance'! !
 
+!DyControlManager methodsFor: 'initialization' stamp: 'hlsf 8/13/2023 16:29:22'!
+initialize
+	icons := DyIconManager path: DySystem iconsPath ! !
+
+!DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:29:54'!
+binderButtonData
+" label - iconName - callback - description "
+	^ {'Binders' translated . #binder . #goBinder . 'In the Binders, find the documents of your courses and start a new one.' translated }! !
+
+!DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:25:02'!
+settingsButtonData
+" label - iconName - callback - description "
+	^ {'Settings' translated . #settings . #goSettings . 'In the Settings, edit your course and student lists.' translated }! !
+
+!DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:24:33'!
+startButtonData
+" label - iconName - callback - description "
+	^ {'Start' translated . #home . #goStart . 'In Start, review and search for the recent activities.' translated }! !
+
+!DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:25:29'!
+taskButtonData
+" label - iconName - callback - description "
+	^ {'Tasks' translated . #task . #goTask . 'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
+
+!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/14/2023 22:33:37'!
+button: symbolOrArray
+	"array first = menu label or button label
+	array second = button form = section mode
+	array third = symbol callback
+	array fourth = help string	"	
+	| array stateGetter |
+	array := (symbolOrArray isSymbol 
+		ifTrue: [self perform: (symbolOrArray, #ButtonData) asSymbol]
+		ifFalse: [symbolOrArray]).
+	^ ButtonMorph 
+		model: presenter
+		stateGetter: (stateGetter := array at: 5 ifAbsent: [ #isSection: ])
+		action: array third ::
+		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
+		icon: (icons get: array second size: DySystem iconToolbarSize);
+		setBalloonText: array fourth;
+		color: DySystem buttonColor ;
+		selectedColor: DySystem buttonSelectedColor ;
+		borderColor: DySystem buttonColor muchDarker;
+		borderWidth: 2;
+		morphExtent: (DySystem iconToolbarSize + 4) asPoint;
+		yourself	! !
+
+!DyIconManager methodsFor: 'accessing' stamp: 'hlsf 8/13/2023 16:00:18'!
+get: iconSymbolWithSize
+" icons get: #blank32 "
+	| size |
+	(size := iconSymbolWithSize select: [:c | c isDigit ]) 
+		ifEmpty: [self error: 'Missing size in icon symbol'].
+	^ self 
+		get: (iconSymbolWithSize select: [:c | c isLetter ])
+		size: size asNumber! !
+
+!DyIconManager methodsFor: 'accessing' stamp: 'hlsf 8/13/2023 16:35:39'!
+get: icon size: integer
+" Search first for SVG icon, then PNG one "
+	^ forms 
+		at: (icon, integer asString) asSymbol
+		ifAbsentPut: [ | file | 
+			(file := path // (icon, '.svg')) exists
+				ifTrue: [ |svg|
+					svg := [SVGMainMorph fromFile: file] 
+						on: SVGWarning 
+						do: [:warning | warning resume].
+					svg imageForm: integer asPoint depth: 32]									
+				ifFalse: [(file := path // (icon , '.png')) exists
+					ifTrue: [| form |
+						form := PNGReadWriter formFromFileEntry: file.
+						form width = integer 
+							ifTrue: 	[form] 
+							ifFalse: [	form magnifyTo: integer asPoint] ]
+					ifFalse: [self error: 'Missing icon file ', icon ] ]
+			]! !
+
+!DyIconManager methodsFor: 'accessing' stamp: 'hlsf 8/13/2023 15:20:42'!
+path: iconsDirectoryEntry
+	path := iconsDirectoryEntry ! !
+
+!DyIconManager methodsFor: 'initialization' stamp: 'hlsf 8/13/2023 16:29:00'!
+initialize
+	forms := Dictionary new.! !
+
+!DyIconManager class methodsFor: 'instance creation' stamp: 'hlsf 8/13/2023 15:37:01'!
+path: aDriectoryEntry
+	^ self new ::
+		path: aDriectoryEntry;
+		yourself! !
+
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 8/9/2023 14:38:59'!
 visitAgenda: agenda
 | mold |
@@ -1396,6 +1487,27 @@ visitUserData: userData
 		addMorph: (self paneFor: userData agenda label: 'Agenda' translated).
 	^ self plugView: column! !
 
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/14/2023 22:34:53'!
+goBinder
+	selectedSection := #binder! !
+
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/14/2023 22:34:35'!
+goSettings
+	selectedSection := #settings! !
+
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/14/2023 22:35:08'!
+goStart
+	selectedSection := #home! !
+
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/14/2023 22:35:21'!
+goTask
+	selectedSection := #task! !
+
+!Dynabook methodsFor: 'testing' stamp: 'hlsf 8/14/2023 22:29:40'!
+isSection: aSymbolSection
+"We have the start, task, binder, and settings sections"
+	^ selectedSection == aSymbolSection ! !
+
 !DyCommand methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:47:05'!
 presenter: aPresenter
 	presenter := aPresenter ! !
@@ -1412,9 +1524,13 @@ unexecute
 release
 " Let my subclass instances do clean up if necessary "! !
 
-!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 8/1/2023 12:17:10'!
-toolbarSize
+!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 8/14/2023 22:11:06'!
+iconToolbarSize
 	^ 64! !
+
+!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 8/14/2023 22:11:06'!
+miniToolbarSize
+	^ self iconToolbarSize // 2! !
 
 !DyPlatform methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:12:16'!
 iconsPath
@@ -1425,9 +1541,9 @@ rootPath
 "Dynabook/ directory"
 	^ DirectoryEntry smalltalkImageDirectory parent parent! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:12:23'!
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/13/2023 16:31:47'!
 iconsPath
-	^ self rootPath / 'graphics' / 'icons'! !
+	^ self rootPath / 'resources' / 'graphics' / 'icons'! !
 
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:06:02'!
 rootPath
@@ -1442,10 +1558,25 @@ beApplication
 beDevelopment
 	platform := DyDevelopment new! !
 
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/1/2023 12:23:35'!
-toolbarSize
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/13/2023 17:20:12'!
+buttonColor
+"Blue Ukraine"
+	^ Color fromHexString: '#0057b7'! !
+
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/13/2023 17:20:07'!
+buttonSelectedColor
+"Yellow Ukraine"
+	^ Color fromHexString: '#ffd700'! !
+
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/14/2023 22:11:06'!
+iconToolbarSize
 " Size of the squared icons in the top toolbar"
-	^ platform toolbarSize ! !
+	^ platform iconToolbarSize ! !
+
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/13/2023 17:16:57'!
+miniToolbarSize
+" Size of the squared icons in the secondary toolbar"
+	^ platform miniToolbarSize ! !
 
 !DySystem class methodsFor: 'path' stamp: 'hlsf 8/1/2023 11:53:04'!
 iconsPath
