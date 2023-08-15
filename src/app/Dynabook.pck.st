@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 14 August 2023 at 10:39:22 pm'!
+'From Cuis 6.0 [latest update: #5979] on 15 August 2023 at 9:55:35 pm'!
 'Description '!
-!provides: 'Dynabook' 1 10!
+!provides: 'Dynabook' 1 11!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -355,8 +355,8 @@ I am a Singleton, the root of the user data, both administrative and pedagogical
 - schools: collection of schools the student is enrolled in or the teacher teaches in
 - agenda of the user!
 
-!DyControlManager commentStamp: '<historical>' prior: 0!
-A manager for the Dynabook user interface controls!
+!DyControlManager commentStamp: 'hlsf 8/15/2023 20:30:36' prior: 0!
+A manager for the Dynabook user interface : windows,  toolbars, controls and other widgets!
 
 !DyIconManager commentStamp: '<historical>' prior: 0!
 I load icons from files (both PNG and SVG) and cached them in a dictionary (forms instance variable).
@@ -382,6 +382,20 @@ Access to preferences, path, information in development mode.!
 !DySystem commentStamp: '<historical>' prior: 0!
 I map settings/preferences to the underneath hardware/os plateform
 Pattern: strategy!
+
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/15/2023 20:52:38'!
+presenter
+	presenter! !
+
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/15/2023 20:52:33'!
+presenter: aPresenter
+	presenter := aPresenter ! !
+
+!DynabookView class methodsFor: 'instance creation' stamp: 'hlsf 8/15/2023 20:51:48'!
+for: aPresenter
+	^ self new ::
+		presenter: aPresenter;
+		yourself! !
 
 !DyAgenda methodsFor: 'initialization' stamp: 'hlsf 7/29/2023 16:36:04'!
 initialize
@@ -1006,6 +1020,37 @@ schoolOf: anObject
 new
 	self error: 'Class ', self name, ' has only one instance'! !
 
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:55:28'!
+dynabookView
+	view := DynabookView for: presenter.
+	view 
+		addMorph: self dynabookToolbar 
+		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
+	self goStartView! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:54:58'!
+dynabookViewFor: aMorph
+" Install in the dynabook view this morph, below the main toolbar "
+	| layout |
+	layout := view layoutMorph.
+	layout submorphCount = 2 ifTrue: [
+		layout removeMorph: layout lastSubmorph].
+	layout addMorphUseAll: aMorph! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:43:59'!
+goBinderView! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:44:02'!
+goSettingsView! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:47:28'!
+goStartView
+	view layoutMorph submorphCount = 2 ifTrue: [
+		view layoutMorph removeMorph: view layoutMorph lastSubmorph]! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:43:56'!
+goTaskView! !
+
 !DyControlManager methodsFor: 'initialization' stamp: 'hlsf 8/13/2023 16:29:22'!
 initialize
 	icons := DyIconManager path: DySystem iconsPath ! !
@@ -1020,26 +1065,25 @@ settingsButtonData
 " label - iconName - callback - description "
 	^ {'Settings' translated . #settings . #goSettings . 'In the Settings, edit your course and student lists.' translated }! !
 
-!DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:24:33'!
+!DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/15/2023 21:24:57'!
 startButtonData
 " label - iconName - callback - description "
-	^ {'Start' translated . #home . #goStart . 'In Start, review and search for the recent activities.' translated }! !
+	^ {'Start' translated . #start . #goStart . 'In Start, review and search for the recent activities.' translated }! !
 
 !DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:25:29'!
 taskButtonData
 " label - iconName - callback - description "
 	^ {'Tasks' translated . #task . #goTask . 'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
-!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/14/2023 22:33:37'!
-button: symbolOrArray
+!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/15/2023 21:09:47'!
+button: symbol
 	"array first = menu label or button label
 	array second = button form = section mode
 	array third = symbol callback
 	array fourth = help string	"	
 	| array stateGetter |
-	array := (symbolOrArray isSymbol 
-		ifTrue: [self perform: (symbolOrArray, #ButtonData) asSymbol]
-		ifFalse: [symbolOrArray]).
+	symbol == #spacer ifTrue: [^ self spacer].
+	array := self perform: (symbol, #ButtonData) asSymbol.
 	^ ButtonMorph 
 		model: presenter
 		stateGetter: (stateGetter := array at: 5 ifAbsent: [ #isSection: ])
@@ -1053,6 +1097,26 @@ button: symbolOrArray
 		borderWidth: 2;
 		morphExtent: (DySystem iconToolbarSize + 4) asPoint;
 		yourself	! !
+
+!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/15/2023 21:55:28'!
+dynabookToolbar
+	| toolbar |
+	toolbar := LayoutMorph newRow 
+		separation: 5; 
+		yourself.
+	self dynabookTools do: [:aTool | toolbar addMorph: (self button: aTool ) ].
+	^ toolbar! !
+
+!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/15/2023 20:29:27'!
+spacer
+	^ BoxedMorph new 
+		borderWidth: 0;
+		color: Color transparent; 
+		yourself! !
+
+!DyControlManager methodsFor: 'tools collection' stamp: 'hlsf 8/15/2023 20:28:48'!
+dynabookTools
+	^ #(start task binder spacer settings)! !
 
 !DyIconManager methodsFor: 'accessing' stamp: 'hlsf 8/13/2023 16:00:18'!
 get: iconSymbolWithSize
@@ -1487,21 +1551,25 @@ visitUserData: userData
 		addMorph: (self paneFor: userData agenda label: 'Agenda' translated).
 	^ self plugView: column! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/14/2023 22:34:53'!
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/15/2023 21:44:42'!
 goBinder
-	selectedSection := #binder! !
+	selectedSection := #binder.
+	controlsManager goBinderView ! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/14/2023 22:34:35'!
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/15/2023 21:44:34'!
 goSettings
-	selectedSection := #settings! !
+	selectedSection := #settings.
+	controlsManager goSettingsView! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/14/2023 22:35:08'!
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/15/2023 21:44:24'!
 goStart
-	selectedSection := #home! !
+	selectedSection := #start.
+	controlsManager goStartView ! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/14/2023 22:35:21'!
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/15/2023 21:44:05'!
 goTask
-	selectedSection := #task! !
+	selectedSection := #task.
+	controlsManager goTaskView! !
 
 !Dynabook methodsFor: 'testing' stamp: 'hlsf 8/14/2023 22:29:40'!
 isSection: aSymbolSection
