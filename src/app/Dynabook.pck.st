@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 15 August 2023 at 9:55:35 pm'!
+'From Cuis 6.0 [latest update: #5979] on 16 August 2023 at 9:45:56 pm'!
 'Description '!
-!provides: 'Dynabook' 1 11!
+!provides: 'Dynabook' 1 12!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -396,6 +396,14 @@ for: aPresenter
 	^ self new ::
 		presenter: aPresenter;
 		yourself! !
+
+!DynabookDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
+userData
+	^ userData! !
+
+!DynabookDomain methodsFor: 'initialization' stamp: 'hlsf 8/16/2023 21:10:08'!
+initialize
+	userData := DyUserData current! !
 
 !DyAgenda methodsFor: 'initialization' stamp: 'hlsf 7/29/2023 16:36:04'!
 initialize
@@ -1020,40 +1028,13 @@ schoolOf: anObject
 new
 	self error: 'Class ', self name, ' has only one instance'! !
 
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:55:28'!
-dynabookView
-	view := DynabookView for: presenter.
-	view 
-		addMorph: self dynabookToolbar 
-		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
-	self goStartView! !
+!DyControlManager methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:15:48'!
+presenter: aPresenter
+	presenter := aPresenter ! !
 
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:54:58'!
-dynabookViewFor: aMorph
-" Install in the dynabook view this morph, below the main toolbar "
-	| layout |
-	layout := view layoutMorph.
-	layout submorphCount = 2 ifTrue: [
-		layout removeMorph: layout lastSubmorph].
-	layout addMorphUseAll: aMorph! !
-
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:43:59'!
-goBinderView! !
-
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:44:02'!
-goSettingsView! !
-
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:47:28'!
-goStartView
-	view layoutMorph submorphCount = 2 ifTrue: [
-		view layoutMorph removeMorph: view layoutMorph lastSubmorph]! !
-
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/15/2023 21:43:56'!
-goTaskView! !
-
-!DyControlManager methodsFor: 'initialization' stamp: 'hlsf 8/13/2023 16:29:22'!
-initialize
-	icons := DyIconManager path: DySystem iconsPath ! !
+!DyControlManager methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:17:57'!
+view
+	^ view! !
 
 !DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:29:54'!
 binderButtonData
@@ -1075,14 +1056,56 @@ taskButtonData
 " label - iconName - callback - description "
 	^ {'Tasks' translated . #task . #goTask . 'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
-!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/15/2023 21:09:47'!
+!DyControlManager methodsFor: 'initialization' stamp: 'hlsf 8/13/2023 16:29:22'!
+initialize
+	icons := DyIconManager path: DySystem iconsPath ! !
+
+!DyControlManager methodsFor: 'tools collection' stamp: 'hlsf 8/15/2023 20:28:48'!
+dynabookTools
+	^ #(start task binder spacer settings)! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:14:31'!
+installDynabookView
+	view := DynabookView for: presenter.
+	view 
+		addMorph: self dynabookToolbar 
+		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
+	self plugStartView! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:07:41'!
+plugBinderView! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:44:06'!
+plugInDynabookView: aMorph
+" plug in the dynabook main view this morph, below its toolbar "
+	| layout |
+	layout := view layoutMorph.
+	layout submorphCount = 2 ifTrue: [
+		layout removeMorph: layout firstSubmorph].
+	layout addMorphUseAll: aMorph.
+	view changed! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:41:44'!
+plugSettingsView
+	self plugInDynabookView: (
+		BreadcrumbsPane 
+			on: presenter domain userData 
+			with: DyViewerVisitor )! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:08:23'!
+plugStartView
+! !
+
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:08:10'!
+plugTaskView! !
+
+!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/16/2023 21:25:12'!
 button: symbol
 	"array first = menu label or button label
 	array second = button form = section mode
 	array third = symbol callback
 	array fourth = help string	"	
 	| array stateGetter |
-	symbol == #spacer ifTrue: [^ self spacer].
 	array := self perform: (symbol, #ButtonData) asSymbol.
 	^ ButtonMorph 
 		model: presenter
@@ -1098,13 +1121,16 @@ button: symbol
 		morphExtent: (DySystem iconToolbarSize + 4) asPoint;
 		yourself	! !
 
-!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/15/2023 21:55:28'!
+!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/16/2023 21:26:22'!
 dynabookToolbar
 	| toolbar |
 	toolbar := LayoutMorph newRow 
 		separation: 5; 
 		yourself.
-	self dynabookTools do: [:aTool | toolbar addMorph: (self button: aTool ) ].
+	self dynabookTools do: [:aTool | 
+		aTool == #spacer 
+			ifTrue: [toolbar addMorphUseAll: self spacer]
+			ifFalse: [	toolbar addMorph: (self button: aTool )] ].
 	^ toolbar! !
 
 !DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/15/2023 20:29:27'!
@@ -1114,9 +1140,11 @@ spacer
 		color: Color transparent; 
 		yourself! !
 
-!DyControlManager methodsFor: 'tools collection' stamp: 'hlsf 8/15/2023 20:28:48'!
-dynabookTools
-	^ #(start task binder spacer settings)! !
+!DyControlManager class methodsFor: 'instance creation' stamp: 'hlsf 8/16/2023 21:15:18'!
+for: aPresenter
+	^ self new
+		presenter: aPresenter;
+		yourself! !
 
 !DyIconManager methodsFor: 'accessing' stamp: 'hlsf 8/13/2023 16:00:18'!
 get: iconSymbolWithSize
@@ -1551,30 +1579,50 @@ visitUserData: userData
 		addMorph: (self paneFor: userData agenda label: 'Agenda' translated).
 	^ self plugView: column! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/15/2023 21:44:42'!
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:07'!
 goBinder
 	selectedSection := #binder.
-	controlsManager goBinderView ! !
+	controlsManager plugBinderView.
+	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/15/2023 21:44:34'!
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:10'!
 goSettings
 	selectedSection := #settings.
-	controlsManager goSettingsView! !
+	controlsManager plugSettingsView.
+	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/15/2023 21:44:24'!
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:14'!
 goStart
 	selectedSection := #start.
-	controlsManager goStartView ! !
+	controlsManager plugStartView.
+	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/15/2023 21:44:05'!
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:03'!
 goTask
 	selectedSection := #task.
-	controlsManager goTaskView! !
+	controlsManager plugTaskView.
+	self changed: #isSection:! !
 
 !Dynabook methodsFor: 'testing' stamp: 'hlsf 8/14/2023 22:29:40'!
 isSection: aSymbolSection
 "We have the start, task, binder, and settings sections"
 	^ selectedSection == aSymbolSection ! !
+
+!Dynabook methodsFor: 'initialization' stamp: 'hlsf 8/16/2023 21:18:35'!
+initialize
+	domain := DynabookDomain new.
+	controlsManager := DyControlManager for: self.
+	controlsManager installDynabookView.
+	self goStart.
+	self view openInWorld ! !
+
+!Dynabook methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:40:14'!
+domain
+	^ domain! !
+
+!Dynabook methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:18:24'!
+view
+	^ controlsManager view! !
 
 !DyCommand methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:47:05'!
 presenter: aPresenter
