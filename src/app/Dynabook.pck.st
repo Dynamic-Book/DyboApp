@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 20 August 2023 at 5:24:13 pm'!
+'From Cuis 6.0 [latest update: #5979] on 20 August 2023 at 10:44:16 pm'!
 'Description '!
-!provides: 'Dynabook' 1 13!
+!provides: 'Dynabook' 1 14!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -470,10 +470,11 @@ headTeacher
 number
 	^number! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 15:50:58'!
-number: aUnicodeString 
-	number := aUnicodeString.
-	self triggerEvent: #renamedClassGroup withArguments: {number . aUnicodeString }! !
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:45:44'!
+number: newNumber 
+	self triggerEvent: #renamedClassGroup withArguments: {self . number . newNumber }.
+	number := newNumber.
+! !
 
 !DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 22:01:20'!
 students
@@ -535,10 +536,11 @@ courseHours
 subject
 	^subject! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:47:10'!
-subject: aUnicodeString 
-	subject := aUnicodeString.
-	self triggerEvent: #renamedCourse withArguments: {subject . aUnicodeString }! !
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:45:25'!
+subject: newName 
+	self triggerEvent: #renamedCourse withArguments: {nil . subject . newName }.
+	subject := newName.
+! !
 
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 08:52:52'!
 teacher
@@ -840,10 +842,10 @@ classGroups
 schoolName
 	^ name! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 17:07:38'!
-schoolName: aString
-	name := aString.
-	self triggerEvent: #renamedSchool withArguments: { name . aString}! !
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:45:03'!
+schoolName: newName
+	self triggerEvent: #renamedSchool withArguments: {self . name . newName}.
+	name := newName.! !
 
 !DySchool methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 21:48:48'!
 timeSlots
@@ -995,12 +997,11 @@ title
 
 	^ title! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:54:15'!
-title: anObject
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:44:42'!
+title: newTitle
 	"Set the value of title"
-
-	title := anObject.
-	self triggerEvent: #renamedTopic withArguments: {title . anObject }! !
+	self triggerEvent: #renamedTopic withArguments: {self. title . newTitle }.
+	title := newTitle.! !
 
 !DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:08:57'!
 initialize
@@ -1048,6 +1049,11 @@ accept: aVisitor
 !DyUserData class methodsFor: 'accessing' stamp: 'hlsf 7/13/2023 09:42:21'!
 current
 	^ Current ifNil: [Current := self basicNew initialize]! !
+
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:31:23'!
+reset
+	DySystem removeUserData.
+	Current := nil! !
 
 !DyUserData class methodsFor: 'accessing' stamp: 'hlsf 7/13/2023 09:44:29'!
 schoolOf: anObject
@@ -1452,7 +1458,7 @@ quickEdit: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 7/26/2023 13:16:25'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/20/2023 22:36:23'!
 quickExport: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
@@ -1461,7 +1467,7 @@ quickExport: args
 	|answer  |
 	answer := (StandardFileMenu new newFileFrom: DirectoryEntry smalltalkImageDirectory withPattern: '*.csv' excludePattern: '.*') startUpWithCaption: 'CSV file to export' translated.
 	answer ifNotNil: [
-		answer directory // answer name writeStreamDo: [:str |
+		answer name directory // answer name writeStreamDo: [:str |
 			args first export: args second to: str ]]! !
 
 !DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 7/26/2023 13:12:40'!
@@ -1708,6 +1714,10 @@ rootPath
 "dynabook/ directory"
 	^ DirectoryEntry smalltalkImageDirectory / 'dynabook'! !
 
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/20/2023 21:48:08'!
+userDataPath
+	^ self rootPath / 'resources' / 'data'! !
+
 !DySystem class methodsFor: 'class initialization' stamp: 'hlsf 8/9/2023 14:40:44'!
 beApplication
 	platform := DyPlatform new! !
@@ -1745,26 +1755,37 @@ userDataPath
 " the location of the user data and documents "
 	^ platform userDataPath! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 17:15:13'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 21:33:30'!
+removeUserData
+	#(renamedSchool renamedClassGroup renamedCourse renamedTopic) do: [:anEvent |
+		self removeActionsForEvent: anEvent].
+	self userDataPath childrenDo: [:each | each delete].
+	! !
+
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 22:02:30'!
+rename: oldName to: newName in: parentDir
+	| dir |
+	oldName 
+		ifNil: [" folder does not exist yet, create it "
+			(parentDir / newName asFileName ) assureExistence ]
+	 	ifNotNil: [ " folder exists, rename it "
+			(dir := parentDir / oldName asFileName) exists 
+				ifTrue: [dir rename: newName asFileName ] 
+				ifFalse: [self error: dir pathName, ' missing']						]! !
+
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 22:06:07'!
 renameClassGroup: aClassGroup from: oldName to: newName
 "Should use a data manager facade at some point "
 	| mySchool |
 	mySchool := DyUserData schoolOf: aClassGroup.
-! !
+	self rename: oldName to: newName in: self userDataPath / mySchool schoolName asFileName! !
 
 !DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 16:52:51'!
 renameCourse: aCourse from: oldName to: newName! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 17:22:47'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 22:04:33'!
 renameSchool: aSchool from: oldName to: newName
-	| dir |
-	oldName 
-		ifNil: [" School folder does not exist yet, create it "
-			(self userDataPath / newName asFileName ) assureExistence ]
-	 	ifNotNil: [ " School folder exists, rename it "
-			(dir := self userDataPath / oldName asFileName) exists 
-				ifTrue: [dir rename: newName asFileName ] 
-				ifFalse: [self error: dir pathName, ' missing']						]! !
+	self rename: oldName to: newName in: self userDataPath! !
 
 !DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 17:06:56'!
 renameTopic: aTopic from: oldName to: newName! !
