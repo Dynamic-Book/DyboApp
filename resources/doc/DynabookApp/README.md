@@ -264,26 +264,37 @@ previous task page.
 
 ![Binder page](images/image12.png)
 
-From the binder, the user finds the taught classes (teacher) or the
-attended courses (student). The documents in each binder are organized
-in topics, freely labeled. Examples of topics can represent groups of
-contents as ‘Theory’, ‘Exercises’, ‘Evaluation’ or taught topic as
-‘Decimal number’, ‘Triangle geometry’, ‘Pythagore’.
+From the binder view, the user finds the class groups, then in each
+one its related courses.  For each association of class group/course,
+there is a binder object.
 
-Each class/course (1035 in the sketch) is a folder in the OS file
-system. Each topic is also a folder in the class/course folder.
+The course's binder content (documents) is organized in topics, freely
+labeled. Examples of topics can represent groups of contents as
+‘Theory’, ‘Exercises’, ‘Evaluation’ or taught topic as ‘Decimal
+number’, ‘Triangle geometry’, ‘Pythagore’. Topics are a flat list of
+label.
 
-The Dynabook tries to guess the appropriate class/subject (1035 in the
-sketch) and topic to present to the user when the binder is
-opened. The guess is based on the current time of the day, the user
-schedule and the last edited documents. If the guess is not
-appropriate, the user can adjust the class/subject and the topic from
-the dropdown lists.
+Regarding the organization in the OS, a class group (1035 in the
+sketch) is a folder in the file system. A course is also a folder in
+its parent class group folder.  Then, a topic is a folder in its
+parent course folder. In a topic folder, each file represent a
+document.
 
-Below a mini view list from the recent documents in the selected
-class/subject and topic is presented. A click in one of these mini
-views opens the document editor. From the ‘Recent Documents’ panel,
-the user can create a new document and import a pdf document.
+Therefore, the binder of a class group/course association is
+represented as a collection of folders (class group, course, topics)
+and files (documents).
+
+The Dynabook tries to guess the appropriate class group, courses and
+ topic to present to the user when the binder is opened. The guess is
+ based on the current time of the day, the user schedule and the last
+ edited documents. If the guess is not appropriate, the user can
+ adjust the class group, course and topic from the dropdown lists.
+
+Below a mini view list from the recent documents in the selected class
+group and topic is presented. A click in one of these mini views opens
+the document editor. From the ‘Recent Documents’ panel, the user can
+create a new document and import a pdf document. In the sketch, the
+courses drop down menu is missing.
 
 ## Document Editor
 

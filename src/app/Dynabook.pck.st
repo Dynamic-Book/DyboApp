@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 16 August 2023 at 9:45:56 pm'!
+'From Cuis 6.0 [latest update: #5979] on 20 August 2023 at 5:24:13 pm'!
 'Description '!
-!provides: 'Dynabook' 1 12!
+!provides: 'Dynabook' 1 13!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -165,16 +165,6 @@ Object subclass: #DySchool
 	category: 'Dynabook-Model-Business'!
 !classDefinition: 'DySchool class' category: 'Dynabook-Model-Business'!
 DySchool class
-	instanceVariableNames: ''!
-
-!classDefinition: #DySubject category: 'Dynabook-Model-Business'!
-Object subclass: #DySubject
-	instanceVariableNames: 'name'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DySubject class' category: 'Dynabook-Model-Business'!
-DySubject class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyTimeSlot category: 'Dynabook-Model-Business'!
@@ -480,9 +470,10 @@ headTeacher
 number
 	^number! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 6/4/2023 18:13:29'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 15:50:58'!
 number: aUnicodeString 
-	number := aUnicodeString! !
+	number := aUnicodeString.
+	self triggerEvent: #renamedClassGroup withArguments: {number . aUnicodeString }! !
 
 !DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 22:01:20'!
 students
@@ -499,6 +490,10 @@ initialize
 	headTeacher := DyTeacher new.
 	courses := OrderedCollection new.
 	students := SortedCollection new! !
+
+!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 16:52:38'!
+registerEvents
+	self when: #renamedClassGroup send: #renameClassGroup:from:to: to: DySystem! !
 
 !DyClassGroup methodsFor: 'visiting' stamp: 'hlsf 6/30/2023 22:01:43'!
 accept: aVisitor 
@@ -518,6 +513,10 @@ initialize
 	courseHours := OrderedCollection new.
 	teacher := DyTeacher new.! !
 
+!DyCourse methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 16:52:51'!
+registerEvents
+	self when: #renamedCourse send: #renameCourse:from:to: to: DySystem! !
+
 !DyCourse methodsFor: 'user interface' stamp: 'hlsf 7/3/2023 11:30:36'!
 mold
 	| mold |
@@ -536,9 +535,10 @@ courseHours
 subject
 	^subject! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 6/19/2023 22:34:17'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:47:10'!
 subject: aUnicodeString 
-	subject := aUnicodeString! !
+	subject := aUnicodeString.
+	self triggerEvent: #renamedCourse withArguments: {subject . aUnicodeString }! !
 
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 08:52:52'!
 teacher
@@ -828,6 +828,10 @@ initialize
 	timeSlots := SortedCollection new.
 	classGroups := OrderedCollection new! !
 
+!DySchool methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:33'!
+registerEvents
+	self when: #renamedSchool send: #renameSchool:from:to: to: DySystem! !
+
 !DySchool methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 21:49:32'!
 classGroups
 	^ classGroups ! !
@@ -836,9 +840,10 @@ classGroups
 schoolName
 	^ name! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:54:48'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 17:07:38'!
 schoolName: aString
-	name := aString ! !
+	name := aString.
+	self triggerEvent: #renamedSchool withArguments: { name . aString}! !
 
 !DySchool methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 21:48:48'!
 timeSlots
@@ -870,30 +875,6 @@ label
 !DySchool class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:38:22'!
 pluralLabel
 	^ 'Schools' translated! !
-
-!DySubject methodsFor: 'user interface' stamp: 'hlsf 7/3/2023 10:58:09'!
-mold
-	| mold |
-	mold := Mold new.
-	mold stringField
-		label: 'Name' translated;
-		on: #property of: self;
-		beRequired.
-	^ mold! !
-
-!DySubject methodsFor: 'accessing' stamp: 'hlsf 7/3/2023 10:58:28'!
-property
-	^ name! !
-
-!DySubject methodsFor: 'accessing' stamp: 'hlsf 7/3/2023 10:58:38'!
-property: aString
-	name := aString ! !
-
-!DySubject methodsFor: 'printing' stamp: 'hlsf 7/3/2023 11:00:41'!
-printOn: str
-	name 
-		ifNotNil:  [str nextPutAll: name]
-		ifNil: [super printOn: str]! !
 
 !DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:58:55'!
 end
@@ -984,6 +965,51 @@ timeSlotName,start, end "
 		addField: #end: converter: [:s | Time fromString: s].
 	^ reader upToEnd asSortedCollection ! !
 
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
+color
+	"Answer the value of color"
+
+	^ color! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
+color: anObject
+	"Set the value of color"
+
+	color := anObject! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
+documents
+	"Answer the value of documents"
+
+	^ documents! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
+documents: anObject
+	"Set the value of documents"
+
+	documents := anObject! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
+title
+	"Answer the value of title"
+
+	^ title! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:54:15'!
+title: anObject
+	"Set the value of title"
+
+	title := anObject.
+	self triggerEvent: #renamedTopic withArguments: {title . anObject }! !
+
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:08:57'!
+initialize
+	documents := SortedCollection new! !
+
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:11'!
+registerEvents
+	self when: #renamedTopic send: #renameTopic:from:to: to: DySystem! !
+
 !DyUserData methodsFor: 'initialization' stamp: 'hlsf 8/9/2023 14:38:33'!
 initialize
 	super initialize.
@@ -994,6 +1020,12 @@ initialize
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:36:55'!
 agenda
 	^ agenda ifNil: [agenda := DyAgenda new]! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 14:41:59'!
+classGroups
+" Returns the collection of the user's class groups. 
+When several schools, each element of the collection is a couple school, group "
+! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:13'!
 schools
@@ -1072,8 +1104,13 @@ installDynabookView
 		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
 	self plugStartView! !
 
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:07:41'!
-plugBinderView! !
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/20/2023 15:53:46'!
+plugBinderView
+	| binderView row groupList courseList topicList |
+	binderView := LayoutMorph newColumn.
+	row := LayoutMorph newRow.
+	
+	! !
 
 !DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:44:06'!
 plugInDynabookView: aMorph
@@ -1312,7 +1349,7 @@ newColumnWith: morphs
 	column morphExtent: column minimumExtent.
 	^ column ! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/9/2023 14:37:41'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/20/2023 16:58:16'!
 quickAdd: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
@@ -1338,6 +1375,7 @@ quickAdd: args
 		actionOnAccept: [
 			objectMold validate.
 			objectMold isValid ifTrue: [
+				newObject registerEvents. " first "
 				objectMold save.
 				listModel list add: newObject .
 				decorator replaceSubmorph: objectPane by: listMorph.
@@ -1657,6 +1695,10 @@ rootPath
 "Dynabook/ directory"
 	^ DirectoryEntry smalltalkImageDirectory parent parent! !
 
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 8/20/2023 14:33:21'!
+userDataPath
+	^ self rootPath / 'data'! !
+
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/13/2023 16:31:47'!
 iconsPath
 	^ self rootPath / 'resources' / 'graphics' / 'icons'! !
@@ -1698,6 +1740,35 @@ miniToolbarSize
 iconsPath
 	^ platform iconsPath! !
 
+!DySystem class methodsFor: 'path' stamp: 'hlsf 8/20/2023 14:30:45'!
+userDataPath
+" the location of the user data and documents "
+	^ platform userDataPath! !
+
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 17:15:13'!
+renameClassGroup: aClassGroup from: oldName to: newName
+"Should use a data manager facade at some point "
+	| mySchool |
+	mySchool := DyUserData schoolOf: aClassGroup.
+! !
+
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 16:52:51'!
+renameCourse: aCourse from: oldName to: newName! !
+
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 17:22:47'!
+renameSchool: aSchool from: oldName to: newName
+	| dir |
+	oldName 
+		ifNil: [" School folder does not exist yet, create it "
+			(self userDataPath / newName asFileName ) assureExistence ]
+	 	ifNotNil: [ " School folder exists, rename it "
+			(dir := self userDataPath / oldName asFileName) exists 
+				ifTrue: [dir rename: newName asFileName ] 
+				ifFalse: [self error: dir pathName, ' missing']						]! !
+
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 17:06:56'!
+renameTopic: aTopic from: oldName to: newName! !
+
 !ProtoObject methodsFor: '*Dynabook' stamp: 'hlsf 7/1/2023 12:19:17'!
 treePointsTo: anObject
 " Are my instances and sub instances hold a reference of anObject"
@@ -1707,6 +1778,9 @@ treePointsTo: anObject
 			(self instVarAt: i) isCollection 	ifTrue: [ attributesToVisit addAll: (self instVarAt: i)] ].
 		attributesToVisit anySatisfy: [:attribute | 
 			attribute == anObject or: [attribute treePointsTo: anObject		] 		] ]! !
+
+!Object methodsFor: '*Dynabook' stamp: 'hlsf 8/20/2023 16:05:49'!
+registerEvents! !
 
 !Date methodsFor: '*Dynabook-printing' stamp: 'hlsf 7/29/2023 15:51:19'!
 ddmmyy
