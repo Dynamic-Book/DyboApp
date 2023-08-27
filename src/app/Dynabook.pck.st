@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 22 August 2023 at 9:46:02 pm'!
+'From Cuis 6.0 [latest update: #5979] on 27 August 2023 at 4:05:48 pm'!
 'Description '!
-!provides: 'Dynabook' 1 15!
+!provides: 'Dynabook' 1 16!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -1393,7 +1393,7 @@ newColumnWith: morphs
 	column morphExtent: column minimumExtent.
 	^ column ! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/22/2023 21:41:32'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/27/2023 15:34:57'!
 quickAdd: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
@@ -1417,7 +1417,7 @@ quickAdd: args
 	objectPane := objectMold newPane.
 	objectPane layoutSpec: LayoutSpec useAll.
 	objectPane 
-		actionOnAccept: [
+		actionOnButton: [
 			objectMold validate.
 			objectMold isValid ifTrue: [
 				newObject registerEvents. " first "
@@ -1427,14 +1427,14 @@ quickAdd: args
 				quickButtons submorphsDo: #lockUnlockMorph.
 				listModel changed: #list]					
 			];
-		actionOnCancel: [
+		actionOnAltButton: [
 			decorator replaceSubmorph: objectPane by: listMorph.
 			quickButtons submorphsDo: #lockUnlockMorph]; 
 		buildMorphicWindow.
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 7/26/2023 13:24:51'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/27/2023 15:37:31'!
 quickDelete: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
@@ -1448,13 +1448,13 @@ quickDelete: args
 	quickButtons := decorator quickButtons.
 	text := TextParagraphMorph contents: ('Are you sure to delete 	"{1}" ?' format: {listModel selectedItem}) :: borderWidth: 0; color: Color transparent.
 	objectPane := nil.
-	objectPane := PluggablePane open: [text] view: #value accept:[
+	objectPane := PluggablePane open: [text] view: #value action:[
 		listModel removeSelectedItem.
 		decorator replaceSubmorph: objectPane by: listMorph.
 		quickButtons submorphsDo: #lockUnlockMorph.
 		listModel changed: #list]				.
 	objectPane
-		actionOnCancel: [
+		actionOnAltButton: [
 			decorator replaceSubmorph: objectPane by: listMorph.
 			quickButtons submorphsDo: #lockUnlockMorph]; 
 		buildMorphicWindow.
@@ -1462,7 +1462,7 @@ quickDelete: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/9/2023 14:37:41'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/27/2023 15:34:57'!
 quickEdit: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
@@ -1480,7 +1480,7 @@ quickEdit: args
 	objectPane := objectMold newPane.
 	objectPane layoutSpec: LayoutSpec useAll.
 	objectPane 
-		actionOnAccept: [
+		actionOnButton: [
 			objectMold validate.
 			objectMold isValid ifTrue: [
 				objectMold save.
@@ -1490,7 +1490,7 @@ quickEdit: args
 					listModel list reSort].
 				listModel changed: #list]					
 			];
-		actionOnCancel: [
+		actionOnAltButton: [
 			decorator replaceSubmorph: objectPane by: listMorph.
 			quickButtons submorphsDo: #lockUnlockMorph]; 
 		buildMorphicWindow.
@@ -1544,7 +1544,7 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 	attributeView morphWidth: scroller viewableExtent x.
 	^ DecoratedPane open: scroller label: aTitle ! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 8/9/2023 14:40:13'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 8/27/2023 15:50:40'!
 plugView: aMorph
 " Add an Edit button to this contents "
 	| viewer |
@@ -1552,11 +1552,17 @@ plugView: aMorph
 	viewer := PluggablePane 
 		open: [aMorph] 
 		view: #value 
-		accept: 	["Edit me" 
+		action: 	["Edit me" 
 			viewer owner 
 				replaceView: viewer 
-				byView: (visitedModel accept: DyEditorVisitor new)			]  ::
-		acceptLabel: 'Edit' translated;
+				byView: (visitedModel accept: DyEditorVisitor new)			] 
+		altAction: [		
+			ReferenceStream 
+				dumpOnFile: (DySystem userDataPath // 'data.ob') 
+				object: DyUserData current] 
+		::
+		buttonLabel: 'Edit' translated;
+		altButtonLabel: 'Save' translated;
 		buildMorphicWindow ;
 		layoutSpec: LayoutSpec useAll;
 		yourself.
