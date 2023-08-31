@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 27 August 2023 at 4:05:48 pm'!
+'From Cuis 6.0 [latest update: #5979] on 31 August 2023 at 10:47:56 pm'!
 'Description '!
-!provides: 'Dynabook' 1 16!
+!provides: 'Dynabook' 1 17!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -16,6 +16,16 @@ SystemOrganization addCategory: 'Dynabook-Presenter-Command'!
 SystemOrganization addCategory: 'Dynabook'!
 SystemOrganization addCategory: 'Dynabook-System'!
 
+
+!classDefinition: #DyAgendaView category: 'Dynabook-View-Business'!
+LayoutMorph subclass: #DyAgendaView
+	instanceVariableNames: 'userData'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-View-Business'!
+!classDefinition: 'DyAgendaView class' category: 'Dynabook-View-Business'!
+DyAgendaView class
+	instanceVariableNames: ''!
 
 !classDefinition: #DynabookView category: 'Dynabook-View'!
 SystemWindow subclass: #DynabookView
@@ -49,22 +59,12 @@ DynabookDomain class
 
 !classDefinition: #DyAgenda category: 'Dynabook-Model-Business'!
 Object subclass: #DyAgenda
-	instanceVariableNames: 'start end daysOff assignments'
+	instanceVariableNames: 'start end daysOff tasks'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
 !classDefinition: 'DyAgenda class' category: 'Dynabook-Model-Business'!
 DyAgenda class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyAssignment category: 'Dynabook-Model-Business'!
-Object subclass: #DyAssignment
-	instanceVariableNames: 'date timeSlot task'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyAssignment class' category: 'Dynabook-Model-Business'!
-DyAssignment class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyCourseHour category: 'Dynabook-Model-Business'!
@@ -187,6 +187,16 @@ Object subclass: #DySchool
 DySchool class
 	instanceVariableNames: ''!
 
+!classDefinition: #DyTask category: 'Dynabook-Model-Business'!
+Object subclass: #DyTask
+	instanceVariableNames: 'date timeSlot document'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyTask class' category: 'Dynabook-Model-Business'!
+DyTask class
+	instanceVariableNames: ''!
+
 !classDefinition: #DyTimeSlot category: 'Dynabook-Model-Business'!
 Object subclass: #DyTimeSlot
 	instanceVariableNames: 'name startTime endTime'
@@ -298,6 +308,10 @@ DySystem class
 	instanceVariableNames: 'platform'!
 
 
+!DyAgendaView commentStamp: '<historical>' prior: 0!
+I present a view to let the user browser the tasks and to create new task.
+My mode is the userData, to access the agenda and the class group!
+
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
@@ -386,6 +400,17 @@ Access to preferences, path, information in development mode.!
 !DySystem commentStamp: '<historical>' prior: 0!
 I map settings/preferences to the underneath hardware/os plateform
 Pattern: strategy!
+
+!DyAgendaView methodsFor: 'as yet unclassified' stamp: 'hlsf 8/27/2023 22:16:41'!
+initialize
+	super initialize.
+	self beRow.! !
+
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 8/27/2023 22:37:23'!
+futureTasks! !
+
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 8/27/2023 22:17:01'!
+taskTools! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/15/2023 20:52:38'!
 presenter
@@ -1173,8 +1198,9 @@ plugSettingsView
 plugStartView
 ! !
 
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:08:10'!
-plugTaskView! !
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/27/2023 22:09:22'!
+plugTaskView
+! !
 
 !DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/16/2023 21:25:12'!
 button: symbol

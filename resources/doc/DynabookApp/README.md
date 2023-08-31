@@ -154,7 +154,7 @@ determined given the time slot and date.
 
 * date
 * time slot
-* task
+* document
 
 ## Pedagogical
 
