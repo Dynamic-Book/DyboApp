@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 31 August 2023 at 10:47:56 pm'!
+'From Cuis 6.0 [latest update: #5979] on 10 September 2023 at 11:28:14 pm'!
 'Description '!
-!provides: 'Dynabook' 1 17!
+!provides: 'Dynabook' 1 18!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -308,9 +308,9 @@ DySystem class
 	instanceVariableNames: 'platform'!
 
 
-!DyAgendaView commentStamp: '<historical>' prior: 0!
+!DyAgendaView commentStamp: 'hlsf 9/10/2023 16:41:17' prior: 0!
 I present a view to let the user browser the tasks and to create new task.
-My mode is the userData, to access the agenda and the class group!
+My model is the userData, to access the agenda and the class group!
 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
@@ -321,11 +321,12 @@ I am the model of Dynabook document!
 !DynabookDomain commentStamp: '<historical>' prior: 0!
 The domain object of a Dynabook application.!
 
-!DyAgenda commentStamp: 'hlsf 7/28/2023 19:46:23' prior: 0!
+!DyAgenda commentStamp: '<historical>' prior: 0!
 The place to record teacher/student assignments or other events. It follows the user times slots as described in its related school instances:
 - start, a Date first day of school
 - end, a Date last day of school
 - daysOff: sorted collection of 2-array (start-end days off)
+- tasks: a collection of DyTask instances
 !
 
 !DyCourseHour commentStamp: '<historical>' prior: 0!
@@ -434,10 +435,10 @@ userData
 initialize
 	userData := DyUserData current! !
 
-!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 7/29/2023 16:36:04'!
+!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 9/10/2023 16:46:29'!
 initialize
 	super initialize.
-	assignments := OrderedCollection new.
+	tasks := OrderedCollection new.
 	daysOff := SortedCollection new.! !
 
 !DyAgenda methodsFor: 'user interface' stamp: 'hlsf 7/29/2023 00:50:25'!
@@ -550,6 +551,11 @@ initialize
 	super initialize.
 	dayOfWeek := 0.
 	timeSlots := OrderedCollection new! !
+
+!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 9/10/2023 23:21:34'!
+isDuring: aDateAndTime
+	^ dayOfWeek = aDateAndTime daysOfWeek 
+		and: [timeSlots anySatisfy: [:aTimeSlot | aTimeSlot includes: aDateAndTime time] ]! !
 
 !DyCourseHour class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:35:55'!
 label
@@ -765,6 +771,12 @@ printOn: aStream
 !DyCourse methodsFor: 'visiting' stamp: 'hlsf 7/1/2023 08:53:53'!
 accept: aVisitor
 	^ aVisitor visitCourse: self! !
+
+!DyCourse methodsFor: 'testing' stamp: 'hlsf 9/10/2023 23:27:01'!
+isDuring: aDateAndTime
+	^ courseHours 
+		detect:  [:aCourseHour | aCourseHour isDuring: aDateAndTime ]
+		ifNone: [false]! !
 
 !DyCourse class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:34:16'!
 label
@@ -1039,6 +1051,10 @@ mold
 <= aTimeSlot
 	^ startTime < aTimeSlot start or: [endTime < aTimeSlot end]! !
 
+!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/10/2023 23:15:56'!
+includes: aTime
+	^ startTime <= aTime and: [endTime >= aTime]! !
+
 !DyTimeSlot class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:37:26'!
 label
 	^ 'time slot' translated! !
@@ -1070,13 +1086,6 @@ timeSlotName,start, end "
 		addField: #end: converter: [:s | Time fromString: s].
 	^ reader upToEnd asSortedCollection ! !
 
-!DyUserData methodsFor: 'initialization' stamp: 'hlsf 8/9/2023 14:38:33'!
-initialize
-	super initialize.
-	schools := OrderedCollection new.
-	user := DyTeacher new.
-	agenda := DyAgenda new! !
-
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:36:55'!
 agenda
 	^ agenda ifNil: [agenda := DyAgenda new]! !
@@ -1095,11 +1104,34 @@ schools
 user
 	^ user! !
 
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 8/9/2023 14:38:33'!
+initialize
+	super initialize.
+	schools := OrderedCollection new.
+	user := DyTeacher new.
+	agenda := DyAgenda new! !
+
 !DyUserData methodsFor: 'printing' stamp: 'hlsf 6/28/2023 00:09:47'!
 printOn: str
 	user firstName 
 		ifNotNil:  [:firstName | str nextPutAll: ('{1}''s Dynabook' translated format: {firstName})]
 		ifNil: [super printOn: str]! !
+
+!DyUserData methodsFor: 'searching' stamp: 'hlsf 9/10/2023 17:29:17'!
+classGroupWhen: aDateTime
+" Search my class group when it is this date and time "! !
+
+!DyUserData methodsFor: 'searching' stamp: 'hlsf 9/10/2023 23:27:36'!
+courseAt: aDateTime
+" Search my course occuring at this date and time "
+	schools do: [:aSchool |
+		aSchool classGroups do: [:aClassGroup |
+			aClassGroup courses do: [:aCourse |
+				(aCourse isDuring: aDateTime) ifTrue: [^ aCourse ] 
+			]
+		]
+	].
+	^ nil! !
 
 !DyUserData methodsFor: 'visiting' stamp: 'hlsf 6/26/2023 21:28:11'!
 accept: aVisitor
