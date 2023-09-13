@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 10 September 2023 at 11:28:14 pm'!
+'From Cuis 6.0 [latest update: #5979] on 13 September 2023 at 11:21:54 pm'!
 'Description '!
-!provides: 'Dynabook' 1 18!
+!provides: 'Dynabook' 1 19!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -13,6 +13,7 @@ SystemOrganization addCategory: 'Dynabook-View'!
 SystemOrganization addCategory: 'Dynabook-View-Business'!
 SystemOrganization addCategory: 'Dynabook-Presenter'!
 SystemOrganization addCategory: 'Dynabook-Presenter-Command'!
+SystemOrganization addCategory: 'Dynabook-Test'!
 SystemOrganization addCategory: 'Dynabook'!
 SystemOrganization addCategory: 'Dynabook-System'!
 
@@ -35,6 +36,26 @@ SystemWindow subclass: #DynabookView
 	category: 'Dynabook-View'!
 !classDefinition: 'DynabookView class' category: 'Dynabook-View'!
 DynabookView class
+	instanceVariableNames: ''!
+
+!classDefinition: #DynabookTestCase category: 'Dynabook-Test'!
+TestCase subclass: #DynabookTestCase
+	instanceVariableNames: 'data'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-Test'!
+!classDefinition: 'DynabookTestCase class' category: 'Dynabook-Test'!
+DynabookTestCase class
+	instanceVariableNames: ''!
+
+!classDefinition: #DynabookTestResource category: 'Dynabook-Test'!
+TestResource subclass: #DynabookTestResource
+	instanceVariableNames: 'data backupData'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-Test'!
+!classDefinition: 'DynabookTestResource class' category: 'Dynabook-Test'!
+DynabookTestResource class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyDocument category: 'Dynabook-Model'!
@@ -348,14 +369,15 @@ A binder contains the pedagogical materials related to a given course.
 
 !DyClassGroup commentStamp: '<historical>' prior: 0!
 It describes a class: its number, the list of its students, taught courses, etc.
-!
+My owner is a school!
 
-!DyCourse commentStamp: 'hlsf 7/3/2023 11:30:49' prior: 0!
+!DyCourse commentStamp: '<historical>' prior: 0!
 I describe a course of a teacher or a course attended by a student:
 - subject: the taught topic (Math, History,...)
 - color: distinctive color of the course
 - courseHours: a collection of course hour describing the teaching period
-- binder: a holder of the pedagogical documents!
+- binder: a holder of the pedagogical documents
+My owner is a ClassGroup!
 
 !DyTopic commentStamp: '<historical>' prior: 0!
 Pedagogical document grouped in one topic.!
@@ -426,6 +448,62 @@ for: aPresenter
 	^ self new ::
 		presenter: aPresenter;
 		yourself! !
+
+!DynabookTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/13/2023 23:21:14'!
+setUp
+	data := self resources anyOne current data! !
+
+!DynabookTestCase methodsFor: 'as yet unclassified' stamp: 'hlsf 9/13/2023 23:21:39'!
+testExist
+	self assert: data schools notEmpty! !
+
+!DynabookTestCase class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/13/2023 23:18:27'!
+resources
+	^{DynabookTestResource }! !
+
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/13/2023 22:33:22'!
+setUp
+	backupData := DyUserData basicCurrent.
+	DyUserData reset.
+	data := DyUserData current.
+	data schools add: self schoolA ! !
+
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/12/2023 22:09:48'!
+tearDown
+	DyUserData current: backupData .
+	data := nil! !
+
+!DynabookTestResource methodsFor: 'initialization' stamp: 'hlsf 9/13/2023 22:33:44'!
+schoolA
+	| school  group course |
+	school := DySchool new schoolName: 'CO Foron'.
+	school timeSlots 
+		add: 'P1 7:45 8:30' asTimeSlot;
+		add: 'P2 8:35 9:20' asTimeSlot;
+		add: 'P3 9:25 10:10' asTimeSlot;
+		add: 'P4 10:25 11:10' asTimeSlot;
+		add: 'P5 11:15 12:00' asTimeSlot;
+		add: 'P7 13:35 14:20' asTimeSlot;
+		add: 'P8 14:25 15:10' asTimeSlot;
+		add: 'P9 15:25 16:10' asTimeSlot.
+	group := DyClassGroup new :: number: '932'; owner: school.
+	school classGroups add: group.
+	course := DyCourse new :: subject: 'Histoire'; owner: group.
+	group courses add: course.
+	course courseHours
+		add: ('123 1 P2' asCourseHourIn: course);
+		add: ('123 2 P4 P5' asCourseHourIn: course);
+		add: ('123 4 P7' asCourseHourIn: course);
+		add: ('123 5 P9' asCourseHourIn: course).
+	^ school! !
+
+!DynabookTestResource methodsFor: 'testing' stamp: 'hlsf 9/13/2023 22:10:45'!
+isAvailable 
+	^ data notNil! !
+
+!DynabookTestResource methodsFor: 'as yet unclassified' stamp: 'hlsf 9/13/2023 22:32:24'!
+data
+	^ data! !
 
 !DynabookDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
@@ -688,6 +766,10 @@ number: newNumber
 	number := newNumber.
 ! !
 
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 21:43:32'!
+school
+	^ owner! !
+
 !DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 22:01:20'!
 students
 	^ students! !
@@ -740,6 +822,10 @@ mold
 		beRequired.
 	^ mold! !
 
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 21:43:52'!
+classGroup
+	^ owner! !
+
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 08:52:47'!
 courseHours
 	^ courseHours ! !
@@ -747,6 +833,10 @@ courseHours
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:38:51'!
 dirName
 	^ subject asFileName! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 21:44:07'!
+school 
+	^ self classGroup school! !
 
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 6/19/2023 22:33:42'!
 subject
@@ -966,6 +1056,10 @@ schoolName: newName
 timeSlots
 	^ timeSlots ! !
 
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 23:11:12'!
+timeSlotsDic
+	^ (timeSlots collect: [:each | each slotName -> each] ) asDictionary ! !
+
 !DySchool methodsFor: 'user interface' stamp: 'hlsf 7/3/2023 11:31:58'!
 mold
 	| mold |
@@ -1137,14 +1231,17 @@ courseAt: aDateTime
 accept: aVisitor
 	^ aVisitor visitUserData: self! !
 
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 9/12/2023 21:58:37'!
+basicCurrent
+	^ Current! !
+
 !DyUserData class methodsFor: 'accessing' stamp: 'hlsf 7/13/2023 09:42:21'!
 current
 	^ Current ifNil: [Current := self basicNew initialize]! !
 
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:31:23'!
-reset
-	DySystem removeUserData.
-	Current := nil! !
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 9/11/2023 22:24:43'!
+current: aDyUserData
+	Current := aDyUserData ! !
 
 !DyUserData class methodsFor: 'accessing' stamp: 'hlsf 7/13/2023 09:44:29'!
 schoolOf: anObject
@@ -1153,9 +1250,13 @@ schoolOf: anObject
 		(school treePointsTo: anObject			) ifTrue: [^ school] ].
 	^ nil! !
 
-!DyUserData class methodsFor: 'instance creation' stamp: 'hlsf 7/13/2023 09:43:22'!
+!DyUserData class methodsFor: 'initialization' stamp: 'hlsf 9/12/2023 21:54:25'!
+reset
+	self current: nil! !
+
+!DyUserData class methodsFor: 'instance creation' stamp: 'hlsf 9/12/2023 21:57:49'!
 new
-	self error: 'Class ', self name, ' has only one instance'! !
+	self error: 'Class ', self name, ' has only one instance active at a time'! !
 
 !DyControlManager methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:15:48'!
 presenter: aPresenter
@@ -1858,13 +1959,6 @@ userDataPath
 " the location of the user data and documents "
 	^ platform userDataPath! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/22/2023 20:57:02'!
-removeUserData
-	#(renamedSchool renamedClassGroup renamedCourse renamedTopic) do: [:anEvent |
-		self removeActionsForEvent: anEvent].
-	self userDataPath childrenDo: [:each | each recursiveDelete ].
-	! !
-
 !DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 22:02:30'!
 rename: oldName to: newName in: parentDir
 	| dir |
@@ -1897,6 +1991,13 @@ renameSchool: aSchool from: oldName to: newName
 !DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 17:06:56'!
 renameTopic: aTopic from: oldName to: newName! !
 
+!DySystem class methodsFor: 'cleaning' stamp: 'hlsf 8/22/2023 20:57:02'!
+removeUserData
+	#(renamedSchool renamedClassGroup renamedCourse renamedTopic) do: [:anEvent |
+		self removeActionsForEvent: anEvent].
+	self userDataPath childrenDo: [:each | each recursiveDelete ].
+	! !
+
 !ProtoObject methodsFor: '*Dynabook' stamp: 'hlsf 7/1/2023 12:19:17'!
 treePointsTo: anObject
 " Are my instances and sub instances hold a reference of anObject"
@@ -1917,3 +2018,24 @@ ddmmyy
 !Date methodsFor: '*Dynabook-printing' stamp: 'hlsf 7/29/2023 15:48:49'!
 ddmmyyyy
 	^ self printFormat: #(1 2 3 $/ 1 1 1)! !
+
+!String methodsFor: '*Dynabook' stamp: 'hlsf 9/13/2023 23:17:33'!
+asCourseHourIn: aCourse
+" room day timeSlotName1 timeSlotName2 ... "
+	| timeSlots elements |
+	elements := self substrings.
+	timeSlots := aCourse school timeSlotsDic.
+	^ DyCourseHour new ::
+		room: elements first;
+		dayOfWeek: elements second asNumber;
+		timeSlots: ( (elements allButFirst: 2) collect: [:timeSlotName |
+			timeSlots at: timeSlotName] )! !
+
+!String methodsFor: '*Dynabook' stamp: 'hlsf 9/13/2023 21:51:32'!
+asTimeSlot
+| elements|
+	elements := self substrings.
+	^ DyTimeSlot new ::
+		slotName: elements first;
+		start: (Time fromString: elements second);
+		end: (Time fromString: elements third)! !
