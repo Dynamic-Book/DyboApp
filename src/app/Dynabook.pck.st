@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 13 September 2023 at 11:21:54 pm'!
+'From Cuis 6.0 [latest update: #5979] on 14 September 2023 at 4:29:37 pm'!
 'Description '!
-!provides: 'Dynabook' 1 19!
+!provides: 'Dynabook' 1 20!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -17,6 +17,16 @@ SystemOrganization addCategory: 'Dynabook-Test'!
 SystemOrganization addCategory: 'Dynabook'!
 SystemOrganization addCategory: 'Dynabook-System'!
 
+
+!classDefinition: #DyTimeSlot category: 'Dynabook-Model-Business'!
+Magnitude subclass: #DyTimeSlot
+	instanceVariableNames: 'name startTime endTime'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyTimeSlot class' category: 'Dynabook-Model-Business'!
+DyTimeSlot class
+	instanceVariableNames: ''!
 
 !classDefinition: #DyAgendaView category: 'Dynabook-View-Business'!
 LayoutMorph subclass: #DyAgendaView
@@ -218,16 +228,6 @@ Object subclass: #DyTask
 DyTask class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyTimeSlot category: 'Dynabook-Model-Business'!
-Object subclass: #DyTimeSlot
-	instanceVariableNames: 'name startTime endTime'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyTimeSlot class' category: 'Dynabook-Model-Business'!
-DyTimeSlot class
-	instanceVariableNames: ''!
-
 !classDefinition: #DyUserData category: 'Dynabook-Model-Business'!
 Object subclass: #DyUserData
 	instanceVariableNames: 'user schools agenda'
@@ -329,6 +329,10 @@ DySystem class
 	instanceVariableNames: 'platform'!
 
 
+!DyTimeSlot commentStamp: '<historical>' prior: 0!
+Describe the organization of the teaching periods in a school. There are generally 10 time slots per school.
+Example of a time slot: P2, 9:25am, 10:10am!
+
 !DyAgendaView commentStamp: 'hlsf 9/10/2023 16:41:17' prior: 0!
 I present a view to let the user browser the tasks and to create new task.
 My model is the userData, to access the agenda and the class group!
@@ -386,10 +390,6 @@ Pedagogical document grouped in one topic.!
 Description of the user's educational institutions. Possibly several per user.
 !
 
-!DyTimeSlot commentStamp: '<historical>' prior: 0!
-Describe the organization of the teaching periods in a school. There are generally 10 time slots per school.
-Example of a time slot: P2, 9:25am, 10:10am!
-
 !DyUserData commentStamp: '<historical>' prior: 0!
 I am a Singleton, the root of the user data, both administrative and pedagogical.
 - user: a teacher or student 
@@ -424,6 +424,107 @@ Access to preferences, path, information in development mode.!
 I map settings/preferences to the underneath hardware/os plateform
 Pattern: strategy!
 
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:58:55'!
+end
+	^ endTime! !
+
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 20:01:48'!
+end: aTime
+	endTime := aTime! !
+
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:58:11'!
+slotName
+	^ name! !
+
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 20:02:10'!
+slotName: aString
+	name := 	aString ! !
+
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:56:55'!
+start
+	^ startTime ! !
+
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 20:01:59'!
+start: aTime
+	startTime := aTime ! !
+
+!DyTimeSlot methodsFor: 'printing' stamp: 'hlsf 6/19/2023 21:50:54'!
+printOn: aStream
+	name ifNil: [ super printOn: aStream ]
+		ifNotNil: [	
+			aStream nextPutAll: name; 				space.
+			startTime print24: true showSeconds: false on: aStream.
+			aStream 	nextPut: $-.
+			endTime print24: true showSeconds: false on: aStream]! !
+
+!DyTimeSlot methodsFor: 'user interface' stamp: 'hlsf 6/30/2023 21:15:31'!
+mold
+	| mold start |
+	mold := Mold new.
+	mold stringField
+		label: 'Name' translated;
+		on: #slotName of: self;
+		beRequired.
+	(start := mold timeField)
+		label: 'Start time' translated;
+		example: '8:35';
+		on: #start of: self;
+		beRequired.
+	mold timeField 
+		label: 'End time' translated;
+		on: #end of: self;
+		addCondition: [:input :value | input isEmptyOrNil or: [value > start value ] ]
+			labeled: 'End time can''t preced start time.' translated.
+	^ mold
+	! !
+
+!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/14/2023 15:50:29'!
+< aTimeSlot
+	^ startTime < aTimeSlot start or: [endTime < aTimeSlot end]! !
+
+!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/14/2023 15:53:07'!
+= aTimeSlot
+	^ startTime = aTimeSlot start and: [endTime = aTimeSlot end]! !
+
+!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/14/2023 15:53:29'!
+hash
+	^ startTime hash bitXor: endTime end! !
+
+!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/10/2023 23:15:56'!
+includes: aTime
+	^ startTime <= aTime and: [endTime >= aTime]! !
+
+!DyTimeSlot class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:37:26'!
+label
+	^ 'time slot' translated! !
+
+!DyTimeSlot class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:37:35'!
+pluralLabel
+	^ 'Time slots' translated! !
+
+!DyTimeSlot class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/26/2023 13:10:13'!
+export: timeSlots to: writeStream
+	| writer |
+	writer := NeoCSVWriter on: writeStream.
+	writer writeHeader: #(slotName start end);
+		addFields: #(slotName start end);
+		nextPutAll: timeSlots! !
+
+!DyTimeSlot class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/26/2023 13:09:22'!
+importFrom: readStream
+"Import time slots from a CSV file with header:
+timeSlotName,start, end "
+| reader |
+	reader := NeoCSVReader on: readStream.
+	reader readHeader = #('slotName' 'start' 'end')
+		ifFalse: [self error: 'Headers should be slotName, start, end'].
+	reader 
+		recordClass: self;
+		addField: #slotName:;
+		addField: #start: converter: [:s | Time fromString: s];
+		addField: #end: converter: [:s | Time fromString: s].
+	^ reader upToEnd asSortedCollection ! !
+
 !DyAgendaView methodsFor: 'as yet unclassified' stamp: 'hlsf 8/27/2023 22:16:41'!
 initialize
 	super initialize.
@@ -453,9 +554,72 @@ for: aPresenter
 setUp
 	data := self resources anyOne current data! !
 
-!DynabookTestCase methodsFor: 'as yet unclassified' stamp: 'hlsf 9/13/2023 23:21:39'!
-testExist
-	self assert: data schools notEmpty! !
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:15:38'!
+testClassGroupCourse
+	| school group course | 
+	school := data schools first.
+	group := school classGroups first.
+	course := group courses first.
+	self assert: group school equals: school.
+	self assert: course school equals: school.
+	self assert: group number equals: '932'.
+	self assert: course subject equals: 'Histoire'
+	! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:29:19'!
+testCourseHours
+	| school group courseHours | 
+	school := data schools first.
+	group := school classGroups first.
+	courseHours := group courses first courseHours .
+	" Qty "
+	self assert: courseHours size = 4	.
+	" Day "
+	self assert: courseHours first dayOfWeek equals: 1.
+	self assert: courseHours second dayOfWeek equals: 2.
+	self assert: courseHours third dayOfWeek equals: 4.
+	self assert: courseHours fourth dayOfWeek equals: 5.
+	" Room & time slots" 
+	courseHours do: [:aCourseHour | 	
+		self assert: aCourseHour room equals: '123'.
+		aCourseHour timeSlots do: [:aTimeSlot | 		self assert: school timeSlots includes: aTimeSlot ] ]
+! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:36:08'!
+testSchoolsExist
+	self assert: data schools notEmpty.
+	self assert: (data schools anySatisfy: [:aSchool | aSchool schoolName = 'CO Foron'])! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:54:42'!
+testTimeSlotCompare
+	| t1 t2 t3 t4| 
+	t1 := 'P4 10:05 11:30' asTimeSlot.
+	t2 := 'P5 10:10 11:30' asTimeSlot.
+	t3 := 'P4 10:10 12:30' asTimeSlot.
+	t4 := 'H4 10:10 12:30' asTimeSlot.
+	self assert: t1 < t2.
+	self assert: t2 < t3.
+	self deny: t2 >= t3.
+	self deny: t2 = t3.
+	self assert: t3 = t4.
+	self assert: t3 > t1.
+	self assert: (t2 between: t1 and: t3)! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:42:10'!
+testTimeSlotInstance
+	| t | 
+	t := 'P4 10:05 11:30' asTimeSlot.
+	self assert: t slotName equals: 'P4'.
+	self assert: t start equals: (Time fromString: '10:05').
+	self assert: t end equals: (Time fromString: '11:30')! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:10:35'!
+testTimeSlotsOrder
+	| t | 
+	t := data schools first timeSlots.
+	self assert: t first slotName equals: 'P1'.
+	self assert: t third slotName equals: 'P3'.
+	self assert: t last slotName equals: 'P9'! !
 
 !DynabookTestCase class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/13/2023 23:18:27'!
 resources
@@ -473,22 +637,22 @@ tearDown
 	DyUserData current: backupData .
 	data := nil! !
 
-!DynabookTestResource methodsFor: 'initialization' stamp: 'hlsf 9/13/2023 22:33:44'!
+!DynabookTestResource methodsFor: 'initialization' stamp: 'hlsf 9/14/2023 16:00:28'!
 schoolA
 	| school  group course |
 	school := DySchool new schoolName: 'CO Foron'.
 	school timeSlots 
-		add: 'P1 7:45 8:30' asTimeSlot;
-		add: 'P2 8:35 9:20' asTimeSlot;
-		add: 'P3 9:25 10:10' asTimeSlot;
-		add: 'P4 10:25 11:10' asTimeSlot;
 		add: 'P5 11:15 12:00' asTimeSlot;
-		add: 'P7 13:35 14:20' asTimeSlot;
+		add: 'P1 7:45 8:30' asTimeSlot;
 		add: 'P8 14:25 15:10' asTimeSlot;
-		add: 'P9 15:25 16:10' asTimeSlot.
-	group := DyClassGroup new :: number: '932'; owner: school.
+		add: 'P2 8:35 9:20' asTimeSlot;
+		add: 'P9 15:25 16:10' asTimeSlot;
+		add: 'P4 10:25 11:10' asTimeSlot;
+		add: 'P7 13:35 14:20' asTimeSlot;		
+		add: 'P3 9:25 10:10' asTimeSlot.
+	group := DyClassGroup number: '932' in: school.
 	school classGroups add: group.
-	course := DyCourse new :: subject: 'Histoire'; owner: group.
+	course := DyCourse subject: 'Histoire' in: group.
 	group courses add: course.
 	course courseHours
 		add: ('123 1 P2' asCourseHourIn: course);
@@ -802,6 +966,12 @@ label
 pluralLabel
 	^ 'Classes' translated! !
 
+!DyClassGroup class methodsFor: 'instance creation' stamp: 'hlsf 9/14/2023 15:59:15'!
+number: aString in: aSchool
+	^ self new ::
+		number: aString;
+		owner: aSchool! !
+
 !DyCourse methodsFor: 'initialization' stamp: 'hlsf 8/9/2023 14:38:33'!
 initialize
 	super initialize.
@@ -875,6 +1045,12 @@ label
 !DyCourse class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:33:49'!
 pluralLabel
 	^  'Lessons' translated! !
+
+!DyCourse class methodsFor: 'instance creation' stamp: 'hlsf 9/14/2023 16:00:09'!
+subject: aString in: aClassGroup
+	^ self new ::
+		subject: aString ;
+		owner: aClassGroup ! !
 
 !DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
 color
@@ -1086,99 +1262,6 @@ label
 !DySchool class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:38:22'!
 pluralLabel
 	^ 'Schools' translated! !
-
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:58:55'!
-end
-	^ endTime! !
-
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 20:01:48'!
-end: aTime
-	endTime := aTime! !
-
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:58:11'!
-slotName
-	^ name! !
-
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 20:02:10'!
-slotName: aString
-	name := 	aString ! !
-
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:56:55'!
-start
-	^ startTime ! !
-
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 20:01:59'!
-start: aTime
-	startTime := aTime ! !
-
-!DyTimeSlot methodsFor: 'printing' stamp: 'hlsf 6/19/2023 21:50:54'!
-printOn: aStream
-	name ifNil: [ super printOn: aStream ]
-		ifNotNil: [	
-			aStream nextPutAll: name; 				space.
-			startTime print24: true showSeconds: false on: aStream.
-			aStream 	nextPut: $-.
-			endTime print24: true showSeconds: false on: aStream]! !
-
-!DyTimeSlot methodsFor: 'user interface' stamp: 'hlsf 6/30/2023 21:15:31'!
-mold
-	| mold start |
-	mold := Mold new.
-	mold stringField
-		label: 'Name' translated;
-		on: #slotName of: self;
-		beRequired.
-	(start := mold timeField)
-		label: 'Start time' translated;
-		example: '8:35';
-		on: #start of: self;
-		beRequired.
-	mold timeField 
-		label: 'End time' translated;
-		on: #end of: self;
-		addCondition: [:input :value | input isEmptyOrNil or: [value > start value ] ]
-			labeled: 'End time can''t preced start time.' translated.
-	^ mold
-	! !
-
-!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 7/29/2023 16:41:53'!
-<= aTimeSlot
-	^ startTime < aTimeSlot start or: [endTime < aTimeSlot end]! !
-
-!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/10/2023 23:15:56'!
-includes: aTime
-	^ startTime <= aTime and: [endTime >= aTime]! !
-
-!DyTimeSlot class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:37:26'!
-label
-	^ 'time slot' translated! !
-
-!DyTimeSlot class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:37:35'!
-pluralLabel
-	^ 'Time slots' translated! !
-
-!DyTimeSlot class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/26/2023 13:10:13'!
-export: timeSlots to: writeStream
-	| writer |
-	writer := NeoCSVWriter on: writeStream.
-	writer writeHeader: #(slotName start end);
-		addFields: #(slotName start end);
-		nextPutAll: timeSlots! !
-
-!DyTimeSlot class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/26/2023 13:09:22'!
-importFrom: readStream
-"Import time slots from a CSV file with header:
-timeSlotName,start, end "
-| reader |
-	reader := NeoCSVReader on: readStream.
-	reader readHeader = #('slotName' 'start' 'end')
-		ifFalse: [self error: 'Headers should be slotName, start, end'].
-	reader 
-		recordClass: self;
-		addField: #slotName:;
-		addField: #start: converter: [:s | Time fromString: s];
-		addField: #end: converter: [:s | Time fromString: s].
-	^ reader upToEnd asSortedCollection ! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:36:55'!
 agenda
