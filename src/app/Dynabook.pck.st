@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 14 September 2023 at 4:29:37 pm'!
+'From Cuis 6.0 [latest update: #5979] on 17 September 2023 at 9:34:04 pm'!
 'Description '!
-!provides: 'Dynabook' 1 20!
+!provides: 'Dynabook' 1 21!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -585,6 +585,30 @@ testCourseHours
 		aCourseHour timeSlots do: [:aTimeSlot | 		self assert: school timeSlots includes: aTimeSlot ] ]
 ! !
 
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/17/2023 21:33:57'!
+testIsDuring
+	| courseHours classGroup dateAndTime | 
+	classGroup := data schools first classGroups first.
+	courseHours := classGroup courses first courseHours.
+
+	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'.
+	self assert: (courseHours first isDuring: dateAndTime).
+	self deny: (courseHours second isDuring: dateAndTime).
+	self deny: (courseHours third isDuring: dateAndTime).
+	self deny: (courseHours fourth isDuring: dateAndTime).
+	
+	dateAndTime := DateAndTime fromString: '2023-09-12 11:00'.
+	self deny: (courseHours first isDuring: dateAndTime).
+	self assert: (courseHours second isDuring: dateAndTime).
+	self deny: (courseHours third isDuring: dateAndTime).
+	self deny: (courseHours fourth isDuring: dateAndTime).
+	
+" 
+A course hour with 2 periods, isDuring: tested between the two period timeslots, should be true as well
+"
+	dateAndTime := DateAndTime fromString: '2023-09-12 11:12'. 
+	self assert: (courseHours second isDuring: dateAndTime).! !
+
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:36:08'!
 testSchoolsExist
 	self assert: data schools notEmpty.
@@ -665,7 +689,7 @@ schoolA
 isAvailable 
 	^ data notNil! !
 
-!DynabookTestResource methodsFor: 'as yet unclassified' stamp: 'hlsf 9/13/2023 22:32:24'!
+!DynabookTestResource methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 22:32:24'!
 data
 	^ data! !
 
@@ -794,10 +818,10 @@ initialize
 	dayOfWeek := 0.
 	timeSlots := OrderedCollection new! !
 
-!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 9/10/2023 23:21:34'!
+!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 9/17/2023 21:32:38'!
 isDuring: aDateAndTime
-	^ dayOfWeek = aDateAndTime daysOfWeek 
-		and: [timeSlots anySatisfy: [:aTimeSlot | aTimeSlot includes: aDateAndTime time] ]! !
+	^ dayOfWeek = aDateAndTime dayOfWeek 
+		and: [	aDateAndTime time between: timeSlots first start and: timeSlots last end]! !
 
 !DyCourseHour class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:35:55'!
 label
@@ -1032,11 +1056,11 @@ printOn: aStream
 accept: aVisitor
 	^ aVisitor visitCourse: self! !
 
-!DyCourse methodsFor: 'testing' stamp: 'hlsf 9/10/2023 23:27:01'!
+!DyCourse methodsFor: 'testing' stamp: 'hlsf 9/17/2023 21:22:47'!
 isDuring: aDateAndTime
 	^ courseHours 
 		detect:  [:aCourseHour | aCourseHour isDuring: aDateAndTime ]
-		ifNone: [false]! !
+		ifNone: [nil]! !
 
 !DyCourse class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:34:16'!
 label
