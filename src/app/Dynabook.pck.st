@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 17 September 2023 at 9:34:04 pm'!
+'From Cuis 6.0 [latest update: #5979] on 19 September 2023 at 10:55:08 pm'!
 'Description '!
-!provides: 'Dynabook' 1 21!
+!provides: 'Dynabook' 1 22!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -585,13 +585,38 @@ testCourseHours
 		aCourseHour timeSlots do: [:aTimeSlot | 		self assert: school timeSlots includes: aTimeSlot ] ]
 ! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/17/2023 21:33:57'!
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:47:58'!
+testICourseAt
+	| course classGroup dateAndTime | 
+	classGroup := data schools first classGroups first.
+	course := classGroup courses first.
+
+	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
+	self assert: (data courseAt: dateAndTime) equals: course.
+	dateAndTime := DateAndTime fromString: '2023-09-11 7:00'. 
+	self assert: (data courseAt: dateAndTime) equals: nil.
+	
+	dateAndTime := DateAndTime fromString: '2023-09-12 11:30'.
+	self assert: (data courseAt: dateAndTime) equals: course.
+	dateAndTime := DateAndTime fromString: '2023-09-12 11:15'.
+	self assert: (data courseAt: dateAndTime) equals: course.
+	dateAndTime := DateAndTime fromString: '2023-09-12 11:13'.
+	self assert: (data courseAt: dateAndTime) equals: course.
+
+	dateAndTime := DateAndTime fromString: '2023-09-13 9:00'. 
+	self assert: (data courseAt: dateAndTime) equals: nil.
+	
+	dateAndTime := DateAndTime fromString: '2023-09-15 15:54'. 
+	self assert: (data courseAt: dateAndTime) equals: course.
+	! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:10:49'!
 testIsDuring
 	| courseHours classGroup dateAndTime | 
 	classGroup := data schools first classGroups first.
 	courseHours := classGroup courses first courseHours.
 
-	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'.
+	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
 	self assert: (courseHours first isDuring: dateAndTime).
 	self deny: (courseHours second isDuring: dateAndTime).
 	self deny: (courseHours third isDuring: dateAndTime).
@@ -608,6 +633,14 @@ A course hour with 2 periods, isDuring: tested between the two period timeslots,
 "
 	dateAndTime := DateAndTime fromString: '2023-09-12 11:12'. 
 	self assert: (courseHours second isDuring: dateAndTime).! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 22:54:58'!
+testNextCourseHourAfter
+	| school group course | 
+	school := data schools first.
+	group := school classGroups first.
+	course := group courses first.
+	! !
 
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:36:08'!
 testSchoolsExist
@@ -1056,11 +1089,22 @@ printOn: aStream
 accept: aVisitor
 	^ aVisitor visitCourse: self! !
 
-!DyCourse methodsFor: 'testing' stamp: 'hlsf 9/17/2023 21:22:47'!
+!DyCourse methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:27:08'!
 isDuring: aDateAndTime
 	^ courseHours 
 		detect:  [:aCourseHour | aCourseHour isDuring: aDateAndTime ]
-		ifNone: [nil]! !
+		ifFound: [:aCourse | true]
+		ifNone: [false]! !
+
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/19/2023 22:54:29'!
+nextCourseHourAfter: aDate
+"Search for my next course hour after aDate"
+	| dayOfWeek currentIndex nextCourseHour nextDate |
+	dayOfWeek := aDate dayOfWeek.
+	currentIndex := courseHours findFirst: [:aCourseHour | aCourseHour daysOfWeek = dayOfWeek].
+	nextCourseHour := courseHours atWrap: currentIndex + 1.
+	nextDate := aDate + (nextCourseHour daysOfWeek - dayOfWeek \\ 7).
+	^ Array with: nextCourseHour with: nextDate! !
 
 !DyCourse class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:34:16'!
 label
@@ -1333,6 +1377,14 @@ courseAt: aDateTime
 		]
 	].
 	^ nil! !
+
+!DyUserData methodsFor: 'searching' stamp: 'hlsf 9/19/2023 22:50:15'!
+nextCourseHourAfter: aDateAndTime
+"Search for the next course hour after aDateAndTime"
+	| course |
+	course := self courseAt: aDateAndTime.
+	course ifNil: [^nil].
+	^ course nextCourseHourAfter: aDateAndTime date! !
 
 !DyUserData methodsFor: 'visiting' stamp: 'hlsf 6/26/2023 21:28:11'!
 accept: aVisitor
