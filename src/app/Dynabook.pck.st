@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 19 September 2023 at 10:55:08 pm'!
+'From Cuis 6.0 [latest update: #5979] on 23 September 2023 at 4:34:32 pm'!
 'Description '!
-!provides: 'Dynabook' 1 22!
+!provides: 'Dynabook' 1 26!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -168,6 +168,16 @@ DyObject subclass: #DyCourse
 DyCourse class
 	instanceVariableNames: ''!
 
+!classDefinition: #DySchool category: 'Dynabook-Model-Business'!
+DyObject subclass: #DySchool
+	instanceVariableNames: 'name phone email timeSlots classGroups'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-Model-Business'!
+!classDefinition: 'DySchool class' category: 'Dynabook-Model-Business'!
+DySchool class
+	instanceVariableNames: ''!
+
 !classDefinition: #DyTopic category: 'Dynabook-Model-Business'!
 DyObject subclass: #DyTopic
 	instanceVariableNames: 'title color documents'
@@ -206,16 +216,6 @@ DyPerson subclass: #DyTeacher
 	category: 'Dynabook-Model-Business'!
 !classDefinition: 'DyTeacher class' category: 'Dynabook-Model-Business'!
 DyTeacher class
-	instanceVariableNames: ''!
-
-!classDefinition: #DySchool category: 'Dynabook-Model-Business'!
-Object subclass: #DySchool
-	instanceVariableNames: 'name phone email timeSlots classGroups'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DySchool class' category: 'Dynabook-Model-Business'!
-DySchool class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyTask category: 'Dynabook-Model-Business'!
@@ -383,12 +383,13 @@ I describe a course of a teacher or a course attended by a student:
 - binder: a holder of the pedagogical documents
 My owner is a ClassGroup!
 
-!DyTopic commentStamp: '<historical>' prior: 0!
-Pedagogical document grouped in one topic.!
-
 !DySchool commentStamp: '<historical>' prior: 0!
 Description of the user's educational institutions. Possibly several per user.
+My owner is a DyUserData instance
 !
+
+!DyTopic commentStamp: '<historical>' prior: 0!
+Pedagogical document grouped in one topic.!
 
 !DyUserData commentStamp: '<historical>' prior: 0!
 I am a Singleton, the root of the user data, both administrative and pedagogical.
@@ -554,6 +555,21 @@ for: aPresenter
 setUp
 	data := self resources anyOne current data! !
 
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:47:33'!
+testAgenda
+	self assert: data agenda start = '2023-08-21' asDate.
+	self assert: data agenda end = '2024-06-28' asDate.
+	self deny: (data agenda isDayOff: '2023-08-21' asDate).
+	self deny: (data agenda isDayOff: '2023-06-28' asDate).	
+	
+	self assert: (data agenda isDayOff: '2023-9-7' asDate).
+	self assert: (data agenda isDayOff: '2024-02-21' asDate).
+	self assert: (data agenda isDayOff: '2023-12-25' asDate).
+	self assert: (data agenda isDayOff: '2024-01-5' asDate).
+	self deny: (data agenda isDayOff: '2024-01-6' asDate).
+	self deny: (data agenda isDayOff: '2024-05-16' asDate)
+	! !
+
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:15:38'!
 testClassGroupCourse
 	| school group course | 
@@ -565,6 +581,16 @@ testClassGroupCourse
 	self assert: group number equals: '932'.
 	self assert: course subject equals: 'Histoire'
 	! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:28:35'!
+testCourseAgendaAccess
+	| school group course agenda | 
+	school := data schools first.
+	group := school classGroups first.
+	course := group courses first.
+	agenda := course agenda.
+	self assert: agenda start = '2023-08-21' asDate.
+	self assert: agenda end = '2024-06-28' asDate! !
 
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:29:19'!
 testCourseHours
@@ -634,13 +660,63 @@ A course hour with 2 periods, isDuring: tested between the two period timeslots,
 	dateAndTime := DateAndTime fromString: '2023-09-12 11:12'. 
 	self assert: (courseHours second isDuring: dateAndTime).! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 22:54:58'!
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:24:02'!
 testNextCourseHourAfter
-	| school group course | 
-	school := data schools first.
-	group := school classGroups first.
-	course := group courses first.
-	! !
+	| nextCourse dateAndTime | 
+	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
+	nextCourse := data nextCourseHourAfter: dateAndTime.
+	"Should be: next day, time slots: P4 P5 "
+	self assert: nextCourse second = '2023-09-12' asDate.
+	self assert: nextCourse first room = '123' .
+	self assert: nextCourse first dayOfWeek= 2 .
+	self assert: nextCourse first timeSlots first = 'P4 10:25 11:10' asTimeSlot.
+	self assert: nextCourse first timeSlots second = 'P5 11:15 12:00' asTimeSlot.
+	""
+	dateAndTime := DateAndTime fromString: '2023-09-12 9:00'. "Tuesday, no course at this time"
+	nextCourse := data nextCourseHourAfter: dateAndTime.
+	self assert: nextCourse isNil.
+	""
+	dateAndTime := DateAndTime fromString: '2023-09-12 11:12'.
+	nextCourse := data nextCourseHourAfter: dateAndTime.
+	"Should be: two days later, time slots: P7 "
+	self assert: nextCourse second = '2023-09-14' asDate.
+	self assert: nextCourse first dayOfWeek= 4 .
+	self assert: nextCourse first timeSlots first = 'P7 13:35 14:20' asTimeSlot.
+	""
+	dateAndTime := DateAndTime fromString: '2023-09-15 16:01'. "Friday"
+	nextCourse := data nextCourseHourAfter: dateAndTime.
+	" Should be next monday, time slot P2 "
+	self assert: nextCourse second = '2023-09-18' asDate.
+	self assert: nextCourse first dayOfWeek= 1 .
+	self assert: nextCourse first timeSlots first = 'P2 8:35 9:20' asTimeSlot.
+! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 11:12:53'!
+testNextCourseHourAfterWithDaysOff
+	| nextCourse dateAndTime | 
+	dateAndTime := DateAndTime fromString: '2023-09-05 10:45'. "Tuesday"
+	nextCourse := data nextCourseHourAfter: dateAndTime.
+	"Should be Friday (Wednesday no course, Thursday day off), time slot: P9 "
+	self assert: nextCourse second = '2023-09-8' asDate.
+	self assert: nextCourse first room = '123' .
+	self assert: nextCourse first dayOfWeek= 5 .
+	self assert: nextCourse first timeSlots first = 'P9 15:25 16:10' asTimeSlot.
+
+	dateAndTime := DateAndTime fromString: '2023-10-20 16:00'. "Friday, before 1 week holiday"
+	nextCourse := data nextCourseHourAfter: dateAndTime.
+	"Should be Monday, one week later"
+	self assert: nextCourse second = '2023-10-30' asDate.
+	
+	dateAndTime := DateAndTime fromString: '2024-5-7 11:00'. "Tuesday"
+	nextCourse := data nextCourseHourAfter: dateAndTime.
+	"Should be Monday, next week"
+	self assert: nextCourse second = '2024-5-13' asDate.
+	
+	dateAndTime := DateAndTime fromString: '2024-6-28 16:00'. "Friday, end of school"
+	nextCourse := data nextCourseHourAfter: dateAndTime.
+	"Should be nil"
+	self assert: nextCourse isNil
+! !
 
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:36:08'!
 testSchoolsExist
@@ -682,21 +758,37 @@ testTimeSlotsOrder
 resources
 	^{DynabookTestResource }! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/13/2023 22:33:22'!
-setUp
-	backupData := DyUserData basicCurrent.
-	DyUserData reset.
-	data := DyUserData current.
-	data schools add: self schoolA ! !
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 10:56:26'!
+classGroup932in: school
+	| group course |
+	group := DyClassGroup number: '932' in: school.
+	school classGroups add: group.
+	course := DyCourse subject: 'Histoire' in: group.
+	group courses add: course.
+	course courseHours
+		add: ('123 1 P2' asCourseHourIn: course);
+		add: ('123 2 P4 P5' asCourseHourIn: course);
+		add: ('123 4 P7' asCourseHourIn: course);
+		add: ('123 5 P9' asCourseHourIn: course).
+	^ group! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/12/2023 22:09:48'!
-tearDown
-	DyUserData current: backupData .
-	data := nil! !
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 09:51:44'!
+daysOff
+	| daysOff |
+	daysOff := OrderedCollection new.
+	{ Array with: '2023-10-23' with: '2023-10-27'.
+		Array with: '2023-12-25' with: '2024-01-05'.
+		Array with: '2024-02-19' with: '2024-02-23'.
+		Array with: '2024-03-29' with: '2024-04-12'		.
+		Array with: '2024-05-09' with: '2024-05-10'} do: [:startEnd |
+			daysOff addAll: (DyAgenda datesInterval: startEnd)].
+	{'2023-09-07' . '2024-05-01' . '2024-05-20'} do: [:each | 
+		daysOff add: each asDate].
+	^ daysOff ! !
 
-!DynabookTestResource methodsFor: 'initialization' stamp: 'hlsf 9/14/2023 16:00:28'!
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 10:57:04'!
 schoolA
-	| school  group course |
+	| school  |
 	school := DySchool new schoolName: 'CO Foron'.
 	school timeSlots 
 		add: 'P5 11:15 12:00' asTimeSlot;
@@ -707,16 +799,28 @@ schoolA
 		add: 'P4 10:25 11:10' asTimeSlot;
 		add: 'P7 13:35 14:20' asTimeSlot;		
 		add: 'P3 9:25 10:10' asTimeSlot.
-	group := DyClassGroup number: '932' in: school.
-	school classGroups add: group.
-	course := DyCourse subject: 'Histoire' in: group.
-	group courses add: course.
-	course courseHours
-		add: ('123 1 P2' asCourseHourIn: course);
-		add: ('123 2 P4 P5' asCourseHourIn: course);
-		add: ('123 4 P7' asCourseHourIn: course);
-		add: ('123 5 P9' asCourseHourIn: course).
+	school classGroups add: (self classGroup932in: school).
 	^ school! !
+
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 09:47:34'!
+setUp
+	backupData := DyUserData basicCurrent.
+	DyUserData reset.
+	data := DyUserData current.
+	self setUpAgenda.
+	data schools add: (self schoolA owner: data; yourself)! !
+
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 09:28:58'!
+setUpAgenda
+	data agenda
+		start: '2023-08-21' asDate;
+		end: '2024-06-28' asDate.
+	data agenda daysOff addAll: self daysOff ! !
+
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/12/2023 22:09:48'!
+tearDown
+	DyUserData current: backupData .
+	data := nil! !
 
 !DynabookTestResource methodsFor: 'testing' stamp: 'hlsf 9/13/2023 22:10:45'!
 isAvailable 
@@ -734,11 +838,11 @@ userData
 initialize
 	userData := DyUserData current! !
 
-!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 9/10/2023 16:46:29'!
+!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 9/21/2023 22:32:56'!
 initialize
 	super initialize.
 	tasks := OrderedCollection new.
-	daysOff := SortedCollection new.! !
+	daysOff := SortedCollection sortBlock: [:d1 :d2 | d1 < d2].! !
 
 !DyAgenda methodsFor: 'user interface' stamp: 'hlsf 7/29/2023 00:50:25'!
 mold
@@ -786,6 +890,18 @@ start
 !DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:27:23'!
 start: aDate
 	start := 	aDate ! !
+
+!DyAgenda methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:43:29'!
+isDayOff: aDate
+	^ daysOff includes: aDate! !
+
+!DyAgenda class methodsFor: 'helpers' stamp: 'hlsf 9/23/2023 09:36:21'!
+datesInterval: startEndArray
+	| dates |
+	dates := OrderedCollection new.
+	startEndArray first asDate start to: startEndArray second asDate start by: 1 days
+		do: [:each | dates add: each date].
+	^ dates! !
 
 !DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 8/9/2023 14:39:28'!
 mold: school
@@ -1049,6 +1165,10 @@ mold
 		beRequired.
 	^ mold! !
 
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 9/23/2023 10:28:49'!
+agenda 
+	^ self school owner agenda! !
+
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 21:43:52'!
 classGroup
 	^ owner! !
@@ -1096,15 +1216,20 @@ isDuring: aDateAndTime
 		ifFound: [:aCourse | true]
 		ifNone: [false]! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/19/2023 22:54:29'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/23/2023 11:05:32'!
 nextCourseHourAfter: aDate
 "Search for my next course hour after aDate"
-	| dayOfWeek currentIndex nextCourseHour nextDate |
+	| dayOfWeek currentCourseHourIndex nextCourseHour nextDate |
 	dayOfWeek := aDate dayOfWeek.
-	currentIndex := courseHours findFirst: [:aCourseHour | aCourseHour daysOfWeek = dayOfWeek].
-	nextCourseHour := courseHours atWrap: currentIndex + 1.
-	nextDate := aDate + (nextCourseHour daysOfWeek - dayOfWeek \\ 7).
-	^ Array with: nextCourseHour with: nextDate! !
+	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | 
+		aCourseHour dayOfWeek = dayOfWeek].
+	nextCourseHour := courseHours atWrap: currentCourseHourIndex + 1.
+	nextDate := aDate + (nextCourseHour dayOfWeek - dayOfWeek \\ 7) days.
+	nextDate > self agenda end
+		ifTrue: [^ nil "School is over, it is summer time !!"].
+	^ (self agenda isDayOff: nextDate)
+		ifTrue: [self nextCourseHourAfter: nextDate]
+		ifFalse: [Array with: nextCourseHour with: nextDate]! !
 
 !DyCourse class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:34:16'!
 label
@@ -1119,6 +1244,68 @@ subject: aString in: aClassGroup
 	^ self new ::
 		subject: aString ;
 		owner: aClassGroup ! !
+
+!DySchool methodsFor: 'initialization' stamp: 'hlsf 7/15/2023 11:08:40'!
+initialize
+	super initialize .
+	timeSlots := SortedCollection new.
+	classGroups := OrderedCollection new! !
+
+!DySchool methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:33'!
+registerEvents
+	self when: #renamedSchool send: #renameSchool:from:to: to: DySystem! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 21:49:32'!
+classGroups
+	^ classGroups ! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:38:51'!
+dirName
+	^ name asFileName! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:54:57'!
+schoolName
+	^ name! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:45:03'!
+schoolName: newName
+	self triggerEvent: #renamedSchool withArguments: {self . name . newName}.
+	name := newName.! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 21:48:48'!
+timeSlots
+	^ timeSlots ! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 23:11:12'!
+timeSlotsDic
+	^ (timeSlots collect: [:each | each slotName -> each] ) asDictionary ! !
+
+!DySchool methodsFor: 'user interface' stamp: 'hlsf 7/3/2023 11:31:58'!
+mold
+	| mold |
+	mold := Mold new.
+	mold stringField
+		label: 'School name' translated;
+		on: #schoolName of: self;
+		beRequired.
+	^ mold! !
+
+!DySchool methodsFor: 'printing' stamp: 'hlsf 6/1/2023 19:52:41'!
+printOn: str
+	name ifNil: [str nextPutAll: 'Unknown school' translated] 
+		ifNotNil: [	str nextPutAll: name]! !
+
+!DySchool methodsFor: 'visiting' stamp: 'hlsf 6/30/2023 21:49:08'!
+accept: aVisitor 
+	^ aVisitor visitSchool: self! !
+
+!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:38:14'!
+label
+	^ 'school' translated! !
+
+!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:38:22'!
+pluralLabel
+	^ 'Schools' translated! !
 
 !DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
 color
@@ -1269,68 +1456,6 @@ isTeacher
 accept: aVisitor
 	^ aVisitor visitTeacher: self! !
 
-!DySchool methodsFor: 'initialization' stamp: 'hlsf 7/15/2023 11:08:40'!
-initialize
-	super initialize .
-	timeSlots := SortedCollection new.
-	classGroups := OrderedCollection new! !
-
-!DySchool methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:33'!
-registerEvents
-	self when: #renamedSchool send: #renameSchool:from:to: to: DySystem! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 21:49:32'!
-classGroups
-	^ classGroups ! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:38:51'!
-dirName
-	^ name asFileName! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:54:57'!
-schoolName
-	^ name! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:45:03'!
-schoolName: newName
-	self triggerEvent: #renamedSchool withArguments: {self . name . newName}.
-	name := newName.! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 21:48:48'!
-timeSlots
-	^ timeSlots ! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 23:11:12'!
-timeSlotsDic
-	^ (timeSlots collect: [:each | each slotName -> each] ) asDictionary ! !
-
-!DySchool methodsFor: 'user interface' stamp: 'hlsf 7/3/2023 11:31:58'!
-mold
-	| mold |
-	mold := Mold new.
-	mold stringField
-		label: 'School name' translated;
-		on: #schoolName of: self;
-		beRequired.
-	^ mold! !
-
-!DySchool methodsFor: 'printing' stamp: 'hlsf 6/1/2023 19:52:41'!
-printOn: str
-	name ifNil: [str nextPutAll: 'Unknown school' translated] 
-		ifNotNil: [	str nextPutAll: name]! !
-
-!DySchool methodsFor: 'visiting' stamp: 'hlsf 6/30/2023 21:49:08'!
-accept: aVisitor 
-	^ aVisitor visitSchool: self! !
-
-!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:38:14'!
-label
-	^ 'school' translated! !
-
-!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:38:22'!
-pluralLabel
-	^ 'Schools' translated! !
-
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:36:55'!
 agenda
 	^ agenda ifNil: [agenda := DyAgenda new]! !
@@ -1378,9 +1503,9 @@ courseAt: aDateTime
 	].
 	^ nil! !
 
-!DyUserData methodsFor: 'searching' stamp: 'hlsf 9/19/2023 22:50:15'!
+!DyUserData methodsFor: 'searching' stamp: 'hlsf 9/21/2023 11:43:46'!
 nextCourseHourAfter: aDateAndTime
-"Search for the next course hour after aDateAndTime"
+"Search for the next course hour in the same course occuring at aDateAndTime"
 	| course |
 	course := self courseAt: aDateAndTime.
 	course ifNil: [^nil].
@@ -1642,14 +1767,14 @@ visitTeacher: teacher
 	^ self newColumnWith: {
 		DecoratedPane open: mold newPane label: 'Teacher' translated }! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 8/9/2023 14:38:21'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 9/21/2023 10:53:04'!
 visitUserData: userData
 | mold |
 	mold := userData user mold.
 	mold when: #edited send: #triggerEvent: to: userData with: #edited.
 	^ self newColumnWith: {
 		DecoratedPane open: mold newPane label: 'Owner' translated.
-		self editorsFor: userData schools ofType: DySchool }! !
+		self editorsFor: userData schools ofType: DySchool in: userData}! !
 
 !DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/22/2023 21:15:02'!
 editorsFor: aCollection ofType: classModel 
@@ -1711,12 +1836,13 @@ newColumnWith: morphs
 	column morphExtent: column minimumExtent.
 	^ column ! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/27/2023 15:34:57'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 9/21/2023 10:55:12'!
 quickAdd: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
-3. the decorated pane
-4. the listMorph
+2. the decorated pane
+3. the listMorph
+4. an optional owner of the instantiated object, nil otherwise
 "
  | school objectClass decorator listModel listMorph newObject objectMold objectPane quickButtons |
 	objectClass := args first.
