@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 23 September 2023 at 4:34:32 pm'!
+'From Cuis 6.0 [latest update: #5979] on 25 September 2023 at 11:12:32 pm'!
 'Description '!
-!provides: 'Dynabook' 1 26!
+!provides: 'Dynabook' 1 28!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -30,7 +30,7 @@ DyTimeSlot class
 
 !classDefinition: #DyAgendaView category: 'Dynabook-View-Business'!
 LayoutMorph subclass: #DyAgendaView
-	instanceVariableNames: 'userData'
+	instanceVariableNames: 'agenda courseIndex courses'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View-Business'!
@@ -88,16 +88,6 @@ Object subclass: #DynabookDomain
 DynabookDomain class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyAgenda category: 'Dynabook-Model-Business'!
-Object subclass: #DyAgenda
-	instanceVariableNames: 'start end daysOff tasks'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyAgenda class' category: 'Dynabook-Model-Business'!
-DyAgenda class
-	instanceVariableNames: ''!
-
 !classDefinition: #DyCourseHour category: 'Dynabook-Model-Business'!
 Object subclass: #DyCourseHour
 	instanceVariableNames: 'room dayOfWeek timeSlots'
@@ -136,6 +126,16 @@ Object subclass: #DyObject
 	category: 'Dynabook-Model-Business'!
 !classDefinition: 'DyObject class' category: 'Dynabook-Model-Business'!
 DyObject class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyAgenda category: 'Dynabook-Model-Business'!
+DyObject subclass: #DyAgenda
+	instanceVariableNames: 'start end daysOff tasks'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyAgenda class' category: 'Dynabook-Model-Business'!
+DyAgenda class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyBinder category: 'Dynabook-Model-Business'!
@@ -333,9 +333,9 @@ DySystem class
 Describe the organization of the teaching periods in a school. There are generally 10 time slots per school.
 Example of a time slot: P2, 9:25am, 10:10am!
 
-!DyAgendaView commentStamp: 'hlsf 9/10/2023 16:41:17' prior: 0!
+!DyAgendaView commentStamp: 'hlsf 9/24/2023 14:50:01' prior: 0!
 I present a view to let the user browser the tasks and to create new task.
-My model is the userData, to access the agenda and the class group!
+My model is a DyAgenda instance, to access the agenda and the class group!
 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
@@ -345,14 +345,6 @@ I am the model of Dynabook document!
 
 !DynabookDomain commentStamp: '<historical>' prior: 0!
 The domain object of a Dynabook application.!
-
-!DyAgenda commentStamp: '<historical>' prior: 0!
-The place to record teacher/student assignments or other events. It follows the user times slots as described in its related school instances:
-- start, a Date first day of school
-- end, a Date last day of school
-- daysOff: sorted collection of 2-array (start-end days off)
-- tasks: a collection of DyTask instances
-!
 
 !DyCourseHour commentStamp: '<historical>' prior: 0!
 Describes one or more contiguous teaching periods.!
@@ -366,6 +358,14 @@ I represent an interval of days!
 !DyObject commentStamp: '<historical>' prior: 0!
 Some business objects of the Dynabook model need to know about their owner. Such objects are my subclasses. 
 DyClassGroup, DyCourse, DyTopic are such objects!
+
+!DyAgenda commentStamp: '<historical>' prior: 0!
+The place to record teacher/student assignments or other events. It follows the user times slots as described in its related school instances:
+- start, a Date first day of school
+- end, a Date last day of school
+- daysOff: sorted collection of DyDayInterval instances
+- tasks: a collection of DyTask instances
+My owner is a DyUserData instance!
 
 !DyBinder commentStamp: '<historical>' prior: 0!
 A binder contains the pedagogical materials related to a given course. 
@@ -526,16 +526,101 @@ timeSlotName,start, end "
 		addField: #end: converter: [:s | Time fromString: s].
 	^ reader upToEnd asSortedCollection ! !
 
-!DyAgendaView methodsFor: 'as yet unclassified' stamp: 'hlsf 8/27/2023 22:16:41'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/25/2023 22:36:06'!
+courseHourDateListMorph
+" Present a list of forthcomming date for the selected course (courseIndex) "
+	^ DropDownListMorph 
+		model: self
+		listGetter: #courseHourDates
+		indexGetter: #courseHourIndex
+		indexSetter: #courseHourIndex:! !
+
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/24/2023 22:19:28'!
+courseListMorph
+" Present the list of the user courses "
+	^ DropDownListMorph 
+		model: self
+		listGetter: #courses
+		indexGetter: #courseIndex
+		indexSetter: #courseIndex:! !
+
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/24/2023 15:05:27'!
+futureTasks
+"A view to browse the tasks already assigned "! !
+
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/24/2023 15:24:13'!
+taskTools
+"The tools to assign a new task : which classGroup, which course and when "
+	| row |
+	row := LayoutMorph newRow.
+	row addMorph: (LabelMorph contents: 'Next Course' translated);
+		addMorph: self courseListMorph;
+		addMorph: self dateListMoprh
+		! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 14:56:03'!
+agenda: anAgenda
+	agenda := anAgenda ! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:20:51'!
+course
+" The selected course, if any "
+	^ self courses at: courseIndex ifAbsent: [nil]! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/25/2023 23:12:04'!
+courseHourDates
+" A list of future course hour date"
+	^ ListModel with: (self futureDates collect: [:each | 
+		(each second printString, ' - ', each first printString) ] )
+		! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:04:46'!
+courseIndex
+	^ courseIndex! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:04:53'!
+courseIndex: anIndex
+	courseIndex := anIndex ! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:26:19'!
+courses
+" All the user courses "
+	^ courses ifNil: [courses := self data courses]! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 21:59:05'!
+data
+	^ agenda owner! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/25/2023 23:10:51'!
+futureDates
+" A list of future course hour & date"
+	| futureDates date n next |
+	futureDates := OrderedCollection new.
+	date := Date today.
+	n := 10.
+	[next := self course nextCourseHourAfter: date.
+	next ifNotNil: [
+		date := next second.
+		futureDates add: next].	
+	n := n - 1.	
+	] whileFalse: [	n isZero or: [next notNil]].
+	^ futureDates ! !
+
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/25/2023 22:27:52'!
 initialize
+	| index |
 	super initialize.
-	self beRow.! !
+	self beRow.
+	index := (self data courseAt: DateAndTime now) 
+		ifNotNil:  [:aCourse | self courses indexOf: aCourse]
+		ifNil: [0].
+	self courseIndex: index! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 8/27/2023 22:37:23'!
-futureTasks! !
-
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 8/27/2023 22:17:01'!
-taskTools! !
+!DyAgendaView class methodsFor: 'instance creation' stamp: 'hlsf 9/24/2023 15:32:24'!
+agenda: anAgenda
+	^ self basicNew 
+		agenda: anAgenda ;
+		initialize ! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/15/2023 20:52:38'!
 presenter
@@ -555,7 +640,7 @@ for: aPresenter
 setUp
 	data := self resources anyOne current data! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:47:33'!
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/24/2023 14:07:36'!
 testAgenda
 	self assert: data agenda start = '2023-08-21' asDate.
 	self assert: data agenda end = '2024-06-28' asDate.
@@ -772,19 +857,17 @@ classGroup932in: school
 		add: ('123 5 P9' asCourseHourIn: course).
 	^ group! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 09:51:44'!
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/24/2023 14:04:47'!
 daysOff
-	| daysOff |
-	daysOff := OrderedCollection new.
-	{ Array with: '2023-10-23' with: '2023-10-27'.
-		Array with: '2023-12-25' with: '2024-01-05'.
-		Array with: '2024-02-19' with: '2024-02-23'.
-		Array with: '2024-03-29' with: '2024-04-12'		.
-		Array with: '2024-05-09' with: '2024-05-10'} do: [:startEnd |
-			daysOff addAll: (DyAgenda datesInterval: startEnd)].
-	{'2023-09-07' . '2024-05-01' . '2024-05-20'} do: [:each | 
-		daysOff add: each asDate].
-	^ daysOff ! !
+	^{ 
+		DyDayInterval start: '2023-10-23' end: '2023-10-27'.
+		DyDayInterval start: '2023-12-25' end: '2024-01-05' .
+		DyDayInterval start: '2024-02-19' end: '2024-02-23'.
+		DyDayInterval start: '2024-03-29' end: '2024-04-12'		.
+		DyDayInterval start: '2024-05-09' end: '2024-05-10'.
+		DyDayInterval start: '2023-09-07' end: '2023-09-07'		.
+		DyDayInterval start: '2024-05-01' end: '2024-05-01'		.
+		DyDayInterval start: '2024-05-20' end: '2024-05-20'	 }! !
 
 !DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 10:57:04'!
 schoolA
@@ -837,71 +920,6 @@ userData
 !DynabookDomain methodsFor: 'initialization' stamp: 'hlsf 8/16/2023 21:10:08'!
 initialize
 	userData := DyUserData current! !
-
-!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 9/21/2023 22:32:56'!
-initialize
-	super initialize.
-	tasks := OrderedCollection new.
-	daysOff := SortedCollection sortBlock: [:d1 :d2 | d1 < d2].! !
-
-!DyAgenda methodsFor: 'user interface' stamp: 'hlsf 7/29/2023 00:50:25'!
-mold
-	| mold |
-	mold := Mold new.
-	mold dateField 
-		label: 'Back-to-school day' translated;
-		on: #start of: self;
-		beRequired.
-	mold dateField 
-		label: 'End of school year' translated;
-		on: #end of: self;
-		beRequired.
-	^ mold
-	! !
-
-!DyAgenda methodsFor: 'visiting' stamp: 'hlsf 7/28/2023 18:31:24'!
-accept: aVisitor
-	^ aVisitor visitAgenda: self! !
-
-!DyAgenda methodsFor: 'printing' stamp: 'hlsf 7/30/2023 18:09:47'!
-printOn: stream
-	start 
-		ifNotNil: [ 	stream nextPutAll: 
-			('{1} to {2}' translated format: 
-				{start ddmmyyyy . end ddmmyyyy }) 		] 
-		ifNil: [stream nextPutAll: 'Unspecified agenda' translated]! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:09:53'!
-daysOff
-	^ daysOff ! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:23:47'!
-end
-	^ end ! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:27:11'!
-end: aDate
-	end := aDate ! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:23:42'!
-start
-	^ start! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:27:23'!
-start: aDate
-	start := 	aDate ! !
-
-!DyAgenda methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:43:29'!
-isDayOff: aDate
-	^ daysOff includes: aDate! !
-
-!DyAgenda class methodsFor: 'helpers' stamp: 'hlsf 9/23/2023 09:36:21'!
-datesInterval: startEndArray
-	| dates |
-	dates := OrderedCollection new.
-	startEndArray first asDate start to: startEndArray second asDate start by: 1 days
-		do: [:each | dates add: each date].
-	^ dates! !
 
 !DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 8/9/2023 14:39:28'!
 mold: school
@@ -1063,6 +1081,12 @@ importFrom: readStream
 		addField: #end: converter: [:d | Date fromString: d].
 	^ reader upToEnd asSortedCollection ! !
 
+!DyDayInterval class methodsFor: 'instance creation' stamp: 'hlsf 9/24/2023 14:05:07'!
+start: startDateString end: endDateString
+	^ self new
+		start: startDateString asDate;
+		end: endDateString  asDate! !
+
 !DyObject methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:04:50'!
 owner
 	^ owner! !
@@ -1070,6 +1094,63 @@ owner
 !DyObject methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:04:58'!
 owner: anObject
 	owner := 	anObject ! !
+
+!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 9/24/2023 10:38:03'!
+initialize
+	super initialize.
+	tasks := OrderedCollection new.
+	daysOff := SortedCollection new! !
+
+!DyAgenda methodsFor: 'user interface' stamp: 'hlsf 7/29/2023 00:50:25'!
+mold
+	| mold |
+	mold := Mold new.
+	mold dateField 
+		label: 'Back-to-school day' translated;
+		on: #start of: self;
+		beRequired.
+	mold dateField 
+		label: 'End of school year' translated;
+		on: #end of: self;
+		beRequired.
+	^ mold
+	! !
+
+!DyAgenda methodsFor: 'visiting' stamp: 'hlsf 7/28/2023 18:31:24'!
+accept: aVisitor
+	^ aVisitor visitAgenda: self! !
+
+!DyAgenda methodsFor: 'printing' stamp: 'hlsf 7/30/2023 18:09:47'!
+printOn: stream
+	start 
+		ifNotNil: [ 	stream nextPutAll: 
+			('{1} to {2}' translated format: 
+				{start ddmmyyyy . end ddmmyyyy }) 		] 
+		ifNil: [stream nextPutAll: 'Unspecified agenda' translated]! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:09:53'!
+daysOff
+	^ daysOff ! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:23:47'!
+end
+	^ end ! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:27:11'!
+end: aDate
+	end := aDate ! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:23:42'!
+start
+	^ start! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:27:23'!
+start: aDate
+	start := 	aDate ! !
+
+!DyAgenda methodsFor: 'testing' stamp: 'hlsf 9/24/2023 14:02:05'!
+isDayOff: aDate
+	^ daysOff anySatisfy: [:aDayInteverval | aDayInteverval 	 includes: aDate]! !
 
 !DyClassGroup methodsFor: 'user interface' stamp: 'hlsf 6/30/2023 21:15:15'!
 mold
@@ -1460,11 +1541,19 @@ accept: aVisitor
 agenda
 	^ agenda ifNil: [agenda := DyAgenda new]! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 14:41:59'!
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 15:44:35'!
 classGroups
-" Returns the collection of the user's class groups. 
-When several schools, each element of the collection is a couple school, group "
-! !
+" Returns the collection of the user's class groups"
+	^ schools inject: OrderedCollection new into: [:classGroups :aSchool |
+		classGroups addAll: aSchool classGroups.
+		classGroups ]! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 15:44:22'!
+courses
+" Returns the collection of the user's courses"
+	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
+		courses 	addAll: aClassGroup courses.
+		courses ]! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:13'!
 schools
@@ -1474,12 +1563,12 @@ schools
 user
 	^ user! !
 
-!DyUserData methodsFor: 'initialization' stamp: 'hlsf 8/9/2023 14:38:33'!
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 9/24/2023 14:38:24'!
 initialize
 	super initialize.
 	schools := OrderedCollection new.
 	user := DyTeacher new.
-	agenda := DyAgenda new! !
+	agenda := DyAgenda new owner: self! !
 
 !DyUserData methodsFor: 'printing' stamp: 'hlsf 6/28/2023 00:09:47'!
 printOn: str
@@ -1615,9 +1704,9 @@ plugSettingsView
 plugStartView
 ! !
 
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/27/2023 22:09:22'!
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 9/24/2023 15:32:39'!
 plugTaskView
-! !
+	self plugInDynabookView: (DyAgendaView agenda: presenter domain userData agenda)! !
 
 !DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/16/2023 21:25:12'!
 button: symbol
