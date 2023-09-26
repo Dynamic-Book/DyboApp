@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 25 September 2023 at 11:12:32 pm'!
+'From Cuis 6.0 [latest update: #5979] on 26 September 2023 at 10:04:44 pm'!
 'Description '!
-!provides: 'Dynabook' 1 28!
+!provides: 'Dynabook' 1 29!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -30,7 +30,7 @@ DyTimeSlot class
 
 !classDefinition: #DyAgendaView category: 'Dynabook-View-Business'!
 LayoutMorph subclass: #DyAgendaView
-	instanceVariableNames: 'agenda courseIndex courses'
+	instanceVariableNames: 'agenda courseIndex courses courseHourIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View-Business'!
@@ -548,14 +548,14 @@ courseListMorph
 futureTasks
 "A view to browse the tasks already assigned "! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/24/2023 15:24:13'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/26/2023 21:29:26'!
 taskTools
 "The tools to assign a new task : which classGroup, which course and when "
 	| row |
 	row := LayoutMorph newRow.
-	row addMorph: (LabelMorph contents: 'Next Course' translated);
+	row addMorph: (LabelMorph contents: 'New task:' translated);
 		addMorph: self courseListMorph;
-		addMorph: self dateListMoprh
+		addMorph: self courseHourDateListMorph 
 		! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 14:56:03'!
@@ -567,20 +567,25 @@ course
 " The selected course, if any "
 	^ self courses at: courseIndex ifAbsent: [nil]! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/25/2023 23:12:04'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/26/2023 21:38:25'!
 courseHourDates
 " A list of future course hour date"
-	^ ListModel with: (self futureDates collect: [:each | 
+	^ ListModel with: ( (self course futureDates: 10) collect: [:each | 
 		(each second printString, ' - ', each first printString) ] )
 		! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/26/2023 19:38:00'!
+courseHourIndex: anIndex
+	courseHourIndex := anIndex ! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:04:46'!
 courseIndex
 	^ courseIndex! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:04:53'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/26/2023 19:40:26'!
 courseIndex: anIndex
-	courseIndex := anIndex ! !
+	courseIndex := anIndex.
+	self changed: #courseHourDates! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:26:19'!
 courses
@@ -591,30 +596,15 @@ courses
 data
 	^ agenda owner! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/25/2023 23:10:51'!
-futureDates
-" A list of future course hour & date"
-	| futureDates date n next |
-	futureDates := OrderedCollection new.
-	date := Date today.
-	n := 10.
-	[next := self course nextCourseHourAfter: date.
-	next ifNotNil: [
-		date := next second.
-		futureDates add: next].	
-	n := n - 1.	
-	] whileFalse: [	n isZero or: [next notNil]].
-	^ futureDates ! !
-
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/25/2023 22:27:52'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/26/2023 21:32:32'!
 initialize
-	| index |
 	super initialize.
 	self beRow.
-	index := (self data courseAt: DateAndTime now) 
+	courseIndex := (self data courseAt: DateAndTime now) 
 		ifNotNil:  [:aCourse | self courses indexOf: aCourse]
 		ifNil: [0].
-	self courseIndex: index! !
+	courseHourIndex := 1.
+! !
 
 !DyAgendaView class methodsFor: 'instance creation' stamp: 'hlsf 9/24/2023 15:32:24'!
 agenda: anAgenda
@@ -694,6 +684,24 @@ testCourseHours
 	courseHours do: [:aCourseHour | 	
 		self assert: aCourseHour room equals: '123'.
 		aCourseHour timeSlots do: [:aTimeSlot | 		self assert: school timeSlots includes: aTimeSlot ] ]
+! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/26/2023 22:04:27'!
+testFutureDates
+	| course date futureDates| 
+	date := (DateAndTime fromString: '2023-09-05 10:45') date . "Tuesday"
+	course := data schools first classGroups first courses first.
+	futureDates := course next: 5 courseHoursAfter: date.
+	"Should be Friday (Wednesday no course, Thursday day off), time slot: P9 "
+	self assert: futureDates size = 5.
+	self assert: futureDates first  second = '2023-09-8' asDate.
+	self assert: futureDates second  second = '2023-09-11' asDate.
+	self assert: futureDates third  second = '2023-09-12' asDate.
+	self assert: futureDates fourth  second = '2023-09-14' asDate.
+	self assert: futureDates fifth  second = '2023-09-15' asDate.
+	
+	self assert: futureDates third first dayOfWeek= 2 .
+	self assert: futureDates third first timeSlots first = 'P4 10:25 11:10' asTimeSlot.
 ! !
 
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:47:58'!
@@ -1296,6 +1304,24 @@ isDuring: aDateAndTime
 		detect:  [:aCourseHour | aCourseHour isDuring: aDateAndTime ]
 		ifFound: [:aCourse | true]
 		ifNone: [false]! !
+
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/26/2023 21:53:13'!
+futureDates: qty
+" A list of future course hours & dates"
+	self next: qty courseHoursAfter: Date today! !
+
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/26/2023 22:02:46'!
+next: qty courseHoursAfter: aDate
+" A list of qty course hours & dates after a given date"
+	| futureDates n next |
+	futureDates := OrderedCollection new.
+	n := qty.
+	next := self nextCourseHourAfter: aDate.
+	[n isZero or: [next isNil]] whileFalse:	 [
+		futureDates add: next.	
+		next := self nextCourseHourAfter: next second. "̈next date"
+		n := n - 1	] .
+	^ futureDates ! !
 
 !DyCourse methodsFor: 'searching' stamp: 'hlsf 9/23/2023 11:05:32'!
 nextCourseHourAfter: aDate
