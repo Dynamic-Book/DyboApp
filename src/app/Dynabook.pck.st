@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 28 September 2023 at 5:51:42 pm'!
+'From Cuis 6.0 [latest update: #5979] on 28 September 2023 at 9:55:22 pm'!
 'Description '!
-!provides: 'Dynabook' 1 30!
+!provides: 'Dynabook' 1 31!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -522,30 +522,29 @@ courseHourDateListMorph
 		indexGetter: #courseHourIndex
 		indexSetter: #courseHourIndex:! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/24/2023 22:19:28'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 20:42:03'!
 courseListMorph
 " Present the list of the user courses "
 	^ DropDownListMorph 
 		model: self
 		listGetter: #courses
 		indexGetter: #courseIndex
-		indexSetter: #courseIndex:! !
+		indexSetter: #courseIndex: ::
+		autoDeselect: false.! !
 
 !DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 16:20:36'!
 futureTasks
 "A view to browse the tasks already assigned "
 	^ LayoutMorph newRow addMorph: (LabelMorph contents: 'Future tasks' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 16:20:00'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 21:47:22'!
 taskTools
 "The tools to assign a new task : which classGroup, which course and when "
 	| row |
 	row := LayoutMorph newRow.
 	row addMorph: (LabelMorph contents: 'New task:' translated);
 		addMorph: self courseListMorph;
-		addMorph: self courseHourDateListMorph;
-		color: Color red;
-		doAdoptWidgetsColor .
+		addMorph: self courseHourDateListMorph.
 	^ row	! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 14:56:03'!
@@ -581,11 +580,12 @@ courseHourIndex: anIndex
 courseIndex
 	^ courseIndex! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 16:31:41'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:31:09'!
 courseIndex: anIndex
 	courseIndex := anIndex.
 	self changed: #courseIndex:.
-	self changed: #courseHourDates! !
+	self changed: #courseHourDates.
+	self courseHourIndex:​ 1.! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:26:19'!
 courses
@@ -616,6 +616,19 @@ agenda: anAgenda
 		agenda: anAgenda ;
 		initialize ! !
 
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
+adoptWidgetsColor: aColor 
+	super adoptWidgetsColor: aColor.
+	color := Theme current paneBackgroundFrom: aColor.! !
+
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:31'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:23'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/15/2023 20:52:38'!
 presenter
 	presenter! !
@@ -634,16 +647,9 @@ for: aPresenter
 setUp
 	data := self resources anyOne current data! !
 
-!DynabookTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:55:34'!
+!DynabookTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 21:28:52'!
 tearDown
-	self tearDownResources .
-	'Reset resources' print! !
-
-!DynabookTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:53:25'!
-tearDownResources
-			
-	self resources do: [:each | each reset].
-	'Reset resources' print! !
+	self tearDownResources! !
 
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/24/2023 14:07:36'!
 testAgenda
@@ -1749,7 +1755,7 @@ plugBinderView
 	
 	! !
 
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:44:06'!
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 9/28/2023 21:44:09'!
 plugInDynabookView: aMorph
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout |
