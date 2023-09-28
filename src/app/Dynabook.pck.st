@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 26 September 2023 at 10:04:44 pm'!
+'From Cuis 6.0 [latest update: #5979] on 28 September 2023 at 5:51:42 pm'!
 'Description '!
-!provides: 'Dynabook' 1 29!
+!provides: 'Dynabook' 1 30!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -96,16 +96,6 @@ Object subclass: #DyCourseHour
 	category: 'Dynabook-Model-Business'!
 !classDefinition: 'DyCourseHour class' category: 'Dynabook-Model-Business'!
 DyCourseHour class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyData category: 'Dynabook-Model-Business'!
-Object subclass: #DyData
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyData class' category: 'Dynabook-Model-Business'!
-DyData class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyDayInterval category: 'Dynabook-Model-Business'!
@@ -333,8 +323,8 @@ DySystem class
 Describe the organization of the teaching periods in a school. There are generally 10 time slots per school.
 Example of a time slot: P2, 9:25am, 10:10am!
 
-!DyAgendaView commentStamp: 'hlsf 9/24/2023 14:50:01' prior: 0!
-I present a view to let the user browser the tasks and to create new task.
+!DyAgendaView commentStamp: '<historical>' prior: 0!
+I present a view to let the user browse the tasks and to create new task.
 My model is a DyAgenda instance, to access the agenda and the class group!
 
 !DynabookView commentStamp: '<historical>' prior: 0!
@@ -348,9 +338,6 @@ The domain object of a Dynabook application.!
 
 !DyCourseHour commentStamp: '<historical>' prior: 0!
 Describes one or more contiguous teaching periods.!
-
-!DyData commentStamp: '<historical>' prior: 0!
-An helper class to provide static data!
 
 !DyDayInterval commentStamp: '<historical>' prior: 0!
 I represent an interval of days!
@@ -526,7 +513,7 @@ timeSlotName,start, end "
 		addField: #end: converter: [:s | Time fromString: s].
 	^ reader upToEnd asSortedCollection ! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/25/2023 22:36:06'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 17:04:02'!
 courseHourDateListMorph
 " Present a list of forthcomming date for the selected course (courseIndex) "
 	^ DropDownListMorph 
@@ -544,19 +531,22 @@ courseListMorph
 		indexGetter: #courseIndex
 		indexSetter: #courseIndex:! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/24/2023 15:05:27'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 16:20:36'!
 futureTasks
-"A view to browse the tasks already assigned "! !
+"A view to browse the tasks already assigned "
+	^ LayoutMorph newRow addMorph: (LabelMorph contents: 'Future tasks' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/26/2023 21:29:26'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 16:20:00'!
 taskTools
 "The tools to assign a new task : which classGroup, which course and when "
 	| row |
 	row := LayoutMorph newRow.
 	row addMorph: (LabelMorph contents: 'New task:' translated);
 		addMorph: self courseListMorph;
-		addMorph: self courseHourDateListMorph 
-		! !
+		addMorph: self courseHourDateListMorph;
+		color: Color red;
+		doAdoptWidgetsColor .
+	^ row	! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 14:56:03'!
 agenda: anAgenda
@@ -567,24 +557,34 @@ course
 " The selected course, if any "
 	^ self courses at: courseIndex ifAbsent: [nil]! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/26/2023 21:38:25'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 16:35:12'!
 courseHourDates
 " A list of future course hour date"
-	^ ListModel with: ( (self course futureDates: 10) collect: [:each | 
-		(each second printString, ' - ', each first printString) ] )
+	^ self course 
+		ifNil: [Array new]
+		ifNotNil: [:course | |future |
+			future := course futureDates: 10.
+			future collect: [:each | 
+				(each second printString, ' - ', each first printString) ] ]
 		! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/26/2023 19:38:00'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 11:13:57'!
+courseHourIndex
+	^ courseHourIndex! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 16:31:16'!
 courseHourIndex: anIndex
-	courseHourIndex := anIndex ! !
+	courseHourIndex := anIndex.
+	self changed: #courseHourIndex:! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:04:46'!
 courseIndex
 	^ courseIndex! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/26/2023 19:40:26'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 16:31:41'!
 courseIndex: anIndex
 	courseIndex := anIndex.
+	self changed: #courseIndex:.
 	self changed: #courseHourDates! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:26:19'!
@@ -596,14 +596,18 @@ courses
 data
 	^ agenda owner! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/26/2023 21:32:32'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/28/2023 16:21:08'!
 initialize
 	super initialize.
-	self beRow.
+	self beColumn.
+	self doAdoptWidgetsColor.
 	courseIndex := (self data courseAt: DateAndTime now) 
 		ifNotNil:  [:aCourse | self courses indexOf: aCourse]
 		ifNil: [0].
-	courseHourIndex := 1.
+	courseHourIndex := 0.
+	self addMorphKeepMorphHeight: self taskTools.
+	self addMorphUseAll: self futureTasks
+	
 ! !
 
 !DyAgendaView class methodsFor: 'instance creation' stamp: 'hlsf 9/24/2023 15:32:24'!
@@ -630,6 +634,17 @@ for: aPresenter
 setUp
 	data := self resources anyOne current data! !
 
+!DynabookTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:55:34'!
+tearDown
+	self tearDownResources .
+	'Reset resources' print! !
+
+!DynabookTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:53:25'!
+tearDownResources
+			
+	self resources do: [:each | each reset].
+	'Reset resources' print! !
+
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/24/2023 14:07:36'!
 testAgenda
 	self assert: data agenda start = '2023-08-21' asDate.
@@ -644,6 +659,24 @@ testAgenda
 	self deny: (data agenda isDayOff: '2024-01-6' asDate).
 	self deny: (data agenda isDayOff: '2024-05-16' asDate)
 	! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:49:44'!
+testAsCourseIn	
+	| school course courseHour | 
+	school := data schools first.
+	course := school classGroups first courses first.
+	courseHour := '123 1 P2' asCourseHourIn: course.
+	self assert: courseHour room = '123'.
+	self assert: courseHour dayOfWeek = 1.
+	self assert: courseHour timeSlots size = 1.
+	self assert: (school timeSlots includes: courseHour timeSlots first).
+	""
+	courseHour := '123 2 P4 P5' asCourseHourIn: course.
+	self assert: courseHour room = '123'.
+	self assert: courseHour dayOfWeek = 2.
+	self assert: courseHour timeSlots size = 2.
+	courseHour timeSlots do: [:each |
+	self assert: (school timeSlots includes: each) ]! !
 
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:15:38'!
 testClassGroupCourse
@@ -851,11 +884,14 @@ testTimeSlotsOrder
 resources
 	^{DynabookTestResource }! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 10:56:26'!
+!DynabookTestCase class methodsFor: 'nil' stamp: 'hlsf 9/28/2023 12:52:19'!
+tearDownResources
+	self halt! !
+
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 13:08:22'!
 classGroup932in: school
 	| group course |
 	group := DyClassGroup number: '932' in: school.
-	school classGroups add: group.
 	course := DyCourse subject: 'Histoire' in: group.
 	group courses add: course.
 	course courseHours
@@ -893,10 +929,8 @@ schoolA
 	school classGroups add: (self classGroup932in: school).
 	^ school! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 09:47:34'!
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:48:44'!
 setUp
-	backupData := DyUserData basicCurrent.
-	DyUserData reset.
 	data := DyUserData current.
 	self setUpAgenda.
 	data schools add: (self schoolA owner: data; yourself)! !
@@ -908,10 +942,10 @@ setUpAgenda
 		end: '2024-06-28' asDate.
 	data agenda daysOff addAll: self daysOff ! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/12/2023 22:09:48'!
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:52:52'!
 tearDown
-	DyUserData current: backupData .
-	data := nil! !
+	DyUserData reset.
+	data := nil.! !
 
 !DynabookTestResource methodsFor: 'testing' stamp: 'hlsf 9/13/2023 22:10:45'!
 isAvailable 
@@ -921,6 +955,10 @@ isAvailable
 data
 	^ data! !
 
+!DynabookTestResource class methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:28:49'!
+isAvailable
+	^ true! !
+
 !DynabookDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
 	^ userData! !
@@ -929,7 +967,7 @@ userData
 initialize
 	userData := DyUserData current! !
 
-!DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 8/9/2023 14:39:28'!
+!DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 9/28/2023 15:21:54'!
 mold: school
 	| mold |
 	mold := Mold new.
@@ -939,13 +977,15 @@ mold: school
 		beRequired.
 	mold selectField 
 		label: 'Day' translated;
-		on: #listIndex of: (ListModel with: DyData daysOfWeek :: listIndex: dayOfWeek );
-		callback: [:val | self dayOfWeek: val];
+		on: #listIndex of: (ListModel with: DyUserData daysOfWeek :: listIndex: dayOfWeek );
+		callback: [:input | self dayOfWeek: input];
 		beRequired.
 	mold selectMultiField 
 		label: 'Period(s)' translated;
-		on: #selectedIndexes of: (ListMultiModel with: school timeSlots :: selectedIndexes: timeSlots );
-		callback: [:val | self timeSlots: val];
+		on: #selectedIndexes of: (
+			ListMultiModel with: school timeSlots :: selectedItems: timeSlots );
+		callback: [:input | 
+			self timeSlots: (input collect: [:index | school timeSlots at: index]) ];
 		beRequired.
 	^ mold! !
 
@@ -978,10 +1018,10 @@ timeSlots: aCollection
 accept: aVisitor
 	^ aVisitor visitCourseHour: self! !
 
-!DyCourseHour methodsFor: 'printing' stamp: 'hlsf 8/9/2023 14:39:28'!
+!DyCourseHour methodsFor: 'printing' stamp: 'hlsf 9/28/2023 11:24:04'!
 printOn: str
 	dayOfWeek 
-		ifNotNil:  [str nextPutAll: (DyData daysOfWeek at: dayOfWeek);
+		ifNotNil:  [str nextPutAll: (DyUserData daysOfWeek at: dayOfWeek);
 				nextPutAll: ' (';
 				nextPutAll: room;
 				nextPut: $)]
@@ -1005,10 +1045,6 @@ label
 !DyCourseHour class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:36:05'!
 pluralLabel
 	^ 'Periods' translated! !
-
-!DyData class methodsFor: 'as yet unclassified' stamp: 'hlsf 7/1/2023 12:43:42'!
-daysOfWeek
-	^ Week dayNames collect: [:day | day translated]! !
 
 !DyDayInterval methodsFor: 'printing' stamp: 'hlsf 7/29/2023 16:31:03'!
 printOn: aStream
@@ -1305,10 +1341,10 @@ isDuring: aDateAndTime
 		ifFound: [:aCourse | true]
 		ifNone: [false]! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/26/2023 21:53:13'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/28/2023 15:44:15'!
 futureDates: qty
-" A list of future course hours & dates"
-	self next: qty courseHoursAfter: Date today! !
+" A list of future course hours & dates after today "
+	^ self next: qty courseHoursAfter: Date today! !
 
 !DyCourse methodsFor: 'searching' stamp: 'hlsf 9/26/2023 22:02:46'!
 next: qty courseHoursAfter: aDate
@@ -1656,6 +1692,10 @@ reset
 !DyUserData class methodsFor: 'instance creation' stamp: 'hlsf 9/12/2023 21:57:49'!
 new
 	self error: 'Class ', self name, ' has only one instance active at a time'! !
+
+!DyUserData class methodsFor: 'translated' stamp: 'hlsf 9/28/2023 11:23:46'!
+daysOfWeek
+	^ Week dayNames collect: [:day | day translated]! !
 
 !DyControlManager methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:15:48'!
 presenter: aPresenter
@@ -2189,12 +2229,12 @@ visitCourse: course
 		addMorph: (self paneFor: course teacher label: 'Teacher' translated browse: false).
 	^ self plugView: column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 8/9/2023 14:37:41'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 9/28/2023 12:08:32'!
 visitCourseHour: courseHour
 	| column slots|
 	visitedModel := courseHour .
 	slots := ListMultiModel with: (DyUserData schoolOf: courseHour) timeSlots ::
-		selectedIndexes: courseHour timeSlots.
+		selectedItems: courseHour timeSlots.
 	column := LayoutMorph newColumn.
 	column 	
 		addMorph: (self paneFor: slots selectedItems label: 'Period(s)' translated browse: false).
