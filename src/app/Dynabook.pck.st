@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 28 September 2023 at 9:55:22 pm'!
+'From Cuis 6.0 [latest update: #5979] on 30 September 2023 at 6:01:03 pm'!
 'Description '!
-!provides: 'Dynabook' 1 31!
+!provides: 'Dynabook' 1 33!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -30,7 +30,7 @@ DyTimeSlot class
 
 !classDefinition: #DyAgendaView category: 'Dynabook-View-Business'!
 LayoutMorph subclass: #DyAgendaView
-	instanceVariableNames: 'agenda courseIndex courses courseHourIndex'
+	instanceVariableNames: 'presenter courseIndex courses courseHourIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View-Business'!
@@ -537,26 +537,32 @@ futureTasks
 "A view to browse the tasks already assigned "
 	^ LayoutMorph newRow addMorph: (LabelMorph contents: 'Future tasks' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 21:47:22'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/30/2023 17:47:16'!
 taskTools
 "The tools to assign a new task : which classGroup, which course and when "
 	| row |
 	row := LayoutMorph newRow.
-	row addMorph: (LabelMorph contents: 'New task:' translated);
+	row addMorph: (LabelMorph contents: 'New task in ' translated);
 		addMorph: self courseListMorph;
-		addMorph: self courseHourDateListMorph.
+		addMorph: (LabelMorph contents: ' at ' translated);
+		addMorph: self courseHourDateListMorph;
+		addMorph: (PluggableButtonMorph 
+			model: self
+			action: #saveTask
+			label: 'Save' translated).
 	^ row	! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 14:56:03'!
-agenda: anAgenda
-	agenda := anAgenda ! !
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:10:48'!
+adoptWidgetsColor: aColor 
+	super adoptWidgetsColor: aColor.
+	color := Theme current paneBackgroundFrom: aColor.! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:20:51'!
 course
 " The selected course, if any "
 	^ self courses at: courseIndex ifAbsent: [nil]! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 16:35:12'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:48:22'!
 courseHourDates
 " A list of future course hour date"
 	^ self course 
@@ -592,11 +598,23 @@ courses
 " All the user courses "
 	^ courses ifNil: [courses := self data courses]! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 21:59:05'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:56:16'!
 data
-	^ agenda owner! !
+	^ presenter  domain userData ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/28/2023 16:21:08'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:10:54'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:11:00'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:55:37'!
+presenter: aPresenter
+	presenter := aPresenter ! !
+
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/30/2023 17:12:43'!
 initialize
 	super initialize.
 	self beColumn.
@@ -606,14 +624,18 @@ initialize
 		ifNil: [0].
 	courseHourIndex := 0.
 	self addMorphKeepMorphHeight: self taskTools.
-	self addMorphUseAll: self futureTasks
+	self addMorphUseAll: self futureTasks.
+	self adoptWidgetsColor: self defaultBorderColor 
 	
 ! !
 
-!DyAgendaView class methodsFor: 'instance creation' stamp: 'hlsf 9/24/2023 15:32:24'!
-agenda: anAgenda
+!DyAgendaView methodsFor: 'action' stamp: 'hlsf 9/30/2023 17:49:56'!
+saveTask! !
+
+!DyAgendaView class methodsFor: 'instance creation' stamp: 'hlsf 9/30/2023 17:54:58'!
+presenter: aPresenter
 	^ self basicNew 
-		agenda: anAgenda ;
+		presenter: aPresenter ;
 		initialize ! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
@@ -1776,9 +1798,9 @@ plugSettingsView
 plugStartView
 ! !
 
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 9/24/2023 15:32:39'!
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 9/30/2023 17:56:27'!
 plugTaskView
-	self plugInDynabookView: (DyAgendaView agenda: presenter domain userData agenda)! !
+	self plugInDynabookView: (DyAgendaView presenter: presenter)! !
 
 !DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/16/2023 21:25:12'!
 button: symbol
