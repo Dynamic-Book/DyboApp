@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 30 September 2023 at 6:01:03 pm'!
+'From Cuis 6.0 [latest update: #5979] on 1 October 2023 at 10:49:39 pm'!
 'Description '!
-!provides: 'Dynabook' 1 33!
+!provides: 'Dynabook' 1 34!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -28,14 +28,34 @@ Magnitude subclass: #DyTimeSlot
 DyTimeSlot class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyAgendaView category: 'Dynabook-View-Business'!
-LayoutMorph subclass: #DyAgendaView
-	instanceVariableNames: 'presenter courseIndex courses courseHourIndex'
+!classDefinition: #DyView category: 'Dynabook-View'!
+LayoutMorph subclass: #DyView
+	instanceVariableNames: 'presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Dynabook-View-Business'!
-!classDefinition: 'DyAgendaView class' category: 'Dynabook-View-Business'!
+	category: 'Dynabook-View'!
+!classDefinition: 'DyView class' category: 'Dynabook-View'!
+DyView class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyAgendaView category: 'Dynabook-View'!
+DyView subclass: #DyAgendaView
+	instanceVariableNames: 'courseIndex courses courseHourIndex classGroupIndex classGroups'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-View'!
+!classDefinition: 'DyAgendaView class' category: 'Dynabook-View'!
 DyAgendaView class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyBinderView category: 'Dynabook-View'!
+DyView subclass: #DyBinderView
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-View'!
+!classDefinition: 'DyBinderView class' category: 'Dynabook-View'!
+DyBinderView class
 	instanceVariableNames: ''!
 
 !classDefinition: #DynabookView category: 'Dynabook-View'!
@@ -78,14 +98,14 @@ Object subclass: #DyDocument
 DyDocument class
 	instanceVariableNames: ''!
 
-!classDefinition: #DynabookDomain category: 'Dynabook-Model'!
-Object subclass: #DynabookDomain
+!classDefinition: #DyDomain category: 'Dynabook-Model'!
+Object subclass: #DyDomain
 	instanceVariableNames: 'userData'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model'!
-!classDefinition: 'DynabookDomain class' category: 'Dynabook-Model'!
-DynabookDomain class
+!classDefinition: 'DyDomain class' category: 'Dynabook-Model'!
+DyDomain class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyCourseHour category: 'Dynabook-Model-Business'!
@@ -333,7 +353,7 @@ I am the main view of the Dynabook app.!
 !DyDocument commentStamp: '<historical>' prior: 0!
 I am the model of Dynabook document!
 
-!DynabookDomain commentStamp: '<historical>' prior: 0!
+!DyDomain commentStamp: '<historical>' prior: 0!
 The domain object of a Dynabook application.!
 
 !DyCourseHour commentStamp: '<historical>' prior: 0!
@@ -513,14 +533,52 @@ timeSlotName,start, end "
 		addField: #end: converter: [:s | Time fromString: s].
 	^ reader upToEnd asSortedCollection ! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 17:04:02'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:08'!
+adoptWidgetsColor: aColor 
+	super adoptWidgetsColor: aColor.
+	color := Theme current paneBackgroundFrom: aColor.! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:24'!
+data
+	^ presenter  domain userData ! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:14'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:20'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:52:42'!
+presenter: aPresenter
+	presenter := aPresenter ! !
+
+!DyView class methodsFor: 'instance creation' stamp: 'hlsf 10/1/2023 18:52:51'!
+presenter: aPresenter
+	^ self basicNew 
+		presenter: aPresenter ;
+		initialize ! !
+
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/1/2023 21:40:55'!
+classGroupListMorph
+" Present a list of user class group "
+	^ DropDownListMorph 
+		model: self
+		listGetter: #classGroups
+		indexGetter: #classGroupIndex
+		indexSetter: #classGroupIndex: ::
+		autoDeselect: false.! !
+
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/1/2023 21:38:31'!
 courseHourDateListMorph
 " Present a list of forthcomming date for the selected course (courseIndex) "
 	^ DropDownListMorph 
 		model: self
 		listGetter: #courseHourDates
 		indexGetter: #courseHourIndex
-		indexSetter: #courseHourIndex:! !
+		indexSetter: #courseHourIndex: ::
+		autoDeselect: false.! !
 
 !DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 20:42:03'!
 courseListMorph
@@ -537,25 +595,39 @@ futureTasks
 "A view to browse the tasks already assigned "
 	^ LayoutMorph newRow addMorph: (LabelMorph contents: 'Future tasks' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/30/2023 17:47:16'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/1/2023 21:40:55'!
 taskTools
 "The tools to assign a new task : which classGroup, which course and when "
 	| row |
 	row := LayoutMorph newRow.
 	row addMorph: (LabelMorph contents: 'New task in ' translated);
+		addMorph: self classGroupListMorph ;
 		addMorph: self courseListMorph;
 		addMorph: (LabelMorph contents: ' at ' translated);
 		addMorph: self courseHourDateListMorph;
 		addMorph: (PluggableButtonMorph 
-			model: self
+			model: presenter
 			action: #saveTask
 			label: 'Save' translated).
 	^ row	! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:10:48'!
-adoptWidgetsColor: aColor 
-	super adoptWidgetsColor: aColor.
-	color := Theme current paneBackgroundFrom: aColor.! !
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 21:27:44'!
+classGroupIndex
+	^ classGroupIndex! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 19:10:37'!
+classGroupIndex: anIndex
+	classGroupIndex := anIndex.
+	self changed: #classGroupIndex:.
+	self changed: #courseIndex:.
+	self changed: #courseHourDates.
+	self courseIndex: 1.
+	self courseHourIndex:​ 1.! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 19:08:21'!
+classGroups
+" All the user class groups "
+	^ classGroups ifNil: [classGroups := self data classGroups ]! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:20:51'!
 course
@@ -598,45 +670,24 @@ courses
 " All the user courses "
 	^ courses ifNil: [courses := self data courses]! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:56:16'!
-data
-	^ presenter  domain userData ! !
-
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:10:54'!
-defaultBorderColor
-	^ Theme current transcript! !
-
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:11:00'!
-defaultColor
-	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
-
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:55:37'!
-presenter: aPresenter
-	presenter := aPresenter ! !
-
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/30/2023 17:12:43'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 10/1/2023 19:08:54'!
 initialize
 	super initialize.
 	self beColumn.
 	self doAdoptWidgetsColor.
+	" set the index accordingly to the time of today "
 	courseIndex := (self data courseAt: DateAndTime now) 
 		ifNotNil:  [:aCourse | self courses indexOf: aCourse]
+		ifNil: [	0].
+	courseHourIndex := courseIndex ifNotNil: 	[0] ifNil: [1].
+	classGroupIndex := self course 
+		ifNotNil: [:aCourse | self classGroups indexOf: aCourse classGroup] 
 		ifNil: [0].
-	courseHourIndex := 0.
 	self addMorphKeepMorphHeight: self taskTools.
 	self addMorphUseAll: self futureTasks.
 	self adoptWidgetsColor: self defaultBorderColor 
 	
 ! !
-
-!DyAgendaView methodsFor: 'action' stamp: 'hlsf 9/30/2023 17:49:56'!
-saveTask! !
-
-!DyAgendaView class methodsFor: 'instance creation' stamp: 'hlsf 9/30/2023 17:54:58'!
-presenter: aPresenter
-	^ self basicNew 
-		presenter: aPresenter ;
-		initialize ! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
 adoptWidgetsColor: aColor 
@@ -728,6 +779,32 @@ testCourseAgendaAccess
 	self assert: agenda start = '2023-08-21' asDate.
 	self assert: agenda end = '2024-06-28' asDate! !
 
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 10/1/2023 22:27:03'!
+testCourseAt
+	| courseH courseM classGroup dateAndTime | 
+	classGroup := data schools first classGroups first.
+	courseH := classGroup courses first.
+	courseM := classGroup courses second .
+
+	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
+	self assert: (data courseAt: dateAndTime) equals: courseH.
+	dateAndTime := DateAndTime fromString: '2023-09-11 7:00'. 
+	self assert: (data courseAt: dateAndTime) equals: nil.
+	
+	dateAndTime := DateAndTime fromString: '2023-09-12 11:30'.
+	self assert: (data courseAt: dateAndTime) equals: courseH.
+	dateAndTime := DateAndTime fromString: '2023-09-12 11:15'.
+	self assert: (data courseAt: dateAndTime) equals: courseH.
+	dateAndTime := DateAndTime fromString: '2023-09-12 11:13'.
+	self assert: (data courseAt: dateAndTime) equals: courseH.
+
+	dateAndTime := DateAndTime fromString: '2023-09-13 9:00'. 
+	self assert: (data courseAt: dateAndTime) equals: courseM.
+	
+	dateAndTime := DateAndTime fromString: '2023-09-15 15:54'. 
+	self assert: (data courseAt: dateAndTime) equals: courseH.
+	! !
+
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:29:19'!
 testCourseHours
 	| school group courseHours | 
@@ -764,31 +841,6 @@ testFutureDates
 	self assert: futureDates third first dayOfWeek= 2 .
 	self assert: futureDates third first timeSlots first = 'P4 10:25 11:10' asTimeSlot.
 ! !
-
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:47:58'!
-testICourseAt
-	| course classGroup dateAndTime | 
-	classGroup := data schools first classGroups first.
-	course := classGroup courses first.
-
-	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
-	self assert: (data courseAt: dateAndTime) equals: course.
-	dateAndTime := DateAndTime fromString: '2023-09-11 7:00'. 
-	self assert: (data courseAt: dateAndTime) equals: nil.
-	
-	dateAndTime := DateAndTime fromString: '2023-09-12 11:30'.
-	self assert: (data courseAt: dateAndTime) equals: course.
-	dateAndTime := DateAndTime fromString: '2023-09-12 11:15'.
-	self assert: (data courseAt: dateAndTime) equals: course.
-	dateAndTime := DateAndTime fromString: '2023-09-12 11:13'.
-	self assert: (data courseAt: dateAndTime) equals: course.
-
-	dateAndTime := DateAndTime fromString: '2023-09-13 9:00'. 
-	self assert: (data courseAt: dateAndTime) equals: nil.
-	
-	dateAndTime := DateAndTime fromString: '2023-09-15 15:54'. 
-	self assert: (data courseAt: dateAndTime) equals: course.
-	! !
 
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:10:49'!
 testIsDuring
@@ -916,7 +968,7 @@ resources
 tearDownResources
 	self halt! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 13:08:22'!
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 10/1/2023 22:18:04'!
 classGroup932in: school
 	| group course |
 	group := DyClassGroup number: '932' in: school.
@@ -927,6 +979,13 @@ classGroup932in: school
 		add: ('123 2 P4 P5' asCourseHourIn: course);
 		add: ('123 4 P7' asCourseHourIn: course);
 		add: ('123 5 P9' asCourseHourIn: course).
+	course := DyCourse subject: 'Mathématiques' in: group.
+	group courses add: course.
+	course courseHours
+		add: ('315 1 P3' asCourseHourIn: course);
+		add: ('315 2 P7 P8' asCourseHourIn: course);
+		add: ('315 3 P2' asCourseHourIn: course);
+		add: ('315 5 P4' asCourseHourIn: course).		
 	^ group! !
 
 !DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/24/2023 14:04:47'!
@@ -987,11 +1046,11 @@ data
 isAvailable
 	^ true! !
 
-!DynabookDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
 	^ userData! !
 
-!DynabookDomain methodsFor: 'initialization' stamp: 'hlsf 8/16/2023 21:10:08'!
+!DyDomain methodsFor: 'initialization' stamp: 'hlsf 8/16/2023 21:10:08'!
 initialize
 	userData := DyUserData current! !
 
@@ -2324,9 +2383,9 @@ isSection: aSymbolSection
 "We have the start, task, binder, and settings sections"
 	^ selectedSection == aSymbolSection ! !
 
-!Dynabook methodsFor: 'initialization' stamp: 'hlsf 8/16/2023 21:18:35'!
+!Dynabook methodsFor: 'initialization' stamp: 'hlsf 10/1/2023 15:40:45'!
 initialize
-	domain := DynabookDomain new.
+	domain := DyDomain new.
 	controlsManager := DyControlManager for: self.
 	controlsManager installDynabookView.
 	self goStart.
