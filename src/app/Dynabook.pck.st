@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 1 October 2023 at 10:49:39 pm'!
+'From Cuis 6.0 [latest update: #5979] on 3 October 2023 at 10:56:37 pm'!
 'Description '!
-!provides: 'Dynabook' 1 34!
+!provides: 'Dynabook' 1 35!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -30,7 +30,7 @@ DyTimeSlot class
 
 !classDefinition: #DyView category: 'Dynabook-View'!
 LayoutMorph subclass: #DyView
-	instanceVariableNames: 'presenter'
+	instanceVariableNames: 'presenter classGroups classGroupIndex courseIndex courses'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -40,7 +40,7 @@ DyView class
 
 !classDefinition: #DyAgendaView category: 'Dynabook-View'!
 DyView subclass: #DyAgendaView
-	instanceVariableNames: 'courseIndex courses courseHourIndex classGroupIndex classGroups'
+	instanceVariableNames: 'courseHourIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -343,6 +343,9 @@ DySystem class
 Describe the organization of the teaching periods in a school. There are generally 10 time slots per school.
 Example of a time slot: P2, 9:25am, 10:10am!
 
+!DyView commentStamp: '<historical>' prior: 0!
+An abstract view for the Agenda and Binder. Share some behaviors and states.!
+
 !DyAgendaView commentStamp: '<historical>' prior: 0!
 I present a view to let the user browse the tasks and to create new task.
 My model is a DyAgenda instance, to access the agenda and the class group!
@@ -533,34 +536,61 @@ timeSlotName,start, end "
 		addField: #end: converter: [:s | Time fromString: s].
 	^ reader upToEnd asSortedCollection ! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:08'!
+!DyView methodsFor: 'ui' stamp: 'hlsf 10/1/2023 18:53:08'!
 adoptWidgetsColor: aColor 
 	super adoptWidgetsColor: aColor.
 	color := Theme current paneBackgroundFrom: aColor.! !
+
+!DyView methodsFor: 'ui' stamp: 'hlsf 10/1/2023 18:53:14'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DyView methodsFor: 'ui' stamp: 'hlsf 10/1/2023 18:53:20'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:45:18'!
+classGroupIndex
+	^ classGroupIndex! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:46:35'!
+classGroupIndex: anIndex
+	classGroupIndex := anIndex.
+	self changed: #classGroupIndex:.! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:45:32'!
+classGroups
+" All the user class groups "
+	^ classGroups ifNil: [classGroups := self data classGroups ]! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:47:52'!
+course
+" The selected course, if any "
+	^ self courses at: courseIndex ifAbsent: [nil]! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:45:56'!
+courseIndex
+	^ courseIndex! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:48:17'!
+courseIndex: anIndex
+	courseIndex := anIndex.
+	self changed: #courseIndex:.! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:49:01'!
+courses
+" All the user courses "
+	^ courses ifNil: [courses := self data courses]! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:24'!
 data
 	^ presenter  domain userData ! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:14'!
-defaultBorderColor
-	^ Theme current transcript! !
-
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:20'!
-defaultColor
-	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
-
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:52:42'!
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DyView class methodsFor: 'instance creation' stamp: 'hlsf 10/1/2023 18:52:51'!
-presenter: aPresenter
-	^ self basicNew 
-		presenter: aPresenter ;
-		initialize ! !
-
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/1/2023 21:40:55'!
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 10/3/2023 22:50:04'!
 classGroupListMorph
 " Present a list of user class group "
 	^ DropDownListMorph 
@@ -570,6 +600,22 @@ classGroupListMorph
 		indexSetter: #classGroupIndex: ::
 		autoDeselect: false.! !
 
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 10/3/2023 22:50:14'!
+courseListMorph
+" Present the list of the user courses "
+	^ DropDownListMorph 
+		model: self
+		listGetter: #courses
+		indexGetter: #courseIndex
+		indexSetter: #courseIndex: ::
+		autoDeselect: false.! !
+
+!DyView class methodsFor: 'instance creation' stamp: 'hlsf 10/1/2023 18:52:51'!
+presenter: aPresenter
+	^ self basicNew 
+		presenter: aPresenter ;
+		initialize ! !
+
 !DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/1/2023 21:38:31'!
 courseHourDateListMorph
 " Present a list of forthcomming date for the selected course (courseIndex) "
@@ -578,16 +624,6 @@ courseHourDateListMorph
 		listGetter: #courseHourDates
 		indexGetter: #courseHourIndex
 		indexSetter: #courseHourIndex: ::
-		autoDeselect: false.! !
-
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 20:42:03'!
-courseListMorph
-" Present the list of the user courses "
-	^ DropDownListMorph 
-		model: self
-		listGetter: #courses
-		indexGetter: #courseIndex
-		indexSetter: #courseIndex: ::
 		autoDeselect: false.! !
 
 !DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 16:20:36'!
@@ -611,28 +647,13 @@ taskTools
 			label: 'Save' translated).
 	^ row	! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 21:27:44'!
-classGroupIndex
-	^ classGroupIndex! !
-
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 19:10:37'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:47:40'!
 classGroupIndex: anIndex
-	classGroupIndex := anIndex.
-	self changed: #classGroupIndex:.
+	super classGroupIndex: anIndex.
 	self changed: #courseIndex:.
 	self changed: #courseHourDates.
 	self courseIndex: 1.
 	self courseHourIndex:​ 1.! !
-
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 19:08:21'!
-classGroups
-" All the user class groups "
-	^ classGroups ifNil: [classGroups := self data classGroups ]! !
-
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:20:51'!
-course
-" The selected course, if any "
-	^ self courses at: courseIndex ifAbsent: [nil]! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:48:22'!
 courseHourDates
@@ -654,21 +675,12 @@ courseHourIndex: anIndex
 	courseHourIndex := anIndex.
 	self changed: #courseHourIndex:! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:04:46'!
-courseIndex
-	^ courseIndex! !
-
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:31:09'!
 courseIndex: anIndex
 	courseIndex := anIndex.
 	self changed: #courseIndex:.
 	self changed: #courseHourDates.
 	self courseHourIndex:​ 1.! !
-
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 22:26:19'!
-courses
-" All the user courses "
-	^ courses ifNil: [courses := self data courses]! !
 
 !DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 10/1/2023 19:08:54'!
 initialize
@@ -688,6 +700,36 @@ initialize
 	self adoptWidgetsColor: self defaultBorderColor 
 	
 ! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:52:29'!
+classGroupIndex: anIndex
+	super classGroupIndex: anIndex.
+	self changed: #courseIndex:.
+	self changed: #topicIndex.
+	self courseIndex: 1.
+	self topicIndex:​ 1! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:52:24'!
+courseIndex: anIndex
+	courseIndex := anIndex.
+	self changed: #courseIndex:.
+	self changed: #topicIndex.
+	self topicIndex:​ 1! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:56:17'!
+topics
+	^ self course 
+		ifNotNil: [:aCourse | aCourse topics]! !
+
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/3/2023 22:52:55'!
+topcListMorph
+" Present a list of topic in selected course "
+	^ DropDownListMorph 
+		model: self
+		listGetter: #topic
+		indexGetter: #topicIndex
+		indexSetter: #topicIndex: ::
+		autoDeselect: false.! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
 adoptWidgetsColor: aColor 
@@ -1410,6 +1452,10 @@ subject: newName
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 08:52:52'!
 teacher
 	^ teacher ! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:54:34'!
+topics
+	^ binder topics! !
 
 !DyCourse methodsFor: 'printing' stamp: 'hlsf 6/19/2023 22:42:49'!
 printOn: aStream
@@ -2497,17 +2543,15 @@ rename: oldName to: newName in: parentDir
 				ifTrue: [dir rename: newName asFileName ] 
 				ifFalse: [self error: dir pathName, ' missing']						]! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/22/2023 21:39:22'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 10/3/2023 22:38:26'!
 renameClassGroup: aClassGroup from: oldName to: newName
-	| mySchool |
-	mySchool := aClassGroup owner.
-	self rename: oldName to: newName in: self userDataPath / mySchool dirName! !
+	self rename: oldName to: newName in: self userDataPath / aClassGroup school dirName! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/22/2023 21:38:51'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 10/3/2023 22:37:42'!
 renameCourse: aCourse from: oldName to: newName
 	| school classGroup |
-	classGroup := aCourse owner.
-	school := classGroup owner.
+	classGroup := aCourse classGroup.
+	school := classGroup school.
 	self rename: oldName to: newName in: self userDataPath / school dirName / classGroup dirName! !
 
 !DySystem class methodsFor: 'events' stamp: 'hlsf 8/22/2023 21:25:21'!
