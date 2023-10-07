@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 3 October 2023 at 10:56:37 pm'!
+'From Cuis 6.0 [latest update: #5979] on 7 October 2023 at 5:15:38 pm'!
 'Description '!
-!provides: 'Dynabook' 1 35!
+!provides: 'Dynabook' 1 36!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -30,7 +30,7 @@ DyTimeSlot class
 
 !classDefinition: #DyView category: 'Dynabook-View'!
 LayoutMorph subclass: #DyView
-	instanceVariableNames: 'presenter classGroups classGroupIndex courseIndex courses'
+	instanceVariableNames: 'presenter classGroupIndex courseIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -50,7 +50,7 @@ DyAgendaView class
 
 !classDefinition: #DyBinderView category: 'Dynabook-View'!
 DyView subclass: #DyBinderView
-	instanceVariableNames: ''
+	instanceVariableNames: 'topicIndex sortIndex previewPanel'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -558,10 +558,10 @@ classGroupIndex: anIndex
 	classGroupIndex := anIndex.
 	self changed: #classGroupIndex:.! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:45:32'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:12:03'!
 classGroups
 " All the user class groups "
-	^ classGroups ifNil: [classGroups := self data classGroups ]! !
+	^ self data classGroups! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:47:52'!
 course
@@ -577,10 +577,10 @@ courseIndex: anIndex
 	courseIndex := anIndex.
 	self changed: #courseIndex:.! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:49:01'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:11:28'!
 courses
 " All the user courses "
-	^ courses ifNil: [courses := self data courses]! !
+	^ self data courses! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:24'!
 data
@@ -610,6 +610,12 @@ courseListMorph
 		indexSetter: #courseIndex: ::
 		autoDeselect: false.! !
 
+!DyView methodsFor: 'initialization' stamp: 'hlsf 10/7/2023 15:56:04'!
+initialize
+	super initialize.
+	self beColumn.
+	self doAdoptWidgetsColor.! !
+
 !DyView class methodsFor: 'instance creation' stamp: 'hlsf 10/1/2023 18:52:51'!
 presenter: aPresenter
 	^ self basicNew 
@@ -626,17 +632,16 @@ courseHourDateListMorph
 		indexSetter: #courseHourIndex: ::
 		autoDeselect: false.! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/28/2023 16:20:36'!
-futureTasks
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/7/2023 11:24:12'!
+incomingTasksPanel
 "A view to browse the tasks already assigned "
 	^ LayoutMorph newRow addMorph: (LabelMorph contents: 'Future tasks' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/1/2023 21:40:55'!
-taskTools
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/7/2023 14:56:01'!
+newTaskPanel
 "The tools to assign a new task : which classGroup, which course and when "
-	| row |
-	row := LayoutMorph newRow.
-	row addMorph: (LabelMorph contents: 'New task in ' translated);
+	^​ LayoutMorph newRow ::
+		addMorph: (LabelMorph contents: 'New task in ' translated);
 		addMorph: self classGroupListMorph ;
 		addMorph: self courseListMorph;
 		addMorph: (LabelMorph contents: ' at ' translated);
@@ -644,8 +649,7 @@ taskTools
 		addMorph: (PluggableButtonMorph 
 			model: presenter
 			action: #saveTask
-			label: 'Save' translated).
-	^ row	! !
+			label: 'Save' translated)! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:47:40'!
 classGroupIndex: anIndex
@@ -655,15 +659,19 @@ classGroupIndex: anIndex
 	self courseIndex: 1.
 	self courseHourIndex:​ 1.! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/30/2023 17:48:22'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 15:12:20'!
 courseHourDates
 " A list of future course hour date"
 	^ self course 
 		ifNil: [Array new]
 		ifNotNil: [:course | |future |
 			future := course futureDates: 10.
-			future collect: [:each | 
-				(each second printString, ' - ', each first printString) ] ]
+			future collect: [:aCourseHourAndDate | 
+				String streamContents: [:str |
+					str nextPutAll: aCourseHourAndDate second ddmmyyyy; space.
+					aCourseHourAndDate first timeSlots 
+						do: [:each | str nextPutAll: each slotName ]
+						separatedBy: [str nextPut: $-]					 ] ] ]
 		! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 11:13:57'!
@@ -682,24 +690,26 @@ courseIndex: anIndex
 	self changed: #courseHourDates.
 	self courseHourIndex:​ 1.! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 10/1/2023 19:08:54'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 10/7/2023 16:03:13'!
 initialize
 	super initialize.
-	self beColumn.
-	self doAdoptWidgetsColor.
-	" set the index accordingly to the time of today "
+	" Guess the course at current time, then its classGroup "
 	courseIndex := (self data courseAt: DateAndTime now) 
 		ifNotNil:  [:aCourse | self courses indexOf: aCourse]
 		ifNil: [	0].
-	courseHourIndex := courseIndex ifNotNil: 	[0] ifNil: [1].
+	courseHourIndex := courseIndex isZero ifTrue: 	[0] ifFalse: [1].
 	classGroupIndex := self course 
 		ifNotNil: [:aCourse | self classGroups indexOf: aCourse classGroup] 
 		ifNil: [0].
-	self addMorphKeepMorphHeight: self taskTools.
-	self addMorphUseAll: self futureTasks.
+	self addMorphKeepMorphHeight: self newTaskPanel.
+	self addMorphUseAll: self incomingTasksPanel.
 	self adoptWidgetsColor: self defaultBorderColor 
 	
 ! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:13:28'!
+classGroup
+	^ self classGroups at: classGroupIndex ifAbsent: [nil]! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:52:29'!
 classGroupIndex: anIndex
@@ -716,20 +726,92 @@ courseIndex: anIndex
 	self changed: #topicIndex.
 	self topicIndex:​ 1! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:56:17'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:10:58'!
+courses
+" The user courses within the selected class group "
+	^ self classGroup 
+		ifNotNil: [:cg | cg courses]
+		ifNil: [`Array new`]! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 11:52:11'!
+sortIndex
+	^ sortIndex! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 11:52:37'!
+sortIndex: anIndex
+	sortIndex := 	anIndex.
+	self changed: #sortIndex:! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 11:51:47'!
+sortOptions
+	^ `Array with: 'Newer first' translated with: 'Older first' translated with: 'By name' translated`! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/4/2023 22:39:04'!
+topicIndex
+	^ topicIndex! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/4/2023 22:35:29'!
+topicIndex: anIndex
+	topicIndex := anIndex.
+	self changed: #topicIndex.! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:14:56'!
 topics
 	^ self course 
-		ifNotNil: [:aCourse | aCourse topics]! !
+		ifNotNil: [:aCourse | aCourse topics]
+		ifNil: [`Array new`]! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/3/2023 22:52:55'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 15:24:27'!
+documentSelectorPanel
+" A view to select documents according to classGroups, courses, topics and sorting option "
+	^ LayoutMorph newRow ::
+		addMorph: self classGroupListMorph ;
+		addMorph: self courseListMorph;
+		addMorph: self topmostWorld;
+		addMorph: DyControlManager spacer;
+		addMorph: self sortListMorph! !
+
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 15:55:36'!
+selectedDocumentsPanel
+" A view to present previews of the selected documents from the documentSelectorPanel "
+	| quickButtons |
+	quickButtons := Array 
+		with: (PluggableButtonMorph model: self action: #newDocument ::
+			icon: Theme current listAddIcon;
+			setBalloonText: 'Create a new document' translated)
+		with: (PluggableButtonMorph model: self action: #importResource ::
+			icon: Theme current openIcon;
+			setBalloonText: 'Import a resource' translated).
+	^ DecoratedPane 
+		open: (previewPanel := LayoutMorph newColumn) 
+		label:  'Selected documents' translated
+		quickButtons: quickButtons! !
+
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 11:49:48'!
+sortListMorph
+" Present a list of topic in selected course "
+	^ DropDownListMorph 
+		model: self
+		listGetter: #sortOptions
+		indexGetter: #sortIndex
+		indexSetter: #sortIndex: ::
+		autoDeselect: false.! !
+
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 17:06:26'!
 topcListMorph
 " Present a list of topic in selected course "
 	^ DropDownListMorph 
 		model: self
-		listGetter: #topic
+		listGetter: #topics
 		indexGetter: #topicIndex
 		indexSetter: #topicIndex: ::
 		autoDeselect: false.! !
+
+!DyBinderView methodsFor: 'as yet unclassified' stamp: 'hlsf 10/7/2023 17:04:35'!
+initialize
+	super initialize.
+	classGroupIndex :=  self classGroups ifNotEmpty: [1] ifEmpty: [0].
+	courseIndex := self courses ifNotEmpty: [1] ifEmpty: [0].! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
 adoptWidgetsColor: aColor 
@@ -1929,7 +2011,7 @@ button: symbol
 		morphExtent: (DySystem iconToolbarSize + 4) asPoint;
 		yourself	! !
 
-!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/16/2023 21:26:22'!
+!DyControlManager methodsFor: 'widget' stamp: 'hlsf 10/7/2023 15:24:00'!
 dynabookToolbar
 	| toolbar |
 	toolbar := LayoutMorph newRow 
@@ -1937,21 +2019,21 @@ dynabookToolbar
 		yourself.
 	self dynabookTools do: [:aTool | 
 		aTool == #spacer 
-			ifTrue: [toolbar addMorphUseAll: self spacer]
+			ifTrue: [toolbar addMorphUseAll: self class spacer]
 			ifFalse: [	toolbar addMorph: (self button: aTool )] ].
 	^ toolbar! !
-
-!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/15/2023 20:29:27'!
-spacer
-	^ BoxedMorph new 
-		borderWidth: 0;
-		color: Color transparent; 
-		yourself! !
 
 !DyControlManager class methodsFor: 'instance creation' stamp: 'hlsf 8/16/2023 21:15:18'!
 for: aPresenter
 	^ self new
 		presenter: aPresenter;
+		yourself! !
+
+!DyControlManager class methodsFor: 'widget' stamp: 'hlsf 10/7/2023 15:23:51'!
+spacer
+	^ BoxedMorph new 
+		borderWidth: 0;
+		color: Color transparent; 
 		yourself! !
 
 !DyIconManager methodsFor: 'accessing' stamp: 'hlsf 8/13/2023 16:00:18'!
@@ -2068,32 +2150,32 @@ visitUserData: userData
 editorsFor: aCollection ofType: classModel 
 	^ self editorsFor: aCollection ofType: classModel in: nil! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/22/2023 21:15:51'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 10/7/2023 15:38:13'!
 editorsFor: aCollection ofType: classModel in: anOwner
 " A decorated editor to edit a collection of models "
-	| listMorph quickButtons decoratedModel |
+	| listMorph quickButtons decoratedPanel |
 	listMorph := PluggableListMorph 
 		model: (ListModel with: aCollection )		
 		listGetter: #list 		indexGetter: #listIndex indexSetter: #listIndex:.
-	decoratedModel := DecoratedPane open: listMorph label: classModel pluralLabel .
+	decoratedPanel := DecoratedPane open: listMorph label: classModel pluralLabel .
 	quickButtons := OrderedCollection new.
 	quickButtons add: (PluggableButtonMorph 
 		model: self 		stateGetter: nil stateArgument: nil 	action: #quickAdd: 
-		actionArgument: (Array with: classModel with: decoratedModel with: listMorph with: anOwner)
+		actionArgument: (Array with: classModel with: decoratedPanel with: listMorph with: anOwner)
 		label: nil ::
 		icon: Theme current listAddIcon;
 		setBalloonText: ('Add a new {1}' translated format: {classModel label});
 		yourself).
 	quickButtons add: (PluggableButtonMorph 
 		model: self 		stateGetter: nil stateArgument: nil 	action: #quickEdit: 
-		actionArgument: (Array with: decoratedModel with: listMorph)
+		actionArgument: (Array with: decoratedPanel with: listMorph)
 		label: nil ::
 		icon: Theme current textEditorIcon;
 		setBalloonText: ('Edit the selected {1}' translated format: {classModel label});
 		yourself).
 	quickButtons add: (PluggableButtonMorph 
 		model: self 		stateGetter: nil stateArgument: nil 	action: #quickDelete: 
-		actionArgument: (Array with: decoratedModel with: listMorph)
+		actionArgument: (Array with: decoratedPanel with: listMorph)
 		label: nil ::
 		icon: Theme current deleteIcon ;
 		setBalloonText: ('Delete the selected {1}' translated format: {classModel label });
@@ -2114,8 +2196,8 @@ editorsFor: aCollection ofType: classModel in: anOwner
 			icon: Theme current saveIcon ;
 			setBalloonText: 'Export to a file' translated;
 			yourself) ].	
-	decoratedModel quickButtons: quickButtons.
-	^ decoratedModel! !
+	decoratedPanel quickButtons: quickButtons.
+	^ decoratedPanel! !
 
 !DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 7/3/2023 21:47:18'!
 newColumnWith: morphs
