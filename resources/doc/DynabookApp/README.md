@@ -162,6 +162,7 @@ These objects describe where and how the pedagogical contents are
 organized.
 
 **Binder**
+**Likely the Binder object is not necessary. Its attribuetd could added as attributes to the Course class.**
 
 A binder contains the pedagogical materials related to a given course. 
 
