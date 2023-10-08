@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 7 October 2023 at 5:15:38 pm'!
+'From Cuis 6.0 [latest update: #5979] on 8 October 2023 at 11:43:34 pm'!
 'Description '!
-!provides: 'Dynabook' 1 36!
+!provides: 'Dynabook' 1 37!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -148,16 +148,6 @@ DyObject subclass: #DyAgenda
 DyAgenda class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBinder category: 'Dynabook-Model-Business'!
-DyObject subclass: #DyBinder
-	instanceVariableNames: 'topics last resources'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyBinder class' category: 'Dynabook-Model-Business'!
-DyBinder class
-	instanceVariableNames: ''!
-
 !classDefinition: #DyClassGroup category: 'Dynabook-Model-Business'!
 DyObject subclass: #DyClassGroup
 	instanceVariableNames: 'number headTeacher students courses'
@@ -170,7 +160,7 @@ DyClassGroup class
 
 !classDefinition: #DyCourse category: 'Dynabook-Model-Business'!
 DyObject subclass: #DyCourse
-	instanceVariableNames: 'subject color teacher courseHours binder'
+	instanceVariableNames: 'subject color teacher courseHours topics'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
@@ -190,7 +180,7 @@ DySchool class
 
 !classDefinition: #DyTopic category: 'Dynabook-Model-Business'!
 DyObject subclass: #DyTopic
-	instanceVariableNames: 'title color documents'
+	instanceVariableNames: 'title color documents resources'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
@@ -376,10 +366,6 @@ The place to record teacher/student assignments or other events. It follows the 
 - daysOff: sorted collection of DyDayInterval instances
 - tasks: a collection of DyTask instances
 My owner is a DyUserData instance!
-
-!DyBinder commentStamp: '<historical>' prior: 0!
-A binder contains the pedagogical materials related to a given course. 
-!
 
 !DyClassGroup commentStamp: '<historical>' prior: 0!
 It describes a class: its number, the list of its students, taught courses, etc.
@@ -807,11 +793,15 @@ topcListMorph
 		indexSetter: #topicIndex: ::
 		autoDeselect: false.! !
 
-!DyBinderView methodsFor: 'as yet unclassified' stamp: 'hlsf 10/7/2023 17:04:35'!
+!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 10/7/2023 18:09:06'!
 initialize
 	super initialize.
 	classGroupIndex :=  self classGroups ifNotEmpty: [1] ifEmpty: [0].
-	courseIndex := self courses ifNotEmpty: [1] ifEmpty: [0].! !
+	courseIndex := self courses ifNotEmpty: [1] ifEmpty: [0].
+	topicIndex := self topics ifNotEmpty: [1] ifEmpty: [0].
+	self addMorphKeepMorphHeight: self documentSelectorPanel.
+	self addMorphUseAll: self selectedDocumentsPanel.
+	self adoptWidgetsColor: self defaultBorderColor ! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
 adoptWidgetsColor: aColor 
@@ -1092,7 +1082,7 @@ resources
 tearDownResources
 	self halt! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 10/1/2023 22:18:04'!
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 10/8/2023 23:25:12'!
 classGroup932in: school
 	| group course |
 	group := DyClassGroup number: '932' in: school.
@@ -1103,6 +1093,9 @@ classGroup932in: school
 		add: ('123 2 P4 P5' asCourseHourIn: course);
 		add: ('123 4 P7' asCourseHourIn: course);
 		add: ('123 5 P9' asCourseHourIn: course).
+	course topics 
+		add: (DyTopic title: 'Middle Age' in: course);
+		add: (DyTopic title: 'Modern Time' in: course).
 	course := DyCourse subject: 'Mathématiques' in: group.
 	group courses add: course.
 	course courseHours
@@ -1110,6 +1103,9 @@ classGroup932in: school
 		add: ('315 2 P7 P8' asCourseHourIn: course);
 		add: ('315 3 P2' asCourseHourIn: course);
 		add: ('315 5 P4' asCourseHourIn: course).		
+	course topics 
+		add: (DyTopic title: 'Rational' in: course);
+		add: (DyTopic title: 'Triangle' in: course).
 	^ group! !
 
 !DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/24/2023 14:04:47'!
@@ -1350,6 +1346,14 @@ owner
 owner: anObject
 	owner := 	anObject ! !
 
+!DyObject class methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:29:21'!
+label
+	^ 'unnamed object'! !
+
+!DyObject class methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:29:27'!
+pluralLabel
+	^ 'Unnamed objects'! !
+
 !DyAgenda methodsFor: 'initialization' stamp: 'hlsf 9/24/2023 10:38:03'!
 initialize
 	super initialize.
@@ -1447,17 +1451,17 @@ school
 students
 	^ students! !
 
-!DyClassGroup methodsFor: 'printing' stamp: 'hlsf 6/4/2023 18:15:58'!
+!DyClassGroup methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:34:42'!
 printOn: str
-	number ifNil: [str nextPutAll: 'Unknown class' translated]
-		ifNotNil: [	str nextPutAll: number ]! !
+	str nextPutAll: number! !
 
-!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 8/9/2023 14:38:33'!
+!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:34:51'!
 initialize
 	super initialize.
 	headTeacher := DyTeacher new.
 	courses := OrderedCollection new.
-	students := SortedCollection new! !
+	students := SortedCollection new.
+	number := 'Unknown class' translated! !
 
 !DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 16:52:38'!
 registerEvents
@@ -1481,11 +1485,13 @@ number: aString in: aSchool
 		number: aString;
 		owner: aSchool! !
 
-!DyCourse methodsFor: 'initialization' stamp: 'hlsf 8/9/2023 14:38:33'!
+!DyCourse methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:34:26'!
 initialize
 	super initialize.
 	courseHours := OrderedCollection new.
-	teacher := DyTeacher new.! !
+	topics := OrderedCollection new.
+	teacher := DyTeacher new.
+	subject := 'Unnamed course' translated! !
 
 !DyCourse methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 16:52:51'!
 registerEvents
@@ -1535,15 +1541,13 @@ subject: newName
 teacher
 	^ teacher ! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:54:34'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 10/8/2023 23:09:25'!
 topics
-	^ binder topics! !
+	^ topics! !
 
-!DyCourse methodsFor: 'printing' stamp: 'hlsf 6/19/2023 22:42:49'!
+!DyCourse methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:34:04'!
 printOn: aStream
-	subject 
-		ifNotNil:  [aStream nextPutAll: subject]
-		ifNil: [aStream nextPutAll: 'a course' translated]! !
+	aStream nextPutAll: subject! !
 
 !DyCourse methodsFor: 'visiting' stamp: 'hlsf 7/1/2023 08:53:53'!
 accept: aVisitor
@@ -1603,11 +1607,12 @@ subject: aString in: aClassGroup
 		subject: aString ;
 		owner: aClassGroup ! !
 
-!DySchool methodsFor: 'initialization' stamp: 'hlsf 7/15/2023 11:08:40'!
+!DySchool methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:33:45'!
 initialize
 	super initialize .
 	timeSlots := SortedCollection new.
-	classGroups := OrderedCollection new! !
+	classGroups := OrderedCollection new.
+	name := 'Unknown school' translated! !
 
 !DySchool methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:33'!
 registerEvents
@@ -1648,10 +1653,9 @@ mold
 		beRequired.
 	^ mold! !
 
-!DySchool methodsFor: 'printing' stamp: 'hlsf 6/1/2023 19:52:41'!
+!DySchool methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:40:39'!
 printOn: str
-	name ifNil: [str nextPutAll: 'Unknown school' translated] 
-		ifNotNil: [	str nextPutAll: name]! !
+	str nextPutAll: name! !
 
 !DySchool methodsFor: 'visiting' stamp: 'hlsf 6/30/2023 21:49:08'!
 accept: aVisitor 
@@ -1677,6 +1681,10 @@ color: anObject
 
 	color := anObject! !
 
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 10/8/2023 23:20:15'!
+course
+	^ owner! !
+
 !DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
 documents
 	"Answer the value of documents"
@@ -1701,13 +1709,43 @@ title: newTitle
 	self triggerEvent: #renamedTopic withArguments: {self. title . newTitle }.
 	title := newTitle.! !
 
-!DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/21/2023 21:27:37'!
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:33:08'!
 initialize
-	documents := OrderedCollection new! !
+	documents := OrderedCollection new.
+	resources := OrderedCollection new.
+	title := 'Unnamed topic' translated! !
 
 !DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:11'!
 registerEvents
 	self when: #renamedTopic send: #renameTopic:from:to: to: DySystem! !
+
+!DyTopic methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:37:49'!
+mold
+	| mold |
+	mold := Mold new.
+	mold stringField
+		label: 'Title' translated;
+		on: #title of: self;
+		beRequired.
+	^ mold! !
+
+!DyTopic methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:33:19'!
+printOn: str
+	str nextPutAll: title! !
+
+!DyTopic class methodsFor: 'instance creation' stamp: 'hlsf 10/8/2023 23:21:58'!
+title: aString in: aCourse
+	^ self new ::
+		title: aString;
+		owner: aCourse! !
+
+!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:29:57'!
+label
+	^ 'topic' translated! !
+
+!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:30:19'!
+pluralLabel
+	^ 'Topics' translated! !
 
 !DyPerson methodsFor: 'testing' stamp: 'hlsf 5/23/2023 20:18:30'!
 isStudent
@@ -1741,14 +1779,11 @@ lastName
 lastName: aString
 	lastName := 	aString ! !
 
-!DyPerson methodsFor: 'printing' stamp: 'hlsf 7/27/2023 00:51:21'!
+!DyPerson methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:36:49'!
 printOn: str
-	(firstName isNil or: [lastName isNil])
-		ifTrue: [str nextPutAll: 'Unknown person' translated]
-		ifFalse: [ 
-			str nextPutAll: lastName;
-			space;
-			nextPutAll: firstName]! !
+	str nextPutAll: lastName;
+		space;
+		nextPutAll: firstName! !
 
 !DyPerson methodsFor: 'user interface' stamp: 'hlsf 7/3/2023 11:36:22'!
 mold
@@ -1766,6 +1801,12 @@ mold
 		label: 'Email' translated;
 		on: #email of: self.
 	^ mold! !
+
+!DyPerson methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:36:24'!
+initialize
+	super initialize.
+	lastName := 'Unknown person' translated.
+	firstName := ''! !
 
 !DyStudent methodsFor: 'testing' stamp: 'hlsf 5/23/2023 20:18:38'!
 isStudent
@@ -2101,7 +2142,7 @@ visitClassGroup: class
 		self editorsFor: class courses ofType: DyCourse in: class.
 		self editorsFor: class students ofType: DyStudent }! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 8/9/2023 14:39:12'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 10/8/2023 23:20:05'!
 visitCourse: course 
 | mold |
 	mold := course mold.
@@ -2109,7 +2150,9 @@ visitCourse: course
 	^ self newColumnWith: {
 		DecoratedPane open: mold newPane label: 'Information' translated.
 		self editorsFor: course courseHours ofType: DyCourseHour .
-		DecoratedPane open: course teacher mold newPane label: 'Teacher' translated}! !
+		DecoratedPane open: course teacher mold newPane label: 'Teacher' translated.
+		self editorsFor: course topics ofType: DyTopic in: course
+		}! !
 
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 8/9/2023 14:37:41'!
 visitCourseHour: courseHour
@@ -2434,14 +2477,15 @@ visitClassGroup: class
 		addMorph: (self paneFor: class students label: 'Students' translated browse: false).
 	^ self plugView: column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 7/29/2023 16:04:41'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 10/8/2023 23:17:13'!
 visitCourse: course
 	| column |
 	visitedModel := course .
 	column := LayoutMorph newColumn.
 	column
-		addMorph: (self paneFor: course courseHours label: 'Periods' translated);
-		addMorph: (self paneFor: course teacher label: 'Teacher' translated browse: false).
+		addMorph: (self paneFor: course courseHours label: 'Periods' translated browse: false);
+		addMorph: (self paneFor: course teacher label: 'Teacher' translated browse: false);
+		addMorph: (self paneFor: course topics label: 'Topics' translated browse: false).
 	^ self plugView: column! !
 
 !DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 9/28/2023 12:08:32'!
