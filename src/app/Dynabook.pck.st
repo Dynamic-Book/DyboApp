@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 8 October 2023 at 11:43:34 pm'!
+'From Cuis 6.0 [latest update: #5979] on 10 October 2023 at 12:15:44 am'!
 'Description '!
-!provides: 'Dynabook' 1 37!
+!provides: 'Dynabook' 1 38!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -339,6 +339,9 @@ An abstract view for the Agenda and Binder. Share some behaviors and states.!
 !DyAgendaView commentStamp: '<historical>' prior: 0!
 I present a view to let the user browse the tasks and to create new task.
 My model is a DyAgenda instance, to access the agenda and the class group!
+
+!DyBinderView commentStamp: '<historical>' prior: 0!
+I am a view to browse the past document, depending on the class groups, courses and topics.!
 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
@@ -697,19 +700,20 @@ initialize
 classGroup
 	^ self classGroups at: classGroupIndex ifAbsent: [nil]! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:52:29'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/10/2023 00:02:26'!
 classGroupIndex: anIndex
 	super classGroupIndex: anIndex.
 	self changed: #courseIndex:.
-	self changed: #topicIndex.
+	self changed: #courses.
 	self courseIndex: 1.
+	self changed: #topics.
 	self topicIndex:​ 1! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:52:24'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/9/2023 23:59:30'!
 courseIndex: anIndex
 	courseIndex := anIndex.
 	self changed: #courseIndex:.
-	self changed: #topicIndex.
+	self changed: #topics.
 	self topicIndex:​ 1! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:10:58'!
@@ -736,10 +740,10 @@ sortOptions
 topicIndex
 	^ topicIndex! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/4/2023 22:35:29'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/10/2023 00:04:22'!
 topicIndex: anIndex
 	topicIndex := anIndex.
-	self changed: #topicIndex.! !
+	self changed: #topicIndex:! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:14:56'!
 topics
@@ -747,13 +751,13 @@ topics
 		ifNotNil: [:aCourse | aCourse topics]
 		ifNil: [`Array new`]! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 15:24:27'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/9/2023 23:53:54'!
 documentSelectorPanel
 " A view to select documents according to classGroups, courses, topics and sorting option "
 	^ LayoutMorph newRow ::
 		addMorph: self classGroupListMorph ;
 		addMorph: self courseListMorph;
-		addMorph: self topmostWorld;
+		addMorph: self topicListMorph;
 		addMorph: DyControlManager spacer;
 		addMorph: self sortListMorph! !
 
@@ -783,8 +787,8 @@ sortListMorph
 		indexSetter: #sortIndex: ::
 		autoDeselect: false.! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 17:06:26'!
-topcListMorph
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/9/2023 23:54:11'!
+topicListMorph
 " Present a list of topic in selected course "
 	^ DropDownListMorph 
 		model: self
@@ -793,12 +797,13 @@ topcListMorph
 		indexSetter: #topicIndex: ::
 		autoDeselect: false.! !
 
-!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 10/7/2023 18:09:06'!
+!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 10/9/2023 23:55:53'!
 initialize
 	super initialize.
 	classGroupIndex :=  self classGroups ifNotEmpty: [1] ifEmpty: [0].
 	courseIndex := self courses ifNotEmpty: [1] ifEmpty: [0].
 	topicIndex := self topics ifNotEmpty: [1] ifEmpty: [0].
+	sortIndex := 1.
 	self addMorphKeepMorphHeight: self documentSelectorPanel.
 	self addMorphUseAll: self selectedDocumentsPanel.
 	self adoptWidgetsColor: self defaultBorderColor ! !
@@ -1997,13 +2002,9 @@ installDynabookView
 		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
 	self plugStartView! !
 
-!DyControlManager methodsFor: 'view' stamp: 'hlsf 8/20/2023 15:53:46'!
+!DyControlManager methodsFor: 'view' stamp: 'hlsf 10/9/2023 23:52:20'!
 plugBinderView
-	| binderView row groupList courseList topicList |
-	binderView := LayoutMorph newColumn.
-	row := LayoutMorph newRow.
-	
-	! !
+	self plugInDynabookView: (DyBinderView presenter: presenter)! !
 
 !DyControlManager methodsFor: 'view' stamp: 'hlsf 9/28/2023 21:44:09'!
 plugInDynabookView: aMorph
