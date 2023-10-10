@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 10 October 2023 at 12:15:44 am'!
+'From Cuis 6.0 [latest update: #5979] on 10 October 2023 at 11:18:27 pm'!
 'Description '!
-!provides: 'Dynabook' 1 38!
+!provides: 'Dynabook' 1 40!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -626,7 +626,7 @@ incomingTasksPanel
 "A view to browse the tasks already assigned "
 	^ LayoutMorph newRow addMorph: (LabelMorph contents: 'Future tasks' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/7/2023 14:56:01'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/10/2023 23:02:47'!
 newTaskPanel
 "The tools to assign a new task : which classGroup, which course and when "
 	^​ LayoutMorph newRow ::
@@ -635,6 +635,7 @@ newTaskPanel
 		addMorph: self courseListMorph;
 		addMorph: (LabelMorph contents: ' at ' translated);
 		addMorph: self courseHourDateListMorph;
+		addMorphUseAll: DyControlManager spacer;
 		addMorph: (PluggableButtonMorph 
 			model: presenter
 			action: #saveTask
@@ -751,14 +752,14 @@ topics
 		ifNotNil: [:aCourse | aCourse topics]
 		ifNil: [`Array new`]! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/9/2023 23:53:54'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/10/2023 23:02:18'!
 documentSelectorPanel
 " A view to select documents according to classGroups, courses, topics and sorting option "
 	^ LayoutMorph newRow ::
 		addMorph: self classGroupListMorph ;
 		addMorph: self courseListMorph;
 		addMorph: self topicListMorph;
-		addMorph: DyControlManager spacer;
+		addMorphUseAll: DyControlManager spacer;
 		addMorph: self sortListMorph! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 15:55:36'!
@@ -2355,7 +2356,7 @@ quickEdit: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/20/2023 22:36:23'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 10/10/2023 23:05:57'!
 quickExport: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
@@ -2364,7 +2365,7 @@ quickExport: args
 	|answer  |
 	answer := (StandardFileMenu new newFileFrom: DirectoryEntry smalltalkImageDirectory withPattern: '*.csv' excludePattern: '.*') startUpWithCaption: 'CSV file to export' translated.
 	answer ifNotNil: [
-		answer name directory // answer name writeStreamDo: [:str |
+		answer directory // answer name writeStreamDo: [:str |
 			args first export: args second to: str ]]! !
 
 !DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 7/26/2023 13:12:40'!
