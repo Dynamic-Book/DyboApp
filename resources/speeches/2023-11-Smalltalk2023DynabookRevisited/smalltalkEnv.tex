@@ -1,0 +1,73 @@
+% Just add \input{smalltalkEnv} to your file
+% then you can use :
+% \begin{lstlisting}[language=Smalltalk]
+% false become: true.
+% \end{lstlisting}
+
+\usepackage{color}
+\usepackage{listings}
+\usepackage{etoolbox}
+\usepackage{textcomp}
+
+\definecolor{stComment}{rgb}{0.5,0.5,0.5}
+\definecolor{stString}{rgb}{0.58,0,0.82}
+\definecolor{stKeywords}{rgb}{0.21,0.55,0.7}
+\definecolor{stNumbers}{rgb}{.5,0,0}
+
+\newtoggle{InString}{}% Keep track of if we are within a string
+\togglefalse{InString}% Assume not initally in string
+\newcommand*{\ColorIfNotInString}[1]{\iftoggle{InString}{#1}{\color{stNumbers}#1}}%
+\newcommand*{\ProcessQuote}[1]{#1\iftoggle{InString}{\global\togglefalse{InString}}{\global\toggletrue{InString}}}%
+
+\lstdefinelanguage{Smalltalk}{
+  keywordstyle=\color{stKeywords},
+  commentstyle=\color{stComment},
+  stringstyle=\color{stString},
+  alsoletter=\#,
+  identifierstyle=\idstyle, 
+  showstringspaces=false,
+  morekeywords={true,false,self,super,nil},
+  sensitive=true, 
+  morecomment=[s]{"}{"}, 
+  morestring=[d]', 
+  style=SmalltalkStyle,
+  tabsize=2,
+  basicstyle=\ttfamily,
+  upquote=true,
+}
+
+
+\makeatletter%
+\newcommand*\idstyle[1]{%
+  \expandafter\id@style\the\lst@token{#1}\relax%
+}
+\def\id@style#1#2\relax{%
+  \ifnum\pdfstrcmp{#1}{\#}=0%
+  \ttfamily\color{stString} \the\lst@token%
+  \else%
+  \edef\tempa{\uccode`#1}%
+  \edef\tempb{`#1}%
+  \ifnum\tempa=\tempb%
+  \ttfamily\color{blue} \the\lst@token%
+  \else%
+  \the\lst@token%
+  \fi%
+  \fi%
+}
+
+\lstdefinestyle{SmalltalkStyle}{ 
+  literate=%
+  {^}{{$\uparrow$}}1% 
+  % {"}{{{\ProcessQuote{"}}}}1% Disable coloring within double quotes
+  % {'}{{{\ProcessQuote{'}}}}1% Disable coloring within single quote
+  {0}{{{\ColorIfNotInString{0}}}}1%
+  {1}{{{\ColorIfNotInString{1}}}}1%
+  {2}{{{\ColorIfNotInString{2}}}}1%
+  {3}{{{\ColorIfNotInString{3}}}}1%
+  {4}{{{\ColorIfNotInString{4}}}}1%
+  {5}{{{\ColorIfNotInString{5}}}}1%
+  {6}{{{\ColorIfNotInString{6}}}}1%
+  {7}{{{\ColorIfNotInString{7}}}}1%
+  {8}{{{\ColorIfNotInString{8}}}}1%
+  {9}{{{\ColorIfNotInString{9}}}}1%
+} 

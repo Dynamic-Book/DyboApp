@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5979] on 10 October 2023 at 11:18:27 pm'!
+'From Cuis 6.0 [latest update: #5979] on 14 October 2023 at 6:05:19 pm'!
 'Description '!
-!provides: 'Dynabook' 1 40!
+!provides: 'Dynabook' 1 42!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -268,6 +268,16 @@ Object subclass: #DyEditorVisitor
 DyEditorVisitor class
 	instanceVariableNames: ''!
 
+!classDefinition: #DyPreviewVisitor category: 'Dynabook-View-Business'!
+Object subclass: #DyPreviewVisitor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-View-Business'!
+!classDefinition: 'DyPreviewVisitor class' category: 'Dynabook-View-Business'!
+DyPreviewVisitor class
+	instanceVariableNames: ''!
+
 !classDefinition: #DyViewerVisitor category: 'Dynabook-View-Business'!
 Object subclass: #DyViewerVisitor
 	instanceVariableNames: 'visitedModel'
@@ -406,6 +416,9 @@ When asked for an icon with the message get: #blank32, I will search in the path
 
 !DyEditorVisitor commentStamp: '<historical>' prior: 0!
 I visit the model of user data to provide an editor!
+
+!DyPreviewVisitor commentStamp: '<historical>' prior: 0!
+I visit the model of user data to provide a morph preview.!
 
 !DyViewerVisitor commentStamp: '<historical>' prior: 0!
 I visit the model of user data to provide a viewer linked to an editor.!
@@ -752,6 +765,25 @@ topics
 		ifNotNil: [:aCourse | aCourse topics]
 		ifNil: [`Array new`]! !
 
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/14/2023 17:21:30'!
+documentPreviewPanel
+" Fill the preview panel with document previews from the user selected classGroup-course-topic "
+	| previewsPerLine previewVisitor documents |
+	documents := self topics documents.
+	previewVisitor := DyPreviewVisitor new.
+	previewPanel removeAllMorphs.
+	previewsPerLine := previewPanel morphWidth // previewVisitor previewWidth.
+	documents groupsOf: previewsPerLine atATimeDo: [:documentsGroup | 
+		previewPanel addMorph: (			documentsGroup 
+			inject: self previewRow 
+			into: [:row :document |			row addMorph: (document accept: previewVisitor)		]) ].
+	documents size \\ previewsPerLine ifNotZero: [ "There is an incomplete row to add "
+		previewPanel addMorph: (
+			(documents allButFirst: (documents size // previewsPerLine * previewsPerLine))
+				inject: self previewRow 
+				into: [:row :document |			row addMorph: (document accept: previewVisitor)		]) 		].
+	^ previewPanel ! !
+
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/10/2023 23:02:18'!
 documentSelectorPanel
 " A view to select documents according to classGroups, courses, topics and sorting option "
@@ -761,6 +793,14 @@ documentSelectorPanel
 		addMorph: self topicListMorph;
 		addMorphUseAll: DyControlManager spacer;
 		addMorph: self sortListMorph! !
+
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/14/2023 16:53:21'!
+previewRow
+	^ ​ LayoutMorph newRow 	:: 
+		separation: 8; 
+		adoptWidgetsColor: 
+		self defaultColor
+	! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 15:55:36'!
 selectedDocumentsPanel
@@ -1171,6 +1211,10 @@ data
 !DynabookTestResource class methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:28:49'!
 isAvailable
 	^ true! !
+
+!DyDocument methodsFor: 'as yet unclassified' stamp: 'hlsf 10/14/2023 17:11:36'!
+accept: aVisitor
+	^ aVisitor visitDocument: self! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
@@ -2384,6 +2428,13 @@ quickImport: args
 			importedCollection ifNotNil: [ 
 				args second become: importedCollection.
 				args third updateList]] ]! !
+
+!DyPreviewVisitor methodsFor: 'visiting' stamp: 'hlsf 10/14/2023 17:11:09'!
+visitDocument: document! !
+
+!DyPreviewVisitor methodsFor: 'ui' stamp: 'hlsf 10/14/2023 17:15:09'!
+previewWidth
+	^ `150 + 12`! !
 
 !DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 6/26/2023 21:29:08'!
 paneFor: anObject label: aTitle 
