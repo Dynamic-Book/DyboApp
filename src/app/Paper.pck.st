@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #5733] on 12 April 2023 at 5:38:08 pm'!
+'From Cuis 6.0 [latest update: #5967] on 6 November 2023 at 9:36:34 pm'!
 'Description '!
-!provides: 'Paper' 1 41!
+!provides: 'Paper' 1 42!
 SystemOrganization addCategory: 'Paper'!
 
 
@@ -277,14 +277,14 @@ setColor
 			aColor := Compiler evaluate: aString.
 			(aColor isKindOf: Color) ifTrue: [pen color: aColor ] ]! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 4/7/2023 14:17:21'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 11/6/2023 21:28:57'!
 setThreshold
 	self 
 		request: 'Minimum screen distance between two consecutive samples'
 		initialAnswer: pen threshold sqrt asString
-		verifying: [:aString | aString asInteger notNil ]
+		verifying: [:aString | aString asNumber notNil ]
 		do: [:aString | | integer |
-			integer := aString asInteger.
+			integer := aString asNumber.
 			(integer notNil and: [integer >=0]) ifTrue: [
 				pen threshold: integer squared] 
 			]! !
