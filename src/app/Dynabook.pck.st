@@ -1,340 +1,340 @@
-'From Cuis 6.0 [latest update: #5979] on 14 October 2023 at 6:05:19 pm'!
+'From Cuis 6.0 [latest update: #6068] on 7 November 2023 at 11:53:59 pm'!
 'Description '!
-!provides: 'Dynabook' 1 42!
+!provides: 'Dynabook' 1 43!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
-SystemOrganization addCategory: 'Dynabook-Model'!
-SystemOrganization addCategory: 'Dynabook-Model-Knowledge'!
-SystemOrganization addCategory: 'Dynabook-Model-Business'!
-SystemOrganization addCategory: 'Dynabook-View'!
-SystemOrganization addCategory: 'Dynabook-View-Business'!
-SystemOrganization addCategory: 'Dynabook-Presenter'!
-SystemOrganization addCategory: 'Dynabook-Presenter-Command'!
-SystemOrganization addCategory: 'Dynabook-Test'!
-SystemOrganization addCategory: 'Dynabook'!
-SystemOrganization addCategory: 'Dynabook-System'!
+SystemOrganization addCategory: #'Dynabook-Model'!
+SystemOrganization addCategory: #'Dynabook-Model-Knowledge'!
+SystemOrganization addCategory: #'Dynabook-Model-Business'!
+SystemOrganization addCategory: #'Dynabook-View'!
+SystemOrganization addCategory: #'Dynabook-View-Business'!
+SystemOrganization addCategory: #'Dynabook-Presenter'!
+SystemOrganization addCategory: #'Dynabook-Presenter-Command'!
+SystemOrganization addCategory: #'Dynabook-Test'!
+SystemOrganization addCategory: #Dynabook!
+SystemOrganization addCategory: #'Dynabook-System'!
 
 
-!classDefinition: #DyTimeSlot category: 'Dynabook-Model-Business'!
+!classDefinition: #DyTimeSlot category: #'Dynabook-Model-Business'!
 Magnitude subclass: #DyTimeSlot
 	instanceVariableNames: 'name startTime endTime'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyTimeSlot class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyTimeSlot class' category: #'Dynabook-Model-Business'!
 DyTimeSlot class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyView category: 'Dynabook-View'!
+!classDefinition: #DyView category: #'Dynabook-View'!
 LayoutMorph subclass: #DyView
 	instanceVariableNames: 'presenter classGroupIndex courseIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
-!classDefinition: 'DyView class' category: 'Dynabook-View'!
+!classDefinition: 'DyView class' category: #'Dynabook-View'!
 DyView class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyAgendaView category: 'Dynabook-View'!
+!classDefinition: #DyAgendaView category: #'Dynabook-View'!
 DyView subclass: #DyAgendaView
 	instanceVariableNames: 'courseHourIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
-!classDefinition: 'DyAgendaView class' category: 'Dynabook-View'!
+!classDefinition: 'DyAgendaView class' category: #'Dynabook-View'!
 DyAgendaView class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyBinderView category: 'Dynabook-View'!
+!classDefinition: #DyBinderView category: #'Dynabook-View'!
 DyView subclass: #DyBinderView
 	instanceVariableNames: 'topicIndex sortIndex previewPanel'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
-!classDefinition: 'DyBinderView class' category: 'Dynabook-View'!
+!classDefinition: 'DyBinderView class' category: #'Dynabook-View'!
 DyBinderView class
 	instanceVariableNames: ''!
 
-!classDefinition: #DynabookView category: 'Dynabook-View'!
+!classDefinition: #DynabookView category: #'Dynabook-View'!
 SystemWindow subclass: #DynabookView
 	instanceVariableNames: 'presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
-!classDefinition: 'DynabookView class' category: 'Dynabook-View'!
+!classDefinition: 'DynabookView class' category: #'Dynabook-View'!
 DynabookView class
 	instanceVariableNames: ''!
 
-!classDefinition: #DynabookTestCase category: 'Dynabook-Test'!
+!classDefinition: #DynabookTestCase category: #'Dynabook-Test'!
 TestCase subclass: #DynabookTestCase
 	instanceVariableNames: 'data'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Test'!
-!classDefinition: 'DynabookTestCase class' category: 'Dynabook-Test'!
+!classDefinition: 'DynabookTestCase class' category: #'Dynabook-Test'!
 DynabookTestCase class
 	instanceVariableNames: ''!
 
-!classDefinition: #DynabookTestResource category: 'Dynabook-Test'!
+!classDefinition: #DynabookTestResource category: #'Dynabook-Test'!
 TestResource subclass: #DynabookTestResource
 	instanceVariableNames: 'data backupData'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Test'!
-!classDefinition: 'DynabookTestResource class' category: 'Dynabook-Test'!
+!classDefinition: 'DynabookTestResource class' category: #'Dynabook-Test'!
 DynabookTestResource class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyDocument category: 'Dynabook-Model'!
+!classDefinition: #DyDocument category: #'Dynabook-Model'!
 Object subclass: #DyDocument
 	instanceVariableNames: 'pages cmdManager'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model'!
-!classDefinition: 'DyDocument class' category: 'Dynabook-Model'!
+!classDefinition: 'DyDocument class' category: #'Dynabook-Model'!
 DyDocument class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyDomain category: 'Dynabook-Model'!
+!classDefinition: #DyDomain category: #'Dynabook-Model'!
 Object subclass: #DyDomain
 	instanceVariableNames: 'userData'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model'!
-!classDefinition: 'DyDomain class' category: 'Dynabook-Model'!
+!classDefinition: 'DyDomain class' category: #'Dynabook-Model'!
 DyDomain class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyCourseHour category: 'Dynabook-Model-Business'!
+!classDefinition: #DyCourseHour category: #'Dynabook-Model-Business'!
 Object subclass: #DyCourseHour
 	instanceVariableNames: 'room dayOfWeek timeSlots'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyCourseHour class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyCourseHour class' category: #'Dynabook-Model-Business'!
 DyCourseHour class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyDayInterval category: 'Dynabook-Model-Business'!
+!classDefinition: #DyDayInterval category: #'Dynabook-Model-Business'!
 Object subclass: #DyDayInterval
 	instanceVariableNames: 'start end'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyDayInterval class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyDayInterval class' category: #'Dynabook-Model-Business'!
 DyDayInterval class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyObject category: 'Dynabook-Model-Business'!
+!classDefinition: #DyObject category: #'Dynabook-Model-Business'!
 Object subclass: #DyObject
 	instanceVariableNames: 'owner'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyObject class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyObject class' category: #'Dynabook-Model-Business'!
 DyObject class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyAgenda category: 'Dynabook-Model-Business'!
+!classDefinition: #DyAgenda category: #'Dynabook-Model-Business'!
 DyObject subclass: #DyAgenda
 	instanceVariableNames: 'start end daysOff tasks'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyAgenda class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyAgenda class' category: #'Dynabook-Model-Business'!
 DyAgenda class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyClassGroup category: 'Dynabook-Model-Business'!
+!classDefinition: #DyClassGroup category: #'Dynabook-Model-Business'!
 DyObject subclass: #DyClassGroup
 	instanceVariableNames: 'number headTeacher students courses'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyClassGroup class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyClassGroup class' category: #'Dynabook-Model-Business'!
 DyClassGroup class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyCourse category: 'Dynabook-Model-Business'!
+!classDefinition: #DyCourse category: #'Dynabook-Model-Business'!
 DyObject subclass: #DyCourse
 	instanceVariableNames: 'subject color teacher courseHours topics'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyCourse class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyCourse class' category: #'Dynabook-Model-Business'!
 DyCourse class
 	instanceVariableNames: ''!
 
-!classDefinition: #DySchool category: 'Dynabook-Model-Business'!
+!classDefinition: #DySchool category: #'Dynabook-Model-Business'!
 DyObject subclass: #DySchool
 	instanceVariableNames: 'name phone email timeSlots classGroups'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DySchool class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DySchool class' category: #'Dynabook-Model-Business'!
 DySchool class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyTopic category: 'Dynabook-Model-Business'!
+!classDefinition: #DyTopic category: #'Dynabook-Model-Business'!
 DyObject subclass: #DyTopic
 	instanceVariableNames: 'title color documents resources'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyTopic class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyTopic class' category: #'Dynabook-Model-Business'!
 DyTopic class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyPerson category: 'Dynabook-Model-Business'!
+!classDefinition: #DyPerson category: #'Dynabook-Model-Business'!
 Object subclass: #DyPerson
 	instanceVariableNames: 'lastName firstName email'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyPerson class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyPerson class' category: #'Dynabook-Model-Business'!
 DyPerson class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyStudent category: 'Dynabook-Model-Business'!
+!classDefinition: #DyStudent category: #'Dynabook-Model-Business'!
 DyPerson subclass: #DyStudent
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyStudent class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyStudent class' category: #'Dynabook-Model-Business'!
 DyStudent class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyTeacher category: 'Dynabook-Model-Business'!
+!classDefinition: #DyTeacher category: #'Dynabook-Model-Business'!
 DyPerson subclass: #DyTeacher
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyTeacher class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyTeacher class' category: #'Dynabook-Model-Business'!
 DyTeacher class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyTask category: 'Dynabook-Model-Business'!
+!classDefinition: #DyTask category: #'Dynabook-Model-Business'!
 Object subclass: #DyTask
 	instanceVariableNames: 'date timeSlot document'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyTask class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyTask class' category: #'Dynabook-Model-Business'!
 DyTask class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyUserData category: 'Dynabook-Model-Business'!
+!classDefinition: #DyUserData category: #'Dynabook-Model-Business'!
 Object subclass: #DyUserData
 	instanceVariableNames: 'user schools agenda'
 	classVariableNames: 'Current'
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyUserData class' category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyUserData class' category: #'Dynabook-Model-Business'!
 DyUserData class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyControlManager category: 'Dynabook-View'!
+!classDefinition: #DyControlManager category: #'Dynabook-View'!
 Object subclass: #DyControlManager
 	instanceVariableNames: 'presenter view icons'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
-!classDefinition: 'DyControlManager class' category: 'Dynabook-View'!
+!classDefinition: 'DyControlManager class' category: #'Dynabook-View'!
 DyControlManager class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyIconManager category: 'Dynabook-View'!
+!classDefinition: #DyIconManager category: #'Dynabook-View'!
 Object subclass: #DyIconManager
 	instanceVariableNames: 'forms path'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
-!classDefinition: 'DyIconManager class' category: 'Dynabook-View'!
+!classDefinition: 'DyIconManager class' category: #'Dynabook-View'!
 DyIconManager class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyEditorVisitor category: 'Dynabook-View-Business'!
+!classDefinition: #DyEditorVisitor category: #'Dynabook-View-Business'!
 Object subclass: #DyEditorVisitor
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View-Business'!
-!classDefinition: 'DyEditorVisitor class' category: 'Dynabook-View-Business'!
+!classDefinition: 'DyEditorVisitor class' category: #'Dynabook-View-Business'!
 DyEditorVisitor class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyPreviewVisitor category: 'Dynabook-View-Business'!
+!classDefinition: #DyPreviewVisitor category: #'Dynabook-View-Business'!
 Object subclass: #DyPreviewVisitor
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View-Business'!
-!classDefinition: 'DyPreviewVisitor class' category: 'Dynabook-View-Business'!
+!classDefinition: 'DyPreviewVisitor class' category: #'Dynabook-View-Business'!
 DyPreviewVisitor class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyViewerVisitor category: 'Dynabook-View-Business'!
+!classDefinition: #DyViewerVisitor category: #'Dynabook-View-Business'!
 Object subclass: #DyViewerVisitor
 	instanceVariableNames: 'visitedModel'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View-Business'!
-!classDefinition: 'DyViewerVisitor class' category: 'Dynabook-View-Business'!
+!classDefinition: 'DyViewerVisitor class' category: #'Dynabook-View-Business'!
 DyViewerVisitor class
 	instanceVariableNames: ''!
 
-!classDefinition: #Dynabook category: 'Dynabook-Presenter'!
+!classDefinition: #Dynabook category: #'Dynabook-Presenter'!
 Object subclass: #Dynabook
 	instanceVariableNames: 'domain controlsManager selectedSection'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Presenter'!
-!classDefinition: 'Dynabook class' category: 'Dynabook-Presenter'!
+!classDefinition: 'Dynabook class' category: #'Dynabook-Presenter'!
 Dynabook class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyCommand category: 'Dynabook-Presenter-Command'!
+!classDefinition: #DyCommand category: #'Dynabook-Presenter-Command'!
 Object subclass: #DyCommand
 	instanceVariableNames: 'presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Presenter-Command'!
-!classDefinition: 'DyCommand class' category: 'Dynabook-Presenter-Command'!
+!classDefinition: 'DyCommand class' category: #'Dynabook-Presenter-Command'!
 DyCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyPlatform category: 'Dynabook-System'!
+!classDefinition: #DyPlatform category: #'Dynabook-System'!
 Object subclass: #DyPlatform
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-System'!
-!classDefinition: 'DyPlatform class' category: 'Dynabook-System'!
+!classDefinition: 'DyPlatform class' category: #'Dynabook-System'!
 DyPlatform class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyDevelopment category: 'Dynabook-System'!
+!classDefinition: #DyDevelopment category: #'Dynabook-System'!
 DyPlatform subclass: #DyDevelopment
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-System'!
-!classDefinition: 'DyDevelopment class' category: 'Dynabook-System'!
+!classDefinition: 'DyDevelopment class' category: #'Dynabook-System'!
 DyDevelopment class
 	instanceVariableNames: ''!
 
-!classDefinition: #DySystem category: 'Dynabook-System'!
+!classDefinition: #DySystem category: #'Dynabook-System'!
 Object subclass: #DySystem
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-System'!
-!classDefinition: 'DySystem class' category: 'Dynabook-System'!
+!classDefinition: 'DySystem class' category: #'Dynabook-System'!
 DySystem class
 	instanceVariableNames: 'platform'!
 
@@ -1182,9 +1182,10 @@ schoolA
 	school classGroups add: (self classGroup932in: school).
 	^ school! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:48:44'!
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 11/7/2023 23:52:52'!
 setUp
 	data := DyUserData current.
+	data user: (DyTeacher new lastName: 'Dupont'; firstName: 'Eric').
 	self setUpAgenda.
 	data schools add: (self schoolA owner: data; yourself)! !
 
@@ -1930,6 +1931,10 @@ schools
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:03'!
 user
 	^ user! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 11/7/2023 23:50:33'!
+user: aPerson
+	user := aPerson ! !
 
 !DyUserData methodsFor: 'initialization' stamp: 'hlsf 9/24/2023 14:38:24'!
 initialize
