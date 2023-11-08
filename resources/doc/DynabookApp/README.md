@@ -1,11 +1,11 @@
 ﻿**The Dynabook App**
 
-> The cashier register of education
+> The cash register of education
 
 
 # Introduction
 
-The cashier register is a boring computer designed for efficiency. The
+The cash register is a boring computer designed for efficiency. The
 Dynabook, both software and hardware, wants to bring this efficiency
 to teachers and students to manage their job of teaching and learning.
 
