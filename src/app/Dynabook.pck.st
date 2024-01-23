@@ -1,6 +1,6 @@
-'From Cuis 6.0 [latest update: #6068] on 7 November 2023 at 11:53:59 pm'!
+'From Cuis6.2 [latest update: #6156] on 23 January 2024 at 11:20:21 pm'!
 'Description '!
-!provides: 'Dynabook' 1 43!
+!provides: 'Dynabook' 1 44!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -2670,10 +2670,10 @@ userDataPath
 iconsPath
 	^ self rootPath / 'resources' / 'graphics' / 'icons'! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:06:02'!
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 1/23/2024 23:08:36'!
 rootPath
 "dynabook/ directory"
-	^ DirectoryEntry smalltalkImageDirectory / 'dynabook'! !
+	^ DirectoryEntry smalltalkImageDirectory parent / 'dynabook'! !
 
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/20/2023 21:48:08'!
 userDataPath
