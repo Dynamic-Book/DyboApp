@@ -16,27 +16,19 @@ which students.
 Instructions to install the Dynabook.app in a Cuis-Smalltalk developer
 environment.
 
-1. Set up your Cuis-Smalltalk dev environment
+1. Set up your Cuis-Smalltalk environment
 ```
 mkdir Cuis
 cd Cuis
 # Install Cuis image and packages
-git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-Dev.git
+git clone https://github.com/Cuis-Smalltalk/Cuis6-2
 git clone https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-UI.git
-cd Cuis-Smalltalk-Dev
-./clonePackageRepos.sh
-./pullAllRepos.sh
-git clone git@github.com:hilaire/dynabook.git
 git clone git@github.com:hilaire/Cuis-NeoCSV.git
-```
-2. Install Virtual Machine
-```
-wget -O cogspur.tgz https://github.com/OpenSmalltalk/opensmalltalk-vm/releases/latest/download/squeak.cog.spur_linux64x64.tar.gz
-tar -zxvf cogspur.tgz
-mv ./sqcogspur64linuxht ./VM
+cd Cuis6-2
+git clone git@github.com:hilaire/dynabook.git
 ```
 
-3. Start the Dynabook.app IDE
+2. Start the Dynabook.app IDE
 ```
 ./dynabook/startIDE.sh
 ```
@@ -48,4 +40,4 @@ Have an interesting exploration!
 
 ## License
 
-Copyright Hilaire Fernandes 2023
+Copyright Hilaire Fernandes 2023, 2024
