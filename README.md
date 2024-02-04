@@ -11,6 +11,10 @@ save time. It anticipates the needs of the user according to their
 location and time of use, at home, school, in which class, and with
 which students.
 
+For more insights about the project, [watch this
+presentation](https://youtu.be/DBjJrAZSEHs?si=y1hHnFLp9mI_8yN9) at The
+Smalltalk 2023 Fast event in Buenos Aires.
+
 # Installation
 
 Instructions to install the Dynabook.app in a Cuis-Smalltalk developer
