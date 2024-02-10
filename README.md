@@ -21,15 +21,15 @@ Instructions to install the Dynabook.app in a Cuis-Smalltalk developer
 environment.
 
 1. Set up your Cuis-Smalltalk environment
-```
+```bash
 mkdir Cuis
 cd Cuis
 # Install Cuis image and packages
 git clone https://github.com/Cuis-Smalltalk/Cuis6-2
-git clone https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-UI.git
-git clone git@github.com:hilaire/Cuis-NeoCSV.git
+git clone https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-UI
+git clone git@github.com:hilaire/Cuis-NeoCSV
 cd Cuis6-2
-git clone git@github.com:hilaire/dynabook.git
+git clone git@github.com:hilaire/dynabook
 ```
 
 2. Start the Dynabook.app IDE
