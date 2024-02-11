@@ -424,22 +424,7 @@ chronological order, however the points overlap.
 * Test Dynabook hardware and software with one classroom (30 users,
   students and teachers)
 
-## A2. Principles
-
-To have a lot of systems for the users to experiment with.
-
-Set the things simple enough so you can iterate often for a small
-additional cost.
-
-GUI design principle : **Doing** (body centered) with **Images**
-(visually centered) makes **Symbols** (symbolically centered).
-
-Touching is **grounding**, seeing is **recognizing**, language is
-**understanding**.
-
-Bent the GUI to the task the user needs to conduct.
-
-## A3. People to contact
+## A2. People to contact
 
 * Caula, David (imppao), graphisme
 * Dickey, Ken (ken.dickey@whidbey.com), Smalltalker
@@ -449,14 +434,3 @@ Bent the GUI to the task the user needs to conduct.
 * Oberson, Paul, SEM prospective
 * Pettiaux, Nicolas (@npettiaux@mamot.fr), advocacy
 * Vuletich, Juan (juan@cuis.st), Cuis-Smalltalk architect
-
-## A4. Related projects
-
-Related project to observe, to learn from, to collaborate with.
-
-* MNT Research (https://mntre.com) , open hardware laptop
-
-## A5. Further readings
-
-* Be a Geometer, dynabook, https://blog.drgeo.eu/search/label/dynabook
-* 
