@@ -34,6 +34,7 @@ git clone https://github.com:hilaire/dynabook
 
 2. Start the Dynabook.app IDE
 ```
+cd Cuis/Cuis6-2
 ./dynabook/startIDE.sh
 ```
 A new image dynabookIDE.image is built. In the image execute
