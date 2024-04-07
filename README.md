@@ -39,7 +39,7 @@ cd Cuis/Cuis6-2
 ./dynabook/startIDE.sh
 ```
 A new image dynabookIDE.image is built. In the image execute
-`DyBSystem beDevelopment`, execute `Dynabook new` (to come) to start the
+`DySystem beDevelopment`, execute `Dynabook new` (to come) to start the
 application.
 
 Have an interesting exploration!
