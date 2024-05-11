@@ -26,16 +26,16 @@ mkdir Cuis
 cd Cuis
 # Install Cuis image and packages
 git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-Dev
-git clone https://github.com/Cuis-Smalltalk/Cuis6-2
 git clone https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-UI
-git clone https://github.com:hilaire/Cuis-NeoCSV
-cd Cuis6-2
-git clone https://github.com:hilaire/dynabook
+git clone https://github.com/hilaire/Cuis-NeoCSV
+
+cd Cuis-Smalltalk-Dev
+git clone https://github.com/hilaire/dynabook
 ```
 
 2. Start the Dynabook.app IDE
 ```
-cd Cuis/Cuis6-2
+cd Cuis/Cuis-Smalltalk-Dev
 ./dynabook/startIDE.sh
 ```
 A new image dynabookIDE.image is built. In the image execute

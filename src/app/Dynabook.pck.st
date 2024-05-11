@@ -1,6 +1,6 @@
-'From Cuis6.2 [latest update: #6156] on 23 January 2024 at 11:20:21 pm'!
+'From Cuis6.3 [latest update: #6350] on 11 May 2024 at 4:26:29 pm'!
 'Description '!
-!provides: 'Dynabook' 1 44!
+!provides: 'Dynabook' 1 45!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -2716,7 +2716,7 @@ userDataPath
 " the location of the user data and documents "
 	^ platform userDataPath! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 22:02:30'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 5/11/2024 16:25:26'!
 rename: oldName to: newName in: parentDir
 	| dir |
 	oldName 
@@ -2725,7 +2725,7 @@ rename: oldName to: newName in: parentDir
 	 	ifNotNil: [ " folder exists, rename it "
 			(dir := parentDir / oldName asFileName) exists 
 				ifTrue: [dir rename: newName asFileName ] 
-				ifFalse: [self error: dir pathName, ' missing']						]! !
+				ifFalse: [(parentDir / newName asFileName ) assureExistence]						]! !
 
 !DySystem class methodsFor: 'events' stamp: 'hlsf 10/3/2023 22:38:26'!
 renameClassGroup: aClassGroup from: oldName to: newName
