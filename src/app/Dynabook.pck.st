@@ -1,6 +1,6 @@
-'From Cuis6.3 [latest update: #6350] on 11 May 2024 at 4:26:29 pm'!
+'From Cuis7.1 [latest update: #6409] on 26 May 2024 at 5:24:07 pm'!
 'Description '!
-!provides: 'Dynabook' 1 45!
+!provides: 'Dynabook' 1 47!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -551,16 +551,28 @@ defaultBorderColor
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:55:05'!
+classGroup
+" The selected class group, if any "
+	^ self classGroups at: classGroupIndex ifAbsent: [nil]! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:40:17'!
+classGroupCourses
+	^ self classGroup ifNil: [`Array new`] ifNotNil: [:cg | cg courses]! !
+
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:45:18'!
 classGroupIndex
 	^ classGroupIndex! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:46:35'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:15:02'!
 classGroupIndex: anIndex
 	classGroupIndex := anIndex.
-	self changed: #classGroupIndex:.! !
+	self changed: #classGroupIndex:.
+	self courseIndex: 0.
+	self changed: #courses.
+	self courseIndex: (self courses ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:12:03'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:29:17'!
 classGroups
 " All the user class groups "
 	^ self data classGroups! !
@@ -570,8 +582,9 @@ course
 " The selected course, if any "
 	^ self courses at: courseIndex ifAbsent: [nil]! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:45:56'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:21:53'!
 courseIndex
+" The selected course index in a give class group "
 	^ courseIndex! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:48:17'!
@@ -579,10 +592,10 @@ courseIndex: anIndex
 	courseIndex := anIndex.
 	self changed: #courseIndex:.! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:11:28'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:54:20'!
 courses
-" All the user courses "
-	^ self data courses! !
+" The user courses in a give class group"
+	^ self classGroup courses! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:24'!
 data
@@ -592,21 +605,31 @@ data
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DyView methodsFor: 'GUI building' stamp: 'hlsf 10/3/2023 22:50:04'!
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 16:34:08'!
+classGroupCoursesListMorph
+" Present the list of the user courses in a given class group"
+	^ DropDownListMorph 
+		withModel: self
+		listGetter: #classGroupCourses
+		indexGetter: #courseIndex
+		indexSetter: #courseIndex: ::
+		autoDeselect: false.! !
+
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 16:38:01'!
 classGroupListMorph
 " Present a list of user class group "
 	^ DropDownListMorph 
-		model: self
+		withModel: self
 		listGetter: #classGroups
 		indexGetter: #classGroupIndex
 		indexSetter: #classGroupIndex: ::
 		autoDeselect: false.! !
 
-!DyView methodsFor: 'GUI building' stamp: 'hlsf 10/3/2023 22:50:14'!
-courseListMorph
-" Present the list of the user courses "
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 16:35:06'!
+coursesListMorph
+" Present the list of the user courses in a given class group"
 	^ DropDownListMorph 
-		model: self
+		withModel: self
 		listGetter: #courses
 		indexGetter: #courseIndex
 		indexSetter: #courseIndex: ::
@@ -624,11 +647,11 @@ presenter: aPresenter
 		presenter: aPresenter ;
 		initialize ! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/1/2023 21:38:31'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 15:45:39'!
 courseHourDateListMorph
 " Present a list of forthcomming date for the selected course (courseIndex) "
 	^ DropDownListMorph 
-		model: self
+		withModel: self
 		listGetter: #courseHourDates
 		indexGetter: #courseHourIndex
 		indexSetter: #courseHourIndex: ::
@@ -639,13 +662,13 @@ incomingTasksPanel
 "A view to browse the tasks already assigned "
 	^ LayoutMorph newRow addMorph: (LabelMorph contents: 'Future tasks' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/10/2023 23:02:47'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 16:13:51'!
 newTaskPanel
 "The tools to assign a new task : which classGroup, which course and when "
 	^​ LayoutMorph newRow ::
 		addMorph: (LabelMorph contents: 'New task in ' translated);
 		addMorph: self classGroupListMorph ;
-		addMorph: self courseListMorph;
+		addMorph: self classGroupCoursesListMorph ;
 		addMorph: (LabelMorph contents: ' at ' translated);
 		addMorph: self courseHourDateListMorph;
 		addMorphUseAll: DyControlManager spacer;
@@ -654,13 +677,12 @@ newTaskPanel
 			action: #saveTask
 			label: 'Save' translated)! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:47:40'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:15:41'!
 classGroupIndex: anIndex
 	super classGroupIndex: anIndex.
-	self changed: #courseIndex:.
+	self courseHourIndex:​ 0.
 	self changed: #courseHourDates.
-	self courseIndex: 1.
-	self courseHourIndex:​ 1.! !
+	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 15:12:20'!
 courseHourDates
@@ -686,12 +708,12 @@ courseHourIndex: anIndex
 	courseHourIndex := anIndex.
 	self changed: #courseHourIndex:! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:31:09'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:16:38'!
 courseIndex: anIndex
-	courseIndex := anIndex.
-	self changed: #courseIndex:.
+	super courseIndex: anIndex.
+	self courseHourIndex:​ 0.
 	self changed: #courseHourDates.
-	self courseHourIndex:​ 1.! !
+	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
 !DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 10/7/2023 16:03:13'!
 initialize
@@ -710,25 +732,19 @@ initialize
 	
 ! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:13:28'!
-classGroup
-	^ self classGroups at: classGroupIndex ifAbsent: [nil]! !
-
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/10/2023 00:02:26'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:17:48'!
 classGroupIndex: anIndex
 	super classGroupIndex: anIndex.
-	self changed: #courseIndex:.
-	self changed: #courses.
-	self courseIndex: 1.
+	self topicIndex: 0.
 	self changed: #topics.
-	self topicIndex:​ 1! !
+	self topicIndex:​ (self topics ifEmpty: [0] ifNotEmpty: [1])! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/9/2023 23:59:30'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:17:24'!
 courseIndex: anIndex
-	courseIndex := anIndex.
-	self changed: #courseIndex:.
+	super courseIndex: anIndex.
+	self topicIndex: 0.
 	self changed: #topics.
-	self topicIndex:​ 1! !
+	self topicIndex:​ (self topics ifEmpty: [0] ifNotEmpty: [1]).! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:10:58'!
 courses
@@ -759,8 +775,9 @@ topicIndex: anIndex
 	topicIndex := anIndex.
 	self changed: #topicIndex:! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:14:56'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:57:40'!
 topics
+"The topics of a given course"
 	^ self course 
 		ifNotNil: [:aCourse | aCourse topics]
 		ifNil: [`Array new`]! !
@@ -784,12 +801,12 @@ documentPreviewPanel
 				into: [:row :document |			row addMorph: (document accept: previewVisitor)		]) 		].
 	^ previewPanel ! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/10/2023 23:02:18'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 5/26/2024 16:12:29'!
 documentSelectorPanel
 " A view to select documents according to classGroups, courses, topics and sorting option "
 	^ LayoutMorph newRow ::
 		addMorph: self classGroupListMorph ;
-		addMorph: self courseListMorph;
+		addMorph: self coursesListMorph;
 		addMorph: self topicListMorph;
 		addMorphUseAll: DyControlManager spacer;
 		addMorph: self sortListMorph! !
@@ -818,21 +835,21 @@ selectedDocumentsPanel
 		label:  'Selected documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 11:49:48'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 5/26/2024 15:45:41'!
 sortListMorph
 " Present a list of topic in selected course "
 	^ DropDownListMorph 
-		model: self
+		withModel: self
 		listGetter: #sortOptions
 		indexGetter: #sortIndex
 		indexSetter: #sortIndex: ::
 		autoDeselect: false.! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/9/2023 23:54:11'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 5/26/2024 15:45:44'!
 topicListMorph
 " Present a list of topic in selected course "
 	^ DropDownListMorph 
-		model: self
+		withModel: self
 		listGetter: #topics
 		indexGetter: #topicIndex
 		indexSetter: #topicIndex: ::
@@ -1629,13 +1646,14 @@ next: qty courseHoursAfter: aDate
 		n := n - 1	] .
 	^ futureDates ! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/23/2023 11:05:32'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 5/26/2024 15:50:24'!
 nextCourseHourAfter: aDate
 "Search for my next course hour after aDate"
 	| dayOfWeek currentCourseHourIndex nextCourseHour nextDate |
 	dayOfWeek := aDate dayOfWeek.
 	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | 
 		aCourseHour dayOfWeek = dayOfWeek].
+	currentCourseHourIndex = 0 ifTrue: [^ nil].
 	nextCourseHour := courseHours atWrap: currentCourseHourIndex + 1.
 	nextDate := aDate + (nextCourseHour dayOfWeek - dayOfWeek \\ 7) days.
 	nextDate > self agenda end
@@ -1910,19 +1928,19 @@ accept: aVisitor
 agenda
 	^ agenda ifNil: [agenda := DyAgenda new]! !
 
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:24:19'!
+allCourses
+" Returns the collection of the user's courses"
+	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
+		courses 	addAll: aClassGroup courses.
+		courses ]! !
+
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 15:44:35'!
 classGroups
 " Returns the collection of the user's class groups"
 	^ schools inject: OrderedCollection new into: [:classGroups :aSchool |
 		classGroups addAll: aSchool classGroups.
 		classGroups ]! !
-
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 15:44:22'!
-courses
-" Returns the collection of the user's courses"
-	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
-		courses 	addAll: aClassGroup courses.
-		courses ]! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:13'!
 schools
@@ -2244,12 +2262,12 @@ visitUserData: userData
 editorsFor: aCollection ofType: classModel 
 	^ self editorsFor: aCollection ofType: classModel in: nil! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 10/7/2023 15:38:13'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 5/26/2024 15:40:34'!
 editorsFor: aCollection ofType: classModel in: anOwner
 " A decorated editor to edit a collection of models "
 	| listMorph quickButtons decoratedPanel |
 	listMorph := PluggableListMorph 
-		model: (ListModel with: aCollection )		
+		withModel: (ListModel with: aCollection )		
 		listGetter: #list 		indexGetter: #listIndex indexSetter: #listIndex:.
 	decoratedPanel := DecoratedPane open: listMorph label: classModel pluralLabel .
 	quickButtons := OrderedCollection new.
@@ -2293,10 +2311,13 @@ editorsFor: aCollection ofType: classModel in: anOwner
 	decoratedPanel quickButtons: quickButtons.
 	^ decoratedPanel! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 7/3/2023 21:47:18'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 5/11/2024 17:45:10'!
 newColumnWith: morphs
 | column |
-	column := LayoutMorph newColumn 			addMorphs: morphs.
+	column := LayoutMorph newColumn.
+	morphs 
+		do: [: aMorph | column addMorph: aMorph]
+		separatedBy: 	[column addAdjusterMorph ].
 	column morphExtent: column minimumExtent.
 	^ column ! !
 

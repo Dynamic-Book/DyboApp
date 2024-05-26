@@ -1,86 +1,86 @@
-'From Cuis 6.0 [latest update: #5967] on 6 November 2023 at 9:36:34 pm'!
+'From Cuis6.3 [latest update: #6409] on 26 May 2024 at 3:36:59 pm'!
 'Description '!
-!provides: 'Paper' 1 42!
-SystemOrganization addCategory: 'Paper'!
+!provides: 'Paper' 1 43!
+SystemOrganization addCategory: #Paper!
 
 
-!classDefinition: #PaperMorph category: 'Paper'!
+!classDefinition: #PaperMorph category: #Paper!
 BoxedMorph subclass: #PaperMorph
 	instanceVariableNames: 'stroker pen samples sampleIndex lineStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Paper'!
-!classDefinition: 'PaperMorph class' category: 'Paper'!
+!classDefinition: 'PaperMorph class' category: #Paper!
 PaperMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #Bezier2Morph category: 'Paper'!
+!classDefinition: #Bezier2Morph category: #Paper!
 Morph subclass: #Bezier2Morph
 	instanceVariableNames: 'color width p1 p2 c1'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Paper'!
-!classDefinition: 'Bezier2Morph class' category: 'Paper'!
+!classDefinition: 'Bezier2Morph class' category: #Paper!
 Bezier2Morph class
 	instanceVariableNames: ''!
 
-!classDefinition: #Bezier3Morph category: 'Paper'!
+!classDefinition: #Bezier3Morph category: #Paper!
 Bezier2Morph subclass: #Bezier3Morph
 	instanceVariableNames: 'c2'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Paper'!
-!classDefinition: 'Bezier3Morph class' category: 'Paper'!
+!classDefinition: 'Bezier3Morph class' category: #Paper!
 Bezier3Morph class
 	instanceVariableNames: ''!
 
-!classDefinition: #LineStrokeMorph category: 'Paper'!
+!classDefinition: #LineStrokeMorph category: #Paper!
 Morph subclass: #LineStrokeMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Paper'!
-!classDefinition: 'LineStrokeMorph class' category: 'Paper'!
+!classDefinition: 'LineStrokeMorph class' category: #Paper!
 LineStrokeMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokeGroupMorph category: 'Paper'!
+!classDefinition: #StrokeGroupMorph category: #Paper!
 Morph subclass: #StrokeGroupMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Paper'!
-!classDefinition: 'StrokeGroupMorph class' category: 'Paper'!
+!classDefinition: 'StrokeGroupMorph class' category: #Paper!
 StrokeGroupMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #Pencil category: 'Paper'!
+!classDefinition: #Pencil category: #Paper!
 Object subclass: #Pencil
 	instanceVariableNames: 'color width adjustWidth threshold'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Paper'!
-!classDefinition: 'Pencil class' category: 'Paper'!
+!classDefinition: 'Pencil class' category: #Paper!
 Pencil class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier2 category: 'Paper'!
+!classDefinition: #StrokerBezier2 category: #Paper!
 Object subclass: #StrokerBezier2
 	instanceVariableNames: 'paper strokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Paper'!
-!classDefinition: 'StrokerBezier2 class' category: 'Paper'!
+!classDefinition: 'StrokerBezier2 class' category: #Paper!
 StrokerBezier2 class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier3 category: 'Paper'!
+!classDefinition: #StrokerBezier3 category: #Paper!
 StrokerBezier2 subclass: #StrokerBezier3
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Paper'!
-!classDefinition: 'StrokerBezier3 class' category: 'Paper'!
+!classDefinition: 'StrokerBezier3 class' category: #Paper!
 StrokerBezier3 class
 	instanceVariableNames: ''!
 
@@ -231,7 +231,7 @@ showPoints
 showTangents
 	^ self valueOfProperty: #showTangents ifAbsent: [false]! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 4/11/2023 09:14:48'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 5/12/2024 18:02:56'!
 addStandardHaloMenuItemsTo: aCustomMenu hand: aHandMorph
 	aCustomMenu 
 		add: 'sampling threshold' action: #setThreshold;
@@ -241,7 +241,7 @@ addStandardHaloMenuItemsTo: aCustomMenu hand: aHandMorph
 		addUpdating: #pointsString action: #pointsOnOff;
 		addUpdating: #controlsString action: #controlsOnOff;
 		addUpdating: #tangentsString action: #tangentsOnOff;
-		add: 'clear' action: #removeAllMorphs! !
+		add: 'clear' action: #removeStrokes! !
 
 !PaperMorph methodsFor: 'menus' stamp: 'hlsf 3/27/2023 21:52:11'!
 controlsOnOff
@@ -266,6 +266,10 @@ pointsOnOff
 pointsString
 	^ self showPoints asMenuItemTextPrefix , 
 		'show points'! !
+
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 5/12/2024 18:11:09'!
+removeStrokes
+	self removeAllMorphsIn: (submorphs select: [:aMorph | aMorph is: #StrokeGroupMorph])! !
 
 !PaperMorph methodsFor: 'menus' stamp: 'hlsf 4/7/2023 14:02:13'!
 setColor
@@ -367,15 +371,15 @@ width
 width: aNumber
 	width := aNumber ! !
 
-!Bezier2Morph methodsFor: 'printing' stamp: 'hlsf 4/2/2023 10:38:09'!
+!Bezier2Morph methodsFor: 'printing' stamp: 'hlsf 5/12/2024 18:21:56'!
 printOn: str
 	super printOn: str.
 	str nextPutAll: ' p1: ';
-		nextPutAll: (p1 printShowingDecimalPlaces: 1);
+		nextPutAll: (p1 printStringFractionDigits: 1);
 		nextPutAll: ' p2: ';
-		nextPutAll: (p2 printShowingDecimalPlaces: 1);		
+		nextPutAll: (p2 printStringFractionDigits: 1);		
 		nextPutAll: ' c: ';
-		nextPutAll: (c1 ifNotNil: [c1 printShowingDecimalPlaces: 1] ifNil: ['nil'])
+		nextPutAll: (c1 ifNotNil: [c1 printStringFractionDigits: 1] ifNil: ['nil'])
 	
 ! !
 
@@ -439,12 +443,12 @@ start: startPoint end: endPoint control1: controlPoint1 control2: controlPoint2
 	c1 := controlPoint1.
 	c2 := controlPoint2 ! !
 
-!Bezier3Morph methodsFor: 'printing' stamp: 'hlsf 4/2/2023 14:31:08'!
+!Bezier3Morph methodsFor: 'printing' stamp: 'hlsf 5/12/2024 18:21:42'!
 printOn: str
 	super printOn: str.
 	str
 		nextPutAll: ' c2: ';
-		nextPutAll: (c2 ifNotNil: [c2 printShowingDecimalPlaces: 1] ifNil: ['nil'])
+		nextPutAll: (c2 ifNotNil: [c2 printStringFractionDigits: 1] ifNil: ['nil'])
 	
 ! !
 
@@ -466,7 +470,7 @@ drawTangentsOn: canvas
 				canvas moveTo: p2.
 				canvas lineTo: c2] ! !
 
-!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 4/3/2023 20:41:27'!
+!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 5/12/2024 18:27:19'!
 drawOn: canvas
 	| samples lastIndex |
 	owner class ~= PaperMorph ifTrue: [^ self].
@@ -519,6 +523,10 @@ show
 "
 	super show.
 	self submorphsDo: [:each | each hide].! !
+
+!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 5/12/2024 18:11:04'!
+is: aSymbol
+	^ aSymbol == #StrokeGroupMorph or: [ super is: aSymbol ]! !
 
 !StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 4/8/2023 12:18:06'!
 showControls

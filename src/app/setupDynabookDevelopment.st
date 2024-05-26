@@ -15,6 +15,7 @@ Preferences at: #autoNumberUserChanges put: false.
 Feature require: #'Dynabook'.
 world := UISupervisor ui.
 [
+	Display fullScreenMode: true.
 	(Delay forSeconds: 1) wait.
 	UISupervisor whenUIinSafeState: [
 		"Delete all windows but the taskbar"
@@ -25,7 +26,6 @@ world := UISupervisor ui.
 		"Adjust taskbar size"
 		morph := world taskbar.
 		morph scale: 1/2.
-		Display fullScreenMode: true.
 		"Compute the available free space for windows placement"
 		area := RealEstateAgent maximumUsableArea 
 			extendBy: 0 @ morph morphHeight negated.
