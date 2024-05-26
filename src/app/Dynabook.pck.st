@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6409] on 26 May 2024 at 5:24:07 pm'!
+'From Cuis7.1 [latest update: #6409] on 26 May 2024 at 11:25:06 pm'!
 'Description '!
-!provides: 'Dynabook' 1 47!
+!provides: 'Dynabook' 1 48!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -564,23 +564,23 @@ classGroupCourses
 classGroupIndex
 	^ classGroupIndex! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:15:02'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 23:23:52'!
 classGroupIndex: anIndex
 	classGroupIndex := anIndex.
 	self changed: #classGroupIndex:.
 	self courseIndex: 0.
-	self changed: #courses.
-	self courseIndex: (self courses ifEmpty: [0] ifNotEmpty: [1]).! !
+	self changed: #classGroupCourses.
+	self courseIndex: (self classGroupCourses ifEmpty: [0] ifNotEmpty: [1]).! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:29:17'!
 classGroups
 " All the user class groups "
 	^ self data classGroups! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:47:52'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 23:23:00'!
 course
 " The selected course, if any "
-	^ self courses at: courseIndex ifAbsent: [nil]! !
+	^ self classGroupCourses at: courseIndex ifAbsent: [nil]! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:21:53'!
 courseIndex
@@ -591,11 +591,6 @@ courseIndex
 courseIndex: anIndex
 	courseIndex := anIndex.
 	self changed: #courseIndex:.! !
-
-!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:54:20'!
-courses
-" The user courses in a give class group"
-	^ self classGroup courses! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:24'!
 data
@@ -623,16 +618,6 @@ classGroupListMorph
 		listGetter: #classGroups
 		indexGetter: #classGroupIndex
 		indexSetter: #classGroupIndex: ::
-		autoDeselect: false.! !
-
-!DyView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 16:35:06'!
-coursesListMorph
-" Present the list of the user courses in a given class group"
-	^ DropDownListMorph 
-		withModel: self
-		listGetter: #courses
-		indexGetter: #courseIndex
-		indexSetter: #courseIndex: ::
 		autoDeselect: false.! !
 
 !DyView methodsFor: 'initialization' stamp: 'hlsf 10/7/2023 15:56:04'!
@@ -715,17 +700,19 @@ courseIndex: anIndex
 	self changed: #courseHourDates.
 	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 10/7/2023 16:03:13'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 5/26/2024 23:21:22'!
 initialize
+	| courseGroupNow |
 	super initialize.
 	" Guess the course at current time, then its classGroup "
-	courseIndex := (self data courseAt: DateAndTime now) 
-		ifNotNil:  [:aCourse | self courses indexOf: aCourse]
-		ifNil: [	0].
-	courseHourIndex := courseIndex isZero ifTrue: 	[0] ifFalse: [1].
-	classGroupIndex := self course 
-		ifNotNil: [:aCourse | self classGroups indexOf: aCourse classGroup] 
-		ifNil: [0].
+	courseGroupNow := self data courseAndGroupAt: DateAndTime now.
+	courseGroupNow 
+		ifNotNil: 		[
+			classGroupIndex := self classGroups indexOf: courseGroupNow second.
+			courseIndex := self classGroupCourses indexOf: courseGroupNow first 	.
+			courseHourIndex := self courseHourDates ifEmpty: [0] ifNotEmpty: [1] ]
+		ifNil: [	classGroupIndex := courseIndex := courseHourIndex := 0			].
+	
 	self addMorphKeepMorphHeight: self newTaskPanel.
 	self addMorphUseAll: self incomingTasksPanel.
 	self adoptWidgetsColor: self defaultBorderColor 
@@ -745,13 +732,6 @@ courseIndex: anIndex
 	self topicIndex: 0.
 	self changed: #topics.
 	self topicIndex:​ (self topics ifEmpty: [0] ifNotEmpty: [1]).! !
-
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 17:10:58'!
-courses
-" The user courses within the selected class group "
-	^ self classGroup 
-		ifNotNil: [:cg | cg courses]
-		ifNil: [`Array new`]! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 11:52:11'!
 sortIndex
@@ -801,12 +781,12 @@ documentPreviewPanel
 				into: [:row :document |			row addMorph: (document accept: previewVisitor)		]) 		].
 	^ previewPanel ! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 5/26/2024 16:12:29'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 5/26/2024 23:17:47'!
 documentSelectorPanel
 " A view to select documents according to classGroups, courses, topics and sorting option "
 	^ LayoutMorph newRow ::
 		addMorph: self classGroupListMorph ;
-		addMorph: self coursesListMorph;
+		addMorph: self classGroupCoursesListMorph;
 		addMorph: self topicListMorph;
 		addMorphUseAll: DyControlManager spacer;
 		addMorph: self sortListMorph! !
@@ -855,11 +835,11 @@ topicListMorph
 		indexSetter: #topicIndex: ::
 		autoDeselect: false.! !
 
-!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 10/9/2023 23:55:53'!
+!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 5/26/2024 23:21:34'!
 initialize
 	super initialize.
 	classGroupIndex :=  self classGroups ifNotEmpty: [1] ifEmpty: [0].
-	courseIndex := self courses ifNotEmpty: [1] ifEmpty: [0].
+	courseIndex := self classGroupCourses ifNotEmpty: [1] ifEmpty: [0].
 	topicIndex := self topics ifNotEmpty: [1] ifEmpty: [0].
 	sortIndex := 1.
 	self addMorphKeepMorphHeight: self documentSelectorPanel.
@@ -1967,21 +1947,22 @@ printOn: str
 		ifNotNil:  [:firstName | str nextPutAll: ('{1}''s Dynabook' translated format: {firstName})]
 		ifNil: [super printOn: str]! !
 
-!DyUserData methodsFor: 'searching' stamp: 'hlsf 9/10/2023 17:29:17'!
-classGroupWhen: aDateTime
-" Search my class group when it is this date and time "! !
-
-!DyUserData methodsFor: 'searching' stamp: 'hlsf 9/10/2023 23:27:36'!
-courseAt: aDateTime
-" Search my course occuring at this date and time "
+!DyUserData methodsFor: 'searching' stamp: 'hlsf 5/26/2024 22:51:36'!
+courseAndGroupAt: aDateTime
+" Search my course and group occuring at this date and time "
 	schools do: [:aSchool |
 		aSchool classGroups do: [:aClassGroup |
 			aClassGroup courses do: [:aCourse |
-				(aCourse isDuring: aDateTime) ifTrue: [^ aCourse ] 
+				(aCourse isDuring: aDateTime) ifTrue: [^ Array with: aCourse with: aClassGroup ] 
 			]
 		]
 	].
 	^ nil! !
+
+!DyUserData methodsFor: 'searching' stamp: 'hlsf 5/26/2024 22:52:20'!
+courseAt: aDateTime
+" Search my course occuring at this date and time "
+	^ (self courseAndGroupAt: aDateTime) ifNotNil: [:anArray | anArray first]! !
 
 !DyUserData methodsFor: 'searching' stamp: 'hlsf 9/21/2023 11:43:46'!
 nextCourseHourAfter: aDateAndTime
