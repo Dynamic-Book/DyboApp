@@ -1,6 +1,6 @@
-'From Cuis6.3 [latest update: #6409] on 26 May 2024 at 3:36:59 pm'!
+'From Cuis7.1 [latest update: #6410] on 30 May 2024 at 9:28:55 pm'!
 'Description '!
-!provides: 'Paper' 1 43!
+!provides: 'Paper' 1 44!
 SystemOrganization addCategory: #Paper!
 
 
@@ -74,6 +74,16 @@ Object subclass: #StrokerBezier2
 StrokerBezier2 class
 	instanceVariableNames: ''!
 
+!classDefinition: #StrokerBezier2XP category: #Paper!
+StrokerBezier2 subclass: #StrokerBezier2XP
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Paper'!
+!classDefinition: 'StrokerBezier2XP class' category: #Paper!
+StrokerBezier2XP class
+	instanceVariableNames: ''!
+
 !classDefinition: #StrokerBezier3 category: #Paper!
 StrokerBezier2 subclass: #StrokerBezier3
 	instanceVariableNames: ''
@@ -82,6 +92,16 @@ StrokerBezier2 subclass: #StrokerBezier3
 	category: 'Paper'!
 !classDefinition: 'StrokerBezier3 class' category: #Paper!
 StrokerBezier3 class
+	instanceVariableNames: ''!
+
+!classDefinition: #StrokerBezier3XP category: #Paper!
+StrokerBezier3 subclass: #StrokerBezier3XP
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Paper'!
+!classDefinition: 'StrokerBezier3XP class' category: #Paper!
+StrokerBezier3XP class
 	instanceVariableNames: ''!
 
 
@@ -121,6 +141,9 @@ Depending on the use of the pen, we have different threshold
 !StrokerBezier2 commentStamp: '<historical>' prior: 0!
 Given samples of mouse positions and previous strokes, I compute a new Bézier quadratic stroke . 
 I can be subclassed to adjust my behavior.!
+
+!StrokerBezier2XP commentStamp: '<historical>' prior: 0!
+Experiment on 2-Bezier!
 
 !StrokerBezier3 commentStamp: '<historical>' prior: 0!
 Compute a cubic Bézier curve.!
@@ -174,7 +197,7 @@ mouseButton1Down: event localPosition: localPosition
 	
 ! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 4/8/2023 15:45:43'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 5/29/2024 21:13:10'!
 mouseButton1Up: event localPosition: localPosition
 	samples at: sampleIndex put: localPosition.
 	sampleIndex := sampleIndex + 1.
@@ -182,7 +205,7 @@ mouseButton1Up: event localPosition: localPosition
 	sampleIndex to: self samplesQty do: [	:i |				samples at: i put: localPosition].
 	self lastStrokeGroup 
 		addMorph: stroker newStroke;
-		show;
+		"show;"
 		redrawNeeded.
 	self resetSamplingTo: nil.
 	lineStrokes redrawNeeded 
@@ -486,9 +509,9 @@ drawOn: canvas
 drawOn: canvas
 	self visible ifTrue: [self drawWhenHiddenOn: canvas]! !
 
-!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 4/8/2023 15:29:57'!
+!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 5/29/2024 21:05:09'!
 drawWhenHiddenOn: canvas
-" I draw manualy my submorphs "
+" I draw manually my submorphs "
 	| nextIndex endIndex strokesQty stroke color width |
 	strokesQty := self submorphCount.
 	strokesQty isZero ifTrue: [ ^ self ].
@@ -590,9 +613,9 @@ width: aNumber
 adjustWidthString
 	^ adjustWidth asMenuItemTextPrefix , 		'adjust width'! !
 
-!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 4/9/2023 11:35:26'!
+!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 5/28/2024 21:24:00'!
 newStroke
-	| newStroke lastStroke junctionPoint samples |
+	| newStroke lastStroke junctionPoint samples  |
 	samples := self samples.
 	lastStroke := paper lastStroke.
 	newStroke := Bezier2Morph new
@@ -666,7 +689,7 @@ maxDistance: samples
 		dist at: i put: ( (samples at: i) dist: (samples at: i + 1) )].
 	^ dist max! !
 
-!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 4/12/2023 17:34:53'!
+!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 5/29/2024 21:37:41'!
 widthFor: samples prev: lastStroke
 	| penWidth prevWidth strokeDist min max f a b  | 
 	penWidth := self penWidth.
@@ -676,7 +699,7 @@ widthFor: samples prev: lastStroke
 	min := self penThreshold / 2.
 	max := self penThreshold * 2. 
 	"+/- f % of amplitude width"
-	f := 0.30.
+	f := 0.50.
 	" affine parameters "
 	a := (2 * penWidth * f) / ( min - max).
 	b :=  penWidth * (1 + f) - (min * a).
@@ -688,6 +711,31 @@ on: aPaperMorph
 	^ self new ::
 		paper: aPaperMorph ;
 		yourself! !
+
+!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 5/28/2024 21:41:23'!
+newStroke
+	| newStroke lastStroke junctionPoint samples migratedControl middle |
+	samples := self samples.
+	lastStroke := paper lastStroke.
+	middle := (samples first + samples last) / 2.0.
+	migratedControl := 2 * samples second + middle. 
+	
+	newStroke := Bezier2Morph new
+		start: samples first
+		end: samples last
+		control1: migratedControl ;
+		color: self penColor; 
+		width: (self widthFor: samples prev: lastStroke);
+		yourself.
+	(lastStroke notNil and: [lastStroke end == newStroke start]) ifTrue: [	
+		junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
+		junctionPoint := junctionPoint + lastStroke end * 1 / 2.0.
+		lastStroke end: junctionPoint.
+		newStroke start: junctionPoint.
+		lastStroke redrawNeeded ].
+	^ newStroke
+	
+	! !
 
 !StrokerBezier3 methodsFor: 'instance' stamp: 'hlsf 4/9/2023 12:17:41'!
 newStroke
@@ -715,6 +763,32 @@ newStroke
 samplesQty
 "Quantity of samples used to compute a new stroke"
 	^ 4! !
+
+!StrokerBezier3XP methodsFor: 'as yet unclassified' stamp: 'hlsf 5/29/2024 21:27:24'!
+newStroke
+	| newStroke lastStroke junctionPoint samples migratedControl1 migratedControl2 factor |
+	samples := self samples.
+	lastStroke := paper lastStroke.
+	factor := 1.2.
+	migratedControl1 := factor * (samples second - samples first) + samples first.
+	migratedControl2 := factor * (samples third - samples fourth) + samples fourth.
+	newStroke := Bezier3Morph new
+		start: samples first
+		end: samples last
+		control1: migratedControl1 
+		control2: migratedControl2 ;
+		color: self penColor; 
+		width:  (self widthFor: samples prev: lastStroke);
+		yourself.
+	(lastStroke notNil and: [lastStroke end == newStroke start]) ifTrue: [	
+		junctionPoint := (lastStroke control2 + newStroke control1) / 2.0.
+		junctionPoint := (junctionPoint + (lastStroke end) ) / 2.0.
+		lastStroke end: junctionPoint.
+		newStroke start: junctionPoint.
+		lastStroke redrawNeeded].
+	^ newStroke
+	
+	! !
 
 !Collection methodsFor: '*Paper' stamp: 'hlsf 3/31/2023 22:22:27'!
 covariance: y
