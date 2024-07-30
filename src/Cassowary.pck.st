@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6544] on 29 July 2024 at 11:18:55 pm'!
+'From Cuis7.1 [latest update: #6544] on 30 July 2024 at 9:22:47 pm'!
 'Description '!
-!provides: 'Cassowary' 1 0!
+!provides: 'Cassowary' 1 2!
 SystemOrganization addCategory: #'Cassowary-Kernel'!
 SystemOrganization addCategory: #'Cassowary-Tests'!
 SystemOrganization addCategory: #'Cassowary-Demo'!
@@ -393,6 +393,14 @@ printOn: aStream
 		ifNil: [aStream nextPutAll: 'CV#', self hash printString]
 		ifNotNil: [aStream nextPutAll: self name].! !
 
+!ClAbstractVariable methodsFor: 'testing' stamp: 'hlsf 7/30/2024 10:00:06'!
+negative
+	^ false! !
+
+!ClAbstractVariable methodsFor: 'testing' stamp: 'hlsf 7/30/2024 10:00:17'!
+postive
+	^ true! !
+
 !ClAbstractVariable class methodsFor: 'instance creation' stamp: 'jcg 5/4/2001 13:08'!
 newNamed: aString
 
@@ -656,6 +664,14 @@ printOn: aStream
 
 	super printOn: aStream.
 	aStream nextPutAll: '['.  self value printOn: aStream.  aStream nextPutAll: ']'! !
+
+!ClVariable methodsFor: 'testing' stamp: 'hlsf 7/30/2024 10:00:35'!
+negative
+	^ value < 0! !
+
+!ClVariable methodsFor: 'testing' stamp: 'hlsf 7/30/2024 10:00:44'!
+positive
+	^ value >= 0! !
 
 !ClVariable class methodsFor: 'instance creation' stamp: 'jcg 5/7/2001 17:53'!
 newWith: anObject
@@ -2689,6 +2705,11 @@ endManipulation
 handlesMouseDown: evt
 	^ true! !
 
+!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/30/2024 19:07:46'!
+handlesMouseHover
+
+	^ true! !
+
 !ClDemoWindow methodsFor: 'event handling' stamp: 'jcg 5/8/2001 16:21'!
 handlesMouseOver: evt
 
@@ -2698,7 +2719,7 @@ handlesMouseOver: evt
 handlesMouseStillDown: evt
 	^ true! !
 
-!ClDemoWindow methodsFor: 'event handling' stamp: 'jcg 5/8/2001 12:02'!
+!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/30/2024 19:24:24'!
 manipulationMoveTo: aPoint
 	"This method is called when a constrainable point is manipulated using the mouse, i.e., during mouse motion.  aPoint is the location of the mouse and thus the new requested location of the constrainable point.  The constrainable point is stored in the 'dragPoint' instance variable, and the corresponding plan for moving that point is stored in the 'plan' instance variable.
 
@@ -2709,10 +2730,9 @@ manipulationMoveTo: aPoint
 
 	cs suggestValue: dragPoint x newValue: aPoint x asFloat.
 	cs suggestValue: dragPoint y newValue: aPoint y asFloat.
-	cs resolve.
-	self changed! !
+	cs resolve.! !
 
-!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/29/2024 22:44:57'!
+!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/30/2024 19:11:27'!
 mouseButton1Down: evt localPosition: position
 	grabPoint ifNil: [^ self].
 	dragPoint := grabPoint.
@@ -2721,24 +2741,17 @@ mouseButton1Down: evt localPosition: position
 	self beginManipulation
 ! !
 
-!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/29/2024 22:57:53'!
+!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/30/2024 19:11:21'!
 mouseButton1Up: evt localPosition: position
-
 	dragPoint ifNil: [^ self].
 	dragPoint := nil.
 	
 	self endManipulation
 ! !
 
-!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/29/2024 23:16:22'!
-mouseMove: evt localPosition: position
+!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/30/2024 19:22:20'!
+mouseHover: evt localPosition: position
 	| threshold |
-	
-	evt isMouseDown ifTrue: [
-		dragPoint ifNil: [^ self].
-		self manipulationMoveTo: (evt  eventPosition - self morphPosition ).
-		^ self ].
-
 	dragPoint ifNil: [
 		threshold := self grabThreshold * 2 "+ self position ".
 		self constraintPointsDo: [:pt | | pv |
@@ -2746,11 +2759,17 @@ mouseMove: evt localPosition: position
 			(((pv - threshold) corner: (pv + threshold)) containsPoint: position) ifTrue: [
 				grabPoint == pv ifFalse: [
 					grabPoint := pt.
-					self changed].
+					self redrawNeeded ].
 				^ self]].
 		grabPoint ifNotNil: [
 			grabPoint := nil.
-			self changed]]! !
+			self redrawNeeded ]]! !
+
+!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/30/2024 19:22:33'!
+mouseMove: evt localPosition: position
+	dragPoint ifNil: [^ self].
+	self manipulationMoveTo: (evt  eventPosition - self morphPosition ).
+	self redrawNeeded ! !
 
 !ClDemoWindow methodsFor: 'enumerating' stamp: 'jcg 5/8/2001 09:23'!
 constraintPointsDo: aBlock
@@ -2854,7 +2873,7 @@ drawGrabBox
 	self flag: #schwa.
 	Transcript show: 'grab box'; cr! !
 
-!ClDemoWindow methodsFor: 'drawing' stamp: 'hlsf 7/29/2024 22:34:37'!
+!ClDemoWindow methodsFor: 'drawing' stamp: 'hlsf 7/30/2024 19:24:43'!
 drawGrabBoxOn: aCanvas
 
 	grabPoint ifNotNil: [
@@ -2897,6 +2916,10 @@ grabThreshold
 initialExtent
 
 	^ 300@300! !
+
+!ClDemoWindow methodsFor: 'as yet unclassified' stamp: 'hlsf 7/30/2024 19:36:30'!
+requiresVectorCanvas
+	^ true! !
 
 !ClDemoWindow class methodsFor: 'instance creation' stamp: 'jcg 5/8/2001 08:41'!
 makeDemos
@@ -3013,17 +3036,18 @@ initialize
 
 	self createConstraints.! !
 
-!ClBinaryTreeDemo methodsFor: 'drawing' stamp: 'jcg 5/8/2001 23:39'!
+!ClBinaryTreeDemo methodsFor: 'drawing' stamp: 'hlsf 7/30/2024 21:19:20'!
 drawForegroundOn: aCanvas
 
 	lines do: [:each |
 		aCanvas 
-			line: each first valuePoint + self position
-			to: each second valuePoint + self position
+			line: each first valuePoint 
+			to: each second valuePoint 
+			width: 1
 			color: Color white].
 	nodes do: [:each |
 		aCanvas
-			fillRectangle: ((-5@-5 corner: 5@5) translateBy: each valuePoint + self position)
+			fillRectangle: ((-5@-5 corner: 5@5) translatedBy: each valuePoint)
 			color: Color yellow].! !
 
 !ClBinaryTreeDemo methodsFor: 'defaults' stamp: 'jcg 5/8/2001 23:30'!
@@ -3072,12 +3096,12 @@ constraintPointsDo: aBlock
 	aBlock value: p1.
 	aBlock value: p2! !
 
-!ClBoundedLineDemo methodsFor: 'drawing' stamp: 'jcg 5/9/2001 08:17'!
+!ClBoundedLineDemo methodsFor: 'drawing' stamp: 'hlsf 7/30/2024 21:17:29'!
 drawForegroundOn: aCanvas
 
 	aCanvas 
-		line: p1 valuePoint + self position 
-		to: p2 valuePoint + self position
+		line: p1 valuePoint 
+		to: p2 valuePoint 
 		width: 2
 		color: Color white
 ! !
@@ -3132,7 +3156,7 @@ constraintPointsDo: aBlock
 	aBlock value: p4.
 	aBlock value: p5! !
 
-!ClBoxesDemo methodsFor: 'drawing' stamp: 'eem 4/3/2012 09:17'!
+!ClBoxesDemo methodsFor: 'drawing' stamp: 'hlsf 7/30/2024 21:16:29'!
 drawForegroundOn: aCanvas
 	| colors index |
 
@@ -3143,7 +3167,7 @@ drawForegroundOn: aCanvas
 		col := (colors at: index) lighter lighter.
 		index := index + 1.
 		aCanvas 
-			fillRectangle: ((-20@-20 corner: 20@20) translateBy: each valuePoint + self position)
+			fillRectangle: ((-20@-20 corner: 20@20) translatedBy: each valuePoint)
 			color: col]
 ! !
 
@@ -3282,7 +3306,7 @@ constraintPointsDo: aBlock
 
 	aBlock value: center! !
 
-!ClCrossedQuadDemo methodsFor: 'drawing' stamp: 'jcg 5/9/2001 12:53'!
+!ClCrossedQuadDemo methodsFor: 'drawing' stamp: 'hlsf 7/30/2024 21:14:51'!
 drawForegroundOn: aCanvas
 	| begin end |
 
@@ -3291,24 +3315,20 @@ drawForegroundOn: aCanvas
 	end := {p2. p3. p4. p1} collect: [:p | p valuePoint + self position].
 	begin with: end do: [:b :e |
 		aCanvas line: b to: e width: 3 color: Color white]."
-
-	aCanvas 
-		drawPolygon: ({p1. p2. p3. p4} collect: [:p | p valuePoint + self position])
-		color: Color transparent
-		borderWidth: 3
-		borderColor: Color white.
-
+	
+	aCanvas strokeWidth: 3 color: Color white do: [
+		aCanvas 		multiMoveTo: false points: ({p1. p2. p3. p4} collect: [:p | p valuePoint]);
+			closePath 		].
+		
 	"Draw the lines between the midpoints."
-	begin := {m1. m2. m3. m4} collect: [:m | m valuePoint + self position].
-	end := {m2. m3. m4. m1} collect: [:m | m valuePoint + self position].
+	begin := {m1. m2. m3. m4} collect: [:m | m valuePoint].
+	end := {m2. m3. m4. m1} collect: [:m | m valuePoint].
 	begin with: end do: [:b :e |
 		aCanvas line: b to: e width: 2 color: Color yellow].
 
 	"Draw the cross lines"
 	aCanvas line: begin first to: begin third width: 2 color: Color red.
-	aCanvas line: begin second to: begin fourth width: 2 color: Color red.
-
-	! !
+	aCanvas line: begin second to: begin fourth width: 2 color: Color red.! !
 
 !ClCrossedQuadDemo methodsFor: 'copying' stamp: 'jcg 6/29/2001 13:15'!
 veryDeepFixupWith: deepCopier
@@ -3368,18 +3388,18 @@ constraintPointsDo: aBlock
 	aBlock value: p2.
 	aBlock value: m1.! !
 
-!ClMidpointDemo methodsFor: 'drawing' stamp: 'jcg 5/9/2001 08:25'!
+!ClMidpointDemo methodsFor: 'drawing' stamp: 'hlsf 7/30/2024 19:21:41'!
 drawForegroundOn: aCanvas
 
 	aCanvas 
-		line: p1 valuePoint + self position
-		to: p2 valuePoint + self position
+		line: p1 valuePoint 
+		to: p2 valuePoint 
 		width: 2
 		color: Color white.
 
 	aCanvas 
-		line: m1 valuePoint + self position - (0@1)
-		to: m1 valuePoint + self position + (0@1)
+		line: m1 valuePoint  - (0@1)
+		to: m1 valuePoint + (0@1)
 		width: 2
 		color: Color red.! !
 
@@ -3478,19 +3498,19 @@ constraintPointsDo: aBlock
 	aBlock value: m3.
 	aBlock value: m4! !
 
-!ClQuadDemo methodsFor: 'drawing' stamp: 'jcg 5/9/2001 08:29'!
+!ClQuadDemo methodsFor: 'drawing' stamp: 'hlsf 7/30/2024 19:26:14'!
 drawForegroundOn: aCanvas
 	| begin end |
 
 	"Draw the four sides of the quadrilateral."
-	begin := {p1. p2. p3. p4} collect: [:p | p valuePoint + self position].
-	end := {p2. p3. p4. p1} collect: [:p | p valuePoint + self position].
+	begin := {p1. p2. p3. p4} collect: [:p | p valuePoint].
+	end := {p2. p3. p4. p1} collect: [:p | p valuePoint].
 	begin with: end do: [:b :e |
 		aCanvas line: b to: e width: 3 color: Color white].
 
 	"Draw the lines between the midpoints."
-	begin := {m1. m2. m3. m4} collect: [:m | m valuePoint + self position].
-	end := {m2. m3. m4. m1} collect: [:m | m valuePoint + self position].
+	begin := {m1. m2. m3. m4} collect: [:m | m valuePoint].
+	end := {m2. m3. m4. m1} collect: [:m | m valuePoint].
 	begin with: end do: [:b :e |
 		aCanvas line: b to: e width: 2 color: Color yellow].
 ! !
