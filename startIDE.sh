@@ -20,4 +20,4 @@ cp $cuis.image $ide.image
 cp $cuis.changes $ide.changes
 cd -
 
-$VM $imagePath/$ide -s dynabook/src/app/setupDynabookDevelopment.st 
+$VM $imagePath/$ide -s dynabook/src/setupDynabookDevelopment.st 
