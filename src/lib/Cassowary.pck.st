@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6544] on 30 July 2024 at 9:22:47 pm'!
+'From Cuis7.1 [latest update: #6544] on 1 August 2024 at 12:48:21 pm'!
 'Description '!
-!provides: 'Cassowary' 1 2!
+!provides: 'Cassowary' 1 3!
 SystemOrganization addCategory: #'Cassowary-Kernel'!
 SystemOrganization addCategory: #'Cassowary-Tests'!
 SystemOrganization addCategory: #'Cassowary-Demo'!
@@ -1444,7 +1444,7 @@ solve
 	self setExternalVariables
 ! !
 
-!ClSimplexSolver methodsFor: 'manipulating' stamp: 'jcg 5/8/2001 08:00'!
+!ClSimplexSolver methodsFor: 'manipulating' stamp: 'hlsf 7/31/2024 19:08:52'!
 suggestValue: var newValue: val
 	"We should be editting var.  Suggest a new value for it.
 
@@ -1455,7 +1455,7 @@ suggestValue: var newValue: val
 		(editVars at: i) == var ifTrue: [
 			self newEditConstants at: i put: val.  
 			^self]].
-	ClError internalError signal: 'variable not currently being edited'! !
+	ClError internal signal: 'variable not currently being edited'! !
 
 !ClSimplexSolver methodsFor: 'private' stamp: 'jcg 5/6/2001 23:05'!
 addRow: var expr: expr
@@ -2670,7 +2670,7 @@ tooDifficult
 
 	^ self new messageText: '(ExCLError) An error has occured in CL' ! !
 
-!ClDemoWindow methodsFor: 'event handling' stamp: 'jcg 5/8/2001 23:21'!
+!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/31/2024 19:10:02'!
 beginManipulation
 	"This method is called when a constrainable point is starting to be manipulated, i.e., upon mouse down.  The constrainable point is stored in the 'dragPoint' instance variable, and the corresponding plan for moving that point is stored in the 'plan' instance variable.
 
@@ -2749,11 +2749,11 @@ mouseButton1Up: evt localPosition: position
 	self endManipulation
 ! !
 
-!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/30/2024 19:22:20'!
+!ClDemoWindow methodsFor: 'event handling' stamp: 'hlsf 7/31/2024 18:40:55'!
 mouseHover: evt localPosition: position
 	| threshold |
 	dragPoint ifNil: [
-		threshold := self grabThreshold * 2 "+ self position ".
+		threshold := self grabThreshold * 2.
 		self constraintPointsDo: [:pt | | pv |
 			pv := pt valuePoint rounded.
 			(((pv - threshold) corner: (pv + threshold)) containsPoint: position) ifTrue: [
@@ -2917,7 +2917,7 @@ initialExtent
 
 	^ 300@300! !
 
-!ClDemoWindow methodsFor: 'as yet unclassified' stamp: 'hlsf 7/30/2024 19:36:30'!
+!ClDemoWindow methodsFor: 'geometry testing' stamp: 'hlsf 7/30/2024 19:36:30'!
 requiresVectorCanvas
 	^ true! !
 
@@ -3403,7 +3403,7 @@ drawForegroundOn: aCanvas
 		width: 2
 		color: Color red.! !
 
-!ClMidpointDemo methodsFor: 'initialization' stamp: 'jcg 5/9/2001 08:25'!
+!ClMidpointDemo methodsFor: 'initialization' stamp: 'hlsf 7/31/2024 18:47:15'!
 initialize
 
 	super initialize.
