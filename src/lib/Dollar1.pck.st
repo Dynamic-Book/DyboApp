@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6544] on 3 August 2024 at 12:26:58 am'!
+'From Cuis7.1 [latest update: #6544] on 4 August 2024 at 5:07:31 pm'!
 'Description '!
-!provides: 'Dollar1' 1 1!
+!provides: 'Dollar1' 1 3!
 SystemOrganization addCategory: #'Dollar1-Tests'!
 SystemOrganization addCategory: #'Dollar1-Core'!
 
@@ -46,7 +46,7 @@ Dollar1Test class
 	instanceVariableNames: ''!
 
 
-!Dollar1Recognizer methodsFor: 'initialization' stamp: 'yo 8/28/2012 13:48'!
+!Dollar1Recognizer methodsFor: 'initialization' stamp: 'hlsf 8/4/2024 16:59:07'!
 addTemplate: points as: name
 	| stroke |
 	stroke := Dollar1Stroke new name: name; withPoints: points.
@@ -147,7 +147,7 @@ optimalCosDistance: stroke1 with: stroke2
 pathDistance: a from: b
 	^ (a with: b collect: [:ai :bi | ai dist: bi]) average! !
 
-!Dollar1Recognizer methodsFor: 'step 4' stamp: 'yo 8/28/2012 13:41'!
+!Dollar1Recognizer methodsFor: 'step 4' stamp: 'hlsf 8/4/2024 17:04:27'!
 recognize: points
 	| result |
 	result := self recognize: (Dollar1Stroke new withPoints: points) against: templates and: templates1D in: 250.
@@ -444,47 +444,46 @@ isOneDimensional
 	^ isLong
 ! !
 
-!Dollar1Morph methodsFor: 'initialization' stamp: 'hlsf 8/2/2024 23:31:02'!
+!Dollar1Morph methodsFor: 'initialization' stamp: 'hlsf 8/4/2024 16:50:01'!
 buildInputField
 	^ TextModelMorph 
 		textProvider: self
 		textGetter: nil
 		textSetter: #accept: ::
-		emptyTextDisplayMessage: 'Write a name (1 to 16) to add the stroke as a model';
+		acceptOnCR: true;
+		emptyTextDisplayMessage: 'Write a name to add a model';
 		yourself! !
 
-!Dollar1Morph methodsFor: 'initialization' stamp: 'hlsf 8/3/2024 00:24:20'!
+!Dollar1Morph methodsFor: 'initialization' stamp: 'hlsf 8/4/2024 15:38:42'!
 initialize
 	| sketch |
 	super initialize.
 	recognizer := Dollar1Recognizer new.
-	points := #().
+	points := OrderedCollection new.
 	
 	self color: (Color gray: 0.9).
 	sketch := self imageMorph: self class samplePicture.
-	self morphExtent: sketch morphExtent * (2@1).
-	self addMorph: sketch position: 0@0.
+	self morphExtent: sketch morphExtent * (2@1) + (borderWidth * 2) asPoint.
+	self addMorph: sketch position: borderWidth asPoint.
 	
 	label := LabelMorph contents: '<result>' ::
 		morphExtent: 300@25.
-	self addMorph: 	label position: sketch morphTopRight.
+	self addMorph: 	label position: sketch morphTopRight + borderWidth asPoint.
 	
 	field := self buildInputField
 		morphExtent: sketch morphWidth @25.
-	self addMorph: 	field position: sketch morphBottomRight - (0@25).
+	self addMorph: 	field position: sketch morphBottomRight - (2 negated @25).
 
 	protractor := true.
-	self addMorph: (button := self button) position: self morphTopRight - (100@0).
+	self addMorph: (button := self button) position: self morphTopRight - (100@0) + (borderWidth@0).
 	self toggle.
 ! !
 
-!Dollar1Morph methodsFor: 'events' stamp: 'yo 8/28/2012 14:44'!
-accept: morph
+!Dollar1Morph methodsFor: 'events' stamp: 'hlsf 8/4/2024 17:02:39'!
+accept: aText
+	field model actualContents: ''.
 	points size > 1 ifTrue: [
-		recognizer addTemplate: points as: morph contents asString.
-		^ true].
-	^ false
-! !
+		recognizer addTemplate: points as: aText asString]! !
 
 !Dollar1Morph methodsFor: 'events' stamp: 'hlsf 8/3/2024 00:18:51'!
 button
@@ -508,7 +507,7 @@ mouseButton1Down: evt localPosition: position
 	points := OrderedCollection new.
 ! !
 
-!Dollar1Morph methodsFor: 'events' stamp: 'hlsf 8/3/2024 00:19:19'!
+!Dollar1Morph methodsFor: 'events' stamp: 'hlsf 8/4/2024 16:26:46'!
 mouseButton1Up: evt localPosition: position
 	| result |
 	points add: position.
@@ -517,13 +516,14 @@ mouseButton1Up: evt localPosition: position
 		recognizer recognizeWithProtractor: points]
 	ifFalse: [
 		recognizer recognize: points].
-	label contents: result first, ', ', (self print3Digits: result second)
+	label contents: result first, ', ', (result second printStringFractionDigits: 3)
 ! !
 
-!Dollar1Morph methodsFor: 'events' stamp: 'hlsf 8/3/2024 00:13:46'!
+!Dollar1Morph methodsFor: 'events' stamp: 'hlsf 8/4/2024 17:06:08'!
 mouseMove: evt localPosition: position
 	evt mouseButton1Pressed ifTrue: [
-		points add: position
+		points add: position.
+		"points addAll: (evt trail collect: [:each | self internalize: each])."
 	].
 	self redrawNeeded .
 ! !
@@ -549,17 +549,9 @@ imageMorph: aForm
 	^ ImageMorph new image: aForm
 ! !
 
-!Dollar1Morph methodsFor: 'private' stamp: 'yo 8/20/2012 21:50'!
-print3Digits: aNumber
-	(aNumber respondsTo: #printShowingMaxDecimalPlaces:) ifTrue: [
-		^ aNumber printShowingMaxDecimalPlaces: 3]
-	ifFalse: [
-		^ (aNumber truncateTo: 0.001) printString].
-! !
-
-!Dollar1Morph methodsFor: 'as yet unclassified' stamp: 'hlsf 8/3/2024 00:24:56'!
+!Dollar1Morph methodsFor: 'geometry testing' stamp: 'hlsf 8/4/2024 17:06:52'!
 requiresVectorCanvas
-	^ true! !
+	^ false! !
 
 !Dollar1Morph class methodsFor: 'all' stamp: 'yo 8/17/2012 16:39'!
 example
