@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6506] on 14 July 2024 at 11:03:35 am'!
+'From Cuis7.1 [latest update: #6578] on 11 August 2024 at 10:48:07 am'!
 'Description '!
-!provides: 'Dynabook' 1 49!
+!provides: 'Dynabook' 1 50!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -528,25 +528,29 @@ label
 pluralLabel
 	^ 'Periods' translated! !
 
-!DyDayInterval methodsFor: 'printing' stamp: 'hlsf 7/29/2023 16:31:03'!
+!DyDayInterval methodsFor: 'printing' stamp: 'hlsf 8/11/2024 10:44:42'!
 printOn: aStream
 	start 
 		ifNotNil:  [aStream nextPutAll:  start ddmmyy ;
 				nextPutAll: ' - ';
-				nextPutAll: end ddmmyy .]
+				nextPutAll: self end ddmmyy .]
 		ifNil: [aStream nextPutAll: 'days inteval' translated]! !
 
-!DyDayInterval methodsFor: 'testing' stamp: 'hlsf 7/29/2023 00:43:52'!
+!DyDayInterval methodsFor: 'testing' stamp: 'hlsf 8/11/2024 10:44:37'!
 includes: aDay
 	^ start = aDay 
-	or: [end = aDay 
-	or: [start < aDay and: [aDay < end ] ] ]! !
+	or: [self end = aDay 
+	or: [start < aDay and: [aDay < self end ] ] ]! !
 
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 00:38:38'!
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 8/11/2024 10:44:21'!
 end
-	^ end! !
+" if end date is nil,  then start date if any. Handy to input only one day off "
+	^ (end isNil and: [start notNil])
+		ifTrue: [start] 
+		ifFalse: [	end]
+! !
 
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 00:38:49'!
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 8/11/2024 10:42:55'!
 end: aDate
 	end := aDate ! !
 
@@ -563,7 +567,7 @@ start: aDate
 "Date does not implement <=, dive into its attribute start, a DateAndTime "
 	^ start start <= aDayInterval start start! !
 
-!DyDayInterval methodsFor: 'user interface' stamp: 'hlsf 7/29/2023 16:38:04'!
+!DyDayInterval methodsFor: 'user interface' stamp: 'hlsf 8/11/2024 10:38:11'!
 mold
 	| mold |
 	mold := Mold new.
@@ -574,7 +578,7 @@ mold
 	mold dateField 
 		label: 'End' translated;
 		on: #end of: self;
-		beRequired.
+		beOptional .
 	^ mold
 	! !
 
@@ -1366,9 +1370,10 @@ userDataPath
 " the location of the user data and documents "
 	^ platform userDataPath! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 5/11/2024 16:25:26'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/11/2024 10:47:46'!
 rename: oldName to: newName in: parentDir
 	| dir |
+	oldName = newName ifTrue: [^ self].
 	oldName 
 		ifNil: [" folder does not exist yet, create it "
 			(parentDir / newName asFileName ) assureExistence ]
