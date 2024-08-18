@@ -1,12 +1,12 @@
-'From Cuis7.1 [latest update: #6410] on 30 May 2024 at 9:28:55 pm'!
+'From Cuis7.1 [latest update: #6596] on 18 August 2024 at 5:02:34 pm'!
 'Description '!
-!provides: 'Paper' 1 44!
+!provides: 'Paper' 1 46!
 SystemOrganization addCategory: #Paper!
 
 
 !classDefinition: #PaperMorph category: #Paper!
 BoxedMorph subclass: #PaperMorph
-	instanceVariableNames: 'stroker pen samples sampleIndex lineStrokes'
+	instanceVariableNames: 'stroker pen samples sampleIndex lineStrokes lastMousePosition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Paper'!
@@ -112,7 +112,9 @@ StrokerBezier3XP class
 - sampleIndex: the index of the next sample to collect
 
 (PaperMorph new stroker: StrokerBezier2 ) openInWorld. "Quadratic Bézier"
+(PaperMorph new stroker: StrokerBezier2XP ) openInWorld. "Quadratic Bézier, expend out the control point"
 (PaperMorph new stroker: StrokerBezier3 ) openInWorld. "Cubic Bézier"
+(PaperMorph new stroker: StrokerBezier3XP ) openInWorld. "Cubic Bézier, expend out the control point"
 !
 
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
@@ -147,6 +149,11 @@ Experiment on 2-Bezier!
 
 !StrokerBezier3 commentStamp: '<historical>' prior: 0!
 Compute a cubic Bézier curve.!
+
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 8/18/2024 16:43:08'!
+lastMousePosition
+"In local coordinate "
+	^ lastMousePosition ! !
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 4/8/2023 12:08:53'!
 lastStroke
@@ -197,7 +204,7 @@ mouseButton1Down: event localPosition: localPosition
 	
 ! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 5/29/2024 21:13:10'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 8/18/2024 16:46:20'!
 mouseButton1Up: event localPosition: localPosition
 	samples at: sampleIndex put: localPosition.
 	sampleIndex := sampleIndex + 1.
@@ -208,22 +215,49 @@ mouseButton1Up: event localPosition: localPosition
 		"show;"
 		redrawNeeded.
 	self resetSamplingTo: nil.
+	lastMousePosition := nil.
 	lineStrokes redrawNeeded 
 ! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 4/8/2023 15:12:47'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 8/18/2024 16:46:49'!
 mouseMove: event localPosition: localPosition
-	event mouseButton1Pressed not ifTrue: [^ self ].
-	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > pen threshold 		ifTrue: [	
+	event mouseButton1Pressed not ifTrue: [		^ self ].
+	(samples at: sampleIndex -1) ~= localPosition 		ifTrue: [	"Is this test needed?, should be discarded upstream"
+		lastMousePosition := localPosition.
 		samples at: sampleIndex put: localPosition.
 		sampleIndex := sampleIndex + 1.
-		sampleIndex > self samplesQty			ifTrue: [
-			self lastStrokeGroup 
-				addMorph: stroker newStroke.
-			self resetSamplingTo: localPosition].
-		lineStrokes redrawNeeded.
-	].
-	! !
+		sampleIndex > self samplesQty ifTrue: [
+			(self lastStroke isNil or: [stroker isSamplesValid])
+				ifTrue: [" First stroke of the group or valid samples "
+					self lastStrokeGroup 
+						addMorph: stroker newStroke.
+					self	resetSamplingTo: localPosition.
+					self redrawNeeded	]
+				ifFalse: ["Reconnect to previous stroke as our first sample..."
+					sampleIndex := 2. "first samples is already connected, just move the index "
+					"... and skip the second sample and keep the following ones"
+					self samplesQty - 2 timesRepeat: [
+						samples 		at: sampleIndex 			put: (samples at: sampleIndex + 1).
+						sampleIndex := sampleIndex +1 ] ]	 	] ]	.
+		lineStrokes redrawNeeded ! !
+
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 8/17/2024 10:01:54'!
+mouseMove2: event localPosition: endPosition
+" With mouse trail  enabled "
+	| needUpdate |
+	event mouseButton1Pressed not ifTrue: [^ self ].
+	needUpdate := false.
+	event trail do: [:aPosition | | localPosition |
+		localPosition := self internalize: aPosition.
+		((samples at: sampleIndex -1) squaredDistanceTo: localPosition) >= pen threshold 		ifTrue: [	
+			samples at: sampleIndex put: localPosition.
+			sampleIndex := sampleIndex + 1.
+			sampleIndex > self samplesQty			ifTrue: [
+				needUpdate := true.
+				self lastStrokeGroup 
+					addMorph: stroker newStroke.
+				self resetSamplingTo: localPosition] 		] ].
+	needUpdate ifTrue: [self redrawNeeded]! !
 
 !PaperMorph methodsFor: 'geometry testing' stamp: 'hlsf 3/23/2023 21:23:17'!
 requiresVectorCanvas
@@ -493,7 +527,7 @@ drawTangentsOn: canvas
 				canvas moveTo: p2.
 				canvas lineTo: c2] ! !
 
-!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 5/12/2024 18:27:19'!
+!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 8/18/2024 16:52:29'!
 drawOn: canvas
 	| samples lastIndex |
 	owner class ~= PaperMorph ifTrue: [^ self].
@@ -502,8 +536,10 @@ drawOn: canvas
 	canvas strokeWidth: owner pen width color: owner pen color do: [
 		lastIndex ifNotZero: [
 			canvas moveTo: owner samples first.
-			2 to: lastIndex do: [:i | canvas lineTo: ( samples at: i )] ] ].	
-! !
+			2 to: lastIndex do: [:i | canvas lineTo: ( samples at: i )].
+			owner lastMousePosition ifNotNil: [:postiion | canvas lineTo: postiion 				] 	
+		]
+	]! !
 
 !StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 4/8/2023 13:20:33'!
 drawOn: canvas
@@ -613,7 +649,7 @@ width: aNumber
 adjustWidthString
 	^ adjustWidth asMenuItemTextPrefix , 		'adjust width'! !
 
-!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 5/28/2024 21:24:00'!
+!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 8/18/2024 09:58:49'!
 newStroke
 	| newStroke lastStroke junctionPoint samples  |
 	samples := self samples.
@@ -625,11 +661,12 @@ newStroke
 		color: self penColor; 
 		width: (self widthFor: samples prev: lastStroke);
 		yourself.
-	(lastStroke notNil and: [lastStroke end == newStroke start]) ifTrue: [	
-		junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
-		lastStroke end: junctionPoint.
-		newStroke start: junctionPoint.
-		lastStroke redrawNeeded ].
+
+	(lastStroke notNil 	and: [lastStroke end == newStroke start 		] ) 
+		ifTrue: [				
+			junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
+			lastStroke end: junctionPoint.
+			newStroke start: junctionPoint].
 	^ newStroke
 	
 	! !
@@ -706,20 +743,33 @@ widthFor: samples prev: lastStroke
 	strokeDist := (self maxDistance: samples) min: max max: min.
 	^ (a * strokeDist + b) * 0.6 + (prevWidth * 0.4)! !
 
+!StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 8/18/2024 10:07:39'!
+isLocalC1at: m between: c1 and: c2
+"
+	We check if local C1 continuity is desirable ? 
+"
+	^ true! !
+
+!StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 8/18/2024 15:30:01'!
+isSamplesValid
+" 
+Do we consider valid the current samples, Subclasses may implement differently to discard
+"
+	^ (self samples first squaredDistanceTo: self samples second) > paper pen threshold! !
+
 !StrokerBezier2 class methodsFor: 'instance creation' stamp: 'hlsf 4/1/2023 14:29:08'!
 on: aPaperMorph
 	^ self new ::
 		paper: aPaperMorph ;
 		yourself! !
 
-!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 5/28/2024 21:41:23'!
+!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 8/18/2024 17:01:39'!
 newStroke
-	| newStroke lastStroke junctionPoint samples migratedControl middle |
+	| newStroke lastStroke junctionPoint samples migratedControl middle c1 |
 	samples := self samples.
 	lastStroke := paper lastStroke.
 	middle := (samples first + samples last) / 2.0.
-	migratedControl := 2 * samples second + middle. 
-	
+	migratedControl := middle + (1.1 * (samples second - middle)).
 	newStroke := Bezier2Morph new
 		start: samples first
 		end: samples last
@@ -727,14 +777,49 @@ newStroke
 		color: self penColor; 
 		width: (self widthFor: samples prev: lastStroke);
 		yourself.
-	(lastStroke notNil and: [lastStroke end == newStroke start]) ifTrue: [	
-		junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
-		junctionPoint := junctionPoint + lastStroke end * 1 / 2.0.
-		lastStroke end: junctionPoint.
-		newStroke start: junctionPoint.
-		lastStroke redrawNeeded ].
+		
+	(lastStroke notNil 
+	and: [lastStroke end == newStroke start
+	and: [c1 := self isLocalC1at: newStroke start between: lastStroke control1 and: newStroke control1]	 		] ) 
+		ifTrue: [				
+			junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
+			lastStroke end: junctionPoint.
+			newStroke start: junctionPoint].
+	(c1 notNil and: [c1 == false])  ifTrue: [newStroke color: Color cyan].
 	^ newStroke
 	
+	! !
+
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 8/18/2024 16:27:03'!
+isLocalC1at: m between: c1 and: c2
+"
+	We check if local C1 continuity is desirable ? 
+	When the stroke is abruptly changing of direction, C1 is not wished, 
+	otherwise the user stroke will be truncated (i.e. n, m letter strokes for example)
+"
+	| u v |
+	u := c1 - m.
+	v := c2 - m.
+	^ ( (u dotProduct: v) / (u r * v r) 
+		between: `15 degreesToRadians cos` 
+		and: `0 cos`) not! !
+
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 8/18/2024 16:07:30'!
+isSamplesValid
+" 
+Do we consider valid the current samples, reason to discard :
+	- the samples are not on an approximative line (i.e. above a given angle thresold)
+	- are above a threshold distance
+	- ...
+"
+	| a b ans |	
+	a := self samples second - self samples first.
+	b := self samples third - self samples first.
+	" Angle between M1C, M1M2 - C: control point "
+	ans := (a crossProduct: b) abs / (a r * b r)  > `10 degreesToRadians sin` .
+	^ ans
+		or:  [	(self samples first squaredDistanceTo: self samples second) > paper pen threshold]
+
 	! !
 
 !StrokerBezier3 methodsFor: 'instance' stamp: 'hlsf 4/9/2023 12:17:41'!
@@ -763,6 +848,10 @@ newStroke
 samplesQty
 "Quantity of samples used to compute a new stroke"
 	^ 4! !
+
+!StrokerBezier3 methodsFor: 'testing' stamp: 'hlsf 8/17/2024 11:20:02'!
+isSamplesValid
+	^ true! !
 
 !StrokerBezier3XP methodsFor: 'as yet unclassified' stamp: 'hlsf 5/29/2024 21:27:24'!
 newStroke
