@@ -196,21 +196,41 @@ objects.
 
 It is the root of a tree of Morphs. In a document, diversified Morphs
 can be inserted including Dynamic Media described with Smalltalk
-code. The document is organized in disjoint pages:
-
-* pages
+code. The document is organized in disjoint pages.
 
 **Page**
 
-This Morph is a unit of a Document. In a page the user can insert kind
-of PlacedMorph (a Morph with a location)
+This Morph is a unit of a Document, this is the main place for
+handwriting. It is constituted of two layers :
+
+* A background morph and a paper (morph) of an extent identical to the
+page it is attached too. Examples of background morph are plain color,
+calculated (grid, writing lines, music scope, etc), external resources
+as a PDF document or still picture.
+
+* A paper morph, it contains the user handwriting.
+
+A page can invoke the document toolbar to operate on it: pen, marker, eraser,
+color and dedicated tools for handwriting operations.
+
+Additionally, in a page, the user can insert a kind of PlacedMorph (a
+Morph with a location), a view decorated with its own paper Morph, to
+retain contextualized and attached handwritten annotations.
 
 **Paper**
 
-An object for handwriting. It adds a layer on top of a target Morph
-(Page, PDFMorph, DrGeoView, etc.)  the user hand writes over. The
-target morph and the hand strokes are both attached to the paper morph
-object which itself is attached to a page.
+An object for handwriting. Each hand strokes between a pen down and a
+pen up actions are recorded as strokes collected in a stroke group. The
+paper morph contains all these stroke group morphs. Each group
+contains individual stroke morphs, which are Bézier curves.
+
+A paper morph can decorate a target Morph (DrGeoView, etc.) to attach
+user handwriting. Ideally a sub-morph of the target Morph should also
+be attached to user handwriting.
+
+The target morph and the hand strokes
+are both attached to the paper morph object which itself is attached
+to a page.
 
 Below, samples of preliminary works on the paper morph handwriting:
 

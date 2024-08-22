@@ -1,107 +1,160 @@
-'From Cuis7.1 [latest update: #6596] on 18 August 2024 at 5:02:34 pm'!
+'From Cuis7.1 [latest update: #6608] on 20 August 2024 at 11:53:19 pm'!
 'Description '!
-!provides: 'Paper' 1 46!
-SystemOrganization addCategory: #Paper!
+!provides: 'Paper' 1 49!
+SystemOrganization addCategory: #'Paper-Model'!
+SystemOrganization addCategory: 'Paper-View'!
+SystemOrganization addCategory: 'Paper-Presenter-Tool'!
+SystemOrganization addCategory: #'Paper-Presenter'!
 
 
-!classDefinition: #PaperMorph category: #Paper!
+!classDefinition: #PaperMorph category: 'Paper-View'!
 BoxedMorph subclass: #PaperMorph
 	instanceVariableNames: 'stroker pen samples sampleIndex lineStrokes lastMousePosition'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'PaperMorph class' category: #Paper!
+	category: 'Paper-View'!
+!classDefinition: 'PaperMorph class' category: 'Paper-View'!
 PaperMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #Bezier2Morph category: #Paper!
+!classDefinition: #Bezier2Morph category: 'Paper-View'!
 Morph subclass: #Bezier2Morph
 	instanceVariableNames: 'color width p1 p2 c1'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'Bezier2Morph class' category: #Paper!
+	category: 'Paper-View'!
+!classDefinition: 'Bezier2Morph class' category: 'Paper-View'!
 Bezier2Morph class
 	instanceVariableNames: ''!
 
-!classDefinition: #Bezier3Morph category: #Paper!
+!classDefinition: #Bezier3Morph category: 'Paper-View'!
 Bezier2Morph subclass: #Bezier3Morph
 	instanceVariableNames: 'c2'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'Bezier3Morph class' category: #Paper!
+	category: 'Paper-View'!
+!classDefinition: 'Bezier3Morph class' category: 'Paper-View'!
 Bezier3Morph class
 	instanceVariableNames: ''!
 
-!classDefinition: #LineStrokeMorph category: #Paper!
+!classDefinition: #LineStrokeMorph category: 'Paper-View'!
 Morph subclass: #LineStrokeMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'LineStrokeMorph class' category: #Paper!
+	category: 'Paper-View'!
+!classDefinition: 'LineStrokeMorph class' category: 'Paper-View'!
 LineStrokeMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokeGroupMorph category: #Paper!
+!classDefinition: #StrokeGroupMorph category: 'Paper-View'!
 Morph subclass: #StrokeGroupMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'StrokeGroupMorph class' category: #Paper!
+	category: 'Paper-View'!
+!classDefinition: 'StrokeGroupMorph class' category: 'Paper-View'!
 StrokeGroupMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #Pencil category: #Paper!
+!classDefinition: #Pencil category: #'Paper-Model'!
 Object subclass: #Pencil
 	instanceVariableNames: 'color width adjustWidth threshold'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'Pencil class' category: #Paper!
+	category: 'Paper-Model'!
+!classDefinition: 'Pencil class' category: #'Paper-Model'!
 Pencil class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier2 category: #Paper!
+!classDefinition: #StrokerBezier2 category: #'Paper-Model'!
 Object subclass: #StrokerBezier2
 	instanceVariableNames: 'paper strokes'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'StrokerBezier2 class' category: #Paper!
+	category: 'Paper-Model'!
+!classDefinition: 'StrokerBezier2 class' category: #'Paper-Model'!
 StrokerBezier2 class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier2XP category: #Paper!
+!classDefinition: #StrokerBezier2XP category: #'Paper-Model'!
 StrokerBezier2 subclass: #StrokerBezier2XP
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'StrokerBezier2XP class' category: #Paper!
+	category: 'Paper-Model'!
+!classDefinition: 'StrokerBezier2XP class' category: #'Paper-Model'!
 StrokerBezier2XP class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier3 category: #Paper!
+!classDefinition: #StrokerBezier3 category: #'Paper-Model'!
 StrokerBezier2 subclass: #StrokerBezier3
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'StrokerBezier3 class' category: #Paper!
+	category: 'Paper-Model'!
+!classDefinition: 'StrokerBezier3 class' category: #'Paper-Model'!
 StrokerBezier3 class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier3XP category: #Paper!
+!classDefinition: #StrokerBezier3XP category: #'Paper-Model'!
 StrokerBezier3 subclass: #StrokerBezier3XP
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Paper'!
-!classDefinition: 'StrokerBezier3XP class' category: #Paper!
+	category: 'Paper-Model'!
+!classDefinition: 'StrokerBezier3XP class' category: #'Paper-Model'!
 StrokerBezier3XP class
+	instanceVariableNames: ''!
+
+!classDefinition: #Page category: #'Paper-Presenter'!
+Object subclass: #Page
+	instanceVariableNames: 'tool view'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Paper-Presenter'!
+!classDefinition: 'Page class' category: #'Paper-Presenter'!
+Page class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageTool category: 'Paper-Presenter-Tool'!
+Object subclass: #PageTool
+	instanceVariableNames: 'state'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Paper-Presenter-Tool'!
+!classDefinition: 'PageTool class' category: 'Paper-Presenter-Tool'!
+PageTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageEraserTool category: 'Paper-Presenter-Tool'!
+PageTool subclass: #PageEraserTool
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Paper-Presenter-Tool'!
+!classDefinition: 'PageEraserTool class' category: 'Paper-Presenter-Tool'!
+PageEraserTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #PagePenTool category: 'Paper-Presenter-Tool'!
+PageTool subclass: #PagePenTool
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Paper-Presenter-Tool'!
+!classDefinition: 'PagePenTool class' category: 'Paper-Presenter-Tool'!
+PagePenTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageToolState category: 'Paper-Presenter-Tool'!
+Object subclass: #PageToolState
+	instanceVariableNames: 'context'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Paper-Presenter-Tool'!
+!classDefinition: 'PageToolState class' category: 'Paper-Presenter-Tool'!
+PageToolState class
 	instanceVariableNames: ''!
 
 
@@ -149,6 +202,16 @@ Experiment on 2-Bezier!
 
 !StrokerBezier3 commentStamp: '<historical>' prior: 0!
 Compute a cubic Bézier curve.!
+
+!Page commentStamp: '<historical>' prior: 0!
+The Presenter of the Paper it presents the controllers and handle the controllers events.!
+
+!PageTool commentStamp: '<historical>' prior: 0!
+An abstraction of a tool to operate on a Page. Subclasses implement Pen, Eraser, etc. tools.!
+
+!PageToolState commentStamp: '<historical>' prior: 0!
+I a represent the state of a tool selected by the user.
+The context is the tool (penTool, eraserTool, ...) under which the state operate.!
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 8/18/2024 16:43:08'!
 lastMousePosition
@@ -219,10 +282,10 @@ mouseButton1Up: event localPosition: localPosition
 	lineStrokes redrawNeeded 
 ! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 8/18/2024 16:46:49'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 8/18/2024 21:47:24'!
 mouseMove: event localPosition: localPosition
 	event mouseButton1Pressed not ifTrue: [		^ self ].
-	(samples at: sampleIndex -1) ~= localPosition 		ifTrue: [	"Is this test needed?, should be discarded upstream"
+	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > 9 		ifTrue: [	
 		lastMousePosition := localPosition.
 		samples at: sampleIndex put: localPosition.
 		sampleIndex := sampleIndex + 1.
@@ -726,7 +789,7 @@ maxDistance: samples
 		dist at: i put: ( (samples at: i) dist: (samples at: i + 1) )].
 	^ dist max! !
 
-!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 5/29/2024 21:37:41'!
+!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 8/18/2024 21:57:02'!
 widthFor: samples prev: lastStroke
 	| penWidth prevWidth strokeDist min max f a b  | 
 	penWidth := self penWidth.
@@ -763,13 +826,13 @@ on: aPaperMorph
 		paper: aPaperMorph ;
 		yourself! !
 
-!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 8/18/2024 17:01:39'!
+!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 8/18/2024 22:14:51'!
 newStroke
 	| newStroke lastStroke junctionPoint samples migratedControl middle c1 |
 	samples := self samples.
 	lastStroke := paper lastStroke.
 	middle := (samples first + samples last) / 2.0.
-	migratedControl := middle + (1.1 * (samples second - middle)).
+	migratedControl := middle + (1.0 * (samples second - middle)).
 	newStroke := Bezier2Morph new
 		start: samples first
 		end: samples last
@@ -790,7 +853,7 @@ newStroke
 	
 	! !
 
-!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 8/18/2024 16:27:03'!
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 8/18/2024 22:09:21'!
 isLocalC1at: m between: c1 and: c2
 "
 	We check if local C1 continuity is desirable ? 
@@ -801,7 +864,7 @@ isLocalC1at: m between: c1 and: c2
 	u := c1 - m.
 	v := c2 - m.
 	^ ( (u dotProduct: v) / (u r * v r) 
-		between: `15 degreesToRadians cos` 
+		between: `90 degreesToRadians cos` 
 		and: `0 cos`) not! !
 
 !StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 8/18/2024 16:07:30'!
@@ -879,11 +942,11 @@ newStroke
 	
 	! !
 
-!Collection methodsFor: '*Paper' stamp: 'hlsf 3/31/2023 22:22:27'!
+!Collection methodsFor: '*Paper-View' stamp: 'hlsf 3/31/2023 22:22:27'!
 covariance: y
 	^ (self * y) sum / self size - (self mean * y mean)! !
 
-!Collection methodsFor: '*Paper' stamp: 'hlsf 4/1/2023 15:28:39'!
+!Collection methodsFor: '*Paper-View' stamp: 'hlsf 4/1/2023 15:28:39'!
 regression: y
 "Linear regression (least-squares), return a, b of y=ax+b"
 	| a b v |
@@ -893,6 +956,6 @@ regression: y
 	b := y mean - (a * self mean).
 	^ Array with: a with: b! !
 
-!Collection methodsFor: '*Paper' stamp: 'hlsf 3/31/2023 22:01:21'!
+!Collection methodsFor: '*Paper-View' stamp: 'hlsf 3/31/2023 22:01:21'!
 variance
 	^ self squared sum / self size - self mean squared! !
