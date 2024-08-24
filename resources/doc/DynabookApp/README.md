@@ -5,8 +5,9 @@
 
 # Introduction
 
-The cash register is a boring computer designed for efficiency. The
-Dynabook, both software and hardware, wants to bring this efficiency
+The cash register is a streamlined computer designed for efficiency within
+a restricted context. The
+Dynabook, both software and hardware, wants to bring this kind of efficiency
 to teachers and students to manage their job of teaching and learning.
 
 ![A closed Dynabook](images/image2-sm.png)
@@ -14,17 +15,19 @@ to teachers and students to manage their job of teaching and learning.
 The Dynabook App is the main user application of the Dynabook
 device. It is through this app that teachers and students interact the
 most. Its features are interconnected to maximize user comfort and to
-save time. It anticipates the needs of the user according to their
+save time. It anticipates the needs of the teacher or student
+according to their
 location and time of use, at home, school, in which class, and with
-which students.
+which collaborators.
 
-The pedagogical documents are based on hand annotated pdf documents
-(with a stylus) and interactive Morphs plugged in when needed. These
+The educational documents are based on hand annotated pdf documents
+(with a stylus) and interactive presentation objects, or Morphs, which are 
+plugged in when needed. These teaching 
 documents are organized in topics and binders. The plugged Morphs are
-retrieved from existing libraries or user coded, both are Smalltalk
-written.  The administrative contents are organized in objects
+retrieved from existing libraries or user written in the Smalltalk
+Programming Language.  The administrative contents are organized in objects
 described in the Objects chapter, Administrative section. The
-pedagogical objects are described in the Pedagogical and Document
+educational topic objects are described in the Educational and Document
 sections.
 
 ## Collaboration
@@ -35,19 +38,22 @@ collaborations with private and public institutions, educational
 institutions, not limited to, in business, design, pedagogy, hardware,
 management, software.
 
-# Business Objects
+To do this requires a common understanding of the structure and design
+of the DynaBook software ecosystem.
 
-Describe the objects involved in the user activities and their
+# Educator Objects
+
+Educator Objects describe the objects involved in the user activities and their
 relations. They are necessary to adapt to the activities the user
 (learner or educator) needs to conduct.
 
 ![Business objects diagram](images/image16.png)
 
-## Administrative
+## Administrator Objects
 
-These are the objects describing the pedagogical management, not the
-pedagogical content, but the administrative facets of the teacher and
-student occupation.
+These are the objects describing the educational management, not the
+educational content; the administrative facets of the teacher and
+student roles.
 
 **App**
 
@@ -156,16 +162,16 @@ determined given the time slot and date.
 * time slot
 * document
 
-## Pedagogical
+## Educational
 
-These objects describe where and how the pedagogical contents are
+These objects describe where and how the educational contents are
 organized.
 
 **Binder**
 
 **Likely the Binder object is not necessary. Its attribuetd could added as attributes to the Course class.**
 
-A binder contains the pedagogical materials related to a given course. 
+A binder contains the educational materials related to a given course. 
 
 * last (the last edited document)
 * resources (collection of associated resources as textbook and workbook)
@@ -179,11 +185,11 @@ A binder contains the pedagogical materials related to a given course.
 # Knowledge Objects
 
 How can the educator represent, describe and modelise knowledge? How
-can she share the represented knowledge with the learner? How can she
+can he/she share the represented knowledge with the learner? How can he/she
 assess the learner's knowledge?
 
 How can the learner experiment and capture knowledge? How can she
-share her understanding with others? How can she...
+share her understanding with others? How can he/she...
 
 ## Documents
 
@@ -254,11 +260,11 @@ decided later once the overall model stabilizes (Sqlite, XML,etc).
 Describe GUI layouts and flows between the different parts of the
 Dynabook app.
 
-## Start Page
+## Home Page
 
-![Start page](images/image11.png)
+![home page](images/image11.png)
 
-The **Start page** always shows a list of recent activities. There are
+The **home page** always shows a list of recent activities. There are
 the edited documents and the tasks. These items are sorted according
 to the time of edition of the documents and the due date of the
 tasks. Various **Filters** can be applied to narrow the list or to
@@ -345,7 +351,7 @@ The user navigates the data with breadcrumbs starting with the top
 level ‘Dynabook’ object. From there she navigates the interdependent
 objects presented in panels with editable fields for single instance
 objects and decorated panels for collection of instances. The
-pedagogical documents associated with these objects are discarded by
+educational documents associated with these objects are discarded by
 the Preference editor.
 
 Selecting the ‘Paul’ user presents its information, there is a ‘Save’
