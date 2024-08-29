@@ -1,11 +1,12 @@
-'From Cuis7.1 [latest update: #6578] on 11 August 2024 at 10:48:07 am'!
+'From Cuis7.1 [latest update: #6629] on 29 August 2024 at 12:25:22 pm'!
 'Description '!
-!provides: 'Dynabook' 1 50!
+!provides: 'Dynabook' 1 52!
+!requires: 'Neo-CSV-Core' 1 2 nil!
+!requires: 'Gettext' 1 26 nil!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
-!requires: 'Neo-CSV-Core' 1 2 nil!
-!requires: 'Gettext' 1 26 nil!
+!requires: 'IconsManager' 1 0 nil!
 SystemOrganization addCategory: #'Dynabook-Model'!
 SystemOrganization addCategory: #'Dynabook-Model-Knowledge'!
 SystemOrganization addCategory: #'Dynabook-Model-Business'!
@@ -228,16 +229,6 @@ Object subclass: #DyControlManager
 DyControlManager class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyIconManager category: #'Dynabook-View'!
-Object subclass: #DyIconManager
-	instanceVariableNames: 'forms path'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-View'!
-!classDefinition: 'DyIconManager class' category: #'Dynabook-View'!
-DyIconManager class
-	instanceVariableNames: ''!
-
 !classDefinition: #DyEditorVisitor category: #'Dynabook-View-Business'!
 Object subclass: #DyEditorVisitor
 	instanceVariableNames: ''
@@ -405,11 +396,6 @@ Pattern: strategy!
 
 !DyControlManager commentStamp: 'hlsf 8/15/2023 20:30:36' prior: 0!
 A manager for the Dynabook user interface : windows,  toolbars, controls and other widgets!
-
-!DyIconManager commentStamp: '<historical>' prior: 0!
-I load icons from files (both PNG and SVG) and cached them in a dictionary (forms instance variable).
-I can manage different size of the same icon. 
-When asked for an icon with the message get: #blank32, I will search in the path for blank.svg, fallback to blank.png, then scale at squared size 32.!
 
 !DyEditorVisitor commentStamp: '<historical>' prior: 0!
 I visit the model of user data to provide an editor!
@@ -1256,9 +1242,9 @@ goStart
 	controlsManager plugStartView.
 	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:03'!
-goTask
-	selectedSection := #task.
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/29/2024 11:48:32'!
+goTasks
+	selectedSection := #tasks.
 	controlsManager plugTaskView.
 	self changed: #isSection:! !
 
@@ -1299,9 +1285,9 @@ unexecute
 release
 " Let my subclass instances do clean up if necessary "! !
 
-!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 8/14/2023 22:11:06'!
+!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 8/29/2024 11:50:31'!
 iconToolbarSize
-	^ 64! !
+	^ 32! !
 
 !DyPlatform methodsFor: 'user interface' stamp: 'hlsf 8/14/2023 22:11:06'!
 miniToolbarSize
@@ -1340,16 +1326,6 @@ beApplication
 !DySystem class methodsFor: 'class initialization' stamp: 'hlsf 8/9/2023 14:41:14'!
 beDevelopment
 	platform := DyDevelopment new! !
-
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/13/2023 17:20:12'!
-buttonColor
-"Blue Ukraine"
-	^ Color fromHexString: '#0057b7'! !
-
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/13/2023 17:20:07'!
-buttonSelectedColor
-"Yellow Ukraine"
-	^ Color fromHexString: '#ffd700'! !
 
 !DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/14/2023 22:11:06'!
 iconToolbarSize
@@ -1431,18 +1407,18 @@ startButtonData
 " label - iconName - callback - description "
 	^ {'Start' translated . #start . #goStart . 'In Start, review and search for the recent activities.' translated }! !
 
-!DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:25:29'!
-taskButtonData
+!DyControlManager methodsFor: 'controls data' stamp: 'hlsf 8/29/2024 11:48:15'!
+tasksButtonData
 " label - iconName - callback - description "
-	^ {'Tasks' translated . #task . #goTask . 'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
+	^ {'Tasks' translated . #tasks . #goTasks . 'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
-!DyControlManager methodsFor: 'initialization' stamp: 'hlsf 8/13/2023 16:29:22'!
+!DyControlManager methodsFor: 'initialization' stamp: 'hlsf 8/29/2024 11:36:40'!
 initialize
-	icons := DyIconManager path: DySystem iconsPath ! !
+	icons := IconsManager path: DySystem iconsPath ! !
 
-!DyControlManager methodsFor: 'tools collection' stamp: 'hlsf 8/15/2023 20:28:48'!
+!DyControlManager methodsFor: 'tools collection' stamp: 'hlsf 8/29/2024 11:51:53'!
 dynabookTools
-	^ #(start task binder spacer settings)! !
+	^ #(start tasks binder spacer settings)! !
 
 !DyControlManager methodsFor: 'view' stamp: 'hlsf 8/16/2023 21:14:31'!
 installDynabookView
@@ -1481,7 +1457,7 @@ plugStartView
 plugTaskView
 	self plugInDynabookView: (DyAgendaView presenter: presenter)! !
 
-!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/16/2023 21:25:12'!
+!DyControlManager methodsFor: 'widget' stamp: 'hlsf 8/29/2024 12:20:56'!
 button: symbol
 	"array first = menu label or button label
 	array second = button form = section mode
@@ -1496,11 +1472,11 @@ button: symbol
 		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
 		icon: (icons get: array second size: DySystem iconToolbarSize);
 		setBalloonText: array fourth;
-		color: DySystem buttonColor ;
-		selectedColor: DySystem buttonSelectedColor ;
-		borderColor: DySystem buttonColor muchDarker;
+		color: view defaultColor ;
+		selectedColor: view buttonColor ;
+		borderColor: view defaultColor darker;
 		borderWidth: 2;
-		morphExtent: (DySystem iconToolbarSize + 4) asPoint;
+		morphExtent: (DySystem iconToolbarSize + 10) asPoint;
 		yourself	! !
 
 !DyControlManager methodsFor: 'widget' stamp: 'hlsf 10/7/2023 15:24:00'!
@@ -1526,51 +1502,6 @@ spacer
 	^ BoxedMorph new 
 		borderWidth: 0;
 		color: Color transparent; 
-		yourself! !
-
-!DyIconManager methodsFor: 'accessing' stamp: 'hlsf 8/13/2023 16:00:18'!
-get: iconSymbolWithSize
-" icons get: #blank32 "
-	| size |
-	(size := iconSymbolWithSize select: [:c | c isDigit ]) 
-		ifEmpty: [self error: 'Missing size in icon symbol'].
-	^ self 
-		get: (iconSymbolWithSize select: [:c | c isLetter ])
-		size: size asNumber! !
-
-!DyIconManager methodsFor: 'accessing' stamp: 'hlsf 8/13/2023 16:35:39'!
-get: icon size: integer
-" Search first for SVG icon, then PNG one "
-	^ forms 
-		at: (icon, integer asString) asSymbol
-		ifAbsentPut: [ | file | 
-			(file := path // (icon, '.svg')) exists
-				ifTrue: [ |svg|
-					svg := [SVGMainMorph fromFile: file] 
-						on: SVGWarning 
-						do: [:warning | warning resume].
-					svg imageForm: integer asPoint depth: 32]									
-				ifFalse: [(file := path // (icon , '.png')) exists
-					ifTrue: [| form |
-						form := PNGReadWriter formFromFileEntry: file.
-						form width = integer 
-							ifTrue: 	[form] 
-							ifFalse: [	form magnifyTo: integer asPoint] ]
-					ifFalse: [self error: 'Missing icon file ', icon ] ]
-			]! !
-
-!DyIconManager methodsFor: 'accessing' stamp: 'hlsf 8/13/2023 15:20:42'!
-path: iconsDirectoryEntry
-	path := iconsDirectoryEntry ! !
-
-!DyIconManager methodsFor: 'initialization' stamp: 'hlsf 8/13/2023 16:29:00'!
-initialize
-	forms := Dictionary new.! !
-
-!DyIconManager class methodsFor: 'instance creation' stamp: 'hlsf 8/13/2023 15:37:01'!
-path: aDriectoryEntry
-	^ self new ::
-		path: aDriectoryEntry;
 		yourself! !
 
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 10:25:09'!
@@ -2425,6 +2356,10 @@ presenter
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/15/2023 20:52:33'!
 presenter: aPresenter
 	presenter := aPresenter ! !
+
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/29/2024 11:58:28'!
+windowColor
+	^ Theme current workspace! !
 
 !DynabookView class methodsFor: 'instance creation' stamp: 'hlsf 8/15/2023 20:51:48'!
 for: aPresenter
