@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6629] on 25 August 2024 at 5:00:21 pm'!
+'From Cuis7.1 [latest update: #6629] on 29 August 2024 at 11:20:18 pm'!
 'Description '!
-!provides: 'Document' 1 0!
+!provides: 'Document' 1 1!
 SystemOrganization addCategory: 'Document-Model'!
 SystemOrganization addCategory: 'Document-View'!
 SystemOrganization addCategory: 'Document-Presenter'!
@@ -156,16 +156,6 @@ Morph subclass: #StrokeGroupMorph
 StrokeGroupMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #DocumentView category: 'Document-View'!
-PlacedMorph subclass: #DocumentView
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'DocumentView class' category: 'Document-View'!
-DocumentView class
-	instanceVariableNames: ''!
-
 !classDefinition: #PageMorph category: 'Document-View'!
 PlacedMorph subclass: #PageMorph
 	instanceVariableNames: 'background paper'
@@ -184,6 +174,16 @@ BoxedMorph subclass: #PaperMorph
 	category: 'Document-View'!
 !classDefinition: 'PaperMorph class' category: 'Document-View'!
 PaperMorph class
+	instanceVariableNames: ''!
+
+!classDefinition: #DocumentView category: 'Document-View'!
+LayoutMorph subclass: #DocumentView
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-View'!
+!classDefinition: 'DocumentView class' category: 'Document-View'!
+DocumentView class
 	instanceVariableNames: ''!
 
 
@@ -247,6 +247,13 @@ I always contain these two morphs of the same extent as me:
 (PaperMorph new stroker: StrokerBezier3 ) openInWorld. "Cubic Bézier"
 (PaperMorph new stroker: StrokerBezier3XP ) openInWorld. "Cubic Bézier, expend out the control point"
 !
+
+!DocumentView commentStamp: '<historical>' prior: 0!
+A document view comes with:
+- at the top, a toolbar to access a few set of tools (see #documentTools)
+- at the right/left (should depends on user preference)  and at the bottom, wheels to move the page and zoom in/out
+- at the bottom, a status bar
+- at the center, the page cover all the remaining area!
 
 !Pencil methodsFor: 'accessing' stamp: 'hlsf 4/11/2023 09:04:47'!
 adjustWidth
