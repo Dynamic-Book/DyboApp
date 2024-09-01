@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6629] on 29 August 2024 at 11:20:18 pm'!
+'From Cuis7.1 [latest update: #6629] on 1 September 2024 at 5:10:16 pm'!
 'Description '!
-!provides: 'Document' 1 1!
+!provides: 'Document' 1 4!
 SystemOrganization addCategory: 'Document-Model'!
 SystemOrganization addCategory: 'Document-View'!
 SystemOrganization addCategory: 'Document-Presenter'!
@@ -66,18 +66,18 @@ Object subclass: #DocumentPresenter
 DocumentPresenter class
 	instanceVariableNames: ''!
 
-!classDefinition: #DocumentTool category: 'Document-Presenter'!
-Object subclass: #DocumentTool
-	instanceVariableNames: 'state'
+!classDefinition: #PageTool category: 'Document-Presenter'!
+Object subclass: #PageTool
+	instanceVariableNames: 'state presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'DocumentTool class' category: 'Document-Presenter'!
-DocumentTool class
+!classDefinition: 'PageTool class' category: 'Document-Presenter'!
+PageTool class
 	instanceVariableNames: ''!
 
 !classDefinition: #EraserTool category: 'Document-Presenter'!
-DocumentTool subclass: #EraserTool
+PageTool subclass: #EraserTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -86,8 +86,18 @@ DocumentTool subclass: #EraserTool
 EraserTool class
 	instanceVariableNames: ''!
 
+!classDefinition: #HighlighterTool category: 'Document-Presenter'!
+PageTool subclass: #HighlighterTool
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter'!
+!classDefinition: 'HighlighterTool class' category: 'Document-Presenter'!
+HighlighterTool class
+	instanceVariableNames: ''!
+
 !classDefinition: #PenTool category: 'Document-Presenter'!
-DocumentTool subclass: #PenTool
+PageTool subclass: #PenTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -96,14 +106,44 @@ DocumentTool subclass: #PenTool
 PenTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #DocumentToolState category: 'Document-Presenter'!
-Object subclass: #DocumentToolState
+!classDefinition: #SelectTool category: 'Document-Presenter'!
+PageTool subclass: #SelectTool
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter'!
+!classDefinition: 'SelectTool class' category: 'Document-Presenter'!
+SelectTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageToolState category: 'Document-Presenter'!
+Object subclass: #PageToolState
 	instanceVariableNames: 'context'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'DocumentToolState class' category: 'Document-Presenter'!
-DocumentToolState class
+!classDefinition: 'PageToolState class' category: 'Document-Presenter'!
+PageToolState class
+	instanceVariableNames: ''!
+
+!classDefinition: #PenToolStateNeural category: 'Document-Presenter'!
+PageToolState subclass: #PenToolStateNeural
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter'!
+!classDefinition: 'PenToolStateNeural class' category: 'Document-Presenter'!
+PenToolStateNeural class
+	instanceVariableNames: ''!
+
+!classDefinition: #PenToolStateWriting category: 'Document-Presenter'!
+PageToolState subclass: #PenToolStateWriting
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter'!
+!classDefinition: 'PenToolStateWriting class' category: 'Document-Presenter'!
+PenToolStateWriting class
 	instanceVariableNames: ''!
 
 !classDefinition: #DocumentModel category: 'Document-Model'!
@@ -157,7 +197,7 @@ StrokeGroupMorph class
 	instanceVariableNames: ''!
 
 !classDefinition: #PageMorph category: 'Document-View'!
-PlacedMorph subclass: #PageMorph
+BoxedMorph subclass: #PageMorph
 	instanceVariableNames: 'background paper'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -178,7 +218,7 @@ PaperMorph class
 
 !classDefinition: #DocumentView category: 'Document-View'!
 LayoutMorph subclass: #DocumentView
-	instanceVariableNames: ''
+	instanceVariableNames: 'presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -207,11 +247,23 @@ Compute a cubic Bézier curve.!
 !DocumentPresenter commentStamp: '<historical>' prior: 0!
 The Presenter of the Paper it presents the controllers and handle the controllers events.!
 
-!DocumentTool commentStamp: '<historical>' prior: 0!
-An abstraction of a tool to operate on a Document. Subclasses implement Pen, Eraser, etc. tools.!
+!PageTool commentStamp: '<historical>' prior: 0!
+An abstraction of a tool to operate on a Page. Subclasses implement Pen, Eraser, etc. tools.!
 
-!DocumentToolState commentStamp: '<historical>' prior: 0!
-I a represent the state of a tool selected by the user.
+!EraserTool commentStamp: '<historical>' prior: 0!
+With the EraserTool the users deletes handwriten notes, highlit zones.!
+
+!HighlighterTool commentStamp: '<historical>' prior: 0!
+With the HighlghterTool the user empahsis handwriten notes or any other misc areas.!
+
+!PenTool commentStamp: '<historical>' prior: 0!
+With the PenTool the user writes handwriten notes.!
+
+!SelectTool commentStamp: '<historical>' prior: 0!
+With the SelectTool the user selects and moves around object in a page.!
+
+!PageToolState commentStamp: '<historical>' prior: 0!
+I a represent an abstracte state of a tool selected by the user.
 The context is the tool (penTool, eraserTool, ...) under which the state operate.!
 
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
@@ -220,7 +272,9 @@ A quadratic Bézier stroke!
 !Bezier3Morph commentStamp: '<historical>' prior: 0!
 A cubic Bézier stroke!
 
-!LineStrokeMorph commentStamp: 'hlsf 4/8/2023 11:53:15' prior: 0!
+!LineStrokeMorph commentStamp: 'hlsf 9/1/2024 09:40:28' prior: 0!
+I draw the intermediate mouse strokes, right before the Bézier curve is computed. I avoid the visual discomfort between user stroked and computed Bézier curve.
+
 In a PaperMorph I draw the mouse strokes as connected straight lines. I request to the Paper morph, my owner, the existing samples of recorded mouse positions. I can only be owned by a Paper Morph.
 
 This is out sourced of the PaperMorph for speed rendering -> Need to check out if it is really the case!
@@ -525,6 +579,191 @@ newStroke
 	
 	! !
 
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:30:51'!
+eraserTool! !
+
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:30:59'!
+highlighterTool! !
+
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:32:25'!
+moveOXAction: increment! !
+
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:32:44'!
+moveOYAction: increment! !
+
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 9/1/2024 12:48:57'!
+penTool! !
+
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:31:19'!
+redoAction! !
+
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:31:29'!
+selectTool! !
+
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:31:38'!
+undoAction! !
+
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:32:50'!
+zoomAction: increment! !
+
+!DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:00:00'!
+controlsManager! !
+
+!DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 15:33:26'!
+currentPage
+	^ view currentPage! !
+
+!DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:51:12'!
+isTool: aToolName
+	^ self selectTool == aToolName ! !
+
+!DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:42:08'!
+selectedTool
+	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
+
+!DocumentPresenter methodsFor: 'tool' stamp: 'hlsf 9/1/2024 12:24:06'!
+tool: aToolInstance
+	tool ifNotNil: [tool releaseActionMap].
+	tool := aToolInstance.
+	tool registerObserver: self.
+	self controlsManager statusBarMessage: tool description! !
+
+!PageTool methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 11:04:16'!
+presenter: aPresenter
+	presenter := aPresenter ! !
+
+!PageTool methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:50:10'!
+toolName
+	^ self class action! !
+
+!PageTool methodsFor: 'initialization' stamp: 'hlsf 9/1/2024 11:15:48'!
+registerObserver: anObserver
+" 
+	Register here any observer about event(s) occuring during the tool operations
+"! !
+
+!PageTool methodsFor: 'handling' stamp: 'hlsf 9/1/2024 15:35:10'!
+handleMouseAt: localPosition in: page
+	state handleMouseAt: localPosition in: page! !
+
+!PageTool methodsFor: 'handling' stamp: 'hlsf 9/1/2024 15:35:15'!
+handlePress: localPosition in: page
+	state handlePress: localPosition in: page! !
+
+!PageTool methodsFor: 'handling' stamp: 'hlsf 9/1/2024 15:35:27'!
+handleRelease: localPosition in:page
+	state handleRelease: localPosition in: page! !
+
+!PageTool methodsFor: 'state' stamp: 'hlsf 9/1/2024 15:01:52'!
+switchState: aStateClass
+	state := aStateClass new context: self! !
+
+!PageTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:47:02'!
+action
+" A symbol to identify me, also the message name sent to the presenter "
+	self subclassResponsibility ! !
+
+!PageTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:43:40'!
+description
+	self subclassResponsibility ! !
+
+!PageTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:43:36'!
+title
+	self subclassResponsibility ! !
+
+!PageTool class methodsFor: 'instance creation' stamp: 'hlsf 9/1/2024 11:03:33'!
+new
+	self error: 'Use #presenter:'! !
+
+!PageTool class methodsFor: 'instance creation' stamp: 'hlsf 9/1/2024 11:03:52'!
+presenter: aPresenter
+	^ self basicNew
+		presenter: aPresenter;
+		initialize;
+		yourself! !
+
+!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:47:25'!
+action
+	^ #eraserTool! !
+
+!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:02:10'!
+description
+	^ 'An eraser to delete some of your handwriting' translated! !
+
+!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:02:21'!
+title
+	^ 'Eraser' translated! !
+
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:48:04'!
+action
+	^ #highlighterTool! !
+
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:03:33'!
+description
+	^ 'A highlighter to emphasis some of for your handwriting' translated ! !
+
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:03:16'!
+title
+	^ 'Highlighter' translated! !
+
+!PenTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:48:37'!
+action
+	^ #penTool! !
+
+!PenTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:05:41'!
+description
+	^ 'A pen for your handwriting' translated ! !
+
+!PenTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:03:57'!
+title
+	^ 'Pencil' translated! !
+
+!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:49:27'!
+action
+	^ #selectTool! !
+
+!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:06:43'!
+description
+	^ 'Select and drag objects around, including the whole page' translated ! !
+
+!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:06:21'!
+title
+	^ 'Select' translated! !
+
+!PageToolState methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 15:04:07'!
+context: aTool
+	context := aTool! !
+
+!PageToolState methodsFor: 'handling' stamp: 'hlsf 9/1/2024 15:35:35'!
+handleMouseAt: localPosition in: page
+! !
+
+!PageToolState methodsFor: 'handling' stamp: 'hlsf 9/1/2024 15:35:43'!
+handlePress: localPosition in: page
+! !
+
+!PageToolState methodsFor: 'handling' stamp: 'hlsf 9/1/2024 15:35:52'!
+handleRelease: localPosition in: page
+! !
+
+!PenToolStateNeural methodsFor: 'handling' stamp: 'hlsf 9/1/2024 16:39:01'!
+handlePress: localPosition in: page
+	" Prepare to receive user handwriting... "
+	page paper startWritingAt: localPosition.
+	"...then "
+	context switchState: PenToolStateWriting ! !
+
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/1/2024 16:39:57'!
+handleMouseAt: localPosition in: page
+	page paper writingAt: localPosition
+	! !
+
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/1/2024 16:40:57'!
+handleRelease: localPosition in: page
+	page paper endWritingAt: localPosition.
+	context switchState: PenToolStateNeural 
+	! !
+
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
 	^ color! !
@@ -666,7 +905,7 @@ drawTangentsOn: canvas
 				canvas moveTo: p2.
 				canvas lineTo: c2] ! !
 
-!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 8/18/2024 16:52:29'!
+!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 9/1/2024 09:44:40'!
 drawOn: canvas
 	| samples lastIndex |
 	owner class ~= PaperMorph ifTrue: [^ self].
@@ -748,6 +987,23 @@ width: aNumber
 	submorphs do: [:each | each width: aNumber ].
 	self redrawNeeded ! !
 
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 9/1/2024 09:32:04'!
+morphExtent: anExtent
+	super morphExtent: anExtent.
+	background ifNotNil: [background morphExtent: anExtent].
+	paper morphExtent: anExtent ! !
+
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 16:13:35'!
+paper
+	^ paper ! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 8/31/2024 15:21:55'!
+initialize
+	super initialize.
+	background := BoxedMorph new 
+		color: Color white darker;
+		borderWidth: 0.! !
+
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 8/18/2024 16:43:08'!
 lastMousePosition
 "In local coordinate "
@@ -794,50 +1050,19 @@ stroker: aStrokerClass
 handlesMouseDown: event
 	^ true! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 4/8/2023 11:45:51'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/1/2024 16:36:21'!
 mouseButton1Down: event localPosition: localPosition
-" We start sampling user hand strokes from this position"
-	self resetSamplingTo: localPosition.
-	self addMorph: StrokeGroupMorph new.
-	
+	self startWritingAt: localPosition
 ! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 8/18/2024 16:46:20'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/1/2024 16:38:34'!
 mouseButton1Up: event localPosition: localPosition
-	samples at: sampleIndex put: localPosition.
-	sampleIndex := sampleIndex + 1.
-	"In case there is not enought sample, clone the last one"
-	sampleIndex to: self samplesQty do: [	:i |				samples at: i put: localPosition].
-	self lastStrokeGroup 
-		addMorph: stroker newStroke;
-		"show;"
-		redrawNeeded.
-	self resetSamplingTo: nil.
-	lastMousePosition := nil.
-	lineStrokes redrawNeeded 
-! !
+	self endWritingAt: localPosition! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 8/18/2024 21:47:24'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/1/2024 16:37:10'!
 mouseMove: event localPosition: localPosition
 	event mouseButton1Pressed not ifTrue: [		^ self ].
-	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > 9 		ifTrue: [	
-		lastMousePosition := localPosition.
-		samples at: sampleIndex put: localPosition.
-		sampleIndex := sampleIndex + 1.
-		sampleIndex > self samplesQty ifTrue: [
-			(self lastStroke isNil or: [stroker isSamplesValid])
-				ifTrue: [" First stroke of the group or valid samples "
-					self lastStrokeGroup 
-						addMorph: stroker newStroke.
-					self	resetSamplingTo: localPosition.
-					self redrawNeeded	]
-				ifFalse: ["Reconnect to previous stroke as our first sample..."
-					sampleIndex := 2. "first samples is already connected, just move the index "
-					"... and skip the second sample and keep the following ones"
-					self samplesQty - 2 timesRepeat: [
-						samples 		at: sampleIndex 			put: (samples at: sampleIndex + 1).
-						sampleIndex := sampleIndex +1 ] ]	 	] ]	.
-		lineStrokes redrawNeeded ! !
+	self writingAt: localPosition ! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 8/17/2024 10:01:54'!
 mouseMove2: event localPosition: endPosition
@@ -861,7 +1086,7 @@ mouseMove2: event localPosition: endPosition
 requiresVectorCanvas
 	^ true! !
 
-!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 4/11/2023 09:16:34'!
+!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 9/1/2024 09:45:03'!
 initialize
 	super initialize.
 	extent := 400@400.
@@ -871,8 +1096,7 @@ initialize
 		adjustWidth: false;
 		threshold: 4 squared.
 	self 
-		addMorph: (lineStrokes := LineStrokeMorph new);
-		color: Color white.! !
+		addMorph: (lineStrokes := LineStrokeMorph new)! !
 
 !PaperMorph methodsFor: 'testing' stamp: 'hlsf 3/27/2023 21:48:57'!
 showControls
@@ -980,9 +1204,56 @@ resetSamplingTo: aPoint
 		sampleIndex := sampleIndex + 1]
 ! !
 
-!PaperMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 4/11/2023 09:57:20'!
-drawOn: canvas
-	super drawOn: canvas.! !
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/1/2024 16:38:40'!
+endWritingAt: localPosition
+	samples at: sampleIndex put: localPosition.
+	sampleIndex := sampleIndex + 1.
+	"In case there is not enought sample, clone the last one"
+	sampleIndex to: self samplesQty do: [	:i |				samples at: i put: localPosition].
+	self lastStrokeGroup 
+		addMorph: stroker newStroke;
+		"show;"
+		redrawNeeded.
+	self resetSamplingTo: nil.
+	lastMousePosition := nil.
+	lineStrokes redrawNeeded 
+! !
+
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/1/2024 16:37:57'!
+startWritingAt: localPosition
+" Initilize the user writing "
+	self resetSamplingTo: localPosition.
+	self addMorph: StrokeGroupMorph new.! !
+
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/1/2024 16:38:09'!
+writingAt: localPosition
+" the user is still writing "
+	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > 9 		ifTrue: [	
+		lastMousePosition := localPosition.
+		samples at: sampleIndex put: localPosition.
+		sampleIndex := sampleIndex + 1.
+		sampleIndex > self samplesQty ifTrue: [
+			(self lastStroke isNil or: [stroker isSamplesValid])
+				ifTrue: [" First stroke of the group or valid samples "
+					self lastStrokeGroup 
+						addMorph: stroker newStroke.
+					self	resetSamplingTo: localPosition.
+					self redrawNeeded	]
+				ifFalse: ["Reconnect to previous stroke as our first sample..."
+					sampleIndex := 2. "first samples is already connected, just move the index "
+					"... and skip the second sample and keep the following ones"
+					self samplesQty - 2 timesRepeat: [
+						samples 		at: sampleIndex 			put: (samples at: sampleIndex + 1).
+						sampleIndex := sampleIndex +1 ] ]	 	] ]	.
+		lineStrokes redrawNeeded ! !
+
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:03:06'!
+currentPage
+	! !
+
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:34:28'!
+presenter
+	^ presenter ! !
 
 !Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:22:27'!
 covariance: y
