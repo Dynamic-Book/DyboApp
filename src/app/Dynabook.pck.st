@@ -1,12 +1,13 @@
-'From Cuis7.1 [latest update: #6629] on 1 September 2024 at 5:10:19 pm'!
+'From Cuis7.1 [latest update: #6676] on 4 September 2024 at 10:06:59 pm'!
 'Description '!
-!provides: 'Dynabook' 1 56!
+!provides: 'Dynabook' 1 60!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
 !requires: 'IconsManager' 1 0 nil!
+!requires: 'Document' 1 5 nil!
 SystemOrganization addCategory: #'Dynabook-Model'!
 SystemOrganization addCategory: #'Dynabook-Model-Knowledge'!
 SystemOrganization addCategory: #'Dynabook-Model-Business'!
@@ -1230,6 +1231,12 @@ goBinder
 	controlsManager plugBinderView.
 	self changed: #isSection:! !
 
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 9/2/2024 21:20:34'!
+goPage
+	selectedSection := #page.
+	controlsManager plugDocumentView .
+	self changed: #isSection:! !
+
 !Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:10'!
 goSettings
 	selectedSection := #settings.
@@ -1426,6 +1433,11 @@ eraserButtonData
 highlighterButtonData
 	^ {HighlighterTool title. #highlighter . HighlighterTool action. HighlighterTool description }! !
 
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/2/2024 20:56:59'!
+pageButtonData
+" label - iconName - callback - description "
+	^ {'New page' translated . #page . #goPage . 'Open a blank page to start writing.' translated }! !
+
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/1/2024 12:47:41'!
 penButtonData
 	^ {PenTool title. #pen . PenTool action . PenTool description }! !
@@ -1461,6 +1473,32 @@ undoButtonData
 initialize
 	icons := IconsManager path: DySystem iconsPath ! !
 
+!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/4/2024 22:05:27'!
+buildDocumentView
+	| row col |
+	docView := DocumentView for: DocumentPresenter new.
+	docView 
+		addMorph: self documentToolbar
+		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
+	row := LayoutMorph newRow
+		addMorphUseAll: docView currentPage.
+		
+	" vertical and zoom wheels at the right "
+	col := LayoutMorph newColumn name: #wheelsYZ.
+	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120);
+		addMorphUseAll: self elasticMorph ;
+		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
+	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
+	docView addMorph: row.
+	
+	" status bar and horizontal wheel at the bottom "
+	row := LayoutMorph newRow name: #wheelX.
+	row addMorphUseAll: self statusBarInScroller;
+		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
+		addMorph: self elasticMorph layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
+	docView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
+	^ docView! !
+
 !DyControlsManager methodsFor: 'document' stamp: 'hlsf 8/29/2024 23:17:54'!
 documentToolbar
 	| toolbar |
@@ -1473,36 +1511,9 @@ documentToolbar
 			ifFalse: [	toolbar addMorph: (self button: aTool  size: DySystem miniToolbarSize )] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 8/29/2024 22:19:25'!
+!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/2/2024 21:26:20'!
 documentTools
-	^ #(select pencil eraser highlighter undo redo)! !
-
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 8/31/2024 12:31:10'!
-installDocumentView
-	| row col |
-	docView := DocumentView for: DocumentPresenter new.
-	docView 
-		addMorph: self documentTools 
-		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
-	row := LayoutMorph newRow
-		addMorphUseAll: docView currentPage.
-		
-	" vertical and zoom wheels at the right "
-	col := LayoutMorph newColumn named: #wheelsYZ.
-	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120);
-		addMorphUseAll: self elasticMorph ;
-		addMorph: self verticalWheel fixedHeight: (LayoutSpec fixedExtent: 24@	120).
-	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
-	docView addMorph: row.
-	
-	" status bar and horizontal wheel at the bottom "
-	row := LayoutMorph newRow named: #wheelX.
-	row addMorphUseAll: self statusBarInScroller;
-		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
-		addMorph: self elasticMorph layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
-	docView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
-	
-	self plugInDynabookView: docView! !
+	^ #(select pen eraser highlighter undo redo)! !
 
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:37:50'!
 dynabookToolbar
@@ -1516,9 +1527,9 @@ dynabookToolbar
 			ifFalse: [	toolbar addMorph: (self button: aTool  size: DySystem iconToolbarSize)] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 11:51:53'!
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/2/2024 20:57:24'!
 dynabookTools
-	^ #(start tasks binder spacer settings)! !
+	^ #(start tasks binder page spacer settings)! !
 
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:22:40'!
 installDynabookView
@@ -1531,6 +1542,10 @@ installDynabookView
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:22:40'!
 plugBinderView
 	self plugInDynabookView: (DyBinderView presenter: mainPresenter)! !
+
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/2/2024 21:20:28'!
+plugDocumentView
+	self plugInDynabookView: self buildDocumentView ! !
 
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:20:22'!
 plugInDynabookView: aMorph

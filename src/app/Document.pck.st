@@ -1,228 +1,228 @@
-'From Cuis7.1 [latest update: #6629] on 1 September 2024 at 5:10:16 pm'!
+'From Cuis7.1 [latest update: #6676] on 4 September 2024 at 10:06:57 pm'!
 'Description '!
-!provides: 'Document' 1 4!
-SystemOrganization addCategory: 'Document-Model'!
-SystemOrganization addCategory: 'Document-View'!
-SystemOrganization addCategory: 'Document-Presenter'!
+!provides: 'Document' 1 6!
+SystemOrganization addCategory: #'Document-Model'!
+SystemOrganization addCategory: #'Document-View'!
+SystemOrganization addCategory: #'Document-Presenter'!
 
 
-!classDefinition: #Pencil category: 'Document-Model'!
+!classDefinition: #Pencil category: #'Document-Model'!
 Object subclass: #Pencil
 	instanceVariableNames: 'color width adjustWidth threshold'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
-!classDefinition: 'Pencil class' category: 'Document-Model'!
+!classDefinition: 'Pencil class' category: #'Document-Model'!
 Pencil class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier2 category: 'Document-Model'!
+!classDefinition: #StrokerBezier2 category: #'Document-Model'!
 Object subclass: #StrokerBezier2
 	instanceVariableNames: 'paper strokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
-!classDefinition: 'StrokerBezier2 class' category: 'Document-Model'!
+!classDefinition: 'StrokerBezier2 class' category: #'Document-Model'!
 StrokerBezier2 class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier2XP category: 'Document-Model'!
+!classDefinition: #StrokerBezier2XP category: #'Document-Model'!
 StrokerBezier2 subclass: #StrokerBezier2XP
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
-!classDefinition: 'StrokerBezier2XP class' category: 'Document-Model'!
+!classDefinition: 'StrokerBezier2XP class' category: #'Document-Model'!
 StrokerBezier2XP class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier3 category: 'Document-Model'!
+!classDefinition: #StrokerBezier3 category: #'Document-Model'!
 StrokerBezier2 subclass: #StrokerBezier3
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
-!classDefinition: 'StrokerBezier3 class' category: 'Document-Model'!
+!classDefinition: 'StrokerBezier3 class' category: #'Document-Model'!
 StrokerBezier3 class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier3XP category: 'Document-Model'!
+!classDefinition: #StrokerBezier3XP category: #'Document-Model'!
 StrokerBezier3 subclass: #StrokerBezier3XP
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
-!classDefinition: 'StrokerBezier3XP class' category: 'Document-Model'!
+!classDefinition: 'StrokerBezier3XP class' category: #'Document-Model'!
 StrokerBezier3XP class
 	instanceVariableNames: ''!
 
-!classDefinition: #DocumentPresenter category: 'Document-Presenter'!
+!classDefinition: #DocumentPresenter category: #'Document-Presenter'!
 Object subclass: #DocumentPresenter
 	instanceVariableNames: 'tool view'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'DocumentPresenter class' category: 'Document-Presenter'!
+!classDefinition: 'DocumentPresenter class' category: #'Document-Presenter'!
 DocumentPresenter class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageTool category: 'Document-Presenter'!
+!classDefinition: #PageTool category: #'Document-Presenter'!
 Object subclass: #PageTool
 	instanceVariableNames: 'state presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'PageTool class' category: 'Document-Presenter'!
+!classDefinition: 'PageTool class' category: #'Document-Presenter'!
 PageTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #EraserTool category: 'Document-Presenter'!
+!classDefinition: #EraserTool category: #'Document-Presenter'!
 PageTool subclass: #EraserTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'EraserTool class' category: 'Document-Presenter'!
+!classDefinition: 'EraserTool class' category: #'Document-Presenter'!
 EraserTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #HighlighterTool category: 'Document-Presenter'!
+!classDefinition: #HighlighterTool category: #'Document-Presenter'!
 PageTool subclass: #HighlighterTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'HighlighterTool class' category: 'Document-Presenter'!
+!classDefinition: 'HighlighterTool class' category: #'Document-Presenter'!
 HighlighterTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #PenTool category: 'Document-Presenter'!
+!classDefinition: #PenTool category: #'Document-Presenter'!
 PageTool subclass: #PenTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'PenTool class' category: 'Document-Presenter'!
+!classDefinition: 'PenTool class' category: #'Document-Presenter'!
 PenTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #SelectTool category: 'Document-Presenter'!
+!classDefinition: #SelectTool category: #'Document-Presenter'!
 PageTool subclass: #SelectTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'SelectTool class' category: 'Document-Presenter'!
+!classDefinition: 'SelectTool class' category: #'Document-Presenter'!
 SelectTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageToolState category: 'Document-Presenter'!
+!classDefinition: #PageToolState category: #'Document-Presenter'!
 Object subclass: #PageToolState
 	instanceVariableNames: 'context'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'PageToolState class' category: 'Document-Presenter'!
+!classDefinition: 'PageToolState class' category: #'Document-Presenter'!
 PageToolState class
 	instanceVariableNames: ''!
 
-!classDefinition: #PenToolStateNeural category: 'Document-Presenter'!
+!classDefinition: #PenToolStateNeural category: #'Document-Presenter'!
 PageToolState subclass: #PenToolStateNeural
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'PenToolStateNeural class' category: 'Document-Presenter'!
+!classDefinition: 'PenToolStateNeural class' category: #'Document-Presenter'!
 PenToolStateNeural class
 	instanceVariableNames: ''!
 
-!classDefinition: #PenToolStateWriting category: 'Document-Presenter'!
+!classDefinition: #PenToolStateWriting category: #'Document-Presenter'!
 PageToolState subclass: #PenToolStateWriting
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
-!classDefinition: 'PenToolStateWriting class' category: 'Document-Presenter'!
+!classDefinition: 'PenToolStateWriting class' category: #'Document-Presenter'!
 PenToolStateWriting class
 	instanceVariableNames: ''!
 
-!classDefinition: #DocumentModel category: 'Document-Model'!
+!classDefinition: #DocumentModel category: #'Document-Model'!
 ActiveModel subclass: #DocumentModel
 	instanceVariableNames: 'pages'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
-!classDefinition: 'DocumentModel class' category: 'Document-Model'!
+!classDefinition: 'DocumentModel class' category: #'Document-Model'!
 DocumentModel class
 	instanceVariableNames: ''!
 
-!classDefinition: #Bezier2Morph category: 'Document-View'!
+!classDefinition: #Bezier2Morph category: #'Document-View'!
 Morph subclass: #Bezier2Morph
 	instanceVariableNames: 'color width p1 p2 c1'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
-!classDefinition: 'Bezier2Morph class' category: 'Document-View'!
+!classDefinition: 'Bezier2Morph class' category: #'Document-View'!
 Bezier2Morph class
 	instanceVariableNames: ''!
 
-!classDefinition: #Bezier3Morph category: 'Document-View'!
+!classDefinition: #Bezier3Morph category: #'Document-View'!
 Bezier2Morph subclass: #Bezier3Morph
 	instanceVariableNames: 'c2'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
-!classDefinition: 'Bezier3Morph class' category: 'Document-View'!
+!classDefinition: 'Bezier3Morph class' category: #'Document-View'!
 Bezier3Morph class
 	instanceVariableNames: ''!
 
-!classDefinition: #LineStrokeMorph category: 'Document-View'!
+!classDefinition: #LineStrokeMorph category: #'Document-View'!
 Morph subclass: #LineStrokeMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
-!classDefinition: 'LineStrokeMorph class' category: 'Document-View'!
+!classDefinition: 'LineStrokeMorph class' category: #'Document-View'!
 LineStrokeMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokeGroupMorph category: 'Document-View'!
+!classDefinition: #StrokeGroupMorph category: #'Document-View'!
 Morph subclass: #StrokeGroupMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
-!classDefinition: 'StrokeGroupMorph class' category: 'Document-View'!
+!classDefinition: 'StrokeGroupMorph class' category: #'Document-View'!
 StrokeGroupMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageMorph category: 'Document-View'!
+!classDefinition: #PageMorph category: #'Document-View'!
 BoxedMorph subclass: #PageMorph
 	instanceVariableNames: 'background paper'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
-!classDefinition: 'PageMorph class' category: 'Document-View'!
+!classDefinition: 'PageMorph class' category: #'Document-View'!
 PageMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #PaperMorph category: 'Document-View'!
+!classDefinition: #PaperMorph category: #'Document-View'!
 BoxedMorph subclass: #PaperMorph
 	instanceVariableNames: 'stroker pen samples sampleIndex lineStrokes lastMousePosition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
-!classDefinition: 'PaperMorph class' category: 'Document-View'!
+!classDefinition: 'PaperMorph class' category: #'Document-View'!
 PaperMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #DocumentView category: 'Document-View'!
+!classDefinition: #DocumentView category: #'Document-View'!
 LayoutMorph subclass: #DocumentView
-	instanceVariableNames: 'presenter'
+	instanceVariableNames: 'presenter page'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
-!classDefinition: 'DocumentView class' category: 'Document-View'!
+!classDefinition: 'DocumentView class' category: #'Document-View'!
 DocumentView class
 	instanceVariableNames: ''!
 
@@ -997,12 +997,14 @@ morphExtent: anExtent
 paper
 	^ paper ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 8/31/2024 15:21:55'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/4/2024 21:46:29'!
 initialize
 	super initialize.
 	background := BoxedMorph new 
 		color: Color white darker;
-		borderWidth: 0.! !
+		borderWidth: 0.
+	paper := PaperMorph new stroker: StrokerBezier2XP.
+	self addMorph: paper! !
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 8/18/2024 16:43:08'!
 lastMousePosition
@@ -1247,13 +1249,28 @@ writingAt: localPosition
 						sampleIndex := sampleIndex +1 ] ]	 	] ]	.
 		lineStrokes redrawNeeded ! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:03:06'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/4/2024 21:49:51'!
 currentPage
-	! !
+	^ page! !
+
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/4/2024 21:49:45'!
+initialize
+	super initialize.
+	page := PageMorph new! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:34:28'!
 presenter
 	^ presenter ! !
+
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/2/2024 21:23:41'!
+presenter: aPresenter
+	presenter := aPresenter ! !
+
+!DocumentView class methodsFor: 'instance creation' stamp: 'hlsf 9/4/2024 22:05:20'!
+for: aPresenter
+	^ self newColumn
+		presenter: aPresenter ;
+		yourself! !
 
 !Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:22:27'!
 covariance: y
