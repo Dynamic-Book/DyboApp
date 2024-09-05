@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 5 September 2024 at 11:40:19 am'!
+'From Cuis7.1 [latest update: #6676] on 5 September 2024 at 6:17:36 pm'!
 'Description '!
-!provides: 'Dynabook' 1 61!
+!provides: 'Dynabook' 1 62!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1502,10 +1502,10 @@ undoButtonData
 initialize
 	icons := IconsManager path: DySystem iconsPath ! !
 
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/5/2024 11:02:04'!
+!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/5/2024 14:32:03'!
 buildDocumentView
 	| row col |
-	documentView := DocumentView presenter: (DocumentPresenter controlsManager: self).
+	documentView := DocumentView presenter: (Document controlsManager: self).
 	documentView 
 		addMorph: self documentToolbar
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
