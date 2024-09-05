@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 4 September 2024 at 10:06:57 pm'!
+'From Cuis7.1 [latest update: #6676] on 5 September 2024 at 11:40:17 am'!
 'Description '!
-!provides: 'Document' 1 6!
+!provides: 'Document' 1 7!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -58,7 +58,7 @@ StrokerBezier3XP class
 
 !classDefinition: #DocumentPresenter category: #'Document-Presenter'!
 Object subclass: #DocumentPresenter
-	instanceVariableNames: 'tool view'
+	instanceVariableNames: 'tool view controlsManager'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -591,8 +591,9 @@ moveOXAction: increment! !
 !DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:32:44'!
 moveOYAction: increment! !
 
-!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 9/1/2024 12:48:57'!
-penTool! !
+!DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 10:38:17'!
+penTool
+	self tool: PenTool ! !
 
 !DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:31:19'!
 redoAction! !
@@ -606,35 +607,57 @@ undoAction! !
 !DocumentPresenter methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:32:50'!
 zoomAction: increment! !
 
-!DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:00:00'!
-controlsManager! !
+!DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 10:49:06'!
+controlsManager
+	^ controlsManager ! !
+
+!DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 10:26:24'!
+controlsManager: aControlsManager
+	controlsManager := aControlsManager ! !
 
 !DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 15:33:26'!
 currentPage
 	^ view currentPage! !
 
-!DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:51:12'!
-isTool: aToolName
-	^ self selectTool == aToolName ! !
-
 !DocumentPresenter methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:42:08'!
 selectedTool
 	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
 
-!DocumentPresenter methodsFor: 'tool' stamp: 'hlsf 9/1/2024 12:24:06'!
-tool: aToolInstance
+!DocumentPresenter methodsFor: 'tool' stamp: 'hlsf 9/5/2024 11:39:44'!
+isTool: aToolName
+	^ self selectedTool == aToolName ! !
+
+!DocumentPresenter methodsFor: 'tool' stamp: 'hlsf 9/5/2024 11:28:26'!
+tool: aToolClass
 	tool ifNotNil: [tool releaseActionMap].
-	tool := aToolInstance.
+	tool := aToolClass presenter: self.
 	tool registerObserver: self.
-	self controlsManager statusBarMessage: tool description! !
+	self controlsManager statusBarMessage: aToolClass description.
+	self changed! !
+
+!DocumentPresenter methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 10:24:39'!
+initialize
+	super initialize.
+	self penTool! !
+
+!DocumentPresenter class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
+controlsManager: aControlsManager
+	^ self basicNew 
+		controlsManager: aControlsManager ;
+		initialize ;
+		yourself! !
+
+!DocumentPresenter class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:42'!
+new
+	self error: 'Instanciate with a controls manager'! !
 
 !PageTool methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 11:04:16'!
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!PageTool methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:50:10'!
+!PageTool methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:37:34'!
 toolName
-	^ self class action! !
+	^ self class iconName! !
 
 !PageTool methodsFor: 'initialization' stamp: 'hlsf 9/1/2024 11:15:48'!
 registerObserver: anObserver
@@ -667,6 +690,11 @@ action
 description
 	self subclassResponsibility ! !
 
+!PageTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:36:37'!
+iconName
+" also the name to identify the tool sent to the presenter "
+	self subclassResponsibility ! !
+
 !PageTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:43:36'!
 title
 	self subclassResponsibility ! !
@@ -690,6 +718,10 @@ action
 description
 	^ 'An eraser to delete some of your handwriting' translated! !
 
+!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:36:52'!
+iconName
+	^ #eraser! !
+
 !EraserTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:02:21'!
 title
 	^ 'Eraser' translated! !
@@ -701,6 +733,10 @@ action
 !HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:03:33'!
 description
 	^ 'A highlighter to emphasis some of for your handwriting' translated ! !
+
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:37:56'!
+iconName
+	^ #highlighter! !
 
 !HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:03:16'!
 title
@@ -718,6 +754,10 @@ description
 title
 	^ 'Pencil' translated! !
 
+!PenTool class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 11:38:17'!
+iconName
+	^ #pen! !
+
 !SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:49:27'!
 action
 	^ #selectTool! !
@@ -725,6 +765,10 @@ action
 !SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:06:43'!
 description
 	^ 'Select and drag objects around, including the whole page' translated ! !
+
+!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:38:53'!
+iconName
+	^ #select! !
 
 !SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:06:21'!
 title
@@ -997,14 +1041,28 @@ morphExtent: anExtent
 paper
 	^ paper ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/4/2024 21:46:29'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 10:20:04'!
+defaultBorderWidth
+	^ 0! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 10:07:35'!
+defaultColor
+	^ `Color transparent`! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 10:11:21'!
 initialize
 	super initialize.
 	background := BoxedMorph new 
-		color: Color white darker;
+		color: Color white;
 		borderWidth: 0.
 	paper := PaperMorph new stroker: StrokerBezier2XP.
-	self addMorph: paper! !
+	self 
+		addMorph: background;
+		addMorph: paper! !
+
+!PageMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 10:19:33'!
+clipsSubmorphs
+	^ true! !
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 8/18/2024 16:43:08'!
 lastMousePosition
@@ -1249,14 +1307,17 @@ writingAt: localPosition
 						sampleIndex := sampleIndex +1 ] ]	 	] ]	.
 		lineStrokes redrawNeeded ! !
 
+!PaperMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 10:10:32'!
+defaultBorderWidth
+	^ 0! !
+
+!PaperMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 10:10:23'!
+defaultColor
+	^ `Color transparent`! !
+
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/4/2024 21:49:51'!
 currentPage
 	^ page! !
-
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/4/2024 21:49:45'!
-initialize
-	super initialize.
-	page := PageMorph new! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:34:28'!
 presenter
@@ -1266,11 +1327,28 @@ presenter
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DocumentView class methodsFor: 'instance creation' stamp: 'hlsf 9/4/2024 22:05:20'!
-for: aPresenter
-	^ self newColumn
-		presenter: aPresenter ;
-		yourself! !
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/4/2024 21:49:45'!
+initialize
+	super initialize.
+	page := PageMorph new! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:14'!
+adoptWidgetsColor: aColor 
+	super adoptWidgetsColor: aColor.
+	color := Theme current paneBackgroundFrom: aColor.! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:25'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:31'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DocumentView class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 09:57:59'!
+presenter: aPresenter
+	^ self newColumn 
+		presenter: aPresenter! !
 
 !Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:22:27'!
 covariance: y

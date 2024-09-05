@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 4 September 2024 at 10:06:59 pm'!
+'From Cuis7.1 [latest update: #6676] on 5 September 2024 at 11:40:19 am'!
 'Description '!
-!provides: 'Dynabook' 1 60!
+!provides: 'Dynabook' 1 61!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -222,7 +222,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'mainPresenter mainView docView icons statusBar'
+	instanceVariableNames: 'dynabookView documentView icons statusBar'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -1260,11 +1260,11 @@ isSection: aSymbolSection
 "We have the start, task, binder, and settings sections"
 	^ selectedSection == aSymbolSection ! !
 
-!Dynabook methodsFor: 'initialization' stamp: 'hlsf 9/1/2024 09:59:19'!
+!Dynabook methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 10:59:45'!
 initialize
 	domain := DyDomain new.
-	controlsManager := DyControlsManager for: self.
-	controlsManager installDynabookView.
+	controlsManager := DyControlsManager new.
+	controlsManager installDynabookView: self.
 	self goStart.
 	self view openInWorld ! !
 
@@ -1276,9 +1276,9 @@ controlsManager
 domain
 	^ domain! !
 
-!Dynabook methodsFor: 'accessing' stamp: 'hlsf 8/29/2024 22:22:06'!
+!Dynabook methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:00:32'!
 view
-	^ controlsManager mainView! !
+	^ controlsManager dynabookView! !
 
 !DyCommand methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:47:05'!
 presenter: aPresenter
@@ -1395,22 +1395,18 @@ removeUserData
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:34:33'!
-docPresenter
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:02:47'!
+documentPresenter
 " Access the presenter of the currently used document, if any "
-	^ docView presenter! !
+	^ documentView presenter! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 09:43:18'!
-docView
-	^ docView ! !
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:01:23'!
+dynabookPresenter
+	^ dynabookView presenter! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 8/29/2024 22:25:01'!
-mainPresenter: aPresenter
-	mainPresenter := aPresenter ! !
-
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 8/29/2024 22:22:06'!
-mainView
-	^ mainView! !
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:00:47'!
+dynabookView
+	^ dynabookView! !
 
 !DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:45:00'!
 statusBarMessage: aString
@@ -1420,190 +1416,201 @@ statusBarMessage: aString
 			redrawNeeded]
 		! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:29:54'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:00'!
 binderButtonData
 " label - iconName - callback - description "
-	^ {'Binders' translated . #binder . #goBinder . 'In the Binders, find the documents of your courses and start a new one.' translated }! !
+	^ {'Binders' translated . 
+	#binder . 
+	#goBinder . 
+	'In the Binders, find the documents of your courses and start a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/1/2024 12:47:10'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:37:03'!
 eraserButtonData
-	^ {EraserTool title. #eraser . EraserTool action . EraserTool description }! !
+	^ {EraserTool title. 
+	EraserTool iconName . 
+	EraserTool action . 
+	EraserTool description }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/1/2024 12:48:21'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:38:02'!
 highlighterButtonData
-	^ {HighlighterTool title. #highlighter . HighlighterTool action. HighlighterTool description }! !
+	^ {HighlighterTool title. 
+	HighlighterTool iconName . 
+	HighlighterTool action. 
+	HighlighterTool description }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/2/2024 20:56:59'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:21'!
 pageButtonData
 " label - iconName - callback - description "
-	^ {'New page' translated . #page . #goPage . 'Open a blank page to start writing.' translated }! !
+	^ {'New page' translated . 
+	#page . 
+	#goPage . 
+	'Open a blank page to start writing.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/1/2024 12:47:41'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:38:30'!
 penButtonData
-	^ {PenTool title. #pen . PenTool action . PenTool description }! !
+	^ {PenTool title. 
+	PenTool iconName . 
+	PenTool action . 
+	PenTool description }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 8/29/2024 21:55:11'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:36'!
 redoButtonData
-	^ {'Redo' translated . #redo . #redoAction . 'Redo your last undone action' translated }! !
+	^ {'Redo' translated . 
+	#redo . 
+	#redoAction . 
+	'Redo your last undone action' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/1/2024 12:49:40'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:39:05'!
 selectButtonData
-	^ {SelectTool title. #select . SelectTool action . SelectTool description }! !
+	^ {SelectTool title. 
+	SelectTool iconName . 
+	SelectTool action . 
+	SelectTool description }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 8/14/2023 22:25:02'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:51'!
 settingsButtonData
 " label - iconName - callback - description "
-	^ {'Settings' translated . #settings . #goSettings . 'In the Settings, edit your course and student lists.' translated }! !
+	^ {'Settings' translated . 
+	#settings . 
+	#goSettings . 
+	'In the Settings, edit your course and student lists.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 8/15/2023 21:24:57'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:57'!
 startButtonData
 " label - iconName - callback - description "
-	^ {'Start' translated . #start . #goStart . 'In Start, review and search for the recent activities.' translated }! !
+	^ {'Start' translated . 
+	#start . 
+	#goStart . 
+	'In Start, review and search for the recent activities.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 8/29/2024 11:48:15'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:12:02'!
 tasksButtonData
 " label - iconName - callback - description "
-	^ {'Tasks' translated . #tasks . #goTasks . 'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
+	^ {'Tasks' translated . 
+	#tasks . 
+	#goTasks . 
+	'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 8/29/2024 21:54:49'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:12:08'!
 undoButtonData
-	^ {'Undo' translated . #undo . #undoAction . 'Undo your last action' translated }! !
+	^ {'Undo' translated . 
+	#undo . 
+	#undoAction . 
+	'Undo your last action' translated  }! !
 
 !DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 8/29/2024 11:36:40'!
 initialize
 	icons := IconsManager path: DySystem iconsPath ! !
 
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/4/2024 22:05:27'!
+!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/5/2024 11:02:04'!
 buildDocumentView
 	| row col |
-	docView := DocumentView for: DocumentPresenter new.
-	docView 
+	documentView := DocumentView presenter: (DocumentPresenter controlsManager: self).
+	documentView 
 		addMorph: self documentToolbar
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
 	row := LayoutMorph newRow
-		addMorphUseAll: docView currentPage.
+		addMorphUseAll: documentView currentPage.
 		
 	" vertical and zoom wheels at the right "
 	col := LayoutMorph newColumn name: #wheelsYZ.
 	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120);
-		addMorphUseAll: self elasticMorph ;
+		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
 	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
-	docView addMorph: row.
+	documentView addMorph: row.
 	
 	" status bar and horizontal wheel at the bottom "
 	row := LayoutMorph newRow name: #wheelX.
 	row addMorphUseAll: self statusBarInScroller;
 		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
-		addMorph: self elasticMorph layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
-	docView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
-	^ docView! !
+		addMorph: DyControlsManager spacer layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
+	documentView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
+	documentView adoptWidgetsColor: documentView defaultBorderColor.
+	^ documentView! !
 
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 8/29/2024 23:17:54'!
+!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/5/2024 11:14:39'!
 documentToolbar
 	| toolbar |
-	toolbar := LayoutMorph newRow 
-		separation: 2; 
-		yourself.
+	toolbar := LayoutMorph newRow 		separation: 2.
 	self documentTools do: [:aTool | 
 		aTool == #spacer 
 			ifTrue: [toolbar addMorphUseAll: self class spacer]
-			ifFalse: [	toolbar addMorph: (self button: aTool  size: DySystem miniToolbarSize )] ].
+			ifFalse: [	toolbar addMorph: (				
+				self 
+					on: self documentPresenter 
+					button: aTool 
+					state: #isTool:
+					size: DySystem miniToolbarSize )] ].
 	^ toolbar! !
 
 !DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/2/2024 21:26:20'!
 documentTools
 	^ #(select pen eraser highlighter undo redo)! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:37:50'!
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:10:43'!
 dynabookToolbar
 	| toolbar |
-	toolbar := LayoutMorph newRow 
-		separation: 5; 
-		yourself.
+	toolbar := LayoutMorph newRow 		separation: 5.
 	self dynabookTools do: [:aTool | 
 		aTool == #spacer 
 			ifTrue: [toolbar addMorphUseAll: self class spacer]
-			ifFalse: [	toolbar addMorph: (self button: aTool  size: DySystem iconToolbarSize)] ].
+			ifFalse: [	toolbar addMorph: (
+				self 
+					on: self dynabookPresenter 
+					button: aTool  
+					state: #isSection:
+					size: DySystem iconToolbarSize)] ].
 	^ toolbar! !
 
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/2/2024 20:57:24'!
 dynabookTools
 	^ #(start tasks binder page spacer settings)! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:22:40'!
-installDynabookView
-	mainView := DynabookView for: mainPresenter.
-	mainView 
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:00:47'!
+installDynabookView: aPresenter
+	dynabookView := DynabookView for: aPresenter.
+	dynabookView 
 		addMorph: self dynabookToolbar 
 		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
 	self plugStartView! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:22:40'!
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:01:23'!
 plugBinderView
-	self plugInDynabookView: (DyBinderView presenter: mainPresenter)! !
+	self plugInDynabookView: (DyBinderView presenter: self dynabookPresenter)! !
 
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/2/2024 21:20:28'!
 plugDocumentView
 	self plugInDynabookView: self buildDocumentView ! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:20:22'!
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:00:47'!
 plugInDynabookView: aMorph
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout |
-	layout := mainView layoutMorph.
+	layout := dynabookView layoutMorph.
 	layout submorphCount = 2 ifTrue: [
 		layout removeMorph: layout firstSubmorph].
 	layout addMorphUseAll: aMorph.
-	mainView changed! !
+	dynabookView changed! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:22:40'!
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:01:23'!
 plugSettingsView
 	self plugInDynabookView: (
 		BreadcrumbsPane 
-			on: mainPresenter domain userData 
+			on: self dynabookPresenter domain userData 
 			with: DyViewerVisitor )! !
 
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/16/2023 21:08:23'!
 plugStartView
 ! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/29/2024 22:22:40'!
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:01:23'!
 plugTaskView
-	self plugInDynabookView: (DyAgendaView presenter: mainPresenter)! !
+	self plugInDynabookView: (DyAgendaView presenter: self dynabookPresenter)! !
 
-!DyControlsManager methodsFor: 'widget helpers' stamp: 'hlsf 8/31/2024 12:23:20'!
-elasticMorph
-	^ BoxedMorph new 
-		borderWidth: 0;
-		color: Color transparent; 
-		yourself! !
-
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 8/29/2024 22:37:29'!
-button: symbol size: size
-	"array first = menu label or button label
-	array second = button form = section mode
-	array third = symbol callback
-	array fourth = help string	"	
-	| array stateGetter |
-	array := self perform: (symbol, #ButtonData) asSymbol.
-	^ ButtonMorph 
-		model: mainPresenter
-		stateGetter: (stateGetter := array at: 5 ifAbsent: [ #isSection: ])
-		action: array third ::
-		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
-		icon: (icons get: array second size: size);
-		setBalloonText: array fourth;
-		color: mainView defaultColor ;
-		selectedColor: mainView buttonColor ;
-		borderColor: mainView defaultColor darker;
-		borderWidth: 2;
-		morphExtent: (size  * 1.3) rounded asPoint;
-		yourself	! !
-
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 8/31/2024 10:41:35'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/5/2024 11:02:47'!
 horizontalWheel 
-	^ (WheelMorph target: self docPresenter actionSelector: #moveOXAction:)
+	^ (WheelMorph target: self documentPresenter actionSelector: #moveOXAction:)
 		beHorizontal; 
 		factor: 0.05; 
 		setBalloonText: 'Scroll the document to the left or right.' translated;
@@ -1611,6 +1618,28 @@ horizontalWheel
 		color: Color orange;
 		borderColor: Color black;
 		yourself! !
+
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/5/2024 11:08:08'!
+on: aPresenter button: symbol state: stateGetter size: size
+	"array first = menu label or button label
+	array second = button form = section mode
+	array third = symbol callback
+	array fourth = help string	"	
+	| array |
+	array := self perform: (symbol, #ButtonData) asSymbol.
+	^ ButtonMorph 
+		model: aPresenter
+		stateGetter: stateGetter
+		action: array third ::
+		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
+		icon: (icons get: array second size: size);
+		setBalloonText: array fourth;
+		color: dynabookView defaultColor ;
+		selectedColor: dynabookView buttonColor ;
+		borderColor: dynabookView defaultColor darker;
+		borderWidth: 2;
+		morphExtent: (size  * 1.3) rounded asPoint;
+		yourself	! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 8/31/2024 10:43:26'!
 statusBar
@@ -1632,9 +1661,9 @@ statusBarInScroller
 		color: Color transparent;
 		yourself! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 8/31/2024 10:42:06'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/5/2024 11:02:47'!
 verticalWheel 
-	^  (WheelMorph target: self docPresenter actionSelector: #moveOYAction:)
+	^  (WheelMorph target: self documentPresenter actionSelector: #moveOYAction:)
 		beVertical; 
 		factor: 0.05; 
 		setBalloonText: 'Scroll the document up or down.' translated; 
@@ -1644,21 +1673,15 @@ verticalWheel
 		yourself		
 		! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 8/31/2024 10:42:38'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/5/2024 11:02:47'!
 zoomWheel 
-	^  (WheelMorph target: self docPresenter actionSelector: #zoomAction:)
+	^  (WheelMorph target: self documentPresenter actionSelector: #zoomAction:)
 		beVertical; 
 		factor: 1; 
 		setBalloonText: 'Zoom in or out the document.' translated; 
 		borderWidth: 3;
 		color: Color gray;
 		borderColor: Color black;
-		yourself! !
-
-!DyControlsManager class methodsFor: 'instance creation' stamp: 'hlsf 8/31/2024 09:42:42'!
-for: aDynabookPresenter
-	^ self new
-		mainPresenter: aDynabookPresenter ;
 		yourself! !
 
 !DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/7/2023 15:23:51'!
@@ -2513,9 +2536,9 @@ defaultBorderColor
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/15/2023 20:52:38'!
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:14:05'!
 presenter
-	presenter! !
+	^ presenter! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/15/2023 20:52:33'!
 presenter: aPresenter
