@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 7 September 2024 at 1:12:29 pm'!
+'From Cuis7.1 [latest update: #6676] on 8 September 2024 at 7:34:52 pm'!
 'Description '!
-!provides: 'Document' 1 13!
+!provides: 'Document' 1 15!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -236,6 +236,16 @@ PlacedMorph subclass: #StrokeGroupMorph
 StrokeGroupMorph class
 	instanceVariableNames: ''!
 
+!classDefinition: #PageContainer category: #'Document-View'!
+BoxedMorph subclass: #PageContainer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-View'!
+!classDefinition: 'PageContainer class' category: #'Document-View'!
+PageContainer class
+	instanceVariableNames: ''!
+
 !classDefinition: #PageMorph category: #'Document-View'!
 BoxedMorph subclass: #PageMorph
 	instanceVariableNames: 'background paper presenter'
@@ -323,6 +333,10 @@ This is out sourced of the PaperMorph for speed rendering -> Need to check out i
 I group the strokes (kind of BezierMorph) of a hand written stroke. A hand stroke happens between the pen down and pen up events.
 To avoid graphics artifacts at the junctions of the strokes, I draw directly the submorphs.
 In some circumstance, I reveal my submorphs and then I do not draw them directly.!
+
+!PageContainer commentStamp: '<historical>' prior: 0!
+I am a container for a Page, I expand on the DocumentView, then let the Page be moved and scaled in me.
+I also clip the page!
 
 !PageMorph commentStamp: '<historical>' prior: 0!
 The view of a Page. A page is a unit of a Document.
@@ -634,11 +648,23 @@ eraserTool
 highlighterTool
 	self tool:HighlighterTool ! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:32:25'!
-moveOXAction: increment! !
+!Document methodsFor: 'callback ui' stamp: 'hlsf 9/8/2024 19:09:17'!
+moveOXAction: increment
+	| page container |
+	page := self currentPage.
+	container := page owner.
+	page morphPosition: (page morphPosition + (increment @ 0) 
+		min: container morphExtent 
+		max: page morphExtent negated)! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:32:44'!
-moveOYAction: increment! !
+!Document methodsFor: 'callback ui' stamp: 'hlsf 9/8/2024 19:09:47'!
+moveOYAction: increment
+	| page container |
+	page := self currentPage.
+	container := page owner.
+	page morphPosition: (page morphPosition + (0@increment) 
+		min: container morphExtent 
+		max: page morphExtent negated)! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 10:38:17'!
 penTool
@@ -654,8 +680,12 @@ selectTool
 !Document methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:31:38'!
 undoAction! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:32:50'!
-zoomAction: increment! !
+!Document methodsFor: 'callback ui' stamp: 'hlsf 9/8/2024 19:30:06'!
+zoomAction: increment
+	
+	self currentPage scale: (self currentPage scale + increment
+		min: 2 
+		max: 0.1)! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 10:49:06'!
 controlsManager
@@ -665,9 +695,13 @@ controlsManager
 controlsManager: aControlsManager
 	controlsManager := aControlsManager ! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 15:33:26'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 9/8/2024 16:57:30'!
 currentPage
-	^ view currentPage! !
+	^ controlsManager documentView currentPage! !
+
+!Document methodsFor: 'accessing' stamp: 'hlsf 9/8/2024 16:44:15'!
+pages
+	^ {self currentPage}! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:42:08'!
 selectedTool
@@ -692,9 +726,9 @@ isTool: aToolName
 tool
 	^ tool! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 11:28:26'!
+!Document methodsFor: 'tool' stamp: 'hlsf 9/8/2024 16:40:01'!
 tool: aToolClass
-	tool ifNotNil: [tool releaseActionMap].
+	tool ifNotNil: [tool release].
 	tool := aToolClass presenter: self.
 	tool registerObserver: self.
 	self controlsManager statusBarMessage: aToolClass description.
@@ -706,15 +740,21 @@ initialize
 	self initializeWritingTools .
 	self penTool.! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 9/7/2024 12:17:16'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 16:16:15'!
 initializeWritingTools
 	pen := Pen new.
 	highlighter := Pen new ::
-		color: (Color yellow alpha: 0.1);
+		color: (Color yellow alpha: 0.3);
 		width: 40;
 		threshold: 10 squared.
 	eraser := Pen new 	width: 16
 ! !
+
+!Document methodsFor: 'cleanup' stamp: 'hlsf 9/8/2024 19:03:55'!
+deleteBitMasks
+" Remove all the bitmask of the Stroke Morph "
+	self pages do: [:aPage |
+		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 		] ]! !
 
 !Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
 controlsManager: aControlsManager
@@ -740,6 +780,10 @@ registerObserver: anObserver
 " 
 	Register here any observer about event(s) occuring during the tool operations
 "! !
+
+!PageTool methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 16:39:56'!
+release
+	self releaseActionMap ! !
 
 !PageTool methodsFor: 'handling' stamp: 'hlsf 9/1/2024 15:35:10'!
 handleMouseAt: localPosition in: page
@@ -790,10 +834,20 @@ presenter: aPresenter
 		initialize;
 		yourself! !
 
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 19:03:55'!
+deleteBitsMasks
+	presenter deleteBitMasks ! !
+
 !EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 15:14:24'!
 initialize
 	super initialize.
 	self switchState: EraserToolStateNeutral ! !
+
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 19:04:26'!
+release
+	super release.
+	" We need to remove the Morph bitMask used to detect the individual strokes "
+	self deleteBitsMasks ! !
 
 !EraserTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:47:25'!
 action
@@ -820,9 +874,9 @@ initialize
 action
 	^ #highlighterTool! !
 
-!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:03:33'!
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/8/2024 19:11:19'!
 description
-	^ 'A highlighter to emphasis some of for your handwriting' translated ! !
+	^ 'A highlighter to emphasis some of your handwritings' translated ! !
 
 !HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:37:56'!
 iconName
@@ -890,7 +944,7 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/5/2024 19:43:51'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/8/2024 17:08:33'!
 handleMouseAt: localPosition in: paper
 	(paper strokeGroupsAt: localPosition ) do: [:each |
 		each removeStrokesAt: each positionInWorld + localPosition.
@@ -899,9 +953,10 @@ handleMouseAt: localPosition in: paper
 		
 		! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/7/2024 11:28:44'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/8/2024 19:04:44'!
 handleRelease: localPosition in: page
 	page redrawNeeded.
+	context deleteBitsMasks.
 	context switchState: EraserToolStateNeutral ! !
 
 !EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 9/7/2024 12:06:18'!
@@ -1097,16 +1152,8 @@ drawOn: canvas
 		]
 	]! !
 
-!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 9/5/2024 19:58:00'!
-directDraw: boolean
-"
-	Do I draw myself my submorphs or do I let my submorphs draw by themselves  ? 
-" 
-	self setProperty: #directDraw toValue: boolean.
-	self submorphsDo: [:each | each visible: boolean not].! !
-
-!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 9/5/2024 20:23:04'!
-directDrawOn: canvas
+!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 9/8/2024 16:14:52'!
+drawOn: canvas
 " I draw manually my submorphs "
 	| nextIndex endIndex strokesQty stroke color width |
 	strokesQty := self submorphCount.
@@ -1128,15 +1175,6 @@ directDrawOn: canvas
 	self showTangents ifTrue: [submorphs do: [:each | each drawTangentsOn: canvas] ].
 	self showControls ifTrue: [submorphs do: [:each | each drawControlsOn: canvas] ].
 	self showPoints ifTrue: [submorphs do: [:each | each drawPointsOn: canvas] ]! !
-
-!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 9/5/2024 20:25:45'!
-drawOn: canvas
-	self isDirectDraw ifTrue: [self directDrawOn: canvas]
-! !
-
-!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 9/5/2024 20:26:55'!
-isDirectDraw
-	^ self valueOfProperty: #directDraw ifAbsent: [false]! !
 
 !StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 5/12/2024 18:11:04'!
 is: aSymbol
@@ -1172,10 +1210,10 @@ width: aNumber
 writingTool
 	^ owner writingTool ! !
 
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/5/2024 18:30:15'!
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/8/2024 16:14:23'!
 addStroke: aStroke
 	self addMorph: aStroke.
-	"aStroke hide"! !
+	aStroke visible: false! !
 
 !StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/7/2024 12:02:24'!
 removeStrokesAt: positionInWorld
@@ -1184,16 +1222,38 @@ removeStrokesAt: positionInWorld
 	toDelete := submorphs select: [:each | 		each isCloserThan: self writingTool width toPixel: positionInWorld].
 	self removeAllMorphsIn: toDelete! !
 
-!StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 9/5/2024 19:42:51'!
+!StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 9/8/2024 16:35:02'!
 isCloserThan: distance toPixel: positionInWorld
 	^ submorphs anySatisfy: [:each | 
+		each bitMask.
 		each isCloserThan: distance toPixel: positionInWorld ]! !
 
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 9/1/2024 09:32:04'!
+!StrokeGroupMorph methodsFor: 'cleanup' stamp: 'hlsf 9/8/2024 19:03:55'!
+deleteBitMasks
+	submorphs do: [:each| each removeProperty: #bitMask]! !
+
+!PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/8/2024 18:41:55'!
+clipsSubmorphs
+	^ true! !
+
+!PageContainer methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:23:10'!
+defaultBorderWidth
+	^ 0! !
+
+!PageContainer methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:25:58'!
+defaultColor
+	^ Color lightGray muchLighter! !
+
+!PageContainer class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/8/2024 18:24:18'!
+for: aPage
+	^ self new
+		addMorphFront: aPage position: 0@0! !
+
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 9/8/2024 18:36:20'!
 morphExtent: anExtent
 	super morphExtent: anExtent.
-	background ifNotNil: [background morphExtent: anExtent].
-	paper morphExtent: anExtent ! !
+	background ifNotNil: [background morphExtent: anExtent - ( 2 * borderWidth) ].
+	paper morphExtent: anExtent  - (2 * borderWidth)! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 16:13:35'!
 paper
@@ -1203,15 +1263,19 @@ paper
 presenter: documentPresenter
 	presenter := documentPresenter ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 10:20:04'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:40:11'!
+defaultBorderColor
+	^ `Color black`! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:40:48'!
 defaultBorderWidth
-	^ 0! !
+	^ 1! !
 
 !PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 10:07:35'!
 defaultColor
 	^ `Color transparent`! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 16:00:53'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:35:43'!
 initialize
 	super initialize.
 	background := BoxedMorph new 
@@ -1219,9 +1283,9 @@ initialize
 		borderWidth: 0.
 	paper := PaperMorph newOn: presenter.
 	paper stroker: StrokerBezier2XP.
-	self 
-		addMorph: background;
-		addMorph: paper! !
+	self addMorphBack: background position: borderWidth asPoint;
+		addMorphFront: paper position: borderWidth asPoint.
+	self morphExtent: (16@9) * 50! !
 
 !PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/5/2024 10:19:33'!
 clipsSubmorphs
@@ -1440,6 +1504,10 @@ resetSamplingTo: aPoint
 		samples at: 1 put: aPoint.
 		sampleIndex := sampleIndex + 1]
 ! !
+
+!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 9/8/2024 16:47:08'!
+strokeGroups
+	^ submorphs select: [:each | each is: #StrokeGroupMorph ]! !
 
 !PaperMorph methodsFor: 'strokes' stamp: 'hlsf 9/7/2024 12:00:44'!
 strokeGroupsAt: localPosition

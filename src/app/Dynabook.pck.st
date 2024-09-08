@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 5 September 2024 at 6:17:36 pm'!
+'From Cuis7.1 [latest update: #6676] on 8 September 2024 at 7:34:55 pm'!
 'Description '!
-!provides: 'Dynabook' 1 62!
+!provides: 'Dynabook' 1 64!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1400,6 +1400,10 @@ documentPresenter
 " Access the presenter of the currently used document, if any "
 	^ documentView presenter! !
 
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/8/2024 16:56:44'!
+documentView
+	^ documentView! !
+
 !DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:01:23'!
 dynabookPresenter
 	^ dynabookView presenter! !
@@ -1502,16 +1506,14 @@ undoButtonData
 initialize
 	icons := IconsManager path: DySystem iconsPath ! !
 
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/5/2024 14:32:03'!
+!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/8/2024 18:24:46'!
 buildDocumentView
 	| row col |
 	documentView := DocumentView presenter: (Document controlsManager: self).
 	documentView 
 		addMorph: self documentToolbar
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
-	row := LayoutMorph newRow
-		addMorphUseAll: documentView currentPage.
-		
+	row := LayoutMorph newRow 					addMorphUseAll: (PageContainer for: 		documentView currentPage).
 	" vertical and zoom wheels at the right "
 	col := LayoutMorph newColumn name: #wheelsYZ.
 	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120);
@@ -1608,11 +1610,11 @@ plugStartView
 plugTaskView
 	self plugInDynabookView: (DyAgendaView presenter: self dynabookPresenter)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/5/2024 11:02:47'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/8/2024 19:12:10'!
 horizontalWheel 
 	^ (WheelMorph target: self documentPresenter actionSelector: #moveOXAction:)
 		beHorizontal; 
-		factor: 0.05; 
+		factor: 1; 
 		setBalloonText: 'Scroll the document to the left or right.' translated;
 		borderWidth: 3;
 		color: Color orange;
@@ -1661,11 +1663,11 @@ statusBarInScroller
 		color: Color transparent;
 		yourself! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/5/2024 11:02:47'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/8/2024 19:12:00'!
 verticalWheel 
 	^  (WheelMorph target: self documentPresenter actionSelector: #moveOYAction:)
 		beVertical; 
-		factor: 0.05; 
+		factor: 1; 
 		setBalloonText: 'Scroll the document up or down.' translated; 
 		borderWidth: 3;
 		color: Color orange;
@@ -1673,11 +1675,11 @@ verticalWheel
 		yourself		
 		! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/5/2024 11:02:47'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/8/2024 19:30:49'!
 zoomWheel 
 	^  (WheelMorph target: self documentPresenter actionSelector: #zoomAction:)
 		beVertical; 
-		factor: 1; 
+		factor: 0.005; 
 		setBalloonText: 'Zoom in or out the document.' translated; 
 		borderWidth: 3;
 		color: Color gray;
