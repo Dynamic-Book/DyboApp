@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 8 September 2024 at 7:34:52 pm'!
+'From Cuis7.1 [latest update: #6676] on 9 September 2024 at 9:20:29 pm'!
 'Description '!
-!provides: 'Document' 1 15!
+!provides: 'Document' 1 16!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -680,9 +680,8 @@ selectTool
 !Document methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:31:38'!
 undoAction! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/8/2024 19:30:06'!
-zoomAction: increment
-	
+!Document methodsFor: 'callback ui' stamp: 'hlsf 9/9/2024 19:04:12'!
+zoomAction: increment	
 	self currentPage scale: (self currentPage scale + increment
 		min: 2 
 		max: 0.1)! !
@@ -944,10 +943,10 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/8/2024 17:08:33'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/9/2024 20:58:03'!
 handleMouseAt: localPosition in: paper
 	(paper strokeGroupsAt: localPosition ) do: [:each |
-		each removeStrokesAt: each positionInWorld + localPosition.
+		each removeStrokesAt: (each externalizeToWorld: localPosition).
 		each lastStroke ifNil: [paper removeMorph: each]
 		]
 		
@@ -1509,10 +1508,10 @@ resetSamplingTo: aPoint
 strokeGroups
 	^ submorphs select: [:each | each is: #StrokeGroupMorph ]! !
 
-!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 9/7/2024 12:00:44'!
+!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 9/9/2024 20:59:02'!
 strokeGroupsAt: localPosition
 	| positionInWorld |
-	positionInWorld := self positionInWorld + localPosition.
+	positionInWorld := self externalizeToWorld: localPosition.
 	^ submorphs select: [:each |
 		(each is: #StrokeGroupMorph) 
 		and: [	each isCloserThan: self writingTool width toPixel: positionInWorld ]
