@@ -1,10 +1,21 @@
-'From Cuis7.1 [latest update: #6676] on 9 September 2024 at 9:20:29 pm'!
+'From Cuis7.1 [latest update: #6676] on 10 September 2024 at 9:10:34 pm'!
 'Description '!
-!provides: 'Document' 1 16!
+!provides: 'Document' 1 17!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
+SystemOrganization addCategory: #'Document-Presenter-Command'!
 
+
+!classDefinition: #CommandStack category: #'Document-Presenter-Command'!
+ReadWriteStream subclass: #CommandStack
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'CommandStack class' category: #'Document-Presenter-Command'!
+CommandStack class
+	instanceVariableNames: ''!
 
 !classDefinition: #Pen category: #'Document-Model'!
 Object subclass: #Pen
@@ -186,6 +197,26 @@ PenToolStateWriting subclass: #HighligtherToolStateWriting
 HighligtherToolStateWriting class
 	instanceVariableNames: ''!
 
+!classDefinition: #Command category: #'Document-Presenter-Command'!
+Object subclass: #Command
+	instanceVariableNames: 'domain'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'Command class' category: #'Document-Presenter-Command'!
+Command class
+	instanceVariableNames: ''!
+
+!classDefinition: #CommandManager category: #'Document-Presenter-Command'!
+Object subclass: #CommandManager
+	instanceVariableNames: 'stack domain'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'CommandManager class' category: #'Document-Presenter-Command'!
+CommandManager class
+	instanceVariableNames: ''!
+
 !classDefinition: #DocumentModel category: #'Document-Model'!
 ActiveModel subclass: #DocumentModel
 	instanceVariableNames: 'pages'
@@ -277,6 +308,9 @@ DocumentView class
 	instanceVariableNames: ''!
 
 
+!CommandStack commentStamp: '<historical>' prior: 0!
+I am stack of command to execute or to unexecute.!
+
 !Pen commentStamp: '<historical>' prior: 0!
 Depending on the use of the pen, we have different threshold
 - color : color of the pen, including transparent color
@@ -315,6 +349,9 @@ With the SelectTool the user selects and moves around object in a page.!
 !PageToolState commentStamp: '<historical>' prior: 0!
 I a represent an abstracte state of a tool selected by the user.
 The context is the tool (penTool, eraserTool, ...) under which the state operate.!
+
+!CommandManager commentStamp: '<historical>' prior: 0!
+A manager for user commands. At user actions, I create specific instances of command recorded in a stack.!
 
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
 A quadratic Bézier stroke!
@@ -362,6 +399,31 @@ A document view comes with:
 - at the right/left (should depends on user preference)  and at the bottom, wheels to move the page and zoom in/out
 - at the bottom, a status bar
 - at the center, the page cover all the remaining area!
+
+!CommandStack methodsFor: 'private' stamp: 'hlsf 9/10/2024 21:00:31'!
+truncate
+	|oldReadLimit|
+	oldReadLimit := readLimit.
+	readLimit := position.
+	oldReadLimit > readLimit ifTrue:
+			[readLimit to: oldReadLimit do:
+				[:index| collection at: index + 1 put: nil]]! !
+
+!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:20'!
+nextPut: aCommand
+	super nextPut: aCommand.
+	self truncate.
+	^ aCommand ! !
+
+!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:26'!
+previous
+	self position = 0 ifTrue: [^nil].
+	self position: self position - 1.
+	^self peek.! !
+
+!CommandStack class methodsFor: 'instance creation' stamp: 'hlsf 9/10/2024 21:01:01'!
+new
+	^self on: Array new! !
 
 !Pen methodsFor: 'accessing' stamp: 'hlsf 4/11/2023 09:04:47'!
 adjustWidth
@@ -995,6 +1057,34 @@ handleRelease: localPosition in: paper
 	paper endWritingAt: localPosition.
 	context switchState: HighligtherToolStateNeutral 
 	! !
+
+!Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:05:57'!
+execute
+	self subclassResponsibility ! !
+
+!Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:06:19'!
+unexecute
+	self subclassResponsibility ! !
+
+!Command methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:05:50'!
+domain: aDomain
+	domain := aDomain! !
+
+!Command methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:06:12'!
+release
+"Let my child do some clean up"! !
+
+!CommandManager methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:04:17'!
+domain: aDomain
+	domain := aDomain! !
+
+!CommandManager methodsFor: 'initialization' stamp: 'hlsf 9/10/2024 21:03:49'!
+initialize
+	stack := CommandStack new! !
+
+!CommandManager methodsFor: 'initialization' stamp: 'hlsf 9/10/2024 21:04:03'!
+release
+	stack contents do: [:c | c release].! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
