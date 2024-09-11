@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 10 September 2024 at 9:10:34 pm'!
+'From Cuis7.1 [latest update: #6676] on 11 September 2024 at 7:32:48 pm'!
 'Description '!
-!provides: 'Document' 1 17!
+!provides: 'Document' 1 18!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -69,7 +69,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'Document-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'tool view controlsManager pen highlighter eraser'
+	instanceVariableNames: 'tool view controlsManager pen highlighter eraser commandsManager'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -139,7 +139,7 @@ PageToolState class
 
 !classDefinition: #EraserToolStateErasing category: #'Document-Presenter'!
 PageToolState subclass: #EraserToolStateErasing
-	instanceVariableNames: ''
+	instanceVariableNames: 'deletedStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -207,9 +207,29 @@ Object subclass: #Command
 Command class
 	instanceVariableNames: ''!
 
+!classDefinition: #ErasingCommand category: #'Document-Presenter-Command'!
+Command subclass: #ErasingCommand
+	instanceVariableNames: 'strokes'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'ErasingCommand class' category: #'Document-Presenter-Command'!
+ErasingCommand class
+	instanceVariableNames: ''!
+
+!classDefinition: #WritingCommand category: #'Document-Presenter-Command'!
+Command subclass: #WritingCommand
+	instanceVariableNames: 'strokeGroup'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'WritingCommand class' category: #'Document-Presenter-Command'!
+WritingCommand class
+	instanceVariableNames: ''!
+
 !classDefinition: #CommandManager category: #'Document-Presenter-Command'!
 Object subclass: #CommandManager
-	instanceVariableNames: 'stack domain'
+	instanceVariableNames: 'stack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
@@ -309,7 +329,7 @@ DocumentView class
 
 
 !CommandStack commentStamp: '<historical>' prior: 0!
-I am stack of command to execute or to unexecute.!
+I am stack of command to execute or to unexecute user action in a Document!
 
 !Pen commentStamp: '<historical>' prior: 0!
 Depending on the use of the pen, we have different threshold
@@ -349,6 +369,10 @@ With the SelectTool the user selects and moves around object in a page.!
 !PageToolState commentStamp: '<historical>' prior: 0!
 I a represent an abstracte state of a tool selected by the user.
 The context is the tool (penTool, eraserTool, ...) under which the state operate.!
+
+!Command commentStamp: '<historical>' prior: 0!
+An abstract class to represent commands of user actions in a Document.
+domain is specific to the represented action, it can be a paper or a document.!
 
 !CommandManager commentStamp: '<historical>' prior: 0!
 A manager for user commands. At user actions, I create specific instances of command recorded in a stack.!
@@ -732,21 +756,27 @@ moveOYAction: increment
 penTool
 	self tool: PenTool ! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:31:19'!
-redoAction! !
+!Document methodsFor: 'callback ui' stamp: 'hlsf 9/11/2024 17:35:09'!
+redoAction
+	commandsManager redo! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:59'!
 selectTool
 	self tool: SelectTool ! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 8/31/2024 14:31:38'!
-undoAction! !
+!Document methodsFor: 'callback ui' stamp: 'hlsf 9/11/2024 17:35:16'!
+undoAction
+	commandsManager undo! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/9/2024 19:04:12'!
 zoomAction: increment	
 	self currentPage scale: (self currentPage scale + increment
 		min: 2 
 		max: 0.1)! !
+
+!Document methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:25:47'!
+commandsManager
+	^ commandsManager ! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 10:49:06'!
 controlsManager
@@ -795,11 +825,12 @@ tool: aToolClass
 	self controlsManager statusBarMessage: aToolClass description.
 	self changed! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 9/7/2024 11:44:05'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 9/11/2024 17:21:38'!
 initialize
 	super initialize.
 	self initializeWritingTools .
-	self penTool.! !
+	self penTool.
+	commandsManager := CommandManager new! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 16:16:15'!
 initializeWritingTools
@@ -827,6 +858,10 @@ controlsManager: aControlsManager
 !Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:42'!
 new
 	self error: 'Instanciate with a controls manager'! !
+
+!PageTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:36:26'!
+presenter
+	^ presenter! !
 
 !PageTool methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 11:04:16'!
 presenter: aPresenter
@@ -989,6 +1024,10 @@ iconName
 title
 	^ 'Select' translated! !
 
+!PageToolState methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:25:29'!
+commandsManager
+	^ context presenter commandsManager! !
+
 !PageToolState methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 15:04:07'!
 context: aTool
 	context := aTool! !
@@ -1020,6 +1059,11 @@ handleRelease: localPosition in: page
 	context deleteBitsMasks.
 	context switchState: EraserToolStateNeutral ! !
 
+!EraserToolStateErasing methodsFor: 'as yet unclassified' stamp: 'hlsf 9/11/2024 17:45:56'!
+initialize
+	super initialize.
+	deletedStrokes := OrderedCollection new.! !
+
 !EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 9/7/2024 12:06:18'!
 handlePress: localPosition in: paper
 	" Prepare to erase... "
@@ -1046,15 +1090,19 @@ handleMouseAt: localPosition in: paper
 	paper writingAt: localPosition
 	! !
 
-!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/5/2024 15:40:52'!
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/11/2024 17:43:50'!
 handleRelease: localPosition in: paper
-	paper endWritingAt: localPosition.
+	| finalStrokeGroup |
+	finalStrokeGroup := paper endWritingAt: localPosition.
+	self commandsManager strokeGroup: finalStrokeGroup in: paper.
 	context switchState: PenToolStateNeutral 
 	! !
 
-!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/7/2024 12:15:05'!
+!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/11/2024 17:43:50'!
 handleRelease: localPosition in: paper
-	paper endWritingAt: localPosition.
+	| finalStrokeGroup |
+	finalStrokeGroup := paper endWritingAt: localPosition.
+	self commandsManager strokeGroup: finalStrokeGroup in: paper.
 	context switchState: HighligtherToolStateNeutral 
 	! !
 
@@ -1074,17 +1122,48 @@ domain: aDomain
 release
 "Let my child do some clean up"! !
 
-!CommandManager methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:04:17'!
-domain: aDomain
-	domain := aDomain! !
+!WritingCommand methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:43:08'!
+strokeGroup: aStrokeGroup
+	strokeGroup := 	aStrokeGroup ! !
 
-!CommandManager methodsFor: 'initialization' stamp: 'hlsf 9/10/2024 21:03:49'!
+!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/11/2024 17:34:07'!
+execute
+	domain addMorph: strokeGroup ! !
+
+!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/11/2024 17:34:15'!
+unexecute
+	domain removeMorph: strokeGroup ! !
+
+!WritingCommand class methodsFor: 'instance creation' stamp: 'hlsf 9/11/2024 17:43:50'!
+strokeGroup: aStrokeGroup in: aPaper
+	^ self basicNew
+		domain: aPaper;
+		strokeGroup: aStrokeGroup;
+		initialize! !
+
+!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:03:49'!
 initialize
 	stack := CommandStack new! !
 
-!CommandManager methodsFor: 'initialization' stamp: 'hlsf 9/10/2024 21:04:03'!
+!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:04:03'!
 release
 	stack contents do: [:c | c release].! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:44'!
+redo
+	| command |
+	command := stack next.
+	command ifNotNil:	 [command execute]! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:43:50'!
+strokeGroup: aStrokeGroup in: aPage
+	stack nextPut: (WritingCommand strokeGroup: aStrokeGroup in: aPage)! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:56'!
+undo
+	| command |
+	command := stack previous.
+	command ifNotNil: [command unexecute]! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
@@ -1304,12 +1383,13 @@ addStroke: aStroke
 	self addMorph: aStroke.
 	aStroke visible: false! !
 
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/7/2024 12:02:24'!
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/11/2024 17:46:39'!
 removeStrokesAt: positionInWorld
 " Remove the strokes under this positionInWorld "
 	| toDelete |
 	toDelete := submorphs select: [:each | 		each isCloserThan: self writingTool width toPixel: positionInWorld].
-	self removeAllMorphsIn: toDelete! !
+	self removeAllMorphsIn: toDelete.
+	^ toDelete! !
 
 !StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 9/8/2024 16:35:02'!
 isCloserThan: distance toPixel: positionInWorld
@@ -1607,7 +1687,7 @@ strokeGroupsAt: localPosition
 		and: [	each isCloserThan: self writingTool width toPixel: positionInWorld ]
 	]! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/5/2024 18:01:58'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/11/2024 16:38:46'!
 endWritingAt: localPosition
 	samples at: sampleIndex put: localPosition.
 	sampleIndex := sampleIndex + 1.
@@ -1618,7 +1698,8 @@ endWritingAt: localPosition
 		redrawNeeded.
 	self resetSamplingTo: nil.
 	lastMousePosition := nil.
-	lineStrokes redrawNeeded 
+	lineStrokes redrawNeeded.
+	^ self lastStrokeGroup 
 ! !
 
 !PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/5/2024 17:29:38'!
