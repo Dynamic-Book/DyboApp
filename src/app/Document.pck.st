@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 11 September 2024 at 7:32:48 pm'!
+'From Cuis7.1 [latest update: #6676] on 11 September 2024 at 9:30:42 pm'!
 'Description '!
-!provides: 'Document' 1 18!
+!provides: 'Document' 1 19!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -209,7 +209,7 @@ Command class
 
 !classDefinition: #ErasingCommand category: #'Document-Presenter-Command'!
 Command subclass: #ErasingCommand
-	instanceVariableNames: 'strokes'
+	instanceVariableNames: 'deletedStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
@@ -369,6 +369,11 @@ With the SelectTool the user selects and moves around object in a page.!
 !PageToolState commentStamp: '<historical>' prior: 0!
 I a represent an abstracte state of a tool selected by the user.
 The context is the tool (penTool, eraserTool, ...) under which the state operate.!
+
+!EraserToolStateErasing commentStamp: 'hlsf 9/11/2024 21:16:43' prior: 0!
+We record the deleted strokes in a dictionary. 
+Its keys are the StrokeGroupMorphs and its values are collections of deleted strokes of the group.
+When all the strokes of a group are deleted, we just need to remember of the whole stroke group.!
 
 !Command commentStamp: '<historical>' prior: 0!
 An abstract class to represent commands of user actions in a Document.
@@ -1044,25 +1049,32 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/9/2024 20:58:03'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/11/2024 21:15:57'!
 handleMouseAt: localPosition in: paper
 	(paper strokeGroupsAt: localPosition ) do: [:each |
-		each removeStrokesAt: (each externalizeToWorld: localPosition).
-		each lastStroke ifNil: [paper removeMorph: each]
-		]
+		(deletedStrokes at: each ifAbsentPut: [OrderedCollection new])
+			addAll: (each removeStrokesAt: (each externalizeToWorld: localPosition)).
+		each lastStroke ifNil: [" the stroke group was entirely deleted "
+			paper removeMorph: each.
+			"Reconstitute the strokeGroup... "
+			each addAllMorphs: (deletedStrokes at: each).
+			"... then we don't need the individual strokes, we remember of the whole group "
+			deletedStrokes at: each put: each]
+	]
 		
 		! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/8/2024 19:04:44'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/11/2024 21:09:01'!
 handleRelease: localPosition in: page
 	page redrawNeeded.
 	context deleteBitsMasks.
+	deletedStrokes ifNotEmpty: [	self commandsManager deletedStrokes: deletedStrokes in: page].
 	context switchState: EraserToolStateNeutral ! !
 
-!EraserToolStateErasing methodsFor: 'as yet unclassified' stamp: 'hlsf 9/11/2024 17:45:56'!
+!EraserToolStateErasing methodsFor: 'as yet unclassified' stamp: 'hlsf 9/11/2024 20:48:01'!
 initialize
 	super initialize.
-	deletedStrokes := OrderedCollection new.! !
+	deletedStrokes := Dictionary new.! !
 
 !EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 9/7/2024 12:06:18'!
 handlePress: localPosition in: paper
@@ -1122,6 +1134,35 @@ domain: aDomain
 release
 "Let my child do some clean up"! !
 
+!ErasingCommand methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 21:02:30'!
+deletedStrokes: aDictionnary
+" Read EraserToolStateErasing>>handleMouseAt:in: "
+	deletedStrokes := aDictionnary ! !
+
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/11/2024 21:06:46'!
+execute
+	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
+		aCollection == aStrokeGroup 
+			ifTrue:  [domain removeMorph: aStrokeGroup ]
+			ifFalse: [ aStrokeGroup removeAllMorphsIn: aCollection ]
+		]! !
+
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/11/2024 21:06:06'!
+unexecute
+	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
+		aCollection == aStrokeGroup 
+			ifTrue:  [domain addMorph: aStrokeGroup ]
+			ifFalse: [ aStrokeGroup addAllMorphs: aCollection ]
+		]! !
+
+!ErasingCommand class methodsFor: 'instance creation' stamp: 'hlsf 9/11/2024 20:57:11'!
+deletedStrokes: aDictionayOfStroke in: aPage
+	^ self basicNew
+		domain: aPage;
+		deletedStrokes: aDictionayOfStroke ;
+		initialize
+		! !
+
 !WritingCommand methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:43:08'!
 strokeGroup: aStrokeGroup
 	strokeGroup := 	aStrokeGroup ! !
@@ -1148,6 +1189,11 @@ initialize
 !CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:04:03'!
 release
 	stack contents do: [:c | c release].! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 20:56:14'!
+deletedStrokes: aDictionayOfStroke in: aPage
+" Read EraserToolStateErasing>>handleMouseAt:in: "
+	stack nextPut: (ErasingCommand deletedStrokes: aDictionayOfStroke in: aPage)! !
 
 !CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:44'!
 redo
