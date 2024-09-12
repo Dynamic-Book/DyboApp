@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 8 September 2024 at 7:34:55 pm'!
+'From Cuis7.1 [latest update: #6709] on 12 September 2024 at 11:28:48 am'!
 'Description '!
-!provides: 'Dynabook' 1 64!
+!provides: 'Dynabook' 1 65!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1686,10 +1686,9 @@ zoomWheel
 		borderColor: Color black;
 		yourself! !
 
-!DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/7/2023 15:23:51'!
+!DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 9/12/2024 11:23:34'!
 spacer
-	^ BoxedMorph new 
-		borderWidth: 0;
+	^ ColoredBoxMorph new 
 		color: Color transparent; 
 		yourself! !
 

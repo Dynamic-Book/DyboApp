@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6676] on 11 September 2024 at 9:30:42 pm'!
+'From Cuis7.1 [latest update: #6709] on 12 September 2024 at 12:14:16 pm'!
 'Description '!
-!provides: 'Document' 1 19!
+!provides: 'Document' 1 21!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -287,18 +287,8 @@ PlacedMorph subclass: #StrokeGroupMorph
 StrokeGroupMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageContainer category: #'Document-View'!
-BoxedMorph subclass: #PageContainer
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'PageContainer class' category: #'Document-View'!
-PageContainer class
-	instanceVariableNames: ''!
-
 !classDefinition: #PageMorph category: #'Document-View'!
-BoxedMorph subclass: #PageMorph
+BoxMorph subclass: #PageMorph
 	instanceVariableNames: 'background paper presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -307,14 +297,24 @@ BoxedMorph subclass: #PageMorph
 PageMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #PaperMorph category: #'Document-View'!
-BoxedMorph subclass: #PaperMorph
-	instanceVariableNames: 'stroker samples sampleIndex lineStrokes lastMousePosition presenter'
+!classDefinition: #BackgroundMorph category: #'Document-View'!
+ColoredBoxMorph subclass: #BackgroundMorph
+	instanceVariableNames: 'style'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
-!classDefinition: 'PaperMorph class' category: #'Document-View'!
-PaperMorph class
+!classDefinition: 'BackgroundMorph class' category: #'Document-View'!
+BackgroundMorph class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageContainer category: #'Document-View'!
+ColoredBoxMorph subclass: #PageContainer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-View'!
+!classDefinition: 'PageContainer class' category: #'Document-View'!
+PageContainer class
 	instanceVariableNames: ''!
 
 !classDefinition: #DocumentView category: #'Document-View'!
@@ -325,6 +325,16 @@ LayoutMorph subclass: #DocumentView
 	category: 'Document-View'!
 !classDefinition: 'DocumentView class' category: #'Document-View'!
 DocumentView class
+	instanceVariableNames: ''!
+
+!classDefinition: #PaperMorph category: #'Document-View'!
+BoxedMorph subclass: #PaperMorph
+	instanceVariableNames: 'stroker samples sampleIndex lineStrokes lastMousePosition presenter'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-View'!
+!classDefinition: 'PaperMorph class' category: #'Document-View'!
+PaperMorph class
 	instanceVariableNames: ''!
 
 
@@ -400,15 +410,22 @@ I group the strokes (kind of BezierMorph) of a hand written stroke. A hand strok
 To avoid graphics artifacts at the junctions of the strokes, I draw directly the submorphs.
 In some circumstance, I reveal my submorphs and then I do not draw them directly.!
 
-!PageContainer commentStamp: '<historical>' prior: 0!
-I am a container for a Page, I expand on the DocumentView, then let the Page be moved and scaled in me.
-I also clip the page!
-
 !PageMorph commentStamp: '<historical>' prior: 0!
 The view of a Page. A page is a unit of a Document.
 I always contain these two morphs of the same extent as me:
  - a background morph
  - a paper morph!
+
+!PageContainer commentStamp: '<historical>' prior: 0!
+I am a container for a Page, I expand on the DocumentView, then let the Page be moved and scaled in me.
+I also clip the page!
+
+!DocumentView commentStamp: '<historical>' prior: 0!
+A document view comes with:
+- at the top, a toolbar to access a few set of tools (see #documentTools)
+- at the right/left (should depends on user preference)  and at the bottom, wheels to move the page and zoom in/out
+- at the bottom, a status bar
+- at the center, the page cover all the remaining area!
 
 !PaperMorph commentStamp: '<historical>' prior: 0!
 - stroker:  an object to compute a stroke
@@ -421,13 +438,6 @@ I always contain these two morphs of the same extent as me:
 (PaperMorph new stroker: StrokerBezier3 ) openInWorld. "Cubic Bézier"
 (PaperMorph new stroker: StrokerBezier3XP ) openInWorld. "Cubic Bézier, expend out the control point"
 !
-
-!DocumentView commentStamp: '<historical>' prior: 0!
-A document view comes with:
-- at the top, a toolbar to access a few set of tools (see #documentTools)
-- at the right/left (should depends on user preference)  and at the bottom, wheels to move the page and zoom in/out
-- at the bottom, a status bar
-- at the center, the page cover all the remaining area!
 
 !CommandStack methodsFor: 'private' stamp: 'hlsf 9/10/2024 21:00:31'!
 truncate
@@ -1447,13 +1457,69 @@ isCloserThan: distance toPixel: positionInWorld
 deleteBitMasks
 	submorphs do: [:each| each removeProperty: #bitMask]! !
 
-!PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/8/2024 18:41:55'!
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 9/12/2024 12:03:06'!
+morphExtent: anExtent
+	super morphExtent: anExtent.
+	background ifNotNil: [background morphExtent: anExtent ].
+	paper morphExtent: anExtent ! !
+
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 16:13:35'!
+paper
+	^ paper ! !
+
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 16:00:16'!
+presenter: documentPresenter
+	presenter := documentPresenter ! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/12/2024 12:08:01'!
+initialize
+	super initialize.
+	background := BackgroundMorph new.
+	paper := PaperMorph newOn: presenter.
+	paper stroker: StrokerBezier2XP.
+	self addMorphBack: background position: 0@0;
+		addMorphFront: paper position: 0@0.
+	self morphExtent: (16@9) * 50! !
+
+!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/5/2024 10:19:33'!
 clipsSubmorphs
 	^ true! !
 
-!PageContainer methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:23:10'!
-defaultBorderWidth
-	^ 0! !
+!PageMorph methodsFor: 'drawing' stamp: 'hlsf 9/12/2024 11:20:55'!
+drawOn: canvas
+! !
+
+!PageMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 15:59:56'!
+newOn: documentPresenter
+	^ self basicNew
+		presenter: documentPresenter ;
+		initialize;
+		yourself! !
+
+!BackgroundMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/12/2024 12:04:49'!
+defaultColor
+	^ Color white! !
+
+!BackgroundMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/12/2024 12:13:28'!
+drawOn: canvas 
+	| y  step |
+	super drawOn: canvas.
+	step := 50.
+	y := step.
+	canvas strokeWidth: (0.8 / owner scale min: 0.8) color: `Color lightGray` do: [
+		[ y < extent y ] whileTrue: [
+			canvas moveTo: 0 @ y;
+				lineTo: extent x @ y.
+			y := y + step 			]		
+		]! !
+
+!BackgroundMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/12/2024 12:10:57'!
+requiresVectorCanvas
+	^ true! !
+
+!PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/8/2024 18:41:55'!
+clipsSubmorphs
+	^ true! !
 
 !PageContainer methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:25:58'!
 defaultColor
@@ -1464,53 +1530,64 @@ for: aPage
 	^ self new
 		addMorphFront: aPage position: 0@0! !
 
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 9/8/2024 18:36:20'!
-morphExtent: anExtent
-	super morphExtent: anExtent.
-	background ifNotNil: [background morphExtent: anExtent - ( 2 * borderWidth) ].
-	paper morphExtent: anExtent  - (2 * borderWidth)! !
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/4/2024 21:49:51'!
+currentPage
+	^ page! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 16:13:35'!
-paper
-	^ paper ! !
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:34:28'!
+presenter
+	^ presenter ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 16:00:16'!
-presenter: documentPresenter
-	presenter := documentPresenter ! !
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/2/2024 21:23:41'!
+presenter: aPresenter
+	presenter := aPresenter ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:40:11'!
-defaultBorderColor
-	^ `Color black`! !
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 15:09:59'!
+tool
+	^ presenter tool! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:40:48'!
-defaultBorderWidth
-	^ 1! !
-
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 10:07:35'!
-defaultColor
-	^ `Color transparent`! !
-
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:35:43'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 16:02:58'!
 initialize
 	super initialize.
-	background := BoxedMorph new 
-		color: Color white;
-		borderWidth: 0.
-	paper := PaperMorph newOn: presenter.
-	paper stroker: StrokerBezier2XP.
-	self addMorphBack: background position: borderWidth asPoint;
-		addMorphFront: paper position: borderWidth asPoint.
-	self morphExtent: (16@9) * 50! !
+	self beColumn.
+	page := PageMorph newOn: presenter! !
 
-!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/5/2024 10:19:33'!
-clipsSubmorphs
-	^ true! !
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:14'!
+adoptWidgetsColor: aColor 
+	super adoptWidgetsColor: aColor.
+	color := Theme current paneBackgroundFrom: aColor.! !
 
-!PageMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 15:59:56'!
-newOn: documentPresenter
-	^ self basicNew
-		presenter: documentPresenter ;
-		initialize;
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:25'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:31'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DocumentView methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:36:19'!
+mouseButton1Down: event localPosition: localPosition
+	self tool handlePress: localPosition in: self currentPage ! !
+
+!DocumentView methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:11:08'!
+mouseButton1Up: event localPosition: localPosition
+	self tool handleRelease: localPosition in: self currentPage ! !
+
+!DocumentView methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:36:08'!
+mouseMove: event localPosition: localPosition
+	event mouseButton1Pressed not ifTrue: [		^ self ].
+	self tool handleMouseAt: localPosition in: self currentPage ! !
+
+!DocumentView methodsFor: 'event handling testing' stamp: 'hlsf 9/5/2024 15:35:04'!
+handlesMouseDown: evnt
+" We handle event at this level only with the Select tool "
+	^ presenter isTool: #select! !
+
+!DocumentView class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 16:02:50'!
+presenter: aPresenter
+	^ self basicNew 
+		presenter: aPresenter;
+		initialize ;
 		yourself! !
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 8/18/2024 16:43:08'!
@@ -1780,66 +1857,6 @@ writingAt: localPosition
 newOn: documentPresenter
 	^ self new
 		presenter: documentPresenter;
-		yourself! !
-
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/4/2024 21:49:51'!
-currentPage
-	^ page! !
-
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:34:28'!
-presenter
-	^ presenter ! !
-
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/2/2024 21:23:41'!
-presenter: aPresenter
-	presenter := aPresenter ! !
-
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 15:09:59'!
-tool
-	^ presenter tool! !
-
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 16:02:58'!
-initialize
-	super initialize.
-	self beColumn.
-	page := PageMorph newOn: presenter! !
-
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:14'!
-adoptWidgetsColor: aColor 
-	super adoptWidgetsColor: aColor.
-	color := Theme current paneBackgroundFrom: aColor.! !
-
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:25'!
-defaultBorderColor
-	^ Theme current transcript! !
-
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:31'!
-defaultColor
-	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
-
-!DocumentView methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:36:19'!
-mouseButton1Down: event localPosition: localPosition
-	self tool handlePress: localPosition in: self currentPage ! !
-
-!DocumentView methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:11:08'!
-mouseButton1Up: event localPosition: localPosition
-	self tool handleRelease: localPosition in: self currentPage ! !
-
-!DocumentView methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:36:08'!
-mouseMove: event localPosition: localPosition
-	event mouseButton1Pressed not ifTrue: [		^ self ].
-	self tool handleMouseAt: localPosition in: self currentPage ! !
-
-!DocumentView methodsFor: 'event handling testing' stamp: 'hlsf 9/5/2024 15:35:04'!
-handlesMouseDown: evnt
-" We handle event at this level only with the Select tool "
-	^ presenter isTool: #select! !
-
-!DocumentView class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 16:02:50'!
-presenter: aPresenter
-	^ self basicNew 
-		presenter: aPresenter;
-		initialize ;
 		yourself! !
 
 !Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:22:27'!
