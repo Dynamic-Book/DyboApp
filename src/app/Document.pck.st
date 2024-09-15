@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6709] on 12 September 2024 at 12:14:16 pm'!
+'From Cuis7.1 [latest update: #6719] on 15 September 2024 at 10:33:30 pm'!
 'Description '!
-!provides: 'Document' 1 21!
+!provides: 'Document' 1 22!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -352,8 +352,9 @@ Depending on the use of the pen, we have different threshold
 Given samples of mouse positions and previous strokes, I compute a new Bézier quadratic stroke . 
 I can be subclassed to adjust my behavior.!
 
-!StrokerBezier2XP commentStamp: '<historical>' prior: 0!
-Experiment on 2-Bezier!
+!StrokerBezier2XP commentStamp: 'hlsf 9/15/2024 17:06:16' prior: 0!
+Experiment on 2-Bezier. 
+We migrate a bit the control point a bit away from its sampled position.!
 
 !StrokerBezier3 commentStamp: '<historical>' prior: 0!
 Compute a cubic Bézier curve.!
@@ -625,13 +626,13 @@ on: aPaperMorph
 		paper: aPaperMorph ;
 		yourself! !
 
-!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 8/18/2024 22:14:51'!
+!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 9/15/2024 17:54:35'!
 newStroke
 	| newStroke lastStroke junctionPoint samples migratedControl middle c1 |
 	samples := self samples.
 	lastStroke := paper lastStroke.
 	middle := (samples first + samples last) / 2.0.
-	migratedControl := middle + (1.0 * (samples second - middle)).
+	migratedControl := middle + (1.2 * (samples second - middle)). "1.2 seems to be a good scaling"
 	newStroke := Bezier2Morph new
 		start: samples first
 		end: samples last
@@ -642,6 +643,11 @@ newStroke
 		
 	(lastStroke notNil 
 	and: [lastStroke end == newStroke start
+"
+	Not all the situations are catched!! Indeed when the stroke abrubtly changes of direction intra a bezier curve, 
+	(at the control point) we are not paying attention. This below only checks between two bezier curves.
+	We need a different traitment for that kind of situation
+"
 	and: [c1 := self isLocalC1at: newStroke start between: lastStroke control1 and: newStroke control1]	 		] ) 
 		ifTrue: [				
 			junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
@@ -652,17 +658,19 @@ newStroke
 	
 	! !
 
-!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 8/18/2024 22:09:21'!
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 9/15/2024 17:51:35'!
 isLocalC1at: m between: c1 and: c2
 "
 	We check if local C1 continuity is desirable ? 
 	When the stroke is abruptly changing of direction, C1 is not wished, 
-	otherwise the user stroke will be truncated (i.e. n, m letter strokes for example)
+	otherwise the user stroke will be truncated (i.e. n, m letter strokes for example)	
 "
-	| u v |
+	| u v cos |
 	u := c1 - m.
 	v := c2 - m.
-	^ ( (u dotProduct: v) / (u r * v r) 
+	cos := (u dotProduct: v) / (u r * v r) .
+	cos arcCos radiansToDegrees print.
+	^ (cos
 		between: `90 degreesToRadians cos` 
 		and: `0 cos`) not! !
 
