@@ -1,12 +1,12 @@
-'From Cuis7.1 [latest update: #6709] on 12 September 2024 at 11:28:48 am'!
+'From Cuis7.1 [latest update: #6719] on 17 September 2024 at 6:19:07 pm'!
 'Description '!
-!provides: 'Dynabook' 1 65!
+!provides: 'Dynabook' 1 66!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
+!requires: 'UI-Graphic-Import' 1 0 nil!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
-!requires: 'IconsManager' 1 0 nil!
 !requires: 'Document' 1 5 nil!
 SystemOrganization addCategory: #'Dynabook-Model'!
 SystemOrganization addCategory: #'Dynabook-Model-Knowledge'!
@@ -1502,9 +1502,9 @@ undoButtonData
 	#undoAction . 
 	'Undo your last action' translated  }! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 8/29/2024 11:36:40'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 9/17/2024 18:07:57'!
 initialize
-	icons := IconsManager path: DySystem iconsPath ! !
+	icons := IconImporter path: DySystem iconsPath ! !
 
 !DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/8/2024 18:24:46'!
 buildDocumentView
@@ -1621,7 +1621,7 @@ horizontalWheel
 		borderColor: Color black;
 		yourself! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/5/2024 11:08:08'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/17/2024 18:08:45'!
 on: aPresenter button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
@@ -1634,7 +1634,7 @@ on: aPresenter button: symbol state: stateGetter size: size
 		stateGetter: stateGetter
 		action: array third ::
 		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
-		icon: (icons get: array second size: size);
+		icon: (icons getForm: array second ofSize: size);
 		setBalloonText: array fourth;
 		color: dynabookView defaultColor ;
 		selectedColor: dynabookView buttonColor ;
