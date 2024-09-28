@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6727] on 18 September 2024 at 8:34:54 pm'!
+'From Cuis7.1 [latest update: #6749] on 28 September 2024 at 3:44:06 pm'!
 'Description '!
-!provides: 'Document' 1 23!
+!provides: 'Document' 1 25!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -307,6 +307,16 @@ BoxMorph subclass: #PaperMorph
 PaperMorph class
 	instanceVariableNames: ''!
 
+!classDefinition: #AnnotatorMorph category: #'Document-View'!
+PaperMorph subclass: #AnnotatorMorph
+	instanceVariableNames: 'annotedMorph'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-View'!
+!classDefinition: 'AnnotatorMorph class' category: #'Document-View'!
+AnnotatorMorph class
+	instanceVariableNames: ''!
+
 !classDefinition: #BackgroundMorph category: #'Document-View'!
 ColoredBoxMorph subclass: #BackgroundMorph
 	instanceVariableNames: 'style'
@@ -415,7 +425,8 @@ In some circumstance, I reveal my submorphs and then I do not draw them directly
 The view of a Page. A page is a unit of a Document.
 I always contain these two morphs of the same extent as me:
  - a background morph
- - a paper morph!
+ - a paper morph
+ - a collection of annotator morph!
 
 !PaperMorph commentStamp: '<historical>' prior: 0!
 - stroker:  an object to compute a stroke
@@ -428,6 +439,11 @@ I always contain these two morphs of the same extent as me:
 (PaperMorph new stroker: StrokerBezier3 ) openInWorld. "Cubic Bézier"
 (PaperMorph new stroker: StrokerBezier3XP ) openInWorld. "Cubic Bézier, expend out the control point"
 !
+
+!AnnotatorMorph commentStamp: '<historical>' prior: 0!
+My goal is to annotate with handwriting a placed morph (annotatedMorph). 
+My extent is adjusted to cover my annotated object and also the user handwriting. 
+My extent expands to enclosed new handwritings. It shrinks when handwritings are deleted.!
 
 !PageContainer commentStamp: '<historical>' prior: 0!
 I am a container for a Page, I expand on the DocumentView, then let the Page be moved and scaled in me.
@@ -613,12 +629,12 @@ isLocalC1at: m between: c1 and: c2
 "
 	^ true! !
 
-!StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 8/18/2024 15:30:01'!
+!StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 9/26/2024 09:47:26'!
 isSamplesValid
 " 
 Do we consider valid the current samples, Subclasses may implement differently to discard
 "
-	^ (self samples first squaredDistanceTo: self samples second) > paper pen threshold! !
+	^ (self samples first squaredDistanceTo: self samples second) > paper writingTool threshold! !
 
 !StrokerBezier2 class methodsFor: 'instance creation' stamp: 'hlsf 4/1/2023 14:29:08'!
 on: aPaperMorph
@@ -626,7 +642,7 @@ on: aPaperMorph
 		paper: aPaperMorph ;
 		yourself! !
 
-!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 9/15/2024 17:54:35'!
+!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 9/26/2024 10:08:27'!
 newStroke
 	| newStroke lastStroke junctionPoint samples migratedControl middle c1 |
 	samples := self samples.
@@ -636,7 +652,7 @@ newStroke
 	newStroke := Bezier2Morph new
 		start: samples first
 		end: samples last
-		control1: migratedControl ;
+		control1: migratedControl " samples second";
 		color: self penColor; 
 		width: (self widthFor: samples prev: lastStroke);
 		yourself.
@@ -658,7 +674,7 @@ newStroke
 	
 	! !
 
-!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 9/15/2024 17:51:35'!
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 9/26/2024 09:55:53'!
 isLocalC1at: m between: c1 and: c2
 "
 	We check if local C1 continuity is desirable ? 
@@ -669,12 +685,12 @@ isLocalC1at: m between: c1 and: c2
 	u := c1 - m.
 	v := c2 - m.
 	cos := (u dotProduct: v) / (u r * v r) .
-	cos arcCos radiansToDegrees print.
+	"cos arcCos radiansToDegrees print."
 	^ (cos
 		between: `90 degreesToRadians cos` 
 		and: `0 cos`) not! !
 
-!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 9/7/2024 12:03:03'!
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 9/26/2024 10:11:05'!
 isSamplesValid
 " 
 Do we consider valid the current samples, reason to discard :
@@ -686,9 +702,9 @@ Do we consider valid the current samples, reason to discard :
 	a := self samples second - self samples first.
 	b := self samples third - self samples first.
 	" Angle between M1C, M1M2 - C: control point "
-	ans := (a crossProduct: b) abs / (a r * b r)  > `10 degreesToRadians sin` .
+	ans := (a crossProduct: b) abs / (a r * b r)  > `2 degreesToRadians sin` .
 	^ ans
-		or:  [	(self samples first squaredDistanceTo: self samples second) > paper writingTool threshold]
+		and:  [	(self samples first squaredDistanceTo: self samples second) > paper writingTool threshold]
 
 	! !
 
@@ -1471,6 +1487,10 @@ morphExtent: anExtent
 	background ifNotNil: [background morphExtent: anExtent ].
 	paper morphExtent: anExtent ! !
 
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/26/2024 11:35:01'!
+annotators
+	^submorphs select: [:morph | morph is: #AnnotatorMorph]! !
+
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 16:13:35'!
 paper
 	^ paper ! !
@@ -1479,7 +1499,7 @@ paper
 presenter: documentPresenter
 	presenter := documentPresenter ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/12/2024 12:08:01'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/28/2024 14:18:26'!
 initialize
 	super initialize.
 	background := BackgroundMorph new.
@@ -1487,7 +1507,10 @@ initialize
 	paper stroker: StrokerBezier2XP.
 	self addMorphBack: background position: 0@0;
 		addMorphFront: paper position: 0@0.
-	self morphExtent: (16@9) * 50! !
+	self morphExtent: (16@9) * 50.
+	self 
+		addMorphFront: (AnnotatorMorph newOn: presenter annotate: Sample09Clock new) 
+		position: self morphExtent // 2.! !
 
 !PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/5/2024 10:19:33'!
 clipsSubmorphs
@@ -1496,6 +1519,10 @@ clipsSubmorphs
 !PageMorph methodsFor: 'drawing' stamp: 'hlsf 9/12/2024 11:20:55'!
 drawOn: canvas
 ! !
+
+!PageMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 10:25:19'!
+is: aSymbol
+	^ aSymbol == #PageMorph or: [super is: aSymbol ]! !
 
 !PageMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 15:59:56'!
 newOn: documentPresenter
@@ -1591,11 +1618,16 @@ mouseMove2: event localPosition: endPosition
 requiresVectorCanvas
 	^ true! !
 
-!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 9/7/2024 11:38:08'!
+!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 9/28/2024 14:15:50'!
 initialize
 	super initialize.
+	self stroker: StrokerBezier2XP.
 	self 
 		addMorph: (lineStrokes := LineStrokeMorph new)! !
+
+!PaperMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 10:42:28'!
+is: aSymbol
+	^ aSymbol == #PaperMorph or: [super is: aSymbol ]! !
 
 !PaperMorph methodsFor: 'testing' stamp: 'hlsf 3/27/2023 21:48:57'!
 showControls
@@ -1762,10 +1794,45 @@ writingAt: localPosition
 !PaperMorph methodsFor: 'drawing' stamp: 'hlsf 9/18/2024 20:33:48'!
 drawOn: aCanvas! !
 
-!PaperMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 15:58:40'!
+!PaperMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 15:58:40'!
 newOn: documentPresenter
 	^ self new
 		presenter: documentPresenter;
+		yourself! !
+
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 23:58:22'!
+canResizeAnnoted
+" can the the annotated morph be resized ? only kind of BoxMorph can"
+	^ annotedMorph is: #BoxMorph! !
+
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 11:15:37'!
+is: aSymbol
+	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
+
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/28/2024 15:16:17'!
+annotate: aPlacedMorph
+| annotedExtent |
+	annotedMorph ifNotNil: [self removeMorph: annotedMorph].
+	annotedMorph := aPlacedMorph.
+	annotedExtent := annotedMorph displayBounds 
+		ifNil:[	annotedMorph bitMask extent]
+		ifNotNil: [annotedMorph displayBounds extent].		
+	annotedMorph removeProperty: #bitMask.
+	annotedExtent print.
+	self morphExtent: annotedExtent + 20.
+	self addMorph: aPlacedMorph position: (self morphExtent // 2)
+	! !
+
+!AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/26/2024 11:33:10'!
+newOn: aPresenter
+	self error: 'Use #newOn:annotate:'! !
+
+!AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/28/2024 14:24:16'!
+newOn: documentPresenter annotate: aPlacedMorph
+	aPlacedMorph isPlacedMorph ifFalse: [self error: 'Only kind of PlacedMoprh can be annotated'].
+	^ self new
+		presenter: documentPresenter;
+		annotate: aPlacedMorph;
 		yourself! !
 
 !BackgroundMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/12/2024 12:04:49'!
