@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6749] on 29 September 2024 at 6:21:28 pm'!
+'From Cuis7.1 [latest update: #6749] on 29 September 2024 at 10:54:48 pm'!
 'Description '!
-!provides: 'Document' 1 27!
+!provides: 'Document' 1 28!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1017,9 +1017,10 @@ presenter: aPresenter
 deleteBitsMasks
 	presenter deleteBitMasks ! !
 
-!EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 15:14:24'!
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/29/2024 22:25:15'!
 initialize
 	super initialize.
+	self deleteBitsMasks. "Need by annotated morph"
 	self switchState: EraserToolStateNeutral ! !
 
 !EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 19:04:26'!
@@ -1127,9 +1128,9 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/11/2024 21:15:57'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/29/2024 21:46:24'!
 handleMouseAt: localPosition in: paper
-	(paper strokeGroupsAt: localPosition ) do: [:each |
+	(paper strokeGroupsAt: localPosition ) do: [:each | 
 		(deletedStrokes at: each ifAbsentPut: [OrderedCollection new])
 			addAll: (each removeStrokesAt: (each externalizeToWorld: localPosition)).
 		each lastStroke ifNil: [" the stroke group was entirely deleted "
@@ -1142,11 +1143,13 @@ handleMouseAt: localPosition in: paper
 		
 		! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/29/2024 18:10:18'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/29/2024 22:54:11'!
 handleRelease: localPosition in: paper
 	paper redrawNeeded.
 	context deleteBitsMasks.
 	deletedStrokes ifNotEmpty: [	
+		 (deletedStrokes values first isCollection 
+			and: [deletedStrokes values first isEmpty]) ifTrue: [self halt: 'Should have strokes but is empty'].
 		self commandsManager deletedStrokes: deletedStrokes in: paper ].
 	context switchState: EraserToolStateNeutral ! !
 
@@ -1188,11 +1191,10 @@ handleRelease: localPosition in: paper
 	context switchState: PenToolStateNeutral 
 	! !
 
-!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/29/2024 15:56:17'!
+!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/29/2024 22:20:22'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
-	paper adjustBounds.
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
 	context switchState: HighligtherToolStateNeutral 
 	! !
@@ -1251,10 +1253,10 @@ execute
 	super execute.
 	domain adjustBounds ! !
 
-!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 18:13:23'!
+!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 22:33:02'!
 unexecute
 	domain adjustBoundsTo: bounds.
-	super unexecute ! !
+	super unexecute! !
 
 !WritingCommand methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:43:08'!
 strokeGroup: aStrokeGroup
@@ -1280,18 +1282,18 @@ execute
 	domain adjustBoundsTo: bounds.
 	super execute! !
 
-!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 18:16:28'!
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 22:32:48'!
 initialize
 	super initialize.
 	domain adjustBounds.
 	bounds := domain fullBoundsInOwner.
 ! !
 
-!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 16:21:25'!
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 22:32:40'!
 unexecute
 	bounds := domain fullBoundsInOwner.
 	super unexecute.
-	domain adjustBounds ! !
+	domain adjustBounds! !
 
 !CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:03:49'!
 initialize
@@ -1548,21 +1550,22 @@ addStroke: aStroke
 	self addMorph: aStroke.
 	aStroke visible: false! !
 
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/11/2024 17:46:39'!
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/29/2024 22:10:07'!
 removeStrokesAt: positionInWorld
 " Remove the strokes under this positionInWorld "
 	| toDelete |
+"	self halt."
 	toDelete := submorphs select: [:each | 		each isCloserThan: self writingTool width toPixel: positionInWorld].
 	self removeAllMorphsIn: toDelete.
 	^ toDelete! !
 
-!StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 9/8/2024 16:35:02'!
+!StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 9/29/2024 22:22:48'!
 isCloserThan: distance toPixel: positionInWorld
 	^ submorphs anySatisfy: [:each | 
 		each bitMask.
-		each isCloserThan: distance toPixel: positionInWorld ]! !
+		each isCloserThan: distance toPixel: positionInWorld]! !
 
-!StrokeGroupMorph methodsFor: 'cleanup' stamp: 'hlsf 9/8/2024 19:03:55'!
+!StrokeGroupMorph methodsFor: 'clean up' stamp: 'hlsf 9/8/2024 19:03:55'!
 deleteBitMasks
 	submorphs do: [:each| each removeProperty: #bitMask]! !
 
@@ -1926,14 +1929,16 @@ adjustBounds
 	self adjustBoundsTo: (self externalizeBoundingRectOf: (self topLeftCorner corner: self bottomRightCorner))
 	! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 16:40:47'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 22:39:38'!
 adjustBoundsTo: newBoundsInOwner
 " adjust my bounds and translate my submoprhs accordingly
  " 
 	| translate |
 	translate := newBoundsInOwner origin - self fullBoundsInOwner origin.
 	self fitInto: newBoundsInOwner .
-	self submorphsDo: [:each | 		each morphPosition: each morphPosition - translate 		]! !
+	self submorphsDo: [:each | 
+				(each is: #StrokeGroupMorph) ifTrue: [each deleteBitMasks].
+				each morphPosition: each morphPosition - translate 		]! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 16:22:50'!
 bottomRightCorner
