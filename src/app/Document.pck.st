@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6749] on 28 September 2024 at 3:44:06 pm'!
+'From Cuis7.1 [latest update: #6749] on 29 September 2024 at 6:21:28 pm'!
 'Description '!
-!provides: 'Document' 1 25!
+!provides: 'Document' 1 27!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -217,6 +217,16 @@ Command subclass: #ErasingCommand
 ErasingCommand class
 	instanceVariableNames: ''!
 
+!classDefinition: #ErasingAnnotatorCommand category: #'Document-Presenter-Command'!
+ErasingCommand subclass: #ErasingAnnotatorCommand
+	instanceVariableNames: 'bounds'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'ErasingAnnotatorCommand class' category: #'Document-Presenter-Command'!
+ErasingAnnotatorCommand class
+	instanceVariableNames: ''!
+
 !classDefinition: #WritingCommand category: #'Document-Presenter-Command'!
 Command subclass: #WritingCommand
 	instanceVariableNames: 'strokeGroup'
@@ -225,6 +235,16 @@ Command subclass: #WritingCommand
 	category: 'Document-Presenter-Command'!
 !classDefinition: 'WritingCommand class' category: #'Document-Presenter-Command'!
 WritingCommand class
+	instanceVariableNames: ''!
+
+!classDefinition: #WritingAnnotatorCommand category: #'Document-Presenter-Command'!
+WritingCommand subclass: #WritingAnnotatorCommand
+	instanceVariableNames: 'bounds'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'WritingAnnotatorCommand class' category: #'Document-Presenter-Command'!
+WritingAnnotatorCommand class
 	instanceVariableNames: ''!
 
 !classDefinition: #CommandManager category: #'Document-Presenter-Command'!
@@ -376,7 +396,8 @@ The Presenter of the Document to handle the controllers and associated callbacks
 An abstraction of a tool to operate on a Page. Subclasses implement Pen, Eraser, etc. tools.!
 
 !EraserTool commentStamp: '<historical>' prior: 0!
-With the EraserTool the users deletes handwriten notes, highlit zones.!
+With the EraserTool the users deletes handwriten notes, highlit zones.
+- bounds: when erasing on a AnnotatorMoprh, we need to know about its former bounds prior to erasing!
 
 !HighlighterTool commentStamp: '<historical>' prior: 0!
 With the HighlghterTool the user empahsis handwriten notes or any other misc areas.!
@@ -399,6 +420,29 @@ When all the strokes of a group are deleted, we just need to remember of the who
 !Command commentStamp: '<historical>' prior: 0!
 An abstract class to represent commands of user actions in a Document.
 domain is specific to the represented action, it can be a paper or a document.!
+
+!ErasingCommand commentStamp: 'hlsf 9/29/2024 17:26:42' prior: 0!
+The command record action between eraser down - eraser up event
+- domain is a paper morph instance where the erasing occured
+- deletedStrokes : a dictionany of deleted strokes (value) per stroke group (key). Those strokes can, and very likely, belong to several different stroke groupe!
+
+!ErasingAnnotatorCommand commentStamp: '<historical>' prior: 0!
+A command to record erasing on an AnnotatorMorph
+- domain: an annotator morph
+- bounds: the bounds of the annotator morph prior to the erasing. 
+The bounds once erasing is restored can be computed once the stroke group is added back to the domain (annotator morph)!
+
+!WritingCommand commentStamp: '<historical>' prior: 0!
+The command record action between pen down - pen up event
+- domain is a paper morph instance where the writing occured
+- strokeGroup : the group of strokes that was just writen
+!
+
+!WritingAnnotatorCommand commentStamp: 'hlsf 9/29/2024 18:16:46' prior: 0!
+A command to record writings on an AnnotatorMorph
+- domain: an annotator morph
+- bounds: the bounds of the annotator morph once writting was done and bounds adjusted. 
+The bounds prior writing can be computed once the stroke group is removed from the domain (annotator morph)!
 
 !CommandManager commentStamp: '<historical>' prior: 0!
 A manager for user commands. At user actions, I create specific instances of command recorded in a stack.!
@@ -782,12 +826,12 @@ moveOXAction: increment
 		min: container morphExtent 
 		max: page morphExtent negated)! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/8/2024 19:09:47'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 9/29/2024 17:34:59'!
 moveOYAction: increment
 	| page container |
 	page := self currentPage.
 	container := page owner.
-	page morphPosition: (page morphPosition + (0@increment) 
+	page morphPosition: (page morphPosition - (0@increment) 
 		min: container morphExtent 
 		max: page morphExtent negated)! !
 
@@ -807,9 +851,9 @@ selectTool
 undoAction
 	commandsManager undo! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/9/2024 19:04:12'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 9/29/2024 17:35:40'!
 zoomAction: increment	
-	self currentPage scale: (self currentPage scale + increment
+	self currentPage scale: (self currentPage scale - increment
 		min: 2 
 		max: 0.1)! !
 
@@ -1098,24 +1142,24 @@ handleMouseAt: localPosition in: paper
 		
 		! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/11/2024 21:09:01'!
-handleRelease: localPosition in: page
-	page redrawNeeded.
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/29/2024 18:10:18'!
+handleRelease: localPosition in: paper
+	paper redrawNeeded.
 	context deleteBitsMasks.
-	deletedStrokes ifNotEmpty: [	self commandsManager deletedStrokes: deletedStrokes in: page].
+	deletedStrokes ifNotEmpty: [	
+		self commandsManager deletedStrokes: deletedStrokes in: paper ].
 	context switchState: EraserToolStateNeutral ! !
 
-!EraserToolStateErasing methodsFor: 'as yet unclassified' stamp: 'hlsf 9/11/2024 20:48:01'!
+!EraserToolStateErasing methodsFor: 'initialization' stamp: 'hlsf 9/11/2024 20:48:01'!
 initialize
 	super initialize.
 	deletedStrokes := Dictionary new.! !
 
-!EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 9/7/2024 12:06:18'!
+!EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 9/29/2024 18:17:43'!
 handlePress: localPosition in: paper
-	" Prepare to erase... "
-	context switchState: EraserToolStateErasing.
-	"...then "
-	context handleMouseAt: localPosition in: paper! !
+	context 
+		switchState: EraserToolStateErasing; 	" Prepare to erase... "
+		handleMouseAt: localPosition in: paper "...then start erasing "! !
 
 !HighligtherToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 9/7/2024 12:13:40'!
 handlePress: localPosition in: paper
@@ -1136,7 +1180,7 @@ handleMouseAt: localPosition in: paper
 	paper writingAt: localPosition
 	! !
 
-!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/11/2024 17:43:50'!
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/29/2024 18:17:04'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
@@ -1144,10 +1188,11 @@ handleRelease: localPosition in: paper
 	context switchState: PenToolStateNeutral 
 	! !
 
-!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/11/2024 17:43:50'!
+!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/29/2024 15:56:17'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
+	paper adjustBounds.
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
 	context switchState: HighligtherToolStateNeutral 
 	! !
@@ -1173,21 +1218,19 @@ deletedStrokes: aDictionnary
 " Read EraserToolStateErasing>>handleMouseAt:in: "
 	deletedStrokes := aDictionnary ! !
 
-!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/11/2024 21:06:46'!
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 17:23:49'!
 execute
 	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
 		aCollection == aStrokeGroup 
 			ifTrue:  [domain removeMorph: aStrokeGroup ]
-			ifFalse: [ aStrokeGroup removeAllMorphsIn: aCollection ]
-		]! !
+			ifFalse: [ aStrokeGroup removeAllMorphsIn: aCollection ] 		]! !
 
-!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/11/2024 21:06:06'!
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 17:23:35'!
 unexecute
 	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
 		aCollection == aStrokeGroup 
 			ifTrue:  [domain addMorph: aStrokeGroup ]
-			ifFalse: [ aStrokeGroup addAllMorphs: aCollection ]
-		]! !
+			ifFalse: [ aStrokeGroup addAllMorphs: aCollection ] 		]! !
 
 !ErasingCommand class methodsFor: 'instance creation' stamp: 'hlsf 9/11/2024 20:57:11'!
 deletedStrokes: aDictionayOfStroke in: aPage
@@ -1197,17 +1240,33 @@ deletedStrokes: aDictionayOfStroke in: aPage
 		initialize
 		! !
 
+!ErasingAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 9/29/2024 18:14:05'!
+initialize
+	super initialize.
+	bounds := domain fullBoundsInOwner.
+	domain adjustBounds ! !
+
+!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 18:13:53'!
+execute
+	super execute.
+	domain adjustBounds ! !
+
+!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 18:13:23'!
+unexecute
+	domain adjustBoundsTo: bounds.
+	super unexecute ! !
+
 !WritingCommand methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:43:08'!
 strokeGroup: aStrokeGroup
 	strokeGroup := 	aStrokeGroup ! !
 
-!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/11/2024 17:34:07'!
+!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 15:45:10'!
 execute
-	domain addMorph: strokeGroup ! !
+	domain addMorph: strokeGroup! !
 
-!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/11/2024 17:34:15'!
+!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 15:45:21'!
 unexecute
-	domain removeMorph: strokeGroup ! !
+	domain removeMorph: strokeGroup! !
 
 !WritingCommand class methodsFor: 'instance creation' stamp: 'hlsf 9/11/2024 17:43:50'!
 strokeGroup: aStrokeGroup in: aPaper
@@ -1215,6 +1274,24 @@ strokeGroup: aStrokeGroup in: aPaper
 		domain: aPaper;
 		strokeGroup: aStrokeGroup;
 		initialize! !
+
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 16:55:26'!
+execute
+	domain adjustBoundsTo: bounds.
+	super execute! !
+
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 18:16:28'!
+initialize
+	super initialize.
+	domain adjustBounds.
+	bounds := domain fullBoundsInOwner.
+! !
+
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 16:21:25'!
+unexecute
+	bounds := domain fullBoundsInOwner.
+	super unexecute.
+	domain adjustBounds ! !
 
 !CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:03:49'!
 initialize
@@ -1224,10 +1301,14 @@ initialize
 release
 	stack contents do: [:c | c release].! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 20:56:14'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/29/2024 18:10:59'!
 deletedStrokes: aDictionayOfStroke in: aPage
 " Read EraserToolStateErasing>>handleMouseAt:in: "
-	stack nextPut: (ErasingCommand deletedStrokes: aDictionayOfStroke in: aPage)! !
+	| command |
+	command := (aPage is: #AnnotatorMorph) 
+		ifTrue: [ErasingAnnotatorCommand] 
+		ifFalse: [ErasingCommand].
+	stack nextPut: (command deletedStrokes: aDictionayOfStroke in: aPage)! !
 
 !CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:44'!
 redo
@@ -1235,9 +1316,13 @@ redo
 	command := stack next.
 	command ifNotNil:	 [command execute]! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:43:50'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/29/2024 17:04:29'!
 strokeGroup: aStrokeGroup in: aPage
-	stack nextPut: (WritingCommand strokeGroup: aStrokeGroup in: aPage)! !
+	| command |
+	command := (aPage is: #AnnotatorMorph) 
+		ifTrue: [WritingAnnotatorCommand] 
+		ifFalse: [WritingCommand].
+	stack nextPut: (command strokeGroup: aStrokeGroup in: aPage)! !
 
 !CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:56'!
 undo
@@ -1809,7 +1894,7 @@ canResizeAnnoted
 is: aSymbol
 	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/28/2024 15:16:17'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/29/2024 09:58:45'!
 annotate: aPlacedMorph
 | annotedExtent |
 	annotedMorph ifNotNil: [self removeMorph: annotedMorph].
@@ -1818,9 +1903,58 @@ annotate: aPlacedMorph
 		ifNil:[	annotedMorph bitMask extent]
 		ifNotNil: [annotedMorph displayBounds extent].		
 	annotedMorph removeProperty: #bitMask.
-	annotedExtent print.
-	self morphExtent: annotedExtent + 20.
+	self morphExtent: annotedExtent.
 	self addMorph: aPlacedMorph position: (self morphExtent // 2)
+	! !
+
+!AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 9/28/2024 16:10:48'!
+endWritingAt: localPosition
+	| strokeGroup |
+	strokeGroup := super endWritingAt: localPosition.
+	
+	^ strokeGroup ! !
+
+!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 9/28/2024 16:36:06'!
+drawOn: aCanvas 
+	aCanvas frameRectangle: self localBounds borderWidth: 1 color: (Color gray alpha: 0.2)! !
+
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 16:51:03'!
+adjustBounds
+" Adjust my extent and position so that all my submoprhs are whithin my bounds.
+  There should be no visual differences
+ " 
+	self adjustBoundsTo: (self externalizeBoundingRectOf: (self topLeftCorner corner: self bottomRightCorner))
+	! !
+
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 16:40:47'!
+adjustBoundsTo: newBoundsInOwner
+" adjust my bounds and translate my submoprhs accordingly
+ " 
+	| translate |
+	translate := newBoundsInOwner origin - self fullBoundsInOwner origin.
+	self fitInto: newBoundsInOwner .
+	self submorphsDo: [:each | 		each morphPosition: each morphPosition - translate 		]! !
+
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 16:22:50'!
+bottomRightCorner
+" 
+	the bottom right corner of the rectangle surrounding all my submorphs
+"
+	| corner |
+	corner := 0@0.
+	submorphs do: [:each | corner := corner max: each fullBoundsInOwner corner].
+	^ corner 
+	! !
+
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 10:36:24'!
+topLeftCorner
+" 
+	the top left corner of the rectangle surrounding all my submorphs
+"
+	| corner |
+	corner := extent.
+	submorphs do: [:each | corner := corner min: each topLeftInOwner].
+	^ corner 
 	! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/26/2024 11:33:10'!
