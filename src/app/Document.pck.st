@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6749] on 29 September 2024 at 10:54:48 pm'!
+'From Cuis7.1 [latest update: #6749] on 30 September 2024 at 7:30:57 pm'!
 'Description '!
-!provides: 'Document' 1 28!
+!provides: 'Document' 1 30!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -915,14 +915,14 @@ initialize
 	self penTool.
 	commandsManager := CommandManager new! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 16:16:15'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 9/30/2024 19:26:08'!
 initializeWritingTools
 	pen := Pen new.
 	highlighter := Pen new ::
 		color: (Color yellow alpha: 0.3);
 		width: 40;
 		threshold: 10 squared.
-	eraser := Pen new 	width: 16
+	eraser := Pen new 	width: 2
 ! !
 
 !Document methodsFor: 'cleanup' stamp: 'hlsf 9/8/2024 19:03:55'!
@@ -1128,17 +1128,19 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/29/2024 21:46:24'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/30/2024 19:30:24'!
 handleMouseAt: localPosition in: paper
-	(paper strokeGroupsAt: localPosition ) do: [:each | 
-		(deletedStrokes at: each ifAbsentPut: [OrderedCollection new])
-			addAll: (each removeStrokesAt: (each externalizeToWorld: localPosition)).
-		each lastStroke ifNil: [" the stroke group was entirely deleted "
-			paper removeMorph: each.
+	| worldCoordinate |
+	worldCoordinate := paper externalizeToWorld: localPosition.
+	(paper strokeGroupsAt: worldCoordinate) do: [:aGroup | "self halt."
+		(deletedStrokes at: aGroup ifAbsentPut: [OrderedCollection new])
+			addAll: (aGroup removeStrokesAt: worldCoordinate ).
+		aGroup lastStroke ifNil: [" the stroke group was entirely deleted "
+			paper removeMorph: aGroup.
 			"Reconstitute the strokeGroup... "
-			each addAllMorphs: (deletedStrokes at: each).
+			aGroup addAllMorphs: (deletedStrokes at: aGroup).
 			"... then we don't need the individual strokes, we remember of the whole group "
-			deletedStrokes at: each put: each]
+			deletedStrokes at: aGroup put: aGroup]
 	]
 		
 		! !
@@ -1550,12 +1552,12 @@ addStroke: aStroke
 	self addMorph: aStroke.
 	aStroke visible: false! !
 
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/29/2024 22:10:07'!
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/30/2024 18:50:45'!
 removeStrokesAt: positionInWorld
 " Remove the strokes under this positionInWorld "
 	| toDelete |
 "	self halt."
-	toDelete := submorphs select: [:each | 		each isCloserThan: self writingTool width toPixel: positionInWorld].
+	toDelete := submorphs select: [:aBezier | aBezier isCloserThan: self writingTool width toPixel: positionInWorld].
 	self removeAllMorphsIn: toDelete.
 	^ toDelete! !
 
@@ -1827,14 +1829,11 @@ resetSamplingTo: aPoint
 strokeGroups
 	^ submorphs select: [:each | each is: #StrokeGroupMorph ]! !
 
-!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 9/9/2024 20:59:02'!
-strokeGroupsAt: localPosition
-	| positionInWorld |
-	positionInWorld := self externalizeToWorld: localPosition.
+!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 9/30/2024 19:30:14'!
+strokeGroupsAt: worldPosition
 	^ submorphs select: [:each |
 		(each is: #StrokeGroupMorph) 
-		and: [	each isCloserThan: self writingTool width toPixel: positionInWorld ]
-	]! !
+		and: [	each isCloserThan: self writingTool width toPixel: worldPosition ] 	]! !
 
 !PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/11/2024 16:38:46'!
 endWritingAt: localPosition
@@ -1929,7 +1928,7 @@ adjustBounds
 	self adjustBoundsTo: (self externalizeBoundingRectOf: (self topLeftCorner corner: self bottomRightCorner))
 	! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 22:39:38'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/30/2024 18:52:20'!
 adjustBoundsTo: newBoundsInOwner
 " adjust my bounds and translate my submoprhs accordingly
  " 
@@ -1937,7 +1936,7 @@ adjustBoundsTo: newBoundsInOwner
 	translate := newBoundsInOwner origin - self fullBoundsInOwner origin.
 	self fitInto: newBoundsInOwner .
 	self submorphsDo: [:each | 
-				(each is: #StrokeGroupMorph) ifTrue: [each deleteBitMasks].
+				"(each is: #StrokeGroupMorph) ifTrue: [each deleteBitMasks]."
 				each morphPosition: each morphPosition - translate 		]! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 16:22:50'!
