@@ -31,15 +31,26 @@ The Dybo hardware overall look is a digital analogy of a 24x32 (cm) textbook des
 The interim Dybo will have a different settings. Its purpose is to explore the concept with prototypes build with off-the-shell component.
 
 # Why it's open and free?
-Both free software and hardware makes the Dybo easier to adapt to local needs. Administrating a fleet of free software systems proved to be easier by avoiding undocumented features often found in proprietary systems. There is no such things as shadowed area in free software and hardware.
+Both free software and hardware makes the Dybo easier to adapt to
+local needs: freedom to modify, to update, to repair and to assemble.
 
+Administrating a fleet of free software systems proved to be easier by avoiding undocumented features often found in proprietary systems. There are no such things as shadowed area in free software and hardware.
  
 # Why join?
 ## Users
 While it is both a software and hardware project, the Dybo application can be installed on your own device, preferably a GNU/Linux system to enjoy all its  features.
 
 ## Developers
-Join an exciting project where you can gain tremendous experiences in agile software development[2], GNU/Linux system, design. If you are more a hardware person, the interim dynabook 
+Join an exciting project where you can gain tremendous experiences in agile software development[2], GNU/Linux system, hardware design and prototyping with the interim Dybo.
+
+# How to get involved?
+We welcome Smalltalk and GNU/Linux system developers, educators,
+designers and testers. Visit our Dybo GitHub organisation.
+
+# Community
+The Dybo project is build by enthusiastic persons for whom the values of free software and hardware are central. We cherish agile development thanks to our Cuis-Smalltalk development system. With this system we explore new way to design both end-user applications and dynamic knowledge models for the educators and the learners. 
+
+Moreover, by essence our development models make these end-user software learnable, modifiable and driven by script. We truly believe in empowering the end-user by providing the right environment and tools.
 
 
 [1] Old English bisignis ‘anxiety’ (see busy, -ness); the sense ‘state of being busy’ was used from Middle English down to the 18th century.
