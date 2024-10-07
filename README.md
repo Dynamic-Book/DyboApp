@@ -27,16 +27,16 @@ cd Cuis
 # Install Cuis image and packages
 git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-Dev
 git clone https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-UI
-git clone https://github.com/hilaire/Cuis-NeoCSV
+git clone https://github.com/Dynamic-Book/Cuis-NeoCSV
 
 cd Cuis-Smalltalk-Dev
-git clone https://github.com/hilaire/dynabook
+git clone https://github.com/Dynamic-Book/DyboApp
 ```
 
 2. Start the Dynabook.app IDE
 ```
 cd Cuis/Cuis-Smalltalk-Dev
-./dynabook/startIDE.sh
+./DyboApp/startIDE.sh
 ```
 A new image dynabookIDE.image is built. In the image execute
 `DySystem beDevelopment`, execute `Dynabook new` (to come) to start the
