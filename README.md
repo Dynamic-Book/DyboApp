@@ -27,7 +27,7 @@ cd Cuis
 # Install Cuis image and packages
 git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-Dev
 git clone https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-UI
-git clone https://github.com/Dynamic-Book/Cuis-NeoCSV
+git clone https://github.com/Dynamic-Book/NeoCSV
 
 cd Cuis-Smalltalk-Dev
 git clone https://github.com/Dynamic-Book/DyboApp
