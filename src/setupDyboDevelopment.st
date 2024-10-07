@@ -11,8 +11,8 @@ ChangeSet installNewUpdates.
 Utilities setAuthorName: 'Hilaire Fernandes' initials: 'hlsf'.
 Preferences at: #logDebuggerStackToFile put: true.
 Preferences at: #autoNumberUserChanges put: false.
-"Install Dynabook code"
-Feature require: #'Dynabook'.
+"Install Dybo code"
+Feature require: #'Dybo'.
 world := UISupervisor ui.
 [
 	Display fullScreenMode: true.

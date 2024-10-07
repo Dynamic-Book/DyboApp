@@ -1,10 +1,10 @@
 # Introduction
 
 The cash register is a boring computer designed for efficiency. The
-Dynabook, both software and hardware, wants to bring this efficiency
+Dybo, both software and hardware, wants to bring this efficiency
 to teachers and students to manage their job of teaching and learning.
 
-The Dynabook App is the main user application of the Dynabook
+The DyboApp is the main user application of the Dybo
 device. It is through this app that teachers and students interact the
 most. Its features are interconnected to maximize user comfort and to
 save time. It anticipates the needs of the user according to their
@@ -17,7 +17,7 @@ Smalltalk 2023 Fast event in Buenos Aires.
 
 # Installation
 
-Instructions to install the Dynabook.app in a Cuis-Smalltalk developer
+Instructions to install the DyboApp in a Cuis-Smalltalk developer
 environment.
 
 1. Set up your Cuis-Smalltalk environment
@@ -33,12 +33,12 @@ cd Cuis-Smalltalk-Dev
 git clone https://github.com/Dynamic-Book/DyboApp
 ```
 
-2. Start the Dynabook.app IDE
+2. Start the DyboApp IDE
 ```
 cd Cuis/Cuis-Smalltalk-Dev
 ./DyboApp/startIDE.sh
 ```
-A new image dynabookIDE.image is built. In the image execute
+A new image dyboIDE.image is built. In the image execute
 `DySystem beDevelopment`, execute `Dynabook new` (to come) to start the
 application.
 
