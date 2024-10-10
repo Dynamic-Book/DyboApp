@@ -4,8 +4,10 @@
 #
 
 imagePath=CuisImage
+dyboPath=DyboApp
+
 # Cuis release
-release=`cat Dybo/cuisRelease`
+release=`cat $dyboPath/cuisRelease`
 # version number, when dealing with rolling release
 version=`ls $imagePath/Cuis$release-????.image | cut -d - -f 2 | cut -d . -f 1`
 cuis=Cuis$release-$version
@@ -20,4 +22,4 @@ cp $cuis.image $ide.image
 cp $cuis.changes $ide.changes
 cd -
 
-$VM $imagePath/$ide -s Dybo/src/setupDyboDevelopment.st 
+$VM $imagePath/$ide -s $dyboPath/src/setupDyboDevelopment.st 

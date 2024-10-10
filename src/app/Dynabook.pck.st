@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6719] on 17 September 2024 at 6:19:07 pm'!
+'From Cuis7.1 [latest update: #6764] on 10 October 2024 at 11:35:33 am'!
 'Description '!
-!provides: 'Dynabook' 1 66!
+!provides: 'Dynabook' 1 67!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1321,10 +1321,10 @@ userDataPath
 iconsPath
 	^ self rootPath / 'resources' / 'graphics' / 'icons'! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 1/23/2024 23:08:36'!
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 10/10/2024 10:18:28'!
 rootPath
 "dynabook/ directory"
-	^ DirectoryEntry smalltalkImageDirectory parent / 'dynabook'! !
+	^ DirectoryEntry smalltalkImageDirectory parent / 'DyboApp'! !
 
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/20/2023 21:48:08'!
 userDataPath
@@ -1420,6 +1420,13 @@ statusBarMessage: aString
 			redrawNeeded]
 		! !
 
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:41:53'!
+addPageButtonData
+	^ {'New page' translated . 
+	#addObject . 
+	#addPage . 
+	'Insert a new page after the current one.' translated  }! !
+
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:00'!
 binderButtonData
 " label - iconName - callback - description "
@@ -1427,6 +1434,13 @@ binderButtonData
 	#binder . 
 	#goBinder . 
 	'In the Binders, find the documents of your courses and start a new one.' translated }! !
+
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:44:15'!
+deletePageButtonData
+	^ {'Delete page' translated . 
+	#removeObject . 
+	#deletePage . 
+	'Delete the current page.' translated  }! !
 
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:37:03'!
 eraserButtonData
@@ -1441,6 +1455,13 @@ highlighterButtonData
 	HighlighterTool iconName . 
 	HighlighterTool action. 
 	HighlighterTool description }! !
+
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:45:36'!
+nextPageButtonData
+	^ {'Next page' translated . 
+	#nextObject . 
+	#nextPage . 
+	'Go to the next page of the document.' translated  }! !
 
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:21'!
 pageButtonData
@@ -1457,12 +1478,19 @@ penButtonData
 	PenTool action . 
 	PenTool description }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:36'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:45:09'!
+previousPageButtonData
+	^ {'Previous page' translated . 
+	#previousObject . 
+	#previousPage . 
+	'Go to the previous page of the document.' translated  }! !
+
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:42:41'!
 redoButtonData
 	^ {'Redo' translated . 
 	#redo . 
 	#redoAction . 
-	'Redo your last undone action' translated }! !
+	'Redo your last undone action.' translated }! !
 
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:39:05'!
 selectButtonData
@@ -1495,12 +1523,12 @@ tasksButtonData
 	#goTasks . 
 	'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:12:08'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:42:52'!
 undoButtonData
 	^ {'Undo' translated . 
 	#undo . 
 	#undoAction . 
-	'Undo your last action' translated  }! !
+	'Undo your last action.' translated  }! !
 
 !DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 9/17/2024 18:07:57'!
 initialize
@@ -1531,38 +1559,38 @@ buildDocumentView
 	documentView adoptWidgetsColor: documentView defaultBorderColor.
 	^ documentView! !
 
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/5/2024 11:14:39'!
+!DyControlsManager methodsFor: 'document' stamp: 'hlsf 10/10/2024 11:08:01'!
 documentToolbar
-	| toolbar |
+	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow 		separation: 2.
+	buttonWidth := DySystem miniToolbarSize.
 	self documentTools do: [:aTool | 
-		aTool == #spacer 
-			ifTrue: [toolbar addMorphUseAll: self class spacer]
-			ifFalse: [	toolbar addMorph: (				
-				self 
-					on: self documentPresenter 
-					button: aTool 
-					state: #isTool:
-					size: DySystem miniToolbarSize )] ].
+		aTool 
+			caseOf: {
+				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
+				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
+			otherwise: [		
+				toolbar addMorph: (				
+					self on: self documentPresenter 					button: aTool 			state: #isTool: 					size: buttonWidth )] 				].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/2/2024 21:26:20'!
+!DyControlsManager methodsFor: 'document' stamp: 'hlsf 10/10/2024 11:34:16'!
 documentTools
-	^ #(select pen eraser highlighter undo redo)! !
+	^ #(select pen eraser highlighter undo redo blank previousPage nextPage blank deletePage addPage)! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:10:43'!
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 10/10/2024 11:09:55'!
 dynabookToolbar
-	| toolbar |
+	| toolbar buttonWidth|
 	toolbar := LayoutMorph newRow 		separation: 5.
+	buttonWidth := DySystem iconToolbarSize.
 	self dynabookTools do: [:aTool | 
-		aTool == #spacer 
-			ifTrue: [toolbar addMorphUseAll: self class spacer]
-			ifFalse: [	toolbar addMorph: (
-				self 
-					on: self dynabookPresenter 
-					button: aTool  
-					state: #isSection:
-					size: DySystem iconToolbarSize)] ].
+		aTool 
+			caseOf: {
+				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
+				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
+			otherwise: [	
+				toolbar addMorph: (
+					self on: self dynabookPresenter 					button: aTool  					state: #isSection: 					size: buttonWidth )] ].
 	^ toolbar! !
 
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/2/2024 20:57:24'!
@@ -1686,10 +1714,15 @@ zoomWheel
 		borderColor: Color black;
 		yourself! !
 
-!DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 9/12/2024 11:23:34'!
+!DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/10/2024 11:00:40'!
 spacer
+	^ self spacer: 1! !
+
+!DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/10/2024 11:00:08'!
+spacer: size
 	^ ColoredBoxMorph new 
 		color: Color transparent; 
+		morphWidth: size;
 		yourself! !
 
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 10:25:09'!

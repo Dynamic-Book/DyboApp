@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6749] on 30 September 2024 at 7:30:57 pm'!
+'From Cuis7.1 [latest update: #6764] on 10 October 2024 at 11:35:36 am'!
 'Description '!
-!provides: 'Document' 1 30!
+!provides: 'Document' 1 31!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1033,9 +1033,9 @@ release
 action
 	^ #eraserTool! !
 
-!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:02:10'!
+!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 10/10/2024 10:42:14'!
 description
-	^ 'An eraser to delete some of your handwriting' translated! !
+	^ 'An eraser to delete some of your handwriting.' translated! !
 
 !EraserTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:36:52'!
 iconName
@@ -1054,9 +1054,9 @@ initialize
 action
 	^ #highlighterTool! !
 
-!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/8/2024 19:11:19'!
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 10/10/2024 10:42:19'!
 description
-	^ 'A highlighter to emphasis some of your handwritings' translated ! !
+	^ 'A highlighter to emphasis some of your handwritings.' translated ! !
 
 !HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:37:56'!
 iconName
@@ -1075,9 +1075,9 @@ initialize
 action
 	^ #penTool! !
 
-!PenTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:05:41'!
+!PenTool class methodsFor: 'accessing' stamp: 'hlsf 10/10/2024 10:42:25'!
 description
-	^ 'A pen for your handwriting' translated ! !
+	^ 'A pen for your handwriting.' translated ! !
 
 !PenTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:03:57'!
 title
@@ -1096,9 +1096,9 @@ initialize
 action
 	^ #selectTool! !
 
-!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:06:43'!
+!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 10/10/2024 10:42:30'!
 description
-	^ 'Select and drag objects around, including the whole page' translated ! !
+	^ 'Select and drag objects around, including the whole page.' translated ! !
 
 !SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:38:53'!
 iconName
