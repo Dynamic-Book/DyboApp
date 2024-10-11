@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 11 October 2024 at 7:52:07 pm'!
+'From Cuis7.1 [latest update: #6764] on 11 October 2024 at 10:40:05 pm'!
 'Description '!
-!provides: 'Document' 1 33!
+!provides: 'Document' 1 34!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -813,6 +813,14 @@ newStroke
 eraserTool
 	self tool: EraserTool ! !
 
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/11/2024 22:15:47'!
+fitWidthPage
+	" Take PageContainer width for our current page "
+	self currentPage 
+		morphPosition: 0@ (self currentPage morphPosition y);
+		scale: (self currentPage owner morphWidth / self currentPage morphWidth )
+	! !
+
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:47'!
 highlighterTool
 	self tool:HighlighterTool ! !
@@ -856,6 +864,10 @@ zoomAction: increment
 	self currentPage scale: (self currentPage scale - increment
 		min: 2 
 		max: 0.1)! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/11/2024 22:08:09'!
+zoomPageTo100
+	self currentPage scale: 1! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:25:47'!
 commandsManager
