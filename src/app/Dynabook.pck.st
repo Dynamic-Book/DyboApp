@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 10 October 2024 at 11:35:33 am'!
+'From Cuis7.1 [latest update: #6764] on 11 October 2024 at 7:52:04 pm'!
 'Description '!
-!provides: 'Dynabook' 1 67!
+!provides: 'Dynabook' 1 69!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -19,16 +19,6 @@ SystemOrganization addCategory: #'Dynabook-Test'!
 SystemOrganization addCategory: #Dynabook!
 SystemOrganization addCategory: #'Dynabook-System'!
 
-
-!classDefinition: #DyDocument category: #'Dynabook-Model'!
-Object subclass: #DyDocument
-	instanceVariableNames: 'pages cmdManager'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-Model'!
-!classDefinition: 'DyDocument class' category: #'Dynabook-Model'!
-DyDocument class
-	instanceVariableNames: ''!
 
 !classDefinition: #DyDomain category: #'Dynabook-Model'!
 Object subclass: #DyDomain
@@ -331,9 +321,6 @@ DynabookTestResource class
 	instanceVariableNames: ''!
 
 
-!DyDocument commentStamp: '<historical>' prior: 0!
-I am the model of Dynabook document!
-
 !DyDomain commentStamp: '<historical>' prior: 0!
 The domain object of a Dynabook application.!
 
@@ -423,10 +410,6 @@ I am a view to browse the past document, depending on the class groups, courses 
 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
-
-!DyDocument methodsFor: 'as yet unclassified' stamp: 'hlsf 10/14/2023 17:11:36'!
-accept: aVisitor
-	^ aVisitor visitDocument: self! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
@@ -1225,6 +1208,12 @@ new
 daysOfWeek
 	^ Week dayNames collect: [:day | day translated]! !
 
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:17'!
+addPage! !
+
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:54'!
+deletePage! !
+
 !Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:07'!
 goBinder
 	selectedSection := #binder.
@@ -1254,6 +1243,12 @@ goTasks
 	selectedSection := #tasks.
 	controlsManager plugTaskView.
 	self changed: #isSection:! !
+
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:25'!
+nextPage! !
+
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:38'!
+previousPage! !
 
 !Dynabook methodsFor: 'testing' stamp: 'hlsf 8/14/2023 22:29:40'!
 isSection: aSymbolSection
@@ -1395,14 +1390,214 @@ removeUserData
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:02:47'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/11/2024 19:44:24'!
+buildDocumentView
+	| row col |
+	documentView := DocumentView presenter: (Document controlsManager: self).
+	documentView 
+		addMorph: self documentToolbar
+		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
+	row := LayoutMorph newRow 					addMorphUseAll: (PageContainer for: 		documentView currentPage).
+	" vertical and zoom wheels at the right "
+	col := LayoutMorph newColumn name: #wheelsYZ.
+	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120);
+		addMorph: (self on: self documentPresenter button: #zoom100 state: #isTool: size: DySystem miniToolbarSize);
+		addMorph: (self on: self documentPresenter button: #fitWidth state: #isTool: size: DySystem miniToolbarSize);		
+		addMorphUseAll: DyControlsManager spacer;
+		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
+	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
+	documentView addMorph: row.
+	
+	" status bar and horizontal wheel at the bottom "
+	row := LayoutMorph newRow name: #wheelX.
+	row addMorphUseAll: self statusBarInScroller;
+		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
+		addMorph: DyControlsManager spacer layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
+	documentView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
+	documentView adoptWidgetsColor: documentView defaultBorderColor.
+	^ documentView! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 9/5/2024 11:02:47'!
 documentPresenter
 " Access the presenter of the currently used document, if any "
 	^ documentView presenter! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/8/2024 16:56:44'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/10/2024 11:08:01'!
+documentToolbar
+	| toolbar buttonWidth |
+	toolbar := LayoutMorph newRow 		separation: 2.
+	buttonWidth := DySystem miniToolbarSize.
+	self documentTools do: [:aTool | 
+		aTool 
+			caseOf: {
+				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
+				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
+			otherwise: [		
+				toolbar addMorph: (				
+					self on: self documentPresenter 					button: aTool 			state: #isTool: 					size: buttonWidth )] 				].
+	^ toolbar! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/10/2024 11:34:16'!
+documentTools
+	^ #(select pen eraser highlighter undo redo blank previousPage nextPage blank deletePage addPage)! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 9/8/2024 16:56:44'!
 documentView
 	^ documentView! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 8/31/2024 10:45:00'!
+statusBarMessage: aString
+	statusBar ifNotNil: [
+		statusBar contents: aString;
+			adjustExtent ;
+			redrawNeeded]
+		! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:41:53'!
+addPageButtonData
+	^ {'New page' translated . 
+	#addObject . 
+	#addPage . 
+	'Insert a new page after the current one.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:44:15'!
+deletePageButtonData
+	^ {'Delete page' translated . 
+	#removeObject . 
+	#deletePage . 
+	'Delete the current page.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:37:03'!
+eraserButtonData
+	^ {EraserTool title. 
+	EraserTool iconName . 
+	EraserTool action . 
+	EraserTool description }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/11/2024 19:34:49'!
+fitWidthButtonData
+	^ {'Fit width' translated . 
+	#fitWidth . 
+	#fitWidthPage . 
+	'Scale the page to fit the window width.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:38:02'!
+highlighterButtonData
+	^ {HighlighterTool title. 
+	HighlighterTool iconName . 
+	HighlighterTool action. 
+	HighlighterTool description }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:45:36'!
+nextPageButtonData
+	^ {'Next page' translated . 
+	#nextObject . 
+	#nextPage . 
+	'Go to the next page of the document.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:11:21'!
+pageButtonData
+" label - iconName - callback - description "
+	^ {'New page' translated . 
+	#page . 
+	#goPage . 
+	'Open a blank page to start writing.' translated }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:38:30'!
+penButtonData
+	^ {PenTool title. 
+	PenTool iconName . 
+	PenTool action . 
+	PenTool description }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:45:09'!
+previousPageButtonData
+	^ {'Previous page' translated . 
+	#previousObject . 
+	#previousPage . 
+	'Go to the previous page of the document.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:42:41'!
+redoButtonData
+	^ {'Redo' translated . 
+	#redo . 
+	#redoAction . 
+	'Redo your last undone action.' translated }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:39:05'!
+selectButtonData
+	^ {SelectTool title. 
+	SelectTool iconName . 
+	SelectTool action . 
+	SelectTool description }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:42:52'!
+undoButtonData
+	^ {'Undo' translated . 
+	#undo . 
+	#undoAction . 
+	'Undo your last action.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/11/2024 19:36:38'!
+zoom100ButtonData
+	^ {'Zoom 100%' translated . 
+	#zoom100 . 
+	#zoomPageTo100 . 
+	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 9/8/2024 19:12:10'!
+horizontalWheel 
+	^ (WheelMorph target: self documentPresenter actionSelector: #moveOXAction:)
+		beHorizontal; 
+		factor: 1; 
+		setBalloonText: 'Scroll the document to the left or right.' translated;
+		borderWidth: 3;
+		color: Color orange;
+		borderColor: Color black;
+		yourself! !
+
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 8/31/2024 10:43:26'!
+statusBar
+"A bar to print contextual information"
+	^ statusBar ifNil: [
+		statusBar := TextParagraphMorph new
+			color: Color transparent;
+			borderWidth: 0;
+			setHeightOnContent ;
+			yourself	]
+	
+	! !
+
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 8/31/2024 10:43:38'!
+statusBarInScroller
+	^ PluggableScrollPane new scroller: self statusBar; 
+		borderWidth: 2;
+		borderColor: Color transparent ;
+		color: Color transparent;
+		yourself! !
+
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 9/8/2024 19:12:00'!
+verticalWheel 
+	^  (WheelMorph target: self documentPresenter actionSelector: #moveOYAction:)
+		beVertical; 
+		factor: 1; 
+		setBalloonText: 'Scroll the document up or down.' translated; 
+		borderWidth: 3;
+		color: Color orange;
+		borderColor: Color  black ;
+		yourself		
+		! !
+
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 9/8/2024 19:30:49'!
+zoomWheel 
+	^  (WheelMorph target: self documentPresenter actionSelector: #zoomAction:)
+		beVertical; 
+		factor: 0.005; 
+		setBalloonText: 'Zoom in or out the document.' translated; 
+		borderWidth: 3;
+		color: Color gray;
+		borderColor: Color black;
+		yourself! !
 
 !DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:01:23'!
 dynabookPresenter
@@ -1412,21 +1607,6 @@ dynabookPresenter
 dynabookView
 	^ dynabookView! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:45:00'!
-statusBarMessage: aString
-	statusBar ifNotNil: [
-		statusBar contents: aString;
-			adjustExtent ;
-			redrawNeeded]
-		! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:41:53'!
-addPageButtonData
-	^ {'New page' translated . 
-	#addObject . 
-	#addPage . 
-	'Insert a new page after the current one.' translated  }! !
-
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:00'!
 binderButtonData
 " label - iconName - callback - description "
@@ -1434,70 +1614,6 @@ binderButtonData
 	#binder . 
 	#goBinder . 
 	'In the Binders, find the documents of your courses and start a new one.' translated }! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:44:15'!
-deletePageButtonData
-	^ {'Delete page' translated . 
-	#removeObject . 
-	#deletePage . 
-	'Delete the current page.' translated  }! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:37:03'!
-eraserButtonData
-	^ {EraserTool title. 
-	EraserTool iconName . 
-	EraserTool action . 
-	EraserTool description }! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:38:02'!
-highlighterButtonData
-	^ {HighlighterTool title. 
-	HighlighterTool iconName . 
-	HighlighterTool action. 
-	HighlighterTool description }! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:45:36'!
-nextPageButtonData
-	^ {'Next page' translated . 
-	#nextObject . 
-	#nextPage . 
-	'Go to the next page of the document.' translated  }! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:21'!
-pageButtonData
-" label - iconName - callback - description "
-	^ {'New page' translated . 
-	#page . 
-	#goPage . 
-	'Open a blank page to start writing.' translated }! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:38:30'!
-penButtonData
-	^ {PenTool title. 
-	PenTool iconName . 
-	PenTool action . 
-	PenTool description }! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:45:09'!
-previousPageButtonData
-	^ {'Previous page' translated . 
-	#previousObject . 
-	#previousPage . 
-	'Go to the previous page of the document.' translated  }! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:42:41'!
-redoButtonData
-	^ {'Redo' translated . 
-	#redo . 
-	#redoAction . 
-	'Redo your last undone action.' translated }! !
-
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:39:05'!
-selectButtonData
-	^ {SelectTool title. 
-	SelectTool iconName . 
-	SelectTool action . 
-	SelectTool description }! !
 
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:51'!
 settingsButtonData
@@ -1523,60 +1639,9 @@ tasksButtonData
 	#goTasks . 
 	'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 10/10/2024 10:42:52'!
-undoButtonData
-	^ {'Undo' translated . 
-	#undo . 
-	#undoAction . 
-	'Undo your last action.' translated  }! !
-
 !DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 9/17/2024 18:07:57'!
 initialize
 	icons := IconImporter path: DySystem iconsPath ! !
-
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 9/8/2024 18:24:46'!
-buildDocumentView
-	| row col |
-	documentView := DocumentView presenter: (Document controlsManager: self).
-	documentView 
-		addMorph: self documentToolbar
-		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
-	row := LayoutMorph newRow 					addMorphUseAll: (PageContainer for: 		documentView currentPage).
-	" vertical and zoom wheels at the right "
-	col := LayoutMorph newColumn name: #wheelsYZ.
-	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120);
-		addMorphUseAll: DyControlsManager spacer;
-		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
-	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
-	documentView addMorph: row.
-	
-	" status bar and horizontal wheel at the bottom "
-	row := LayoutMorph newRow name: #wheelX.
-	row addMorphUseAll: self statusBarInScroller;
-		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
-		addMorph: DyControlsManager spacer layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
-	documentView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
-	documentView adoptWidgetsColor: documentView defaultBorderColor.
-	^ documentView! !
-
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 10/10/2024 11:08:01'!
-documentToolbar
-	| toolbar buttonWidth |
-	toolbar := LayoutMorph newRow 		separation: 2.
-	buttonWidth := DySystem miniToolbarSize.
-	self documentTools do: [:aTool | 
-		aTool 
-			caseOf: {
-				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
-				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
-			otherwise: [		
-				toolbar addMorph: (				
-					self on: self documentPresenter 					button: aTool 			state: #isTool: 					size: buttonWidth )] 				].
-	^ toolbar! !
-
-!DyControlsManager methodsFor: 'document' stamp: 'hlsf 10/10/2024 11:34:16'!
-documentTools
-	^ #(select pen eraser highlighter undo redo blank previousPage nextPage blank deletePage addPage)! !
 
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 10/10/2024 11:09:55'!
 dynabookToolbar
@@ -1638,17 +1703,6 @@ plugStartView
 plugTaskView
 	self plugInDynabookView: (DyAgendaView presenter: self dynabookPresenter)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/8/2024 19:12:10'!
-horizontalWheel 
-	^ (WheelMorph target: self documentPresenter actionSelector: #moveOXAction:)
-		beHorizontal; 
-		factor: 1; 
-		setBalloonText: 'Scroll the document to the left or right.' translated;
-		borderWidth: 3;
-		color: Color orange;
-		borderColor: Color black;
-		yourself! !
-
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/17/2024 18:08:45'!
 on: aPresenter button: symbol state: stateGetter size: size
 	"array first = menu label or button label
@@ -1670,49 +1724,6 @@ on: aPresenter button: symbol state: stateGetter size: size
 		borderWidth: 2;
 		morphExtent: (size  * 1.3) rounded asPoint;
 		yourself	! !
-
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 8/31/2024 10:43:26'!
-statusBar
-"A bar to print contextual information"
-	^ statusBar ifNil: [
-		statusBar := TextParagraphMorph new
-			color: Color transparent;
-			borderWidth: 0;
-			setHeightOnContent ;
-			yourself	]
-	
-	! !
-
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 8/31/2024 10:43:38'!
-statusBarInScroller
-	^ PluggableScrollPane new scroller: self statusBar; 
-		borderWidth: 2;
-		borderColor: Color transparent ;
-		color: Color transparent;
-		yourself! !
-
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/8/2024 19:12:00'!
-verticalWheel 
-	^  (WheelMorph target: self documentPresenter actionSelector: #moveOYAction:)
-		beVertical; 
-		factor: 1; 
-		setBalloonText: 'Scroll the document up or down.' translated; 
-		borderWidth: 3;
-		color: Color orange;
-		borderColor: Color  black ;
-		yourself		
-		! !
-
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/8/2024 19:30:49'!
-zoomWheel 
-	^  (WheelMorph target: self documentPresenter actionSelector: #zoomAction:)
-		beVertical; 
-		factor: 0.005; 
-		setBalloonText: 'Zoom in or out the document.' translated; 
-		borderWidth: 3;
-		color: Color gray;
-		borderColor: Color black;
-		yourself! !
 
 !DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/10/2024 11:00:40'!
 spacer

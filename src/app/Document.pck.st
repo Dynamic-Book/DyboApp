@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 10 October 2024 at 11:35:36 am'!
+'From Cuis7.1 [latest update: #6764] on 11 October 2024 at 7:52:07 pm'!
 'Description '!
-!provides: 'Document' 1 31!
+!provides: 'Document' 1 33!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -69,7 +69,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'Document-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'tool view controlsManager pen highlighter eraser commandsManager'
+	instanceVariableNames: 'tool controlsManager pen highlighter eraser commandsManager'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -259,7 +259,7 @@ CommandManager class
 
 !classDefinition: #DocumentModel category: #'Document-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'pages'
+	instanceVariableNames: 'proportion background'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
@@ -1977,13 +1977,13 @@ newOn: documentPresenter annotate: aPlacedMorph
 defaultColor
 	^ Color white! !
 
-!BackgroundMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/12/2024 12:13:28'!
+!BackgroundMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 10/11/2024 18:13:15'!
 drawOn: canvas 
 	| y  step |
 	super drawOn: canvas.
 	step := 50.
 	y := step.
-	canvas strokeWidth: (0.8 / owner scale min: 0.8) color: `Color lightGray` do: [
+	canvas strokeWidth: (0.8 / owner scale min: 0.8) color: `Color blue` do: [
 		[ y < extent y ] whileTrue: [
 			canvas moveTo: 0 @ y;
 				lineTo: extent x @ y.
