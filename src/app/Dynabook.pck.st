@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 11 October 2024 at 7:52:04 pm'!
+'From Cuis7.1 [latest update: #6764] on 12 October 2024 at 12:08:43 pm'!
 'Description '!
-!provides: 'Dynabook' 1 69!
+!provides: 'Dynabook' 1 70!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -182,7 +182,7 @@ DyCommand class
 
 !classDefinition: #DyPlatform category: #'Dynabook-System'!
 Object subclass: #DyPlatform
-	instanceVariableNames: ''
+	instanceVariableNames: 'preferences'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-System'!
@@ -1312,6 +1312,32 @@ rootPath
 userDataPath
 	^ self rootPath / 'data'! !
 
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 10/12/2024 10:09:22'!
+preferences
+	^ preferences ifNil: [self setPreferences ]! !
+
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 10/12/2024 10:39:10'!
+setPreferences
+	preferences := PreferenceSet new.
+	preferences 
+		name: #paperRatio
+		description: 'The default ratio of a page document expressed with two numbers in width and ehight.' translated
+		category: #dybo 
+		type: {4@3 . 16@9 . 210@297} 
+		value: 16@9;
+		
+		name: #paperBackground
+		description: 'The default background for a new page in a document.' translated
+		category: #dybo
+		type: {BackgroundMorph}
+		value: BackgroundMorph.
+		
+	^ preferences! !
+
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 10/12/2024 10:50:06'!
+reset
+	preferences := nil! !
+
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/13/2023 16:31:47'!
 iconsPath
 	^ self rootPath / 'resources' / 'graphics' / 'icons'! !
@@ -1333,6 +1359,10 @@ beApplication
 beDevelopment
 	platform := DyDevelopment new! !
 
+!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 10/12/2024 10:50:25'!
+reset
+	platform reset! !
+
 !DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/14/2023 22:11:06'!
 iconToolbarSize
 " Size of the squared icons in the top toolbar"
@@ -1342,6 +1372,10 @@ iconToolbarSize
 miniToolbarSize
 " Size of the squared icons in the secondary toolbar"
 	^ platform miniToolbarSize ! !
+
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 10/12/2024 09:40:04'!
+screenSize
+	^ self runningWorld morphExtent! !
 
 !DySystem class methodsFor: 'path' stamp: 'hlsf 8/1/2023 11:53:04'!
 iconsPath
@@ -1390,7 +1424,25 @@ removeUserData
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/11/2024 19:44:24'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 10:58:37'!
+defaultPaperSize
+" Its width fill the screen, according to its default ratio "
+	
+	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
+
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 10:51:41'!
+paperBackground
+	^ self preferences at: #paperBackground! !
+
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 10:51:23'!
+paperRatio
+	^ self preferences at: #paperRatio! !
+
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 09:38:35'!
+preferences
+	^ platform preferences! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/12/2024 11:27:25'!
 buildDocumentView
 	| row col |
 	documentView := DocumentView presenter: (Document controlsManager: self).
@@ -1400,10 +1452,11 @@ buildDocumentView
 	row := LayoutMorph newRow 					addMorphUseAll: (PageContainer for: 		documentView currentPage).
 	" vertical and zoom wheels at the right "
 	col := LayoutMorph newColumn name: #wheelsYZ.
-	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120);
-		addMorph: (self on: self documentPresenter button: #zoom100 state: #isTool: size: DySystem miniToolbarSize);
-		addMorph: (self on: self documentPresenter button: #fitWidth state: #isTool: size: DySystem miniToolbarSize);		
-		addMorphUseAll: DyControlsManager spacer;
+	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
+	#(zoom100 fitWidth fitScreen) do: [:aZoomTool |
+		col addMorph: 
+			(self on: self documentPresenter button: aZoomTool state: #isTool: size: DySystem miniToolbarSize)].	
+	col	addMorphUseAll: DyControlsManager spacer;
 		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
 	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
 	documentView addMorph: row.
@@ -1473,6 +1526,13 @@ eraserButtonData
 	EraserTool iconName . 
 	EraserTool action . 
 	EraserTool description }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/12/2024 11:15:36'!
+fitScreenButtonData
+	^ {'Fit screen' translated . 
+	#fitScreen . 
+	#fitScreenPage . 
+	'Scale the page to make it entirely visible.' translated  }! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/11/2024 19:34:49'!
 fitWidthButtonData

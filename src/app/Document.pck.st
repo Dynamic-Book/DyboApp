@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 11 October 2024 at 10:40:05 pm'!
+'From Cuis7.1 [latest update: #6764] on 12 October 2024 at 12:08:41 pm'!
 'Description '!
-!provides: 'Document' 1 34!
+!provides: 'Document' 1 35!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -259,7 +259,7 @@ CommandManager class
 
 !classDefinition: #DocumentModel category: #'Document-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'proportion background'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
@@ -813,12 +813,27 @@ newStroke
 eraserTool
 	self tool: EraserTool ! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/11/2024 22:15:47'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/12/2024 11:22:30'!
+fitScreenPage
+	" Make the page entirely visible in the PageContainer "
+	| page scaleX scaleY |
+	page := self currentPage.
+	
+	scaleX := (page pageContainer morphWidth / page morphWidth) asFloat.
+	scaleY := (page pageContainer morphHeight / page morphHeight) asFloat.
+	page
+		morphPosition: 0@0;
+		scale: (scaleX min: scaleY)
+	! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/12/2024 11:18:01'!
 fitWidthPage
 	" Take PageContainer width for our current page "
-	self currentPage 
-		morphPosition: 0@ (self currentPage morphPosition y);
-		scale: (self currentPage owner morphWidth / self currentPage morphWidth )
+	| page |
+	page := self currentPage.
+	page 
+		morphPosition: 0@ (page morphPosition y);
+		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
 	! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:47'!
@@ -1593,6 +1608,10 @@ morphExtent: anExtent
 annotators
 	^submorphs select: [:morph | morph is: #AnnotatorMorph]! !
 
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 11:17:04'!
+pageContainer
+	^ owner! !
+
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 16:13:35'!
 paper
 	^ paper ! !
@@ -1601,7 +1620,7 @@ paper
 presenter: documentPresenter
 	presenter := documentPresenter ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 9/28/2024 14:18:26'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 10/12/2024 10:58:53'!
 initialize
 	super initialize.
 	background := BackgroundMorph new.
@@ -1609,7 +1628,7 @@ initialize
 	paper stroker: StrokerBezier2XP.
 	self addMorphBack: background position: 0@0;
 		addMorphFront: paper position: 0@0.
-	self morphExtent: (16@9) * 50.
+	self morphExtent: DySystem defaultPaperSize .
 	self 
 		addMorphFront: (AnnotatorMorph newOn: presenter annotate: Sample09Clock new) 
 		position: self morphExtent // 2.! !
