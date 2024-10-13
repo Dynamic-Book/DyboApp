@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 12 October 2024 at 12:08:43 pm'!
+'From Cuis7.1 [latest update: #6764] on 13 October 2024 at 5:27:59 pm'!
 'Description '!
-!provides: 'Dynabook' 1 70!
+!provides: 'Dynabook' 1 73!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -212,7 +212,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'dynabookView documentView icons statusBar'
+	instanceVariableNames: 'dynabookView docView icons statusBar docTools'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -1220,10 +1220,10 @@ goBinder
 	controlsManager plugBinderView.
 	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 9/2/2024 21:20:34'!
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/13/2024 13:10:07'!
 goPage
 	selectedSection := #page.
-	controlsManager plugDocumentView .
+	controlsManager plugDocView .
 	self changed: #isSection:! !
 
 !Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:10'!
@@ -1442,61 +1442,107 @@ paperRatio
 preferences
 	^ platform preferences! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/12/2024 11:27:25'!
-buildDocumentView
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:58:33'!
+docCircularToolbar
+	| toolsData |
+	docTools ifNotNil: [^ docTools].
+	toolsData := OrderedCollection 
+		with: self penColorTools 
+		with: self highlighterColorTools .
+	docTools := CircularToolbarMorph new
+		color: dynabookView defaultColor ;
+		selectedColor: dynabookView buttonColor;
+		extent: 200;
+		buttonSize: DySystem iconToolbarSize + 8;
+		dropDownHeight: 10.
+	toolsData do: [:subToolsData | | dropDown |
+		dropDown := (self addChevron: subToolsData first to: docTools) addDropDown .
+		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
+	^ docTools ! !
+
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:37:40'!
+highlighterColorTools
+" Data to build the circular sub toolbar of pen colors "
+	| size help |
+	size := DySystem iconToolbarSize .
+	help := 'Highlight with a {1} color.' translated.
+	" XXX any other idea to get the color strings taken in consideration for translation? "	
+	'yellow' translated. " Other colors marked for translation in penColorToolsOn: method "
+	^ #('yellow' 'red' 'blue' 'green') collect: [:aColor | 
+		Array 
+			with:	(#highlighter, aColor capitalized) asSymbol
+			with: (	icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (help format: {aColor translated})		 	]! !
+
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:34:51'!
+penColorTools
+" Data to build the circular sub toolbar of pen colors "
+	| size help |
+	size := DySystem iconToolbarSize.
+	help := 'Write with a {1} color.' translated.
+	" XXX any other idea to get the color strings taken in consideration for translation? "	
+	'black' translated. 'blue' translated. 	'green' translated. 'red' translated. 'white' translated.
+	^ #('black' 'blue' 'green' 'red' 'white') collect: [:aColor | 
+		Array 
+			with:	(#pen, aColor capitalized) asSymbol
+			with: (	icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (help format: {aColor translated})		 	]! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
+buildDocView
 	| row col |
-	documentView := DocumentView presenter: (Document controlsManager: self).
-	documentView 
-		addMorph: self documentToolbar
+	docView := DocumentView presenter: (Document controlsManager: self).
+	docView 
+		addMorph: self docHorizontalToolbar
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
-	row := LayoutMorph newRow 					addMorphUseAll: (PageContainer for: 		documentView currentPage).
+	row := LayoutMorph newRow 					addMorphUseAll: (PageContainer for: 		docView currentPage).
 	" vertical and zoom wheels at the right "
 	col := LayoutMorph newColumn name: #wheelsYZ.
 	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
 	#(zoom100 fitWidth fitScreen) do: [:aZoomTool |
 		col addMorph: 
-			(self on: self documentPresenter button: aZoomTool state: #isTool: size: DySystem miniToolbarSize)].	
+			(self on: self docPresenter button: aZoomTool state: #isTool: size: DySystem miniToolbarSize)].	
 	col	addMorphUseAll: DyControlsManager spacer;
 		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
 	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
-	documentView addMorph: row.
+	docView addMorph: row.
 	
 	" status bar and horizontal wheel at the bottom "
 	row := LayoutMorph newRow name: #wheelX.
 	row addMorphUseAll: self statusBarInScroller;
 		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
 		addMorph: DyControlsManager spacer layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
-	documentView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
-	documentView adoptWidgetsColor: documentView defaultBorderColor.
-	^ documentView! !
+	docView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
+	docView adoptWidgetsColor: docView defaultBorderColor.
+	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 9/5/2024 11:02:47'!
-documentPresenter
-" Access the presenter of the currently used document, if any "
-	^ documentView presenter! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/10/2024 11:08:01'!
-documentToolbar
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:07:58'!
+docHorizontalToolbar
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow 		separation: 2.
 	buttonWidth := DySystem miniToolbarSize.
-	self documentTools do: [:aTool | 
+	 #(select pen eraser highlighter undo redo 
+	blank 
+	previousPage nextPage 
+	blank 
+	deletePage addPage) do: [:aTool | 
 		aTool 
 			caseOf: {
 				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
 				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
 			otherwise: [		
 				toolbar addMorph: (				
-					self on: self documentPresenter 					button: aTool 			state: #isTool: 					size: buttonWidth )] 				].
+					self on: self docPresenter 					button: aTool 			state: #isTool: 					size: buttonWidth )] 				].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/10/2024 11:34:16'!
-documentTools
-	^ #(select pen eraser highlighter undo redo blank previousPage nextPage blank deletePage addPage)! !
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
+docPresenter
+" Access the presenter of the currently used document, if any "
+	^ docView presenter! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 9/8/2024 16:56:44'!
-documentView
-	^ documentView! !
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
+docView
+	^ docView! !
 
 !DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 8/31/2024 10:45:00'!
 statusBarMessage: aString
@@ -1605,9 +1651,21 @@ zoom100ButtonData
 	#zoomPageTo100 . 
 	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
 
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 9/8/2024 19:12:10'!
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 17:11:46'!
+addChevron: data to: aToolbar
+	"data first = action selector
+	data second = button form 
+	data third = help string	"	
+	^ (aToolbar addButton: data second)
+		model: self docPresenter ;
+		action: data first;
+		state: #isToolColor: ; 		argument: data first;
+		setBalloonText: data third ;
+		yourself	! !
+
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 13:07:58'!
 horizontalWheel 
-	^ (WheelMorph target: self documentPresenter actionSelector: #moveOXAction:)
+	^ (WheelMorph target: self docPresenter actionSelector: #moveOXAction:)
 		beHorizontal; 
 		factor: 1; 
 		setBalloonText: 'Scroll the document to the left or right.' translated;
@@ -1636,9 +1694,9 @@ statusBarInScroller
 		color: Color transparent;
 		yourself! !
 
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 9/8/2024 19:12:00'!
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 13:07:58'!
 verticalWheel 
-	^  (WheelMorph target: self documentPresenter actionSelector: #moveOYAction:)
+	^  (WheelMorph target: self docPresenter actionSelector: #moveOYAction:)
 		beVertical; 
 		factor: 1; 
 		setBalloonText: 'Scroll the document up or down.' translated; 
@@ -1648,9 +1706,9 @@ verticalWheel
 		yourself		
 		! !
 
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 9/8/2024 19:30:49'!
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 13:07:58'!
 zoomWheel 
-	^  (WheelMorph target: self documentPresenter actionSelector: #zoomAction:)
+	^  (WheelMorph target: self docPresenter actionSelector: #zoomAction:)
 		beVertical; 
 		factor: 0.005; 
 		setBalloonText: 'Zoom in or out the document.' translated; 
@@ -1734,9 +1792,9 @@ installDynabookView: aPresenter
 plugBinderView
 	self plugInDynabookView: (DyBinderView presenter: self dynabookPresenter)! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/2/2024 21:20:28'!
-plugDocumentView
-	self plugInDynabookView: self buildDocumentView ! !
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 10/13/2024 13:10:07'!
+plugDocView
+	self plugInDynabookView: self buildDocView ! !
 
 !DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:00:47'!
 plugInDynabookView: aMorph

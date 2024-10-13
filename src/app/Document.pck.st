@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 12 October 2024 at 12:08:41 pm'!
+'From Cuis7.1 [latest update: #6764] on 13 October 2024 at 5:27:57 pm'!
 'Description '!
-!provides: 'Document' 1 35!
+!provides: 'Document' 1 37!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -836,9 +836,29 @@ fitWidthPage
 		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
 	! !
 
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:47:07'!
+highlighterBlue
+	self highlighterTool.
+	highlighter color: (Color blue alpha: 0.3)! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:47:42'!
+highlighterGreen
+	self highlighterTool.
+	highlighter color: (Color green alpha: 0.3)! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:45:49'!
+highlighterRed
+	self highlighterTool	.
+	highlighter color: (Color red alpha: 0.3)! !
+
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:47'!
 highlighterTool
 	self tool:HighlighterTool ! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:46:03'!
+highlighterYellow
+	self highlighterTool.
+	highlighter color: (Color yellow alpha: 0.3)! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/8/2024 19:09:17'!
 moveOXAction: increment
@@ -858,9 +878,34 @@ moveOYAction: increment
 		min: container morphExtent 
 		max: page morphExtent negated)! !
 
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:42:24'!
+penBlack
+	self penTool.
+	pen color: Color black! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:42:34'!
+penBlue
+	self penTool.
+	pen color: Color blue! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:43:07'!
+penGreen
+	self penTool.
+	pen color: Color green! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:43:50'!
+penRed
+	self penTool.
+	pen color: Color red! !
+
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 10:38:17'!
 penTool
 	self tool: PenTool ! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:44:14'!
+penWhite
+	self penTool.
+	pen color: Color white! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/11/2024 17:35:09'!
 redoAction
@@ -896,9 +941,9 @@ controlsManager
 controlsManager: aControlsManager
 	controlsManager := aControlsManager ! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 9/8/2024 16:57:30'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 10/13/2024 13:08:11'!
 currentPage
-	^ controlsManager documentView currentPage! !
+	^ controlsManager docView currentPage! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/8/2024 16:44:15'!
 pages
@@ -922,6 +967,20 @@ writingTool
 !Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 11:39:44'!
 isTool: aToolName
 	^ self selectedTool == aToolName ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 10/13/2024 17:22:30'!
+isToolColor: toolName
+" Check if pen or hightlighter and which color - for the circular toolbar 
+toolName takes value penRed,  hightlighterYellow, etc.  "
+	^ (toolName includesSubString: self selectedTool) 
+	and: [toolName includesSubString: (self writingTool color alpha: 1) colorName capitalized ]! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 10/13/2024 16:24:35'!
+openCircularToolbar
+	controlsManager docCircularToolbar 
+		morphPosition: self activeHand morphPosition ;
+		openInWorld
+	! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 15:09:27'!
 tool
@@ -1711,6 +1770,10 @@ mouseButton1Down: event localPosition: localPosition
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:38:15'!
 mouseButton1Up: event localPosition: localPosition
 	self tool handleRelease: localPosition in: self! !
+
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 10/13/2024 16:23:19'!
+mouseButton2Up: evt localPosition: localPosition
+	presenter openCircularToolbar! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:38:29'!
 mouseMove: event localPosition: localPosition
