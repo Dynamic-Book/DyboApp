@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 13 October 2024 at 5:27:57 pm'!
+'From Cuis7.1 [latest update: #6764] on 13 October 2024 at 6:53:35 pm'!
 'Description '!
-!provides: 'Document' 1 37!
+!provides: 'Document' 1 38!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1561,14 +1561,14 @@ drawTangentsOn: canvas
 				canvas moveTo: p2.
 				canvas lineTo: c2] ! !
 
-!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 9/7/2024 12:01:21'!
+!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 10/13/2024 18:47:48'!
 drawOn: canvas
 	| samples lastIndex |
 	owner class ~= PaperMorph ifTrue: [^ self].
 	samples := owner samples.
 	lastIndex := owner sampleIndex - 1.
-	canvas strokeWidth: owner writingTool width color: owner writingTool color do: [
-		lastIndex ifNotZero: [
+	lastIndex ifNotZero: [
+		canvas strokeWidth: owner writingTool width color: owner writingTool color do: [
 			canvas moveTo: owner samples first.
 			2 to: lastIndex do: [:i | canvas lineTo: ( samples at: i )].
 			owner lastMousePosition ifNotNil: [:postiion | canvas lineTo: postiion 				] 	
@@ -1929,7 +1929,7 @@ strokeGroupsAt: worldPosition
 		(each is: #StrokeGroupMorph) 
 		and: [	each isCloserThan: self writingTool width toPixel: worldPosition ] 	]! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/11/2024 16:38:46'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/13/2024 18:52:58'!
 endWritingAt: localPosition
 	samples at: sampleIndex put: localPosition.
 	sampleIndex := sampleIndex + 1.
@@ -1940,6 +1940,7 @@ endWritingAt: localPosition
 		redrawNeeded.
 	self resetSamplingTo: nil.
 	lastMousePosition := nil.
+	lineStrokes comeToFront.
 	lineStrokes redrawNeeded.
 	^ self lastStrokeGroup 
 ! !
