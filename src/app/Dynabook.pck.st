@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 13 October 2024 at 5:27:59 pm'!
+'From Cuis7.1 [latest update: #6764] on 14 October 2024 at 9:50:02 pm'!
 'Description '!
-!provides: 'Dynabook' 1 73!
+!provides: 'Dynabook' 1 74!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1442,52 +1442,6 @@ paperRatio
 preferences
 	^ platform preferences! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:58:33'!
-docCircularToolbar
-	| toolsData |
-	docTools ifNotNil: [^ docTools].
-	toolsData := OrderedCollection 
-		with: self penColorTools 
-		with: self highlighterColorTools .
-	docTools := CircularToolbarMorph new
-		color: dynabookView defaultColor ;
-		selectedColor: dynabookView buttonColor;
-		extent: 200;
-		buttonSize: DySystem iconToolbarSize + 8;
-		dropDownHeight: 10.
-	toolsData do: [:subToolsData | | dropDown |
-		dropDown := (self addChevron: subToolsData first to: docTools) addDropDown .
-		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
-	^ docTools ! !
-
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:37:40'!
-highlighterColorTools
-" Data to build the circular sub toolbar of pen colors "
-	| size help |
-	size := DySystem iconToolbarSize .
-	help := 'Highlight with a {1} color.' translated.
-	" XXX any other idea to get the color strings taken in consideration for translation? "	
-	'yellow' translated. " Other colors marked for translation in penColorToolsOn: method "
-	^ #('yellow' 'red' 'blue' 'green') collect: [:aColor | 
-		Array 
-			with:	(#highlighter, aColor capitalized) asSymbol
-			with: (	icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
-			with: (help format: {aColor translated})		 	]! !
-
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:34:51'!
-penColorTools
-" Data to build the circular sub toolbar of pen colors "
-	| size help |
-	size := DySystem iconToolbarSize.
-	help := 'Write with a {1} color.' translated.
-	" XXX any other idea to get the color strings taken in consideration for translation? "	
-	'black' translated. 'blue' translated. 	'green' translated. 'red' translated. 'white' translated.
-	^ #('black' 'blue' 'green' 'red' 'white') collect: [:aColor | 
-		Array 
-			with:	(#pen, aColor capitalized) asSymbol
-			with: (	icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
-			with: (help format: {aColor translated})		 	]! !
-
 !DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
 buildDocView
 	| row col |
@@ -1551,6 +1505,65 @@ statusBarMessage: aString
 			adjustExtent ;
 			redrawNeeded]
 		! !
+
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/14/2024 21:32:38'!
+docCircularToolbar
+	| toolsData |
+	docTools ifNotNil: [^ docTools].
+	toolsData := OrderedCollection 
+		with: self penColorTools 
+		with: self nibSizeTools 
+		with: self highlighterColorTools .
+	docTools := CircularToolbarMorph new
+		color: dynabookView defaultColor ;
+		selectedColor: dynabookView buttonColor;
+		extent: 200;
+		buttonSize: DySystem iconToolbarSize + 8;
+		dropDownHeight: 10.
+	toolsData do: [:subToolsData | | dropDown |
+		dropDown := (self addChevron: subToolsData first to: docTools) addDropDown .
+		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
+	^ docTools ! !
+
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:37:40'!
+highlighterColorTools
+" Data to build the circular sub toolbar of pen colors "
+	| size help |
+	size := DySystem iconToolbarSize .
+	help := 'Highlight with a {1} color.' translated.
+	" XXX any other idea to get the color strings taken in consideration for translation? "	
+	'yellow' translated. " Other colors marked for translation in penColorToolsOn: method "
+	^ #('yellow' 'red' 'blue' 'green') collect: [:aColor | 
+		Array 
+			with:	(#highlighter, aColor capitalized) asSymbol
+			with: (	icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (help format: {aColor translated})		 	]! !
+
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/14/2024 21:43:03'!
+nibSizeTools
+" Data to build the circular sub toolbar of pen colors "
+	| size help |
+	size := DySystem iconToolbarSize.
+	help := 'Write with a width of {1} pixel(s).' translated.
+	^ #(0.5 0.8 1 2 4 6 8 ) collect: [:nibSize | 
+		Array 
+			with:	(#nibSize, nibSize asString) asValidSelector asSymbol
+			with: (self handStroke: size width: nibSize color: Color black)
+			with: (help format: {nibSize })		 	]! !
+
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:34:51'!
+penColorTools
+" Data to build the circular sub toolbar of pen colors "
+	| size help |
+	size := DySystem iconToolbarSize.
+	help := 'Write with a {1} color.' translated.
+	" XXX any other idea to get the color strings taken in consideration for translation? "	
+	'black' translated. 'blue' translated. 	'green' translated. 'red' translated. 'white' translated.
+	^ #('black' 'blue' 'green' 'red' 'white') collect: [:aColor | 
+		Array 
+			with:	(#pen, aColor capitalized) asSymbol
+			with: (	icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (help format: {aColor translated})		 	]! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:41:53'!
 addPageButtonData
@@ -1650,6 +1663,33 @@ zoom100ButtonData
 	#zoom100 . 
 	#zoomPageTo100 . 
 	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/14/2024 21:33:33'!
+handStroke: squareWidth width: width color: color
+	| aForm scale |
+	scale := squareWidth / 60.
+	aForm := Form extent: 60@60 * scale depth: 32.
+	(VectorEngine onForm: aForm subPixelAntiAliasing: true)
+		strokeWidth: width color: color do: [:engine |
+			engine moveTo: 0@10 * scale;
+				lineTo: 60@5 * scale;
+				quadraticBezierTo: 50@30 * scale control: -50@35 * scale;
+				quadraticBezierTo: 20@50 * scale control: -20@40 * scale].
+	^ aForm
+! !
+
+!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/14/2024 21:33:42'!
+tile: squareWidth width: width color: color
+	| aForm scale |
+	scale := squareWidth / 60.
+	aForm := Form extent: 60@60 * scale depth: 32.
+	(VectorEngine onForm: aForm subPixelAntiAliasing: true)
+		strokeWidth: width color: color do: [:engine |
+			engine moveTo:0@30 * scale ;
+			quadraticBezierTo: 30@30 * scale  control: 10@20 * scale;
+			quadraticBezierTo: 60@30 * scale control: 		45@40 * scale].
+	^ aForm 
+! !
 
 !DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 17:11:46'!
 addChevron: data to: aToolbar

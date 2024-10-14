@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 13 October 2024 at 6:53:35 pm'!
+'From Cuis7.1 [latest update: #6764] on 14 October 2024 at 9:50:00 pm'!
 'Description '!
-!provides: 'Document' 1 38!
+!provides: 'Document' 1 40!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -836,29 +836,30 @@ fitWidthPage
 		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
 	! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:47:07'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:39:35'!
 highlighterBlue
-	self highlighterTool.
-	highlighter color: (Color blue alpha: 0.3)! !
+	self highlighterColor: Color blue! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:47:42'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:39:25'!
+highlighterColor: aColor
+	self highlighterTool.
+	highlighter color: (aColor alpha: 0.3)! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:39:46'!
 highlighterGreen
-	self highlighterTool.
-	highlighter color: (Color green alpha: 0.3)! !
+	self highlighterColor: Color green! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:45:49'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:39:52'!
 highlighterRed
-	self highlighterTool	.
-	highlighter color: (Color red alpha: 0.3)! !
+	self highlighterColor: Color red! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:47'!
 highlighterTool
 	self tool:HighlighterTool ! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:46:03'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:40:03'!
 highlighterYellow
-	self highlighterTool.
-	highlighter color: (Color yellow alpha: 0.3)! !
+	self highlighterColor: Color yellow! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/8/2024 19:09:17'!
 moveOXAction: increment
@@ -878,34 +879,67 @@ moveOYAction: increment
 		min: container morphExtent 
 		max: page morphExtent negated)! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:42:24'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:37:58'!
+nibSize: aNumber
+	self penTool.
+	pen width: aNumber ! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:40:53'!
+nibSize05
+	self nibSize: 0.5! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:43:11'!
+nibSize08
+	self nibSize: 0.8! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:43:16'!
+nibSize1
+	self nibSize: 1! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:43:21'!
+nibSize2
+	self nibSize: 2! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:43:25'!
+nibSize4
+	self nibSize: 4! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:43:29'!
+nibSize6
+	self nibSize: 6! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:43:32'!
+nibSize8
+	self nibSize: 8! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:38:24'!
 penBlack
-	self penTool.
-	pen color: Color black! !
+	self penColor: Color black! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:42:34'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:38:34'!
 penBlue
-	self penTool.
-	pen color: Color blue! !
+	self penColor: Color blue! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:43:07'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:38:13'!
+penColor: aColor
+	self penTool.
+	pen color: aColor! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:38:44'!
 penGreen
-	self penTool.
-	pen color: Color green! !
+	self penColor: Color green! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:43:50'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:38:53'!
 penRed
-	self penTool.
-	pen color: Color red! !
+	self penColor: Color red! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 10:38:17'!
 penTool
 	self tool: PenTool ! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/13/2024 16:44:14'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:39:01'!
 penWhite
-	self penTool.
-	pen color: Color white! !
+	self penColor: Color white! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/11/2024 17:35:09'!
 redoAction
@@ -1929,7 +1963,7 @@ strokeGroupsAt: worldPosition
 		(each is: #StrokeGroupMorph) 
 		and: [	each isCloserThan: self writingTool width toPixel: worldPosition ] 	]! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/13/2024 18:52:58'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/14/2024 20:32:59'!
 endWritingAt: localPosition
 	samples at: sampleIndex put: localPosition.
 	sampleIndex := sampleIndex + 1.
@@ -1940,8 +1974,8 @@ endWritingAt: localPosition
 		redrawNeeded.
 	self resetSamplingTo: nil.
 	lastMousePosition := nil.
-	lineStrokes comeToFront.
-	lineStrokes redrawNeeded.
+	lineStrokes redrawNeeded;
+		comeToFront.
 	^ self lastStrokeGroup 
 ! !
 
