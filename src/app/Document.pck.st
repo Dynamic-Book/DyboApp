@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 14 October 2024 at 9:50:00 pm'!
+'From Cuis7.1 [latest update: #6764] on 15 October 2024 at 7:21:19 pm'!
 'Description '!
-!provides: 'Document' 1 40!
+!provides: 'Document' 1 41!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -319,7 +319,7 @@ PageMorph class
 
 !classDefinition: #PaperMorph category: #'Document-View'!
 BoxMorph subclass: #PaperMorph
-	instanceVariableNames: 'stroker samples sampleIndex lineStrokes lastMousePosition presenter'
+	instanceVariableNames: 'stroker samples sampleIndex lineMorphs lastMousePosition presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -852,6 +852,23 @@ highlighterGreen
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:39:52'!
 highlighterRed
 	self highlighterColor: Color red! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/15/2024 18:46:25'!
+highlighterSize: aNumber
+	self highlighterTool.
+	highlighter width: aNumber ! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/15/2024 18:46:35'!
+highlighterSize10
+	self highlighterSize: 10! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/15/2024 18:47:01'!
+highlighterSize20
+	self highlighterSize: 20! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/15/2024 18:47:29'!
+highlighterSize40
+	self highlighterSize: 40! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:47'!
 highlighterTool
@@ -1757,10 +1774,12 @@ lastStroke
 
 ! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 4/8/2023 11:40:01'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 10/15/2024 19:00:59'!
 lastStrokeGroup
-" Return the last stroke group morph, including the one during a hand stroke event (penDown, penUp) "
-	^ self firstSubmorph ! !
+" Return the last stroke group morph, including the one during a hand stroke event (penDown, penUp) 
+BEWARE, at each endWriting, we push the lineMorphs as first, to avoid unpleasant artifact when writing (line drawing in the back of previous stroke group morph)
+"	
+	^ submorphs detect: [:aMorph | aMorph is: #StrokeGroupMorph]! !
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 16:01:24'!
 presenter: documentPresenter
@@ -1836,12 +1855,12 @@ mouseMove2: event localPosition: endPosition
 requiresVectorCanvas
 	^ true! !
 
-!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 9/28/2024 14:15:50'!
+!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 10/15/2024 18:52:15'!
 initialize
 	super initialize.
 	self stroker: StrokerBezier2XP.
 	self 
-		addMorph: (lineStrokes := LineStrokeMorph new)! !
+		addMorph: (lineMorphs := LineStrokeMorph new)! !
 
 !PaperMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 10:42:28'!
 is: aSymbol
@@ -1963,7 +1982,7 @@ strokeGroupsAt: worldPosition
 		(each is: #StrokeGroupMorph) 
 		and: [	each isCloserThan: self writingTool width toPixel: worldPosition ] 	]! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/14/2024 20:32:59'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/15/2024 18:57:51'!
 endWritingAt: localPosition
 	samples at: sampleIndex put: localPosition.
 	sampleIndex := sampleIndex + 1.
@@ -1974,18 +1993,18 @@ endWritingAt: localPosition
 		redrawNeeded.
 	self resetSamplingTo: nil.
 	lastMousePosition := nil.
-	lineStrokes redrawNeeded;
+	lineMorphs redrawNeeded;
 		comeToFront.
 	^ self lastStrokeGroup 
 ! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/5/2024 17:29:38'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/15/2024 19:06:30'!
 startWritingAt: localPosition
 " Initilize the user writing "
 	self resetSamplingTo: localPosition.
 	self addMorph: StrokeGroupMorph new.! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 9/5/2024 18:01:48'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/15/2024 19:07:14'!
 writingAt: localPosition
 " the user is still writing "
 	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > 9 		ifTrue: [	
@@ -2005,7 +2024,7 @@ writingAt: localPosition
 					self samplesQty - 2 timesRepeat: [
 						samples 		at: sampleIndex 			put: (samples at: sampleIndex + 1).
 						sampleIndex := sampleIndex +1 ] ]	 	] ]	.
-		lineStrokes redrawNeeded ! !
+		lineMorphs redrawNeeded ! !
 
 !PaperMorph methodsFor: 'drawing' stamp: 'hlsf 9/18/2024 20:33:48'!
 drawOn: aCanvas! !

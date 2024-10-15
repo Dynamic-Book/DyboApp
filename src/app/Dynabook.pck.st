@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 14 October 2024 at 9:50:02 pm'!
+'From Cuis7.1 [latest update: #6764] on 15 October 2024 at 7:21:21 pm'!
 'Description '!
-!provides: 'Dynabook' 1 74!
+!provides: 'Dynabook' 1 75!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1506,28 +1506,29 @@ statusBarMessage: aString
 			redrawNeeded]
 		! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/14/2024 21:32:38'!
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:38:50'!
 docCircularToolbar
 	| toolsData |
 	docTools ifNotNil: [^ docTools].
 	toolsData := OrderedCollection 
 		with: self penColorTools 
 		with: self nibSizeTools 
-		with: self highlighterColorTools .
+		with: self highlighterColorTools
+		with: self highligtherSizeTools .
 	docTools := CircularToolbarMorph new
 		color: dynabookView defaultColor ;
 		selectedColor: dynabookView buttonColor;
-		extent: 200;
+		extent: 180;
 		buttonSize: DySystem iconToolbarSize + 8;
-		dropDownHeight: 10.
+		dropDownHeight: 15.
 	toolsData do: [:subToolsData | | dropDown |
 		dropDown := (self addChevron: subToolsData first to: docTools) addDropDown .
 		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
 	^ docTools ! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:37:40'!
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:31:05'!
 highlighterColorTools
-" Data to build the circular sub toolbar of pen colors "
+" Data to build the circular sub toolbar of highlighter colors "
 	| size help |
 	size := DySystem iconToolbarSize .
 	help := 'Highlight with a {1} color.' translated.
@@ -1539,9 +1540,21 @@ highlighterColorTools
 			with: (	icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
 			with: (help format: {aColor translated})		 	]! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/14/2024 21:43:03'!
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:40:55'!
+highligtherSizeTools
+" Data to build the circular sub toolbar of highligther size "
+	| size help |
+	size := DySystem iconToolbarSize.
+	help := 'Highlit with a width of {1} pixel(s).' translated.
+	^ #(10 20 40) collect: [:nibSize | 
+		Array 
+			with:	(#highlighterSize, nibSize asString) asValidSelector asSymbol
+			with: (self tile: size width: nibSize / 2.0 color: (Color black))
+			with: (help format: {nibSize })		 	]! !
+
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:31:39'!
 nibSizeTools
-" Data to build the circular sub toolbar of pen colors "
+" Data to build the circular sub toolbar of nib size "
 	| size help |
 	size := DySystem iconToolbarSize.
 	help := 'Write with a width of {1} pixel(s).' translated.
