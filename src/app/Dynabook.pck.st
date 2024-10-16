@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 15 October 2024 at 7:21:21 pm'!
+'From Cuis7.1 [latest update: #6764] on 16 October 2024 at 7:26:53 pm'!
 'Description '!
-!provides: 'Dynabook' 1 75!
+!provides: 'Dynabook' 1 77!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1506,7 +1506,7 @@ statusBarMessage: aString
 			redrawNeeded]
 		! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:38:50'!
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 21:14:19'!
 docCircularToolbar
 	| toolsData |
 	docTools ifNotNil: [^ docTools].
@@ -1514,7 +1514,8 @@ docCircularToolbar
 		with: self penColorTools 
 		with: self nibSizeTools 
 		with: self highlighterColorTools
-		with: self highligtherSizeTools .
+		with: self highligtherSizeTools
+		with: self eraserSizeTools .
 	docTools := CircularToolbarMorph new
 		color: dynabookView defaultColor ;
 		selectedColor: dynabookView buttonColor;
@@ -1525,6 +1526,18 @@ docCircularToolbar
 		dropDown := (self addChevron: subToolsData first to: docTools) addDropDown .
 		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
 	^ docTools ! !
+
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 21:16:30'!
+eraserSizeTools
+" Data to build the circular sub toolbar of nib size "
+	| size help |
+	size := DySystem iconToolbarSize.
+	help := 'Erase with a width of {1} pixel(s).' translated.
+	^ #(4 8 16 ) collect: [:eraserSize | 
+		Array 
+			with:	(#eraserSize, eraserSize asString) asValidSelector asSymbol
+			with: (self eraser: size width: eraserSize color: dynabookView defaultColor)
+			with: (help format: {eraserSize })		 	]! !
 
 !DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:31:05'!
 highlighterColorTools
@@ -1677,8 +1690,23 @@ zoom100ButtonData
 	#zoomPageTo100 . 
 	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
 
-!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/14/2024 21:33:33'!
+!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/16/2024 19:23:01'!
+eraser: squareWidth width: width color: color
+" An icon to represent partially erased handstrokes "
+	| aForm mask scale |
+	aForm := self handStroke: squareWidth width: 4 color: Color black.
+	scale := squareWidth / 60.
+	mask := Form extent: 60@60 * scale depth: 32.
+	(VectorEngine onForm: mask subPixelAntiAliasing: true)
+		strokeWidth: width color: Color black do: [:engine |
+			engine moveTo: 20@0 * scale;
+				lineTo: 40@60 * scale].
+	^ aForm eraseShape: (mask asFormOfDepth: 1)
+! !
+
+!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/16/2024 18:53:46'!
 handStroke: squareWidth width: width color: color
+" Handstrokes to represent writting icon "
 	| aForm scale |
 	scale := squareWidth / 60.
 	aForm := Form extent: 60@60 * scale depth: 32.
@@ -1691,8 +1719,9 @@ handStroke: squareWidth width: width color: color
 	^ aForm
 ! !
 
-!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/14/2024 21:33:42'!
+!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/15/2024 21:10:56'!
 tile: squareWidth width: width color: color
+" A tile to represent a highlighter stroke "
 	| aForm scale |
 	scale := squareWidth / 60.
 	aForm := Form extent: 60@60 * scale depth: 32.

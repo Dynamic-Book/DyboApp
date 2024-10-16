@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 15 October 2024 at 7:21:19 pm'!
+'From Cuis7.1 [latest update: #6764] on 16 October 2024 at 7:29:41 pm'!
 'Description '!
-!provides: 'Document' 1 41!
+!provides: 'Document' 1 42!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -808,6 +808,23 @@ newStroke
 	^ newStroke
 	
 	! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/16/2024 19:28:13'!
+eraserSize: aNumber
+	self eraserTool.
+	eraser width: aNumber ! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/16/2024 19:29:02'!
+eraserSize16
+	self eraserSize: 16.! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/16/2024 19:28:20'!
+eraserSize4
+	self eraserSize: 4! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/16/2024 19:28:45'!
+eraserSize8
+	self eraserSize: 8.! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:33'!
 eraserTool
