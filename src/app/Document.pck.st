@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 16 October 2024 at 7:29:41 pm'!
+'From Cuis7.1 [latest update: #6778] on 17 October 2024 at 10:48:08 pm'!
 'Description '!
-!provides: 'Document' 1 42!
+!provides: 'Document' 1 43!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -119,7 +119,7 @@ PenTool class
 
 !classDefinition: #SelectTool category: #'Document-Presenter'!
 PageTool subclass: #SelectTool
-	instanceVariableNames: ''
+	instanceVariableNames: 'origin selection'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -195,6 +195,26 @@ PenToolStateWriting subclass: #HighligtherToolStateWriting
 	category: 'Document-Presenter'!
 !classDefinition: 'HighligtherToolStateWriting class' category: #'Document-Presenter'!
 HighligtherToolStateWriting class
+	instanceVariableNames: ''!
+
+!classDefinition: #SelectToolStateNeutral category: #'Document-Presenter'!
+PageToolState subclass: #SelectToolStateNeutral
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter'!
+!classDefinition: 'SelectToolStateNeutral class' category: #'Document-Presenter'!
+SelectToolStateNeutral class
+	instanceVariableNames: ''!
+
+!classDefinition: #SelectToolStateSelecting category: #'Document-Presenter'!
+PageToolState subclass: #SelectToolStateSelecting
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter'!
+!classDefinition: 'SelectToolStateSelecting class' category: #'Document-Presenter'!
+SelectToolStateSelecting class
 	instanceVariableNames: ''!
 
 !classDefinition: #Command category: #'Document-Presenter-Command'!
@@ -319,7 +339,7 @@ PageMorph class
 
 !classDefinition: #PaperMorph category: #'Document-View'!
 BoxMorph subclass: #PaperMorph
-	instanceVariableNames: 'stroker samples sampleIndex lineMorphs lastMousePosition presenter'
+	instanceVariableNames: 'stroker samples sampleIndex lineMorphs lastMousePosition presenter selectionMorph'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -406,7 +426,8 @@ With the HighlghterTool the user empahsis handwriten notes or any other misc are
 With the PenTool the user writes handwriten notes.!
 
 !SelectTool commentStamp: '<historical>' prior: 0!
-With the SelectTool the user selects and moves around object in a page.!
+With the SelectTool the user defined a rectangle area to select objects to move around
+- origin : the origin of the selection rectangle!
 
 !PageToolState commentStamp: '<historical>' prior: 0!
 I a represent an abstracte state of a tool selected by the user.
@@ -416,6 +437,10 @@ The context is the tool (penTool, eraserTool, ...) under which the state operate
 We record the deleted strokes in a dictionary. 
 Its keys are the StrokeGroupMorphs and its values are collections of deleted strokes of the group.
 When all the strokes of a group are deleted, we just need to remember of the whole stroke group.!
+
+!SelectToolStateSelecting commentStamp: '<historical>' prior: 0!
+The origin of the rectangular selection was set, the user drags the pointer to set the corner of the rectangular area
+to suround morphs to select.!
 
 !Command commentStamp: '<historical>' prior: 0!
 An abstract class to represent commands of user actions in a Document.
@@ -1241,10 +1266,26 @@ title
 iconName
 	^ #pen! !
 
-!SelectTool methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 16:04:31'!
+!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:11:41'!
+origin
+	^ origin ! !
+
+!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:10:51'!
+origin: aPoint
+	origin := aPoint ! !
+
+!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:13:26'!
+selection
+	^ selection! !
+
+!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:13:37'!
+selection: aCollection
+	selection := 	aCollection ! !
+
+!SelectTool methodsFor: 'initialization' stamp: 'hlsf 10/17/2024 22:44:58'!
 initialize
 	super initialize.
-	self switchState: PageToolState " does nothing right now "! !
+	self switchState: SelectToolStateNeutral ! !
 
 !SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:49:27'!
 action
@@ -1282,11 +1323,11 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/30/2024 19:30:24'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 10/17/2024 11:34:05'!
 handleMouseAt: localPosition in: paper
 	| worldCoordinate |
 	worldCoordinate := paper externalizeToWorld: localPosition.
-	(paper strokeGroupsAt: worldCoordinate) do: [:aGroup | "self halt."
+	(paper strokeGroupsAt: worldCoordinate) do: [:aGroup | 
 		(deletedStrokes at: aGroup ifAbsentPut: [OrderedCollection new])
 			addAll: (aGroup removeStrokesAt: worldCoordinate ).
 		aGroup lastStroke ifNil: [" the stroke group was entirely deleted "
@@ -1294,10 +1335,7 @@ handleMouseAt: localPosition in: paper
 			"Reconstitute the strokeGroup... "
 			aGroup addAllMorphs: (deletedStrokes at: aGroup).
 			"... then we don't need the individual strokes, we remember of the whole group "
-			deletedStrokes at: aGroup put: aGroup]
-	]
-		
-		! !
+			deletedStrokes at: aGroup put: aGroup] 	]! !
 
 !EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/29/2024 22:54:11'!
 handleRelease: localPosition in: paper
@@ -1354,6 +1392,22 @@ handleRelease: localPosition in: paper
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
 	context switchState: HighligtherToolStateNeutral 
 	! !
+
+!SelectToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/17/2024 22:47:01'!
+handlePress: localPosition in: paper
+	context origin: localPosition.
+	context switchState: SelectToolStateSelecting! !
+
+!SelectToolStateSelecting methodsFor: 'handling' stamp: 'hlsf 10/17/2024 22:39:59'!
+handleMouseAt: localPosition in: paper
+	paper selectionArea: (context origin corner: localPosition)! !
+
+!SelectToolStateSelecting methodsFor: 'handling' stamp: 'hlsf 10/17/2024 22:46:41'!
+handleRelease: localPosition in: paper
+	context selection: ( 	paper morphsIn: (
+		(paper externalizeToWorld: context origin) corner: (paper externalizeToWorld: localPosition)) ).
+	paper selectionArea: nil.
+	context switchState: SelectToolStateNeutral! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:05:57'!
 execute
@@ -1798,6 +1852,15 @@ BEWARE, at each endWriting, we push the lineMorphs as first, to avoid unpleasant
 "	
 	^ submorphs detect: [:aMorph | aMorph is: #StrokeGroupMorph]! !
 
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:09:11'!
+morphsIn: selectionRect
+" Select stroke group and annotator morphs inside a Rectangle "
+	^ submorphs select: [:aMorph |
+		((aMorph is: #StrokeGroupMorph) and: [selectionRect containsRect: aMorph displayFullBounds])
+		or: [(aMorph is: #AnnotatorMorph) and: [selectionRect containsRect: aMorph displayFullBounds] ] ]
+		
+		! !
+
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 16:01:24'!
 presenter: documentPresenter
 	presenter := documentPresenter ! !
@@ -1814,6 +1877,28 @@ samples
 samplesQty
 "Number of samples before instantiating a new hand stroke"
 	^ samples size! !
+
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:45:40'!
+selectionArea: rect
+"set, update or discard the selection area"
+	(rect isNil and: [selectionMorph notNil]) ifTrue: [
+		self removeMorph: selectionMorph.
+		selectionMorph := nil.		
+		^ self].
+	rect ifNotNil: [
+		selectionMorph 
+			ifNil:  [	selectionMorph := BorderedBoxMorph new
+					color: (Color brown alpha: 0.3);
+					borderWidth: 2;
+					borderColor: Color brown;
+					morphExtent: rect extent.
+				self addMorph: selectionMorph position: rect corner ]
+			ifNotNil: [selectionMorph morphPosition: rect origin;
+				morphExtent: rect extent ]
+	]
+		
+			
+			! !
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 4/2/2023 14:28:07'!
 stroker: aStrokerClass

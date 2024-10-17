@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6764] on 16 October 2024 at 7:26:53 pm'!
+'From Cuis7.1 [latest update: #6778] on 16 October 2024 at 10:57:01 pm'!
 'Description '!
-!provides: 'Dynabook' 1 77!
+!provides: 'Dynabook' 1 78!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1527,16 +1527,16 @@ docCircularToolbar
 		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
 	^ docTools ! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 21:16:30'!
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/16/2024 22:56:53'!
 eraserSizeTools
 " Data to build the circular sub toolbar of nib size "
 	| size help |
 	size := DySystem iconToolbarSize.
-	help := 'Erase with a width of {1} pixel(s).' translated.
+	help := 'Erase with a width of {1} pixels.' translated.
 	^ #(4 8 16 ) collect: [:eraserSize | 
 		Array 
 			with:	(#eraserSize, eraserSize asString) asValidSelector asSymbol
-			with: (self eraser: size width: eraserSize color: dynabookView defaultColor)
+			with: (self eraser: size width: eraserSize )
 			with: (help format: {eraserSize })		 	]! !
 
 !DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:31:05'!
@@ -1553,12 +1553,12 @@ highlighterColorTools
 			with: (	icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
 			with: (help format: {aColor translated})		 	]! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:40:55'!
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/16/2024 22:56:48'!
 highligtherSizeTools
 " Data to build the circular sub toolbar of highligther size "
 	| size help |
 	size := DySystem iconToolbarSize.
-	help := 'Highlit with a width of {1} pixel(s).' translated.
+	help := 'Highlit with a width of {1} pixels.' translated.
 	^ #(10 20 40) collect: [:nibSize | 
 		Array 
 			with:	(#highlighterSize, nibSize asString) asValidSelector asSymbol
@@ -1690,8 +1690,8 @@ zoom100ButtonData
 	#zoomPageTo100 . 
 	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
 
-!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/16/2024 19:23:01'!
-eraser: squareWidth width: width color: color
+!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/16/2024 22:39:19'!
+eraser: squareWidth width: width
 " An icon to represent partially erased handstrokes "
 	| aForm mask scale |
 	aForm := self handStroke: squareWidth width: 4 color: Color black.
