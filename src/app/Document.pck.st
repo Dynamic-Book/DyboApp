@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 19 October 2024 at 12:41:51 pm'!
+'From Cuis7.1 [latest update: #6778] on 19 October 2024 at 3:28:37 pm'!
 'Description '!
-!provides: 'Document' 1 45!
+!provides: 'Document' 1 46!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1390,7 +1390,7 @@ handlePress: localPosition in: page
 handleRelease: localPosition in:page
 	state handleRelease: localPosition in: page! !
 
-!PageTool methodsFor: 'state' stamp: 'hlsf 10/18/2024 22:50:49'!
+!PageTool methodsFor: 'state' stamp: 'hlsf 10/19/2024 15:28:15'!
 switchState: aStateClass
 	state := aStateClass basicNew 
 		context: self;
@@ -1512,12 +1512,15 @@ corner
 corner: aPoint
 	corner := aPoint ! !
 
-!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 11:57:37'!
+!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 15:24:44'!
 grabMorphsIn: kindOfPaper inside: rect
 " kind of paper can be a Paper or an Annotator "
+	| rectFitToSelection |
 	selection := ( (kindOfPaper is: #AnnotatorMorph)
 		ifTrue: [kindOfPaper grabMorphsIn: rect]
-		ifFalse: [kindOfPaper owner grabMorphsIn: rect " Ask to the page of the paper to also grab annotator "] )! !
+		ifFalse: [kindOfPaper owner grabMorphsIn: rect " Ask to the page of the paper to also grab annotator "] ).
+	selection do: [:aMorph | rectFitToSelection := aMorph fullBoundsInOwner quickMerge: rectFitToSelection].
+	kindOfPaper selectionArea: rectFitToSelection! !
 
 !SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 12:10:20'!
 paper
@@ -1663,11 +1666,12 @@ handleMouseAt: localPosition in: paper
 		paper selectionMorph morphPosition: paper selectionMorph morphPosition + delta.
 		prevPosition := localPosition]! !
 
-!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 12:14:32'!
+!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 15:27:42'!
 handlePress: localPosition in: paper
 	(paper == context paper 
 	and: [paper selectionMorph fullBoundsInOwner containsPoint: localPosition] ) ifFalse: [
-			^ context switchState: SelectToolStateNeutral ].
+			context switchState: SelectToolStateNeutral.
+			^ context handlePress: localPosition in: paper			].
 	initialPosition := prevPosition := localPosition ! !
 
 !SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 11:29:52'!
@@ -1684,14 +1688,17 @@ handleMouseAt: localPosition in: paper
 			with: context corner
 			with: localPosition) )! !
 
-!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/19/2024 10:57:35'!
+!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/19/2024 15:19:06'!
 handleRelease: localPosition in: paper
 	| selectionRect |
 	selectionRect := Rectangle encompassingInteger: {
 		paper externalizeToWorld: context corner.
 		paper externalizeToWorld: localPosition }.
-	context 	grabMorphsIn: paper inside: selectionRect.
-	context switchState: SelectToolStateDragging! !
+	selectionRect origin = selectionRect corner
+		ifTrue: [context switchState: SelectToolStateNeutral ]
+		ifFalse: [
+			context 	grabMorphsIn: paper inside: selectionRect.
+			context switchState: SelectToolStateDragging]! !
 
 !SelectToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/19/2024 12:15:58'!
 handlePress: localPosition in: aPaper
@@ -2282,23 +2289,13 @@ drawOn: aCanvas! !
 clearSelection
 	self selectionArea: nil! !
 
-!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/18/2024 23:29:29'!
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/19/2024 15:16:38'!
 grabMorphsIn: rect
 " Select stroke group inside a Rectangle "
 	^ submorphs select: [:aMorph |
-		(aMorph is: #StrokeGroupMorph) and: [rect containsRect: aMorph displayFullBounds] ] 
-		
-		! !
+		(aMorph is: #StrokeGroupMorph) and: [rect containsRect: aMorph displayFullBounds] ]! !
 
-!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/18/2024 23:28:53'!
-morphsIn: selectionRect
-" Select stroke group and annotator morphs inside a Rectangle "
-	^ submorphs select: [:aMorph |
-		(aMorph is: #StrokeGroupMorph) and: [selectionRect containsRect: aMorph displayFullBounds] ] 
-		
-		! !
-
-!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/17/2024 22:45:40'!
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/19/2024 15:25:54'!
 selectionArea: rect
 "set, update or discard the selection area"
 	(rect isNil and: [selectionMorph notNil]) ifTrue: [
@@ -2308,7 +2305,7 @@ selectionArea: rect
 	rect ifNotNil: [
 		selectionMorph 
 			ifNil:  [	selectionMorph := BorderedBoxMorph new
-					color: (Color brown alpha: 0.3);
+					color: (Color brown alpha: 0.2);
 					borderWidth: 2;
 					borderColor: Color brown;
 					morphExtent: rect extent.
