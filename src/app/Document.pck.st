@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 19 October 2024 at 3:28:37 pm'!
+'From Cuis7.1 [latest update: #6778] on 19 October 2024 at 11:50:21 pm'!
 'Description '!
-!provides: 'Document' 1 46!
+!provides: 'Document' 1 47!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -892,7 +892,7 @@ eraserSize: aNumber
 eraserSize16
 	self eraserSize: 16.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/16/2024 19:28:20'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 23:06:48'!
 eraserSize4
 	self eraserSize: 4! !
 
@@ -940,7 +940,7 @@ highlighterColor: aColor
 highlighterGreen
 	self highlighterColor: Color green! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:39:52'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 23:09:21'!
 highlighterRed
 	self highlighterColor: Color red! !
 
@@ -965,7 +965,7 @@ highlighterSize40
 highlighterTool
 	self tool:HighlighterTool ! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:40:03'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 23:49:17'!
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
@@ -1024,7 +1024,7 @@ nibSize8
 penBlack
 	self penColor: Color black! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:38:34'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 23:22:18'!
 penBlue
 	self penColor: Color blue! !
 
@@ -1356,6 +1356,10 @@ undo
 	command := stack previous.
 	command ifNotNil: [command unexecute]! !
 
+!PageTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 16:15:48'!
+currentPage
+	^ presenter currentPage! !
+
 !PageTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:36:26'!
 presenter
 	^ presenter! !
@@ -1390,7 +1394,7 @@ handlePress: localPosition in: page
 handleRelease: localPosition in:page
 	state handleRelease: localPosition in: page! !
 
-!PageTool methodsFor: 'state' stamp: 'hlsf 10/19/2024 15:28:15'!
+!PageTool methodsFor: 'state' stamp: 'hlsf 10/19/2024 16:21:20'!
 switchState: aStateClass
 	state := aStateClass basicNew 
 		context: self;
@@ -1636,7 +1640,7 @@ handlePress: localPosition in: paper
 	"...then "
 	context switchState: PenToolStateWriting ! !
 
-!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/5/2024 15:40:41'!
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 10/19/2024 16:29:58'!
 handleMouseAt: localPosition in: paper
 	paper writingAt: localPosition
 	! !
@@ -1657,29 +1661,34 @@ handleRelease: localPosition in: paper
 	context switchState: HighligtherToolStateNeutral 
 	! !
 
-!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 11:26:40'!
+!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 16:16:05'!
 handleMouseAt: localPosition in: paper
-	| delta |
-	prevPosition ~= localPosition ifTrue: [
-		delta := localPosition - prevPosition.
+	| delta pickupSelectionMorph worldPosition |
+	worldPosition := paper externalizeToWorld: localPosition.
+	prevPosition ~= worldPosition ifTrue: [
+		delta := (worldPosition - prevPosition) / context currentPage scale.
+		pickupSelectionMorph := paper selectionMorph ifNil: [context paper selectionMorph]. 
 		context selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition + delta		 ].
-		paper selectionMorph morphPosition: paper selectionMorph morphPosition + delta.
-		prevPosition := localPosition]! !
+		pickupSelectionMorph morphPosition: pickupSelectionMorph morphPosition + delta.
+		prevPosition := worldPosition ]! !
 
-!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 15:27:42'!
+!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 16:05:17'!
 handlePress: localPosition in: paper
-	(paper == context paper 
-	and: [paper selectionMorph fullBoundsInOwner containsPoint: localPosition] ) ifFalse: [
+	| pickUpSelectionMorph |
+	" problem when selecting an annotator: selectionMorph is in Paper, 
+	but call here in Annotator, so localPosition in Annotator coordinates "
+	initialPosition := prevPosition := paper externalizeToWorld: localPosition .
+	pickUpSelectionMorph := paper selectionMorph ifNil: [context paper selectionMorph]. 
+	(pickUpSelectionMorph displayFullBounds containsPoint: initialPosition ) ifFalse: [
 			context switchState: SelectToolStateNeutral.
-			^ context handlePress: localPosition in: paper			].
-	initialPosition := prevPosition := localPosition ! !
+			^ context handlePress: localPosition in: paper			]! !
 
-!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 11:29:52'!
+!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 23:00:38'!
 handleRelease: locaPosition in: paper
 	self commandsManager 
 		move: context 		selection 
-		to: locaPosition - initialPosition
-		in: paper! !
+		to: ((paper externalizeToWorld: locaPosition) - initialPosition) / context currentPage scale
+		in: context paper! !
 
 !SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:18:50'!
 handleMouseAt: localPosition in: paper
@@ -1688,7 +1697,7 @@ handleMouseAt: localPosition in: paper
 			with: context corner
 			with: localPosition) )! !
 
-!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/19/2024 15:19:06'!
+!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/19/2024 15:32:56'!
 handleRelease: localPosition in: paper
 	| selectionRect |
 	selectionRect := Rectangle encompassingInteger: {
@@ -1698,7 +1707,10 @@ handleRelease: localPosition in: paper
 		ifTrue: [context switchState: SelectToolStateNeutral ]
 		ifFalse: [
 			context 	grabMorphsIn: paper inside: selectionRect.
-			context switchState: SelectToolStateDragging]! !
+			context selection 
+				ifEmpty: [		context switchState: SelectToolStateNeutral ] " empty selectio go back to neutral"
+				ifNotEmpty: [			context switchState: SelectToolStateDragging] "We catched some morph, go..."
+		]! !
 
 !SelectToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/19/2024 12:15:58'!
 handlePress: localPosition in: aPaper
@@ -2479,24 +2491,6 @@ defaultBorderColor
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:31'!
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
-
-!DocumentView methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:36:19'!
-mouseButton1Down: event localPosition: localPosition
-	self tool handlePress: localPosition in: self currentPage ! !
-
-!DocumentView methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:11:08'!
-mouseButton1Up: event localPosition: localPosition
-	self tool handleRelease: localPosition in: self currentPage ! !
-
-!DocumentView methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:36:08'!
-mouseMove: event localPosition: localPosition
-	event mouseButton1Pressed not ifTrue: [		^ self ].
-	self tool handleMouseAt: localPosition in: self currentPage ! !
-
-!DocumentView methodsFor: 'event handling testing' stamp: 'hlsf 9/5/2024 15:35:04'!
-handlesMouseDown: evnt
-" We handle event at this level only with the Select tool "
-	^ presenter isTool: #select! !
 
 !DocumentView class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 16:02:50'!
 presenter: aPresenter
