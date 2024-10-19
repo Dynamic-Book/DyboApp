@@ -1,19 +1,20 @@
-'From Cuis7.1 [latest update: #6778] on 18 October 2024 at 9:25:24 pm'!
+'From Cuis7.1 [latest update: #6778] on 19 October 2024 at 12:41:51 pm'!
 'Description '!
-!provides: 'Document' 1 44!
+!provides: 'Document' 1 45!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
-SystemOrganization addCategory: #'Document-Presenter-Command'!
+SystemOrganization addCategory: 'Document-Presenter-Tool'!
+SystemOrganization addCategory: 'Document-Presenter-Command'!
 
 
-!classDefinition: #CommandStack category: #'Document-Presenter-Command'!
+!classDefinition: #CommandStack category: 'Document-Presenter-Command'!
 ReadWriteStream subclass: #CommandStack
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'CommandStack class' category: #'Document-Presenter-Command'!
+!classDefinition: 'CommandStack class' category: 'Document-Presenter-Command'!
 CommandStack class
 	instanceVariableNames: ''!
 
@@ -77,214 +78,234 @@ Object subclass: #Document
 Document class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageTool category: #'Document-Presenter'!
-Object subclass: #PageTool
-	instanceVariableNames: 'state presenter'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'PageTool class' category: #'Document-Presenter'!
-PageTool class
-	instanceVariableNames: ''!
-
-!classDefinition: #EraserTool category: #'Document-Presenter'!
-PageTool subclass: #EraserTool
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'EraserTool class' category: #'Document-Presenter'!
-EraserTool class
-	instanceVariableNames: ''!
-
-!classDefinition: #HighlighterTool category: #'Document-Presenter'!
-PageTool subclass: #HighlighterTool
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'HighlighterTool class' category: #'Document-Presenter'!
-HighlighterTool class
-	instanceVariableNames: ''!
-
-!classDefinition: #PenTool category: #'Document-Presenter'!
-PageTool subclass: #PenTool
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'PenTool class' category: #'Document-Presenter'!
-PenTool class
-	instanceVariableNames: ''!
-
-!classDefinition: #SelectTool category: #'Document-Presenter'!
-PageTool subclass: #SelectTool
-	instanceVariableNames: 'corner selection'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'SelectTool class' category: #'Document-Presenter'!
-SelectTool class
-	instanceVariableNames: ''!
-
-!classDefinition: #PageToolState category: #'Document-Presenter'!
-Object subclass: #PageToolState
-	instanceVariableNames: 'context'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'PageToolState class' category: #'Document-Presenter'!
-PageToolState class
-	instanceVariableNames: ''!
-
-!classDefinition: #EraserToolStateErasing category: #'Document-Presenter'!
-PageToolState subclass: #EraserToolStateErasing
-	instanceVariableNames: 'deletedStrokes'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'EraserToolStateErasing class' category: #'Document-Presenter'!
-EraserToolStateErasing class
-	instanceVariableNames: ''!
-
-!classDefinition: #EraserToolStateNeutral category: #'Document-Presenter'!
-PageToolState subclass: #EraserToolStateNeutral
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'EraserToolStateNeutral class' category: #'Document-Presenter'!
-EraserToolStateNeutral class
-	instanceVariableNames: ''!
-
-!classDefinition: #HighligtherToolStateNeutral category: #'Document-Presenter'!
-PageToolState subclass: #HighligtherToolStateNeutral
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'HighligtherToolStateNeutral class' category: #'Document-Presenter'!
-HighligtherToolStateNeutral class
-	instanceVariableNames: ''!
-
-!classDefinition: #PenToolStateNeutral category: #'Document-Presenter'!
-PageToolState subclass: #PenToolStateNeutral
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'PenToolStateNeutral class' category: #'Document-Presenter'!
-PenToolStateNeutral class
-	instanceVariableNames: ''!
-
-!classDefinition: #PenToolStateWriting category: #'Document-Presenter'!
-PageToolState subclass: #PenToolStateWriting
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'PenToolStateWriting class' category: #'Document-Presenter'!
-PenToolStateWriting class
-	instanceVariableNames: ''!
-
-!classDefinition: #HighligtherToolStateWriting category: #'Document-Presenter'!
-PenToolStateWriting subclass: #HighligtherToolStateWriting
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'HighligtherToolStateWriting class' category: #'Document-Presenter'!
-HighligtherToolStateWriting class
-	instanceVariableNames: ''!
-
-!classDefinition: #SelectToolStateDragging category: #'Document-Presenter'!
-PageToolState subclass: #SelectToolStateDragging
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'SelectToolStateDragging class' category: #'Document-Presenter'!
-SelectToolStateDragging class
-	instanceVariableNames: ''!
-
-!classDefinition: #SelectToolStateGrabbing category: #'Document-Presenter'!
-PageToolState subclass: #SelectToolStateGrabbing
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'SelectToolStateGrabbing class' category: #'Document-Presenter'!
-SelectToolStateGrabbing class
-	instanceVariableNames: ''!
-
-!classDefinition: #SelectToolStateNeutral category: #'Document-Presenter'!
-PageToolState subclass: #SelectToolStateNeutral
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'SelectToolStateNeutral class' category: #'Document-Presenter'!
-SelectToolStateNeutral class
-	instanceVariableNames: ''!
-
-!classDefinition: #Command category: #'Document-Presenter-Command'!
+!classDefinition: #Command category: 'Document-Presenter-Command'!
 Object subclass: #Command
 	instanceVariableNames: 'domain'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'Command class' category: #'Document-Presenter-Command'!
+!classDefinition: 'Command class' category: 'Document-Presenter-Command'!
 Command class
 	instanceVariableNames: ''!
 
-!classDefinition: #ErasingCommand category: #'Document-Presenter-Command'!
+!classDefinition: #ErasingCommand category: 'Document-Presenter-Command'!
 Command subclass: #ErasingCommand
 	instanceVariableNames: 'deletedStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'ErasingCommand class' category: #'Document-Presenter-Command'!
+!classDefinition: 'ErasingCommand class' category: 'Document-Presenter-Command'!
 ErasingCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #ErasingAnnotatorCommand category: #'Document-Presenter-Command'!
+!classDefinition: #ErasingAnnotatorCommand category: 'Document-Presenter-Command'!
 ErasingCommand subclass: #ErasingAnnotatorCommand
 	instanceVariableNames: 'bounds'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'ErasingAnnotatorCommand class' category: #'Document-Presenter-Command'!
+!classDefinition: 'ErasingAnnotatorCommand class' category: 'Document-Presenter-Command'!
 ErasingAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #WritingCommand category: #'Document-Presenter-Command'!
+!classDefinition: #MoveCommand category: 'Document-Presenter-Command'!
+Command subclass: #MoveCommand
+	instanceVariableNames: 'selection delta'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'MoveCommand class' category: 'Document-Presenter-Command'!
+MoveCommand class
+	instanceVariableNames: ''!
+
+!classDefinition: #MoveInAnnotatorCommand category: 'Document-Presenter-Command'!
+MoveCommand subclass: #MoveInAnnotatorCommand
+	instanceVariableNames: 'bounds'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'MoveInAnnotatorCommand class' category: 'Document-Presenter-Command'!
+MoveInAnnotatorCommand class
+	instanceVariableNames: ''!
+
+!classDefinition: #WritingCommand category: 'Document-Presenter-Command'!
 Command subclass: #WritingCommand
 	instanceVariableNames: 'strokeGroup'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'WritingCommand class' category: #'Document-Presenter-Command'!
+!classDefinition: 'WritingCommand class' category: 'Document-Presenter-Command'!
 WritingCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #WritingAnnotatorCommand category: #'Document-Presenter-Command'!
+!classDefinition: #WritingAnnotatorCommand category: 'Document-Presenter-Command'!
 WritingCommand subclass: #WritingAnnotatorCommand
 	instanceVariableNames: 'bounds'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'WritingAnnotatorCommand class' category: #'Document-Presenter-Command'!
+!classDefinition: 'WritingAnnotatorCommand class' category: 'Document-Presenter-Command'!
 WritingAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #CommandManager category: #'Document-Presenter-Command'!
+!classDefinition: #CommandManager category: 'Document-Presenter-Command'!
 Object subclass: #CommandManager
 	instanceVariableNames: 'stack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'CommandManager class' category: #'Document-Presenter-Command'!
+!classDefinition: 'CommandManager class' category: 'Document-Presenter-Command'!
 CommandManager class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageTool category: 'Document-Presenter-Tool'!
+Object subclass: #PageTool
+	instanceVariableNames: 'state presenter'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'PageTool class' category: 'Document-Presenter-Tool'!
+PageTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #EraserTool category: 'Document-Presenter-Tool'!
+PageTool subclass: #EraserTool
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'EraserTool class' category: 'Document-Presenter-Tool'!
+EraserTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #HighlighterTool category: 'Document-Presenter-Tool'!
+PageTool subclass: #HighlighterTool
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'HighlighterTool class' category: 'Document-Presenter-Tool'!
+HighlighterTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #PenTool category: 'Document-Presenter-Tool'!
+PageTool subclass: #PenTool
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'PenTool class' category: 'Document-Presenter-Tool'!
+PenTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #SelectTool category: 'Document-Presenter-Tool'!
+PageTool subclass: #SelectTool
+	instanceVariableNames: 'corner selection paper'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'SelectTool class' category: 'Document-Presenter-Tool'!
+SelectTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageToolState category: 'Document-Presenter-Tool'!
+Object subclass: #PageToolState
+	instanceVariableNames: 'context'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'PageToolState class' category: 'Document-Presenter-Tool'!
+PageToolState class
+	instanceVariableNames: ''!
+
+!classDefinition: #EraserToolStateErasing category: 'Document-Presenter-Tool'!
+PageToolState subclass: #EraserToolStateErasing
+	instanceVariableNames: 'deletedStrokes'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'EraserToolStateErasing class' category: 'Document-Presenter-Tool'!
+EraserToolStateErasing class
+	instanceVariableNames: ''!
+
+!classDefinition: #EraserToolStateNeutral category: 'Document-Presenter-Tool'!
+PageToolState subclass: #EraserToolStateNeutral
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'EraserToolStateNeutral class' category: 'Document-Presenter-Tool'!
+EraserToolStateNeutral class
+	instanceVariableNames: ''!
+
+!classDefinition: #HighligtherToolStateNeutral category: 'Document-Presenter-Tool'!
+PageToolState subclass: #HighligtherToolStateNeutral
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'HighligtherToolStateNeutral class' category: 'Document-Presenter-Tool'!
+HighligtherToolStateNeutral class
+	instanceVariableNames: ''!
+
+!classDefinition: #PenToolStateNeutral category: 'Document-Presenter-Tool'!
+PageToolState subclass: #PenToolStateNeutral
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'PenToolStateNeutral class' category: 'Document-Presenter-Tool'!
+PenToolStateNeutral class
+	instanceVariableNames: ''!
+
+!classDefinition: #PenToolStateWriting category: 'Document-Presenter-Tool'!
+PageToolState subclass: #PenToolStateWriting
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'PenToolStateWriting class' category: 'Document-Presenter-Tool'!
+PenToolStateWriting class
+	instanceVariableNames: ''!
+
+!classDefinition: #HighligtherToolStateWriting category: 'Document-Presenter-Tool'!
+PenToolStateWriting subclass: #HighligtherToolStateWriting
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'HighligtherToolStateWriting class' category: 'Document-Presenter-Tool'!
+HighligtherToolStateWriting class
+	instanceVariableNames: ''!
+
+!classDefinition: #SelectToolStateDragging category: 'Document-Presenter-Tool'!
+PageToolState subclass: #SelectToolStateDragging
+	instanceVariableNames: 'prevPosition initialPosition'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'SelectToolStateDragging class' category: 'Document-Presenter-Tool'!
+SelectToolStateDragging class
+	instanceVariableNames: ''!
+
+!classDefinition: #SelectToolStateGrabbing category: 'Document-Presenter-Tool'!
+PageToolState subclass: #SelectToolStateGrabbing
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'SelectToolStateGrabbing class' category: 'Document-Presenter-Tool'!
+SelectToolStateGrabbing class
+	instanceVariableNames: ''!
+
+!classDefinition: #SelectToolStateNeutral category: 'Document-Presenter-Tool'!
+PageToolState subclass: #SelectToolStateNeutral
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'SelectToolStateNeutral class' category: 'Document-Presenter-Tool'!
+SelectToolStateNeutral class
 	instanceVariableNames: ''!
 
 !classDefinition: #DocumentModel category: #'Document-Model'!
@@ -422,6 +443,49 @@ Compute a cubic Bézier curve.!
 !Document commentStamp: '<historical>' prior: 0!
 The Presenter of the Document to handle the controllers and associated callbacks of the tools.!
 
+!Command commentStamp: '<historical>' prior: 0!
+An abstract class to represent commands of user actions in a Document.
+domain is specific to the represented action, it can be a paper or a document.!
+
+!ErasingCommand commentStamp: '<historical>' prior: 0!
+The command records erasing occuring between eraser down - eraser up event
+- domain is a paper morph instance where the erasing occured
+- deletedStrokes : a dictionany of deleted strokes (value) per stroke group (key). Those strokes can, and very likely, belong to several different stroke groupe!
+
+!ErasingAnnotatorCommand commentStamp: '<historical>' prior: 0!
+A command to record erasing on an AnnotatorMorph
+- domain: an annotator morph
+- bounds: the bounds of the annotator morph prior to the erasing. 
+The bounds once erasing is restored can be computed once the stroke group is added back to the domain (annotator morph)!
+
+!MoveCommand commentStamp: '<historical>' prior: 0!
+The command records dragged (translated) Morphs (stroke groups and annotators) 
+- domain is a paper morph instance where the writing occured
+- selection : the group of translated morphs 
+- delta: point, translation from former position
+!
+
+!MoveInAnnotatorCommand commentStamp: '<historical>' prior: 0!
+The command records dragged (translated) Morphs (stroke groups only) occuring within an Annotator object
+- domain: an annotator morph
+- bounds: the bounds of the annotator morph once move was done and bounds adjusted. 
+The bounds prior move can be computed once the stroke group is moved in the domain (annotator morph)!
+
+!WritingCommand commentStamp: '<historical>' prior: 0!
+The command records writing between pen down - pen up event
+- domain is a paper morph instance where the writing occured
+- strokeGroup : the group of strokes that was just writen
+!
+
+!WritingAnnotatorCommand commentStamp: 'hlsf 9/29/2024 18:16:46' prior: 0!
+A command to record writings on an AnnotatorMorph
+- domain: an annotator morph
+- bounds: the bounds of the annotator morph once writting was done and bounds adjusted. 
+The bounds prior writing can be computed once the stroke group is removed from the domain (annotator morph)!
+
+!CommandManager commentStamp: '<historical>' prior: 0!
+A manager for user commands. At user actions, I create specific instances of command recorded in a stack.!
+
 !PageTool commentStamp: '<historical>' prior: 0!
 An abstraction of a tool to operate on a Page. Subclasses implement Pen, Eraser, etc. tools.!
 
@@ -437,7 +501,9 @@ With the PenTool the user writes handwriten notes.!
 
 !SelectTool commentStamp: '<historical>' prior: 0!
 With the SelectTool the user defined a rectangle area to select objects to move around
-- origin : the origin of the selection rectangle!
+- origin : the origin of the selection rectangle
+- selection: a collection of moved morph
+- paper: in which paper did the action occured. We need to remember about it because the user can decide without prior notice to select and drag morphs from different papers (paper to annotator, annotator to another annotater, annotator to paper), in that case we need to reset the selection process!
 
 !PageToolState commentStamp: '<historical>' prior: 0!
 I a represent an abstracte state of a tool selected by the user.
@@ -454,36 +520,6 @@ The moprh under the Rectangular area can be dragged, or attributes changed!
 !SelectToolStateGrabbing commentStamp: '<historical>' prior: 0!
 A corner of the rectangular selection was set, the user moves the pointer to define the rectangular area
 to grab the morphs to select.!
-
-!Command commentStamp: '<historical>' prior: 0!
-An abstract class to represent commands of user actions in a Document.
-domain is specific to the represented action, it can be a paper or a document.!
-
-!ErasingCommand commentStamp: 'hlsf 9/29/2024 17:26:42' prior: 0!
-The command record action between eraser down - eraser up event
-- domain is a paper morph instance where the erasing occured
-- deletedStrokes : a dictionany of deleted strokes (value) per stroke group (key). Those strokes can, and very likely, belong to several different stroke groupe!
-
-!ErasingAnnotatorCommand commentStamp: '<historical>' prior: 0!
-A command to record erasing on an AnnotatorMorph
-- domain: an annotator morph
-- bounds: the bounds of the annotator morph prior to the erasing. 
-The bounds once erasing is restored can be computed once the stroke group is added back to the domain (annotator morph)!
-
-!WritingCommand commentStamp: '<historical>' prior: 0!
-The command record action between pen down - pen up event
-- domain is a paper morph instance where the writing occured
-- strokeGroup : the group of strokes that was just writen
-!
-
-!WritingAnnotatorCommand commentStamp: 'hlsf 9/29/2024 18:16:46' prior: 0!
-A command to record writings on an AnnotatorMorph
-- domain: an annotator morph
-- bounds: the bounds of the annotator morph once writting was done and bounds adjusted. 
-The bounds prior writing can be computed once the stroke group is removed from the domain (annotator morph)!
-
-!CommandManager commentStamp: '<historical>' prior: 0!
-A manager for user commands. At user actions, I create specific instances of command recorded in a stack.!
 
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
 A quadratic Bézier stroke!
@@ -1013,17 +1049,18 @@ penTool
 penWhite
 	self penColor: Color white! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/11/2024 17:35:09'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 12:21:46'!
 redoAction
-	commandsManager redo! !
+	commandsManager redo.! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:59'!
 selectTool
 	self tool: SelectTool ! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/11/2024 17:35:16'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 12:23:07'!
 undoAction
-	commandsManager undo! !
+	commandsManager undo.
+	self tool: tool class " reselect to tool remove intermediate state in the tool "! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 9/29/2024 17:35:40'!
 zoomAction: increment	
@@ -1134,6 +1171,191 @@ controlsManager: aControlsManager
 new
 	self error: 'Instanciate with a controls manager'! !
 
+!Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:05:57'!
+execute
+	self subclassResponsibility ! !
+
+!Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:06:19'!
+unexecute
+	self subclassResponsibility ! !
+
+!Command methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:05:50'!
+domain: aDomain
+	domain := aDomain! !
+
+!Command methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:06:12'!
+release
+"Let my child do some clean up"! !
+
+!ErasingCommand methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 21:02:30'!
+deletedStrokes: aDictionnary
+" Read EraserToolStateErasing>>handleMouseAt:in: "
+	deletedStrokes := aDictionnary ! !
+
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 17:23:49'!
+execute
+	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
+		aCollection == aStrokeGroup 
+			ifTrue:  [domain removeMorph: aStrokeGroup ]
+			ifFalse: [ aStrokeGroup removeAllMorphsIn: aCollection ] 		]! !
+
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 17:23:35'!
+unexecute
+	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
+		aCollection == aStrokeGroup 
+			ifTrue:  [domain addMorph: aStrokeGroup ]
+			ifFalse: [ aStrokeGroup addAllMorphs: aCollection ] 		]! !
+
+!ErasingCommand class methodsFor: 'instance creation' stamp: 'hlsf 9/11/2024 20:57:11'!
+deletedStrokes: aDictionayOfStroke in: aPage
+	^ self basicNew
+		domain: aPage;
+		deletedStrokes: aDictionayOfStroke ;
+		initialize
+		! !
+
+!ErasingAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 9/29/2024 18:14:05'!
+initialize
+	super initialize.
+	bounds := domain fullBoundsInOwner.
+	domain adjustBounds ! !
+
+!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 18:13:53'!
+execute
+	super execute.
+	domain adjustBounds ! !
+
+!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 22:33:02'!
+unexecute
+	domain adjustBoundsTo: bounds.
+	super unexecute! !
+
+!MoveCommand methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 11:35:35'!
+delta: aPoint
+	delta := aPoint! !
+
+!MoveCommand methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 11:35:45'!
+selection: aCollection
+	selection := aCollection ! !
+
+!MoveCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 11:42:09'!
+execute
+	selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition + delta		 ]! !
+
+!MoveCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 12:17:55'!
+unexecute
+	selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition - delta		 ].! !
+
+!MoveCommand class methodsFor: 'as yet unclassified' stamp: 'hlsf 10/19/2024 12:25:11'!
+move: aCollection to: aPoint in: aPaper
+	^ self basicNew
+		domain: aPaper;
+		selection: aCollection ;
+		delta: aPoint;
+		initialize;
+		yourself! !
+
+!MoveInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 11:45:40'!
+execute
+	domain adjustBoundsTo: bounds.
+	super execute! !
+
+!MoveInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 11:45:49'!
+unexecute
+	bounds := domain fullBoundsInOwner.
+	super unexecute.
+	domain adjustBounds! !
+
+!MoveInAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 11:45:27'!
+initialize
+	super initialize.
+	domain adjustBounds.
+	bounds := domain fullBoundsInOwner.
+! !
+
+!WritingCommand methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:43:08'!
+strokeGroup: aStrokeGroup
+	strokeGroup := 	aStrokeGroup ! !
+
+!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 15:45:10'!
+execute
+	domain addMorph: strokeGroup! !
+
+!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 15:45:21'!
+unexecute
+	domain removeMorph: strokeGroup! !
+
+!WritingCommand class methodsFor: 'instance creation' stamp: 'hlsf 9/11/2024 17:43:50'!
+strokeGroup: aStrokeGroup in: aPaper
+	^ self basicNew
+		domain: aPaper;
+		strokeGroup: aStrokeGroup;
+		initialize! !
+
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 16:55:26'!
+execute
+	domain adjustBoundsTo: bounds.
+	super execute! !
+
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 22:32:48'!
+initialize
+	super initialize.
+	domain adjustBounds.
+	bounds := domain fullBoundsInOwner.
+! !
+
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 22:32:40'!
+unexecute
+	bounds := domain fullBoundsInOwner.
+	super unexecute.
+	domain adjustBounds! !
+
+!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:03:49'!
+initialize
+	stack := CommandStack new! !
+
+!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:04:03'!
+release
+	stack contents do: [:c | c release].! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 10/19/2024 11:24:14'!
+deletedStrokes: aDictionayOfStroke in: aPaper
+" Read EraserToolStateErasing>>handleMouseAt:in: "
+	| command |
+	command := (aPaper is: #AnnotatorMorph) 
+		ifTrue: [ErasingAnnotatorCommand] 
+		ifFalse: [ErasingCommand].
+	stack nextPut: (command deletedStrokes: aDictionayOfStroke in: aPaper )! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 10/19/2024 11:55:00'!
+move: aCollection to: delta in: aPaper
+	| command |
+	aCollection ifEmpty: [^self]. " Nothing to undo "
+	command := (aPaper is: #AnnotatorMorph) 
+		ifTrue: [MoveInAnnotatorCommand ] 
+		ifFalse: [MoveCommand ].
+	stack nextPut: (command move: aCollection to: delta in: aPaper )! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:44'!
+redo
+	| command |
+	command := stack next.
+	command ifNotNil:	 [command execute]! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 10/19/2024 11:23:59'!
+strokeGroup: aStrokeGroup in: aPaper
+	| command |
+	command := (aPaper is: #AnnotatorMorph) 
+		ifTrue: [WritingAnnotatorCommand] 
+		ifFalse: [WritingCommand].
+	stack nextPut: (command strokeGroup: aStrokeGroup in: aPaper )! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:56'!
+undo
+	| command |
+	command := stack previous.
+	command ifNotNil: [command unexecute]! !
+
 !PageTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:36:26'!
 presenter
 	^ presenter! !
@@ -1168,9 +1390,12 @@ handlePress: localPosition in: page
 handleRelease: localPosition in:page
 	state handleRelease: localPosition in: page! !
 
-!PageTool methodsFor: 'state' stamp: 'hlsf 9/1/2024 15:01:52'!
+!PageTool methodsFor: 'state' stamp: 'hlsf 10/18/2024 22:50:49'!
 switchState: aStateClass
-	state := aStateClass new context: self! !
+	state := aStateClass basicNew 
+		context: self;
+		initialize;
+		yourself! !
 
 !PageTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:47:02'!
 action
@@ -1287,18 +1512,41 @@ corner
 corner: aPoint
 	corner := aPoint ! !
 
+!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 11:57:37'!
+grabMorphsIn: kindOfPaper inside: rect
+" kind of paper can be a Paper or an Annotator "
+	selection := ( (kindOfPaper is: #AnnotatorMorph)
+		ifTrue: [kindOfPaper grabMorphsIn: rect]
+		ifFalse: [kindOfPaper owner grabMorphsIn: rect " Ask to the page of the paper to also grab annotator "] )! !
+
+!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 12:10:20'!
+paper
+	^ paper! !
+
+!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 12:10:16'!
+paper: aKindOfPaper
+	paper := aKindOfPaper ! !
+
 !SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:13:26'!
 selection
 	^ selection! !
 
-!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:13:37'!
-selection: aCollection
-	selection := 	aCollection ! !
+!SelectTool methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 12:08:58'!
+clearSelection
+	presenter currentPage clearSelection.
+	paper := nil.
+	selection := #()! !
 
-!SelectTool methodsFor: 'initialization' stamp: 'hlsf 10/17/2024 22:44:58'!
+!SelectTool methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 10:10:18'!
 initialize
 	super initialize.
-	self switchState: SelectToolStateNeutral ! !
+	self switchState: SelectToolStateNeutral.
+	self clearSelection ! !
+
+!SelectTool methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 10:08:15'!
+release
+	super release.
+	presenter currentPage clearSelection! !
 
 !SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:49:27'!
 action
@@ -1406,156 +1654,55 @@ handleRelease: localPosition in: paper
 	context switchState: HighligtherToolStateNeutral 
 	! !
 
-!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:22:10'!
+!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 11:26:40'!
 handleMouseAt: localPosition in: paper
-! !
+	| delta |
+	prevPosition ~= localPosition ifTrue: [
+		delta := localPosition - prevPosition.
+		context selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition + delta		 ].
+		paper selectionMorph morphPosition: paper selectionMorph morphPosition + delta.
+		prevPosition := localPosition]! !
 
-!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:24:48'!
+!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 12:14:32'!
 handlePress: localPosition in: paper
-	(paper selectionMorph displayFullBounds containsPoint: localPosition ) ifTrue: [
-		paper selectionArea: nil]! !
+	(paper == context paper 
+	and: [paper selectionMorph fullBoundsInOwner containsPoint: localPosition] ) ifFalse: [
+			^ context switchState: SelectToolStateNeutral ].
+	initialPosition := prevPosition := localPosition ! !
 
-!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:22:14'!
+!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 11:29:52'!
+handleRelease: locaPosition in: paper
+	self commandsManager 
+		move: context 		selection 
+		to: locaPosition - initialPosition
+		in: paper! !
+
+!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:18:50'!
+handleMouseAt: localPosition in: paper
+	paper selectionArea: (
+		Rectangle encompassingInteger: (Array
+			with: context corner
+			with: localPosition) )! !
+
+!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/19/2024 10:57:35'!
 handleRelease: localPosition in: paper
-	! !
+	| selectionRect |
+	selectionRect := Rectangle encompassingInteger: {
+		paper externalizeToWorld: context corner.
+		paper externalizeToWorld: localPosition }.
+	context 	grabMorphsIn: paper inside: selectionRect.
+	context switchState: SelectToolStateDragging! !
 
-!SelectToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:18:44'!
-handlePress: localPosition in: paper
-	context corner: localPosition.
-	context switchState: SelectToolStateGrabbing! !
+!SelectToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/19/2024 12:15:58'!
+handlePress: localPosition in: aPaper
+	context corner: localPosition;
+		paper: aPaper;
+		switchState: SelectToolStateGrabbing! !
 
-!Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:05:57'!
-execute
-	self subclassResponsibility ! !
-
-!Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:06:19'!
-unexecute
-	self subclassResponsibility ! !
-
-!Command methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:05:50'!
-domain: aDomain
-	domain := aDomain! !
-
-!Command methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:06:12'!
-release
-"Let my child do some clean up"! !
-
-!ErasingCommand methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 21:02:30'!
-deletedStrokes: aDictionnary
-" Read EraserToolStateErasing>>handleMouseAt:in: "
-	deletedStrokes := aDictionnary ! !
-
-!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 17:23:49'!
-execute
-	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
-		aCollection == aStrokeGroup 
-			ifTrue:  [domain removeMorph: aStrokeGroup ]
-			ifFalse: [ aStrokeGroup removeAllMorphsIn: aCollection ] 		]! !
-
-!ErasingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 17:23:35'!
-unexecute
-	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
-		aCollection == aStrokeGroup 
-			ifTrue:  [domain addMorph: aStrokeGroup ]
-			ifFalse: [ aStrokeGroup addAllMorphs: aCollection ] 		]! !
-
-!ErasingCommand class methodsFor: 'instance creation' stamp: 'hlsf 9/11/2024 20:57:11'!
-deletedStrokes: aDictionayOfStroke in: aPage
-	^ self basicNew
-		domain: aPage;
-		deletedStrokes: aDictionayOfStroke ;
-		initialize
-		! !
-
-!ErasingAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 9/29/2024 18:14:05'!
+!SelectToolStateNeutral methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 10:13:08'!
 initialize
 	super initialize.
-	bounds := domain fullBoundsInOwner.
-	domain adjustBounds ! !
-
-!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 18:13:53'!
-execute
-	super execute.
-	domain adjustBounds ! !
-
-!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 22:33:02'!
-unexecute
-	domain adjustBoundsTo: bounds.
-	super unexecute! !
-
-!WritingCommand methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:43:08'!
-strokeGroup: aStrokeGroup
-	strokeGroup := 	aStrokeGroup ! !
-
-!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 15:45:10'!
-execute
-	domain addMorph: strokeGroup! !
-
-!WritingCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 15:45:21'!
-unexecute
-	domain removeMorph: strokeGroup! !
-
-!WritingCommand class methodsFor: 'instance creation' stamp: 'hlsf 9/11/2024 17:43:50'!
-strokeGroup: aStrokeGroup in: aPaper
-	^ self basicNew
-		domain: aPaper;
-		strokeGroup: aStrokeGroup;
-		initialize! !
-
-!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 16:55:26'!
-execute
-	domain adjustBoundsTo: bounds.
-	super execute! !
-
-!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 22:32:48'!
-initialize
-	super initialize.
-	domain adjustBounds.
-	bounds := domain fullBoundsInOwner.
-! !
-
-!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 22:32:40'!
-unexecute
-	bounds := domain fullBoundsInOwner.
-	super unexecute.
-	domain adjustBounds! !
-
-!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:03:49'!
-initialize
-	stack := CommandStack new! !
-
-!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:04:03'!
-release
-	stack contents do: [:c | c release].! !
-
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/29/2024 18:10:59'!
-deletedStrokes: aDictionayOfStroke in: aPage
-" Read EraserToolStateErasing>>handleMouseAt:in: "
-	| command |
-	command := (aPage is: #AnnotatorMorph) 
-		ifTrue: [ErasingAnnotatorCommand] 
-		ifFalse: [ErasingCommand].
-	stack nextPut: (command deletedStrokes: aDictionayOfStroke in: aPage)! !
-
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:44'!
-redo
-	| command |
-	command := stack next.
-	command ifNotNil:	 [command execute]! !
-
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/29/2024 17:04:29'!
-strokeGroup: aStrokeGroup in: aPage
-	| command |
-	command := (aPage is: #AnnotatorMorph) 
-		ifTrue: [WritingAnnotatorCommand] 
-		ifFalse: [WritingCommand].
-	stack nextPut: (command strokeGroup: aStrokeGroup in: aPage)! !
-
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:56'!
-undo
-	| command |
-	command := stack previous.
-	command ifNotNil: [command unexecute]! !
+	context clearSelection ! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
@@ -1841,6 +1988,22 @@ drawOn: canvas
 is: aSymbol
 	^ aSymbol == #PageMorph or: [super is: aSymbol ]! !
 
+!PageMorph methodsFor: 'selection' stamp: 'hlsf 10/19/2024 10:08:01'!
+clearSelection
+	" Annotators are kind of Paper "
+	self annotators do: [:each | each clearSelection].
+	paper clearSelection.! !
+
+!PageMorph methodsFor: 'selection' stamp: 'hlsf 10/18/2024 23:32:03'!
+grabMorphsIn: rect
+" Select the morph in the rect and which are grabbable: StrokeGroup in the paper and Annotator in self "
+	| grabbed |
+	grabbed := OrderedCollection new.
+	grabbed addAll: (paper grabMorphsIn: rect);
+		addAll: (self annotators select: [:aMorph | rect containsRect: aMorph displayFullBounds]).
+	^ grabbed
+	! !
+
 !PageMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 15:59:56'!
 newOn: documentPresenter
 	^ self basicNew
@@ -1866,15 +2029,6 @@ lastStrokeGroup
 BEWARE, at each endWriting, we push the lineMorphs as first, to avoid unpleasant artifact when writing (line drawing in the back of previous stroke group morph)
 "	
 	^ submorphs detect: [:aMorph | aMorph is: #StrokeGroupMorph]! !
-
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:09:11'!
-morphsIn: selectionRect
-" Select stroke group and annotator morphs inside a Rectangle "
-	^ submorphs select: [:aMorph |
-		((aMorph is: #StrokeGroupMorph) and: [selectionRect containsRect: aMorph displayFullBounds])
-		or: [(aMorph is: #AnnotatorMorph) and: [selectionRect containsRect: aMorph displayFullBounds] ] ]
-		
-		! !
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 16:01:24'!
 presenter: documentPresenter
@@ -2124,6 +2278,26 @@ writingAt: localPosition
 !PaperMorph methodsFor: 'drawing' stamp: 'hlsf 9/18/2024 20:33:48'!
 drawOn: aCanvas! !
 
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/19/2024 10:07:27'!
+clearSelection
+	self selectionArea: nil! !
+
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/18/2024 23:29:29'!
+grabMorphsIn: rect
+" Select stroke group inside a Rectangle "
+	^ submorphs select: [:aMorph |
+		(aMorph is: #StrokeGroupMorph) and: [rect containsRect: aMorph displayFullBounds] ] 
+		
+		! !
+
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/18/2024 23:28:53'!
+morphsIn: selectionRect
+" Select stroke group and annotator morphs inside a Rectangle "
+	^ submorphs select: [:aMorph |
+		(aMorph is: #StrokeGroupMorph) and: [selectionRect containsRect: aMorph displayFullBounds] ] 
+		
+		! !
+
 !PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/17/2024 22:45:40'!
 selectionArea: rect
 "set, update or discard the selection area"
@@ -2197,36 +2371,34 @@ adjustBounds
 	self adjustBoundsTo: (self externalizeBoundingRectOf: (self topLeftCorner corner: self bottomRightCorner))
 	! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/30/2024 18:52:20'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 10/19/2024 12:33:00'!
 adjustBoundsTo: newBoundsInOwner
 " adjust my bounds and translate my submoprhs accordingly
  " 
 	| translate |
 	translate := newBoundsInOwner origin - self fullBoundsInOwner origin.
 	self fitInto: newBoundsInOwner .
-	self submorphsDo: [:each | 
-				"(each is: #StrokeGroupMorph) ifTrue: [each deleteBitMasks]."
-				each morphPosition: each morphPosition - translate 		]! !
+	self submorphsDo: [:each | 						each morphPosition: each morphPosition - translate 		]! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 16:22:50'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 10/19/2024 12:40:10'!
 bottomRightCorner
 " 
 	the bottom right corner of the rectangle surrounding all my submorphs
 "
 	| corner |
 	corner := 0@0.
-	submorphs do: [:each | corner := corner max: each fullBoundsInOwner corner].
+	self submorphsDo: [:each | corner := corner max: each fullBoundsInOwner corner].
 	^ corner 
 	! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 10:36:24'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 10/19/2024 12:40:03'!
 topLeftCorner
 " 
 	the top left corner of the rectangle surrounding all my submorphs
 "
 	| corner |
 	corner := extent.
-	submorphs do: [:each | corner := corner min: each topLeftInOwner].
+	self submorphsDo: [:each | corner := corner min: each topLeftInOwner].
 	^ corner 
 	! !
 
