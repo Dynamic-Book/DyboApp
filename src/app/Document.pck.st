@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 20 October 2024 at 4:23:30 pm'!
+'From Cuis7.1 [latest update: #6778] on 20 October 2024 at 6:20:01 pm'!
 'Description '!
-!provides: 'Document' 1 48!
+!provides: 'Document' 1 49!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1063,11 +1063,17 @@ undoAction
 	commandsManager undo.
 	self tool: tool class " reselect to tool remove intermediate state in the tool "! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/29/2024 17:35:40'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/20/2024 18:19:18'!
 zoomAction: increment	
-	self currentPage scale: (self currentPage scale - increment
-		min: 2 
-		max: 0.1)! !
+" center of the visible part of the paper (=container), then once zoomed see how much 
+it diverged from new center of the container "
+	| center page container |
+	page := self currentPage.
+	container := page owner.
+	center := page internalize: container center.
+	page scale: (page scale - increment 		min: 2 		max: 0.1).
+	center := page externalize: center.
+	page morphPosition: page morphPosition - center + container center! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/11/2024 22:08:09'!
 zoomPageTo100
@@ -2452,6 +2458,12 @@ clipsSubmorphs
 !PageContainer methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 18:25:58'!
 defaultColor
 	^ Color lightGray muchLighter! !
+
+!PageContainer methodsFor: 'as yet unclassified' stamp: 'hlsf 10/20/2024 17:48:20'!
+center
+	| bounds |
+	bounds := self fullBoundsInOwner.
+	^ bounds origin + bounds corner // 2! !
 
 !PageContainer class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/8/2024 18:24:18'!
 for: aPage
