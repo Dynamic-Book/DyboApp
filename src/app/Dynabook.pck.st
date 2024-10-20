@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 16 October 2024 at 10:57:01 pm'!
+'From Cuis7.1 [latest update: #6778] on 20 October 2024 at 4:23:32 pm'!
 'Description '!
-!provides: 'Dynabook' 1 78!
+!provides: 'Dynabook' 1 79!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -212,7 +212,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'dynabookView docView icons statusBar docTools'
+	instanceVariableNames: 'dynabookView docView icons statusBar'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -1506,10 +1506,9 @@ statusBarMessage: aString
 			redrawNeeded]
 		! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 21:14:19'!
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/20/2024 16:01:55'!
 docCircularToolbar
-	| toolsData |
-	docTools ifNotNil: [^ docTools].
+	| toolsData docTools |
 	toolsData := OrderedCollection 
 		with: self penColorTools 
 		with: self nibSizeTools 

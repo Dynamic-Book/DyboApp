@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 19 October 2024 at 11:50:21 pm'!
+'From Cuis7.1 [latest update: #6778] on 20 October 2024 at 4:23:30 pm'!
 'Description '!
-!provides: 'Document' 1 47!
+!provides: 'Document' 1 48!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -760,7 +760,7 @@ on: aPaperMorph
 		paper: aPaperMorph ;
 		yourself! !
 
-!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 9/26/2024 10:08:27'!
+!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 10/20/2024 16:07:41'!
 newStroke
 	| newStroke lastStroke junctionPoint samples migratedControl middle c1 |
 	samples := self samples.
@@ -787,7 +787,7 @@ newStroke
 			junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
 			lastStroke end: junctionPoint.
 			newStroke start: junctionPoint].
-	(c1 notNil and: [c1 == false])  ifTrue: [newStroke color: Color cyan].
+	"(c1 notNil and: [c1 == false])  ifTrue: [newStroke color: Color cyan]."
 	^ newStroke
 	
 	! !
@@ -808,7 +808,7 @@ isLocalC1at: m between: c1 and: c2
 		between: `90 degreesToRadians cos` 
 		and: `0 cos`) not! !
 
-!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 9/26/2024 10:11:05'!
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 10/20/2024 16:05:21'!
 isSamplesValid
 " 
 Do we consider valid the current samples, reason to discard :
@@ -816,14 +816,15 @@ Do we consider valid the current samples, reason to discard :
 	- are above a threshold distance
 	- ...
 "
-	| a b ans |	
+	^ super isSamplesValid 
+"	| a b ans |	
 	a := self samples second - self samples first.
 	b := self samples third - self samples first.
-	" Angle between M1C, M1M2 - C: control point "
+	"" Angle between M1C, M1M2 - C: control point ""
 	ans := (a crossProduct: b) abs / (a r * b r)  > `2 degreesToRadians sin` .
 	^ ans
 		and:  [	(self samples first squaredDistanceTo: self samples second) > paper writingTool threshold]
-
+"
 	! !
 
 !StrokerBezier3 methodsFor: 'instance' stamp: 'hlsf 4/9/2023 12:17:41'!
@@ -1144,13 +1145,13 @@ initialize
 	self penTool.
 	commandsManager := CommandManager new! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 9/30/2024 19:26:08'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:03:09'!
 initializeWritingTools
-	pen := Pen new.
+	pen := Pen new threshold: 4.
 	highlighter := Pen new ::
 		color: (Color yellow alpha: 0.3);
 		width: 40;
-		threshold: 10 squared.
+		threshold: 6 squared.
 	eraser := Pen new 	width: 2
 ! !
 
@@ -1982,7 +1983,7 @@ paper
 presenter: documentPresenter
 	presenter := documentPresenter ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 10/12/2024 10:58:53'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:02:42'!
 initialize
 	super initialize.
 	background := BackgroundMorph new.
@@ -2123,7 +2124,7 @@ mouseMove2: event localPosition: endPosition
 requiresVectorCanvas
 	^ true! !
 
-!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 10/15/2024 18:52:15'!
+!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:02:48'!
 initialize
 	super initialize.
 	self stroker: StrokerBezier2XP.
