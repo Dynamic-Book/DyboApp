@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 23 October 2024 at 11:25:54 am'!
+'From Cuis7.1 [latest update: #6778] on 23 October 2024 at 7:53:31 pm'!
 'Description '!
-!provides: 'Document' 1 50!
+!provides: 'Document' 1 51!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -318,6 +318,16 @@ PenToolStateWriting subclass: #HighligtherToolStateWriting
 HighligtherToolStateWriting class
 	instanceVariableNames: ''!
 
+!classDefinition: #PointerToolStateDragging category: 'Document-Presenter-Tool'!
+PageToolState subclass: #PointerToolStateDragging
+	instanceVariableNames: 'initialPosition prevPosition'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'PointerToolStateDragging class' category: 'Document-Presenter-Tool'!
+PointerToolStateDragging class
+	instanceVariableNames: ''!
+
 !classDefinition: #PointerToolStateNeutral category: 'Document-Presenter-Tool'!
 PageToolState subclass: #PointerToolStateNeutral
 	instanceVariableNames: ''
@@ -546,6 +556,10 @@ The moprh under the Rectangular area can be dragged, or attributes changed!
 !GroupToolStateGrabbing commentStamp: '<historical>' prior: 0!
 A corner of the rectangular selection was set, the user moves the pointer to define the rectangular area
 to grab the morphs to select.!
+
+!PointerToolStateDragging commentStamp: '<historical>' prior: 0!
+We arrive at this state once the user press the pointer.
+We are either dragging the whole page or a grabbed annotator!
 
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
 A quadratic Bézier stroke!
@@ -1614,6 +1628,25 @@ initialize
 	super initialize.
 	self switchState: PointerToolStateNeutral ! !
 
+!PointerTool methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 19:04:56'!
+grabAnnotatorsIn: page at: localPosition
+	| selection |
+	selection := page grabAnnotatorsAt: localPosition.
+	" pick up the one with the smallest area "
+	selection := selection sort: [:ann1 :ann2 |
+		(ann1 morphExtent dotProduct: ann1 morphExtent) < (ann2 morphExtent dotProduct: ann2 morphExtent)].
+	^ grabbed := selection at: 1 ifAbsent: nil
+		
+		! !
+
+!PointerTool methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 16:42:06'!
+grabbed
+	^ grabbed ! !
+
+!PointerTool methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 16:42:37'!
+grabbed: aMorph
+	grabbed := 	aMorph ! !
+
 !PointerTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:50:18'!
 action
 	^ #pointerTool! !
@@ -1780,6 +1813,35 @@ handleRelease: localPosition in: paper
 	finalStrokeGroup := paper endWritingAt: localPosition.
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
 	context switchState: HighligtherToolStateNeutral 
+	! !
+
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:53:07'!
+handleMouseAt: localPosition in: paper
+	| delta page worldPosition |
+	worldPosition := paper externalizeToWorld: localPosition.
+	prevPosition ~= worldPosition ifTrue: [
+		page := paper owner.
+		delta := worldPosition - prevPosition.
+		context grabbed 
+			ifNotNil: [ :annotator |
+				annotator morphPosition: annotator morphPosition + (delta / page scale) 				] 
+			ifNil: [	page morphPosition: page morphPosition + delta ]		.
+		prevPosition := worldPosition 		]! !
+
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:50:59'!
+handlePress: localPosition in: paper
+	initialPosition := prevPosition := paper externalizeToWorld: localPosition ! !
+
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:09:10'!
+handleRelease: localPosition in: paper
+	context switchState: PointerToolStateNeutral ! !
+
+!PointerToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:04:20'!
+handlePress: localPosition in: paper
+	context 
+		grabAnnotatorsIn: paper owner at: localPosition;
+		switchState: PointerToolStateDragging;
+		handlePress: localPosition in: paper
 	! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
@@ -2029,6 +2091,13 @@ morphExtent: anExtent
 annotators
 	^submorphs select: [:morph | morph is: #AnnotatorMorph]! !
 
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 16:32:26'!
+grabAnnotatorsAt: localPosition
+" Select the annotators under the local position  "
+	^ self annotators select: [:aMorph | aMorph fullBoundsInOwner containsPoint: localPosition]
+	
+	! !
+
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 11:17:04'!
 pageContainer
 	^ owner! !
@@ -2139,11 +2208,9 @@ tool
 writingTool
 	^ presenter writingTool ! !
 
-!PaperMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/23/2024 11:25:40'!
+!PaperMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/23/2024 19:02:49'!
 handlesMouseDown: event
-" We do not interact with paper when pointer tool. 
-We want to interact with annotator and its annotated objects "
-	^ (presenter isTool: #pointer) not
+	^ true
 ! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:36:49'!
@@ -2471,6 +2538,13 @@ topLeftCorner
 	corner := extent.
 	self submorphsDo: [:each | corner := corner min: each topLeftInOwner].
 	^ corner 
+	! !
+
+!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 10/23/2024 19:03:41'!
+handlesMouseDown: event
+" We do not interact directly with annotator when pointer tool. 
+  We interect through the tool "
+	^ (presenter isTool: #pointer) not
 	! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/26/2024 11:33:10'!
