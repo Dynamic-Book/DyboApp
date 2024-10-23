@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 20 October 2024 at 6:20:01 pm'!
+'From Cuis7.1 [latest update: #6778] on 23 October 2024 at 11:25:54 am'!
 'Description '!
-!provides: 'Document' 1 49!
+!provides: 'Document' 1 50!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -178,6 +178,16 @@ PageTool subclass: #EraserTool
 EraserTool class
 	instanceVariableNames: ''!
 
+!classDefinition: #GroupTool category: 'Document-Presenter-Tool'!
+PageTool subclass: #GroupTool
+	instanceVariableNames: 'corner selection paper'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'GroupTool class' category: 'Document-Presenter-Tool'!
+GroupTool class
+	instanceVariableNames: ''!
+
 !classDefinition: #HighlighterTool category: 'Document-Presenter-Tool'!
 PageTool subclass: #HighlighterTool
 	instanceVariableNames: ''
@@ -198,14 +208,14 @@ PageTool subclass: #PenTool
 PenTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #SelectTool category: 'Document-Presenter-Tool'!
-PageTool subclass: #SelectTool
-	instanceVariableNames: 'corner selection paper'
+!classDefinition: #PointerTool category: 'Document-Presenter-Tool'!
+PageTool subclass: #PointerTool
+	instanceVariableNames: 'grabbed'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'SelectTool class' category: 'Document-Presenter-Tool'!
-SelectTool class
+!classDefinition: 'PointerTool class' category: 'Document-Presenter-Tool'!
+PointerTool class
 	instanceVariableNames: ''!
 
 !classDefinition: #PageToolState category: 'Document-Presenter-Tool'!
@@ -236,6 +246,36 @@ PageToolState subclass: #EraserToolStateNeutral
 	category: 'Document-Presenter-Tool'!
 !classDefinition: 'EraserToolStateNeutral class' category: 'Document-Presenter-Tool'!
 EraserToolStateNeutral class
+	instanceVariableNames: ''!
+
+!classDefinition: #GroupToolStateDragging category: 'Document-Presenter-Tool'!
+PageToolState subclass: #GroupToolStateDragging
+	instanceVariableNames: 'prevPosition initialPosition'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'GroupToolStateDragging class' category: 'Document-Presenter-Tool'!
+GroupToolStateDragging class
+	instanceVariableNames: ''!
+
+!classDefinition: #GroupToolStateGrabbing category: 'Document-Presenter-Tool'!
+PageToolState subclass: #GroupToolStateGrabbing
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'GroupToolStateGrabbing class' category: 'Document-Presenter-Tool'!
+GroupToolStateGrabbing class
+	instanceVariableNames: ''!
+
+!classDefinition: #GroupToolStateNeutral category: 'Document-Presenter-Tool'!
+PageToolState subclass: #GroupToolStateNeutral
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Tool'!
+!classDefinition: 'GroupToolStateNeutral class' category: 'Document-Presenter-Tool'!
+GroupToolStateNeutral class
 	instanceVariableNames: ''!
 
 !classDefinition: #HighligtherToolStateNeutral category: 'Document-Presenter-Tool'!
@@ -278,34 +318,14 @@ PenToolStateWriting subclass: #HighligtherToolStateWriting
 HighligtherToolStateWriting class
 	instanceVariableNames: ''!
 
-!classDefinition: #SelectToolStateDragging category: 'Document-Presenter-Tool'!
-PageToolState subclass: #SelectToolStateDragging
-	instanceVariableNames: 'prevPosition initialPosition'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'SelectToolStateDragging class' category: 'Document-Presenter-Tool'!
-SelectToolStateDragging class
-	instanceVariableNames: ''!
-
-!classDefinition: #SelectToolStateGrabbing category: 'Document-Presenter-Tool'!
-PageToolState subclass: #SelectToolStateGrabbing
+!classDefinition: #PointerToolStateNeutral category: 'Document-Presenter-Tool'!
+PageToolState subclass: #PointerToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'SelectToolStateGrabbing class' category: 'Document-Presenter-Tool'!
-SelectToolStateGrabbing class
-	instanceVariableNames: ''!
-
-!classDefinition: #SelectToolStateNeutral category: 'Document-Presenter-Tool'!
-PageToolState subclass: #SelectToolStateNeutral
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'SelectToolStateNeutral class' category: 'Document-Presenter-Tool'!
-SelectToolStateNeutral class
+!classDefinition: 'PointerToolStateNeutral class' category: 'Document-Presenter-Tool'!
+PointerToolStateNeutral class
 	instanceVariableNames: ''!
 
 !classDefinition: #DocumentModel category: #'Document-Model'!
@@ -493,17 +513,23 @@ An abstraction of a tool to operate on a Page. Subclasses implement Pen, Eraser,
 With the EraserTool the users deletes handwriten notes, highlit zones.
 - bounds: when erasing on a AnnotatorMoprh, we need to know about its former bounds prior to erasing!
 
+!GroupTool commentStamp: '<historical>' prior: 0!
+With the GroupTool the user defined a rectangle area to grab objects and to move them around
+- origin : the origin of the selection rectangle
+- selection: a collection of moved morph
+- paper: in which paper did the action occured. We need to remember about it because the user can decide without prior notice to select and drag morphs from different papers (paper to annotator, annotator to another annotater, annotator to paper), in that case we need to reset the selection process!
+
 !HighlighterTool commentStamp: '<historical>' prior: 0!
 With the HighlghterTool the user empahsis handwriten notes or any other misc areas.!
 
 !PenTool commentStamp: '<historical>' prior: 0!
 With the PenTool the user writes handwriten notes.!
 
-!SelectTool commentStamp: '<historical>' prior: 0!
-With the SelectTool the user defined a rectangle area to select objects to move around
-- origin : the origin of the selection rectangle
-- selection: a collection of moved morph
-- paper: in which paper did the action occured. We need to remember about it because the user can decide without prior notice to select and drag morphs from different papers (paper to annotator, annotator to another annotater, annotator to paper), in that case we need to reset the selection process!
+!PointerTool commentStamp: '<historical>' prior: 0!
+With the PointerTool, the user can 
+- grab Annotator to move them around with the annotated object
+- interact with the annotated object with its affordances 
+!
 
 !PageToolState commentStamp: '<historical>' prior: 0!
 I a represent an abstracte state of a tool selected by the user.
@@ -514,10 +540,10 @@ We record the deleted strokes in a dictionary.
 Its keys are the StrokeGroupMorphs and its values are collections of deleted strokes of the group.
 When all the strokes of a group are deleted, we just need to remember of the whole stroke group.!
 
-!SelectToolStateDragging commentStamp: '<historical>' prior: 0!
+!GroupToolStateDragging commentStamp: '<historical>' prior: 0!
 The moprh under the Rectangular area can be dragged, or attributes changed!
 
-!SelectToolStateGrabbing commentStamp: '<historical>' prior: 0!
+!GroupToolStateGrabbing commentStamp: '<historical>' prior: 0!
 A corner of the rectangular selection was set, the user moves the pointer to define the rectangular area
 to grab the morphs to select.!
 
@@ -901,10 +927,6 @@ eraserSize4
 eraserSize8
 	self eraserSize: 8.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:33'!
-eraserTool
-	self tool: EraserTool ! !
-
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/12/2024 11:22:30'!
 fitScreenPage
 	" Make the page entirely visible in the PageContainer "
@@ -961,10 +983,6 @@ highlighterSize20
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/15/2024 18:47:29'!
 highlighterSize40
 	self highlighterSize: 40! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:47'!
-highlighterTool
-	self tool:HighlighterTool ! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 23:49:17'!
 highlighterYellow
@@ -1042,10 +1060,6 @@ penGreen
 penRed
 	self penColor: Color red! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 10:38:17'!
-penTool
-	self tool: PenTool ! !
-
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:39:01'!
 penWhite
 	self penColor: Color white! !
@@ -1053,10 +1067,6 @@ penWhite
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 12:21:46'!
 redoAction
 	commandsManager redo.! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/5/2024 14:34:59'!
-selectTool
-	self tool: SelectTool ! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 12:23:07'!
 undoAction
@@ -1114,6 +1124,18 @@ writingTool
 		}
 		otherwise: [nil]! !
 
+!Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 14:34:33'!
+eraserTool
+	self tool: EraserTool ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 10/23/2024 10:29:11'!
+groupTool
+	self tool: GroupTool ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 14:34:47'!
+highlighterTool
+	self tool:HighlighterTool ! !
+
 !Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 11:39:44'!
 isTool: aToolName
 	^ self selectedTool == aToolName ! !
@@ -1131,6 +1153,14 @@ openCircularToolbar
 		morphPosition: self activeHand morphPosition ;
 		openInWorld
 	! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 10:38:17'!
+penTool
+	self tool: PenTool ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 10/23/2024 10:52:29'!
+pointerTool
+	self tool: PointerTool .! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 15:09:27'!
 tool
@@ -1473,6 +1503,70 @@ iconName
 title
 	^ 'Eraser' translated! !
 
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 10/18/2024 21:18:31'!
+corner
+	^ corner! !
+
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 10/18/2024 21:18:31'!
+corner: aPoint
+	corner := aPoint ! !
+
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:45:46'!
+grabMorphsIn: kindOfPaper inside: rect
+" kind of paper can be a Paper or an Annotator "
+	| rectFitToSelection |
+	selection := ( (kindOfPaper is: #AnnotatorMorph)
+		ifTrue: [kindOfPaper grabMorphsIn: rect]
+		ifFalse: [kindOfPaper owner grabMorphsIn: rect " Ask to the page of the paper to also grab annotator "] ).
+	selection do: [:aMorph | rectFitToSelection := aMorph fullBoundsInOwner quickMerge: rectFitToSelection].
+	kindOfPaper selectionArea: rectFitToSelection.
+	rectFitToSelection ifNotNil: [kindOfPaper selectionMorph borderWidth: 0.5]! !
+
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 12:10:20'!
+paper
+	^ paper! !
+
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 12:10:16'!
+paper: aKindOfPaper
+	paper := aKindOfPaper ! !
+
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:13:26'!
+selection
+	^ selection! !
+
+!GroupTool methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 12:08:58'!
+clearSelection
+	presenter currentPage clearSelection.
+	paper := nil.
+	selection := #()! !
+
+!GroupTool methodsFor: 'initialization' stamp: 'hlsf 10/23/2024 10:30:27'!
+initialize
+	super initialize.
+	self switchState: GroupToolStateNeutral.
+	self clearSelection ! !
+
+!GroupTool methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 10:08:15'!
+release
+	super release.
+	presenter currentPage clearSelection! !
+
+!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:29:11'!
+action
+	^ #groupTool! !
+
+!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:27:46'!
+description
+	^ 'Select a group of objects and drag them around.' translated ! !
+
+!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:27:21'!
+iconName
+	^ #group! !
+
+!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:27:55'!
+title
+	^ 'Group' translated! !
+
 !HighlighterTool methodsFor: 'initialization' stamp: 'hlsf 9/7/2024 12:13:56'!
 initialize
 	super initialize.
@@ -1515,68 +1609,26 @@ title
 iconName
 	^ #pen! !
 
-!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/18/2024 21:18:31'!
-corner
-	^ corner! !
-
-!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/18/2024 21:18:31'!
-corner: aPoint
-	corner := aPoint ! !
-
-!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 15:24:44'!
-grabMorphsIn: kindOfPaper inside: rect
-" kind of paper can be a Paper or an Annotator "
-	| rectFitToSelection |
-	selection := ( (kindOfPaper is: #AnnotatorMorph)
-		ifTrue: [kindOfPaper grabMorphsIn: rect]
-		ifFalse: [kindOfPaper owner grabMorphsIn: rect " Ask to the page of the paper to also grab annotator "] ).
-	selection do: [:aMorph | rectFitToSelection := aMorph fullBoundsInOwner quickMerge: rectFitToSelection].
-	kindOfPaper selectionArea: rectFitToSelection! !
-
-!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 12:10:20'!
-paper
-	^ paper! !
-
-!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 12:10:16'!
-paper: aKindOfPaper
-	paper := aKindOfPaper ! !
-
-!SelectTool methodsFor: 'accessing' stamp: 'hlsf 10/17/2024 22:13:26'!
-selection
-	^ selection! !
-
-!SelectTool methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 12:08:58'!
-clearSelection
-	presenter currentPage clearSelection.
-	paper := nil.
-	selection := #()! !
-
-!SelectTool methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 10:10:18'!
+!PointerTool methodsFor: 'initialization' stamp: 'hlsf 10/23/2024 11:10:55'!
 initialize
 	super initialize.
-	self switchState: SelectToolStateNeutral.
-	self clearSelection ! !
+	self switchState: PointerToolStateNeutral ! !
 
-!SelectTool methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 10:08:15'!
-release
-	super release.
-	presenter currentPage clearSelection! !
-
-!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:49:27'!
+!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:50:18'!
 action
-	^ #selectTool! !
+	^ #pointerTool! !
 
-!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 10/10/2024 10:42:30'!
+!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:49:50'!
 description
-	^ 'Select and drag objects around, including the whole page.' translated ! !
+	^ 'Drag and interact with objects.' translated! !
 
-!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:38:53'!
+!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:50:06'!
 iconName
-	^ #select! !
+	^ #pointer! !
 
-!SelectTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:06:21'!
+!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:47:40'!
 title
-	^ 'Select' translated! !
+	^ 'Interact' translated! !
 
 !PageToolState methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:25:29'!
 commandsManager
@@ -1633,6 +1685,68 @@ handlePress: localPosition in: paper
 		switchState: EraserToolStateErasing; 	" Prepare to erase... "
 		handleMouseAt: localPosition in: paper "...then start erasing "! !
 
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 16:16:05'!
+handleMouseAt: localPosition in: paper
+	| delta pickupSelectionMorph worldPosition |
+	worldPosition := paper externalizeToWorld: localPosition.
+	prevPosition ~= worldPosition ifTrue: [
+		delta := (worldPosition - prevPosition) / context currentPage scale.
+		pickupSelectionMorph := paper selectionMorph ifNil: [context paper selectionMorph]. 
+		context selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition + delta		 ].
+		pickupSelectionMorph morphPosition: pickupSelectionMorph morphPosition + delta.
+		prevPosition := worldPosition ]! !
+
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/23/2024 10:30:27'!
+handlePress: localPosition in: paper
+	| pickUpSelectionMorph |
+	" problem when selecting an annotator: selectionMorph is in Paper, 
+	but call here in Annotator, so localPosition in Annotator coordinates "
+	initialPosition := prevPosition := paper externalizeToWorld: localPosition .
+	pickUpSelectionMorph := paper selectionMorph ifNil: [context paper selectionMorph]. 
+	(pickUpSelectionMorph displayFullBounds containsPoint: initialPosition ) ifFalse: [
+			context switchState: GroupToolStateNeutral.
+			^ context handlePress: localPosition in: paper			]! !
+
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 23:00:38'!
+handleRelease: locaPosition in: paper
+	self commandsManager 
+		move: context 		selection 
+		to: ((paper externalizeToWorld: locaPosition) - initialPosition) / context currentPage scale
+		in: context paper! !
+
+!GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:18:50'!
+handleMouseAt: localPosition in: paper
+	paper selectionArea: (
+		Rectangle encompassingInteger: (Array
+			with: context corner
+			with: localPosition) )! !
+
+!GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/23/2024 10:30:27'!
+handleRelease: localPosition in: paper
+	| selectionRect |
+	selectionRect := Rectangle encompassingInteger: {
+		paper externalizeToWorld: context corner.
+		paper externalizeToWorld: localPosition }.
+	selectionRect origin = selectionRect corner
+		ifTrue: [context switchState: GroupToolStateNeutral ]
+		ifFalse: [
+			context 	grabMorphsIn: paper inside: selectionRect.
+			context selection 
+				ifEmpty: [		context switchState: GroupToolStateNeutral ] " empty selectio go back to neutral"
+				ifNotEmpty: [			context switchState: GroupToolStateDragging] "We catched some morph, go..."
+		]! !
+
+!GroupToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/23/2024 10:30:15'!
+handlePress: localPosition in: aPaper
+	context corner: localPosition;
+		paper: aPaper;
+		switchState: GroupToolStateGrabbing! !
+
+!GroupToolStateNeutral methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 10:13:08'!
+initialize
+	super initialize.
+	context clearSelection ! !
+
 !HighligtherToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 9/7/2024 12:13:40'!
 handlePress: localPosition in: paper
 	" Prepare to receive user handwriting... "
@@ -1667,68 +1781,6 @@ handleRelease: localPosition in: paper
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
 	context switchState: HighligtherToolStateNeutral 
 	! !
-
-!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 16:16:05'!
-handleMouseAt: localPosition in: paper
-	| delta pickupSelectionMorph worldPosition |
-	worldPosition := paper externalizeToWorld: localPosition.
-	prevPosition ~= worldPosition ifTrue: [
-		delta := (worldPosition - prevPosition) / context currentPage scale.
-		pickupSelectionMorph := paper selectionMorph ifNil: [context paper selectionMorph]. 
-		context selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition + delta		 ].
-		pickupSelectionMorph morphPosition: pickupSelectionMorph morphPosition + delta.
-		prevPosition := worldPosition ]! !
-
-!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 16:05:17'!
-handlePress: localPosition in: paper
-	| pickUpSelectionMorph |
-	" problem when selecting an annotator: selectionMorph is in Paper, 
-	but call here in Annotator, so localPosition in Annotator coordinates "
-	initialPosition := prevPosition := paper externalizeToWorld: localPosition .
-	pickUpSelectionMorph := paper selectionMorph ifNil: [context paper selectionMorph]. 
-	(pickUpSelectionMorph displayFullBounds containsPoint: initialPosition ) ifFalse: [
-			context switchState: SelectToolStateNeutral.
-			^ context handlePress: localPosition in: paper			]! !
-
-!SelectToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 23:00:38'!
-handleRelease: locaPosition in: paper
-	self commandsManager 
-		move: context 		selection 
-		to: ((paper externalizeToWorld: locaPosition) - initialPosition) / context currentPage scale
-		in: context paper! !
-
-!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:18:50'!
-handleMouseAt: localPosition in: paper
-	paper selectionArea: (
-		Rectangle encompassingInteger: (Array
-			with: context corner
-			with: localPosition) )! !
-
-!SelectToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/19/2024 15:32:56'!
-handleRelease: localPosition in: paper
-	| selectionRect |
-	selectionRect := Rectangle encompassingInteger: {
-		paper externalizeToWorld: context corner.
-		paper externalizeToWorld: localPosition }.
-	selectionRect origin = selectionRect corner
-		ifTrue: [context switchState: SelectToolStateNeutral ]
-		ifFalse: [
-			context 	grabMorphsIn: paper inside: selectionRect.
-			context selection 
-				ifEmpty: [		context switchState: SelectToolStateNeutral ] " empty selectio go back to neutral"
-				ifNotEmpty: [			context switchState: SelectToolStateDragging] "We catched some morph, go..."
-		]! !
-
-!SelectToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/19/2024 12:15:58'!
-handlePress: localPosition in: aPaper
-	context corner: localPosition;
-		paper: aPaper;
-		switchState: SelectToolStateGrabbing! !
-
-!SelectToolStateNeutral methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 10:13:08'!
-initialize
-	super initialize.
-	context clearSelection ! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
@@ -2087,9 +2139,12 @@ tool
 writingTool
 	^ presenter writingTool ! !
 
-!PaperMorph methodsFor: 'event handling testing' stamp: 'hlsf 9/5/2024 15:38:49'!
+!PaperMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/23/2024 11:25:40'!
 handlesMouseDown: event
-	^ true! !
+" We do not interact with paper when pointer tool. 
+We want to interact with annotator and its annotated objects "
+	^ (presenter isTool: #pointer) not
+! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:36:49'!
 mouseButton1Down: event localPosition: localPosition

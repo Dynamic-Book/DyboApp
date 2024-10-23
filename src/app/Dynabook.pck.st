@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 20 October 2024 at 4:23:32 pm'!
+'From Cuis7.1 [latest update: #6778] on 23 October 2024 at 11:25:56 am'!
 'Description '!
-!provides: 'Dynabook' 1 79!
+!provides: 'Dynabook' 1 80!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1470,12 +1470,14 @@ buildDocView
 	docView adoptWidgetsColor: docView defaultBorderColor.
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:07:58'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/23/2024 10:51:51'!
 docHorizontalToolbar
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow 		separation: 2.
 	buttonWidth := DySystem miniToolbarSize.
-	 #(select pen eraser highlighter undo redo 
+	 #(pointer group 
+	blank
+	pen eraser highlighter undo redo 
 	blank 
 	previousPage nextPage 
 	blank 
@@ -1625,6 +1627,13 @@ fitWidthButtonData
 	#fitWidthPage . 
 	'Scale the page to fit the window width.' translated  }! !
 
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/23/2024 10:51:27'!
+groupButtonData
+	^ {GroupTool title. 
+	GroupTool iconName . 
+	GroupTool action . 
+	GroupTool description }! !
+
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:38:02'!
 highlighterButtonData
 	^ {HighlighterTool title. 
@@ -1654,6 +1663,13 @@ penButtonData
 	PenTool action . 
 	PenTool description }! !
 
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/23/2024 10:50:50'!
+pointerButtonData
+	^ {PointerTool title. 
+	PointerTool iconName . 
+	PointerTool action . 
+	PointerTool description }! !
+
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:45:09'!
 previousPageButtonData
 	^ {'Previous page' translated . 
@@ -1667,13 +1683,6 @@ redoButtonData
 	#redo . 
 	#redoAction . 
 	'Redo your last undone action.' translated }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:39:05'!
-selectButtonData
-	^ {SelectTool title. 
-	SelectTool iconName . 
-	SelectTool action . 
-	SelectTool description }! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:42:52'!
 undoButtonData
