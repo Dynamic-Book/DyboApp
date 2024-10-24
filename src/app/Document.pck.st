@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 23 October 2024 at 7:53:31 pm'!
+'From Cuis7.1 [latest update: #6778] on 24 October 2024 at 2:08:03 pm'!
 'Description '!
-!provides: 'Document' 1 51!
+!provides: 'Document' 1 52!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -108,24 +108,34 @@ ErasingCommand subclass: #ErasingAnnotatorCommand
 ErasingAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #MoveCommand category: 'Document-Presenter-Command'!
-Command subclass: #MoveCommand
+!classDefinition: #MoveAnnotatorCommand category: 'Document-Presenter-Command'!
+Command subclass: #MoveAnnotatorCommand
+	instanceVariableNames: 'annotator delta'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'MoveAnnotatorCommand class' category: 'Document-Presenter-Command'!
+MoveAnnotatorCommand class
+	instanceVariableNames: ''!
+
+!classDefinition: #MoveGroupCommand category: 'Document-Presenter-Command'!
+Command subclass: #MoveGroupCommand
 	instanceVariableNames: 'selection delta'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'MoveCommand class' category: 'Document-Presenter-Command'!
-MoveCommand class
+!classDefinition: 'MoveGroupCommand class' category: 'Document-Presenter-Command'!
+MoveGroupCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #MoveInAnnotatorCommand category: 'Document-Presenter-Command'!
-MoveCommand subclass: #MoveInAnnotatorCommand
+!classDefinition: #MoveGroupInAnnotatorCommand category: 'Document-Presenter-Command'!
+MoveGroupCommand subclass: #MoveGroupInAnnotatorCommand
 	instanceVariableNames: 'bounds'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'MoveInAnnotatorCommand class' category: 'Document-Presenter-Command'!
-MoveInAnnotatorCommand class
+!classDefinition: 'MoveGroupInAnnotatorCommand class' category: 'Document-Presenter-Command'!
+MoveGroupInAnnotatorCommand class
 	instanceVariableNames: ''!
 
 !classDefinition: #WritingCommand category: 'Document-Presenter-Command'!
@@ -488,15 +498,22 @@ A command to record erasing on an AnnotatorMorph
 - bounds: the bounds of the annotator morph prior to the erasing. 
 The bounds once erasing is restored can be computed once the stroke group is added back to the domain (annotator morph)!
 
-!MoveCommand commentStamp: '<historical>' prior: 0!
-The command records dragged (translated) Morphs (stroke groups and annotators) 
+!MoveAnnotatorCommand commentStamp: '<historical>' prior: 0!
+The command move a Annotator
+- domain is a page morph instance where is located the annotator
+- annotator : the annotator morph
+- delta: point, translation from former position
+!
+
+!MoveGroupCommand commentStamp: '<historical>' prior: 0!
+The command move a group of Morphs (stroke groups and annotators) 
 - domain is a paper morph instance where the writing occured
 - selection : the group of translated morphs 
 - delta: point, translation from former position
 !
 
-!MoveInAnnotatorCommand commentStamp: '<historical>' prior: 0!
-The command records dragged (translated) Morphs (stroke groups only) occuring within an Annotator object
+!MoveGroupInAnnotatorCommand commentStamp: '<historical>' prior: 0!
+The command move a group of Morphs (stroke groups only) occuring within an Annotator object
 - domain: an annotator morph
 - bounds: the bounds of the annotator morph once move was done and bounds adjusted. 
 The bounds prior move can be computed once the stroke group is moved in the domain (annotator morph)!
@@ -1281,24 +1298,49 @@ unexecute
 	domain adjustBoundsTo: bounds.
 	super unexecute! !
 
-!MoveCommand methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 11:35:35'!
+!MoveAnnotatorCommand methodsFor: 'accessing' stamp: 'hlsf 10/24/2024 12:34:12'!
+annotator: aMorph
+	annotator := aMorph ! !
+
+!MoveAnnotatorCommand methodsFor: 'accessing' stamp: 'hlsf 10/24/2024 12:34:24'!
+delta: aPoint
+	delta := aPoint ! !
+
+!MoveAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 10/24/2024 14:00:49'!
+execute
+	annotator morphPosition: annotator morphPosition + delta! !
+
+!MoveAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 10/24/2024 14:00:54'!
+unexecute
+	annotator morphPosition: annotator morphPosition - delta! !
+
+!MoveAnnotatorCommand class methodsFor: 'instance creation' stamp: 'hlsf 10/24/2024 12:32:11'!
+move: anAnnotator to: aPoint in: aPage
+	^ self basicNew
+		domain: aPage ;
+		annotator: anAnnotator ;
+		delta: aPoint;
+		initialize;
+		yourself! !
+
+!MoveGroupCommand methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 11:35:35'!
 delta: aPoint
 	delta := aPoint! !
 
-!MoveCommand methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 11:35:45'!
+!MoveGroupCommand methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 11:35:45'!
 selection: aCollection
 	selection := aCollection ! !
 
-!MoveCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 11:42:09'!
+!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 11:42:09'!
 execute
 	selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition + delta		 ]! !
 
-!MoveCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 12:17:55'!
+!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 12:17:55'!
 unexecute
 	selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition - delta		 ].! !
 
-!MoveCommand class methodsFor: 'as yet unclassified' stamp: 'hlsf 10/19/2024 12:25:11'!
-move: aCollection to: aPoint in: aPaper
+!MoveGroupCommand class methodsFor: 'instance creation' stamp: 'hlsf 10/24/2024 12:26:59'!
+moveGroup: aCollection to: aPoint in: aPaper
 	^ self basicNew
 		domain: aPaper;
 		selection: aCollection ;
@@ -1306,18 +1348,18 @@ move: aCollection to: aPoint in: aPaper
 		initialize;
 		yourself! !
 
-!MoveInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 11:45:40'!
+!MoveGroupInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 11:45:40'!
 execute
 	domain adjustBoundsTo: bounds.
 	super execute! !
 
-!MoveInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 11:45:49'!
+!MoveGroupInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 10/19/2024 11:45:49'!
 unexecute
 	bounds := domain fullBoundsInOwner.
 	super unexecute.
 	domain adjustBounds! !
 
-!MoveInAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 11:45:27'!
+!MoveGroupInAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 10/19/2024 11:45:27'!
 initialize
 	super initialize.
 	domain adjustBounds.
@@ -1378,14 +1420,19 @@ deletedStrokes: aDictionayOfStroke in: aPaper
 		ifFalse: [ErasingCommand].
 	stack nextPut: (command deletedStrokes: aDictionayOfStroke in: aPaper )! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 10/19/2024 11:55:00'!
-move: aCollection to: delta in: aPaper
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 10/24/2024 14:02:16'!
+move: aAnnotator to: delta in: aPage
+	aAnnotator ifNil: [^self]. " The whole page was moved, not undo there "
+	stack nextPut: (MoveAnnotatorCommand move: aAnnotator to: delta in: aPage )! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 10/24/2024 12:27:51'!
+moveGroup: aCollection to: delta in: aPaper
 	| command |
 	aCollection ifEmpty: [^self]. " Nothing to undo "
 	command := (aPaper is: #AnnotatorMorph) 
-		ifTrue: [MoveInAnnotatorCommand ] 
-		ifFalse: [MoveCommand ].
-	stack nextPut: (command move: aCollection to: delta in: aPaper )! !
+		ifTrue: [MoveGroupInAnnotatorCommand ] 
+		ifFalse: [MoveGroupCommand ].
+	stack nextPut: (command moveGroup: aCollection to: delta in: aPaper )! !
 
 !CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:44'!
 redo
@@ -1740,10 +1787,10 @@ handlePress: localPosition in: paper
 			context switchState: GroupToolStateNeutral.
 			^ context handlePress: localPosition in: paper			]! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 23:00:38'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/24/2024 12:26:59'!
 handleRelease: locaPosition in: paper
 	self commandsManager 
-		move: context 		selection 
+		moveGroup: context 		selection 
 		to: ((paper externalizeToWorld: locaPosition) - initialPosition) / context currentPage scale
 		in: context paper! !
 
@@ -1832,8 +1879,12 @@ handleMouseAt: localPosition in: paper
 handlePress: localPosition in: paper
 	initialPosition := prevPosition := paper externalizeToWorld: localPosition ! !
 
-!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:09:10'!
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/24/2024 14:06:53'!
 handleRelease: localPosition in: paper
+	self commandsManager 
+		move: context grabbed 
+		to:  (paper externalizeToWorld: 	localPosition) - initialPosition / paper owner scale
+		in: paper owner.
 	context switchState: PointerToolStateNeutral ! !
 
 !PointerToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:04:20'!
