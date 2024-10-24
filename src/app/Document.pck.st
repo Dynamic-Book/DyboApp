@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 24 October 2024 at 2:08:03 pm'!
+'From Cuis7.1 [latest update: #6778] on 24 October 2024 at 3:21:47 pm'!
 'Description '!
-!provides: 'Document' 1 52!
+!provides: 'Document' 1 53!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1104,17 +1104,19 @@ undoAction
 	commandsManager undo.
 	self tool: tool class " reselect to tool remove intermediate state in the tool "! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/20/2024 18:19:18'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/24/2024 15:09:03'!
 zoomAction: increment	
-" center of the visible part of the paper (=container), then once zoomed see how much 
-it diverged from new center of the container "
-	| center page container |
+	self zoomAction: increment at: self currentPage owner center "container center"! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/24/2024 15:18:25'!
+zoomAction: increment	 at: referencePoint
+" zoom centered at the referencePoint position in the container "
+	|  center page |
 	page := self currentPage.
-	container := page owner.
-	center := page internalize: container center.
+	center := page internalize: referencePoint .
 	page scale: (page scale - increment 		min: 2 		max: 0.1).
 	center := page externalize: center.
-	page morphPosition: page morphPosition - center + container center! !
+	page morphPosition: page morphPosition - center + referencePoint ! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/11/2024 22:08:09'!
 zoomPageTo100
@@ -2201,6 +2203,18 @@ grabMorphsIn: rect
 		addAll: (self annotators select: [:aMorph | rect containsRect: aMorph displayFullBounds]).
 	^ grabbed
 	! !
+
+!PageMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/24/2024 15:05:09'!
+handlesMouseScroll: scrollEvent
+	^ true! !
+
+!PageMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 10/24/2024 15:21:03'!
+mouseScroll: evt localPosition: localEventPosition
+	evt direction == #down
+		ifTrue: [ presenter zoomAction: -0.02 at: (self externalize:  localEventPosition) ].
+	evt direction == #up
+		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
+! !
 
 !PageMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 15:59:56'!
 newOn: documentPresenter
