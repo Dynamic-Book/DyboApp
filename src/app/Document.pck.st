@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 24 October 2024 at 3:21:47 pm'!
+'From Cuis7.1 [latest update: #6778] on 26 October 2024 at 4:12:11 pm'!
 'Description '!
-!provides: 'Document' 1 53!
+!provides: 'Document' 1 54!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -450,7 +450,7 @@ PageContainer class
 
 !classDefinition: #DocumentView category: #'Document-View'!
 LayoutMorph subclass: #DocumentView
-	instanceVariableNames: 'presenter page'
+	instanceVariableNames: 'presenter pages currentPage container'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -651,6 +651,11 @@ previous
 	self position = 0 ifTrue: [^nil].
 	self position: self position - 1.
 	^self peek.! !
+
+!CommandStack methodsFor: 'as yet unclassified' stamp: 'hlsf 10/26/2024 14:58:31'!
+reset
+	super reset.
+	self truncate! !
 
 !CommandStack class methodsFor: 'instance creation' stamp: 'hlsf 9/10/2024 21:01:01'!
 new
@@ -941,6 +946,87 @@ newStroke
 	
 	! !
 
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 16:04:43'!
+deletePage
+	self view deletePage! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:45:38'!
+firstPage
+	self view firstPage! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/12/2024 11:18:01'!
+fitWidthPage
+	" Take PageContainer width for our current page "
+	| page |
+	page := self currentPage.
+	page 
+		morphPosition: 0@ (page morphPosition y);
+		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
+	! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:38:17'!
+insertPage
+	self view insertPage! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:45:29'!
+lastPage
+	self view lastPage! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:35:47'!
+moveOXAction: increment
+	| page |
+	page := self currentPage.
+	page morphPosition: (page morphPosition + (increment @ 0) 
+		min: self view container morphExtent 
+		max: page morphExtent negated)! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:36:00'!
+moveOYAction: increment
+	| page |
+	page := self currentPage.
+	page morphPosition: (page morphPosition - (0@increment) 
+		min: self view container morphExtent 
+		max: page morphExtent negated)! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:46:24'!
+nextPage
+	self view nextPage! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 14:28:44'!
+pageFitScreen
+	" Make the page entirely visible in the PageContainer "
+	| page scaleX scaleY |
+	page := self currentPage.
+	
+	scaleX := (page pageContainer morphWidth / page morphWidth) asFloat.
+	scaleY := (page pageContainer morphHeight / page morphHeight) asFloat.
+	page
+		morphPosition: 0@0;
+		scale: (scaleX min: scaleY)
+	! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:46:33'!
+previousPage
+	self view previousPage! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:36:13'!
+zoomAction: increment	
+	self zoomAction: increment at: self view container center "container center"! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/24/2024 15:18:25'!
+zoomAction: increment	 at: referencePoint
+" zoom centered at the referencePoint position in the container "
+	|  center page |
+	page := self currentPage.
+	center := page internalize: referencePoint .
+	page scale: (page scale - increment 		min: 2 		max: 0.1).
+	center := page externalize: center.
+	page morphPosition: page morphPosition - center + referencePoint ! !
+
+!Document methodsFor: 'pages' stamp: 'hlsf 10/11/2024 22:08:09'!
+zoomPageTo100
+	self currentPage scale: 1! !
+
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/16/2024 19:28:13'!
 eraserSize: aNumber
 	self eraserTool.
@@ -957,29 +1043,6 @@ eraserSize4
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/16/2024 19:28:45'!
 eraserSize8
 	self eraserSize: 8.! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/12/2024 11:22:30'!
-fitScreenPage
-	" Make the page entirely visible in the PageContainer "
-	| page scaleX scaleY |
-	page := self currentPage.
-	
-	scaleX := (page pageContainer morphWidth / page morphWidth) asFloat.
-	scaleY := (page pageContainer morphHeight / page morphHeight) asFloat.
-	page
-		morphPosition: 0@0;
-		scale: (scaleX min: scaleY)
-	! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/12/2024 11:18:01'!
-fitWidthPage
-	" Take PageContainer width for our current page "
-	| page |
-	page := self currentPage.
-	page 
-		morphPosition: 0@ (page morphPosition y);
-		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
-	! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:39:35'!
 highlighterBlue
@@ -1018,24 +1081,6 @@ highlighterSize40
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 23:49:17'!
 highlighterYellow
 	self highlighterColor: Color yellow! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/8/2024 19:09:17'!
-moveOXAction: increment
-	| page container |
-	page := self currentPage.
-	container := page owner.
-	page morphPosition: (page morphPosition + (increment @ 0) 
-		min: container morphExtent 
-		max: page morphExtent negated)! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 9/29/2024 17:34:59'!
-moveOYAction: increment
-	| page container |
-	page := self currentPage.
-	container := page owner.
-	page morphPosition: (page morphPosition - (0@increment) 
-		min: container morphExtent 
-		max: page morphExtent negated)! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:37:58'!
 nibSize: aNumber
@@ -1099,28 +1144,10 @@ penWhite
 redoAction
 	commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 12:23:07'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 10/26/2024 15:56:53'!
 undoAction
 	commandsManager undo.
-	self tool: tool class " reselect to tool remove intermediate state in the tool "! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/24/2024 15:09:03'!
-zoomAction: increment	
-	self zoomAction: increment at: self currentPage owner center "container center"! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/24/2024 15:18:25'!
-zoomAction: increment	 at: referencePoint
-" zoom centered at the referencePoint position in the container "
-	|  center page |
-	page := self currentPage.
-	center := page internalize: referencePoint .
-	page scale: (page scale - increment 		min: 2 		max: 0.1).
-	center := page externalize: center.
-	page morphPosition: page morphPosition - center + referencePoint ! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/11/2024 22:08:09'!
-zoomPageTo100
-	self currentPage scale: 1! !
+	self resetTool! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:25:47'!
 commandsManager
@@ -1134,17 +1161,17 @@ controlsManager
 controlsManager: aControlsManager
 	controlsManager := aControlsManager ! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 10/13/2024 13:08:11'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 14:40:39'!
 currentPage
-	^ controlsManager docView currentPage! !
-
-!Document methodsFor: 'accessing' stamp: 'hlsf 9/8/2024 16:44:15'!
-pages
-	^ {self currentPage}! !
+	^ self view currentPage! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:42:08'!
 selectedTool
 	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
+
+!Document methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 14:40:30'!
+view
+	^ controlsManager docView! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/7/2024 11:52:43'!
 writingTool
@@ -1195,6 +1222,11 @@ penTool
 pointerTool
 	self tool: PointerTool .! !
 
+!Document methodsFor: 'tool' stamp: 'hlsf 10/26/2024 15:56:47'!
+resetTool
+" reselect to tool remove intermediate state in the tool "
+	self tool: tool class ! !
+
 !Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 15:09:27'!
 tool
 	^ tool! !
@@ -1223,12 +1255,6 @@ initializeWritingTools
 		threshold: 6 squared.
 	eraser := Pen new 	width: 2
 ! !
-
-!Document methodsFor: 'cleanup' stamp: 'hlsf 9/8/2024 19:03:55'!
-deleteBitMasks
-" Remove all the bitmask of the Stroke Morph "
-	self pages do: [:aPage |
-		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 		] ]! !
 
 !Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
 controlsManager: aControlsManager
@@ -1409,9 +1435,10 @@ unexecute
 initialize
 	stack := CommandStack new! !
 
-!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 9/10/2024 21:04:03'!
+!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 10/26/2024 14:57:40'!
 release
-	stack contents do: [:c | c release].! !
+	stack contents do: [:c | c release].
+	stack reset! !
 
 !CommandManager methodsFor: 'commands' stamp: 'hlsf 10/19/2024 11:24:14'!
 deletedStrokes: aDictionayOfStroke in: aPaper
@@ -1534,9 +1561,9 @@ presenter: aPresenter
 		initialize;
 		yourself! !
 
-!EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 19:03:55'!
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 10/26/2024 14:42:42'!
 deleteBitsMasks
-	presenter deleteBitMasks ! !
+	presenter view deleteBitMasks ! !
 
 !EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/29/2024 22:25:15'!
 initialize
@@ -2208,7 +2235,7 @@ grabMorphsIn: rect
 handlesMouseScroll: scrollEvent
 	^ true! !
 
-!PageMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 10/24/2024 15:21:03'!
+!PageMorph methodsFor: 'events' stamp: 'hlsf 10/24/2024 15:21:03'!
 mouseScroll: evt localPosition: localEventPosition
 	evt direction == #down
 		ifTrue: [ presenter zoomAction: -0.02 at: (self externalize:  localEventPosition) ].
@@ -2664,9 +2691,9 @@ for: aPage
 	^ self new
 		addMorphFront: aPage position: 0@0! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/4/2024 21:49:51'!
-currentPage
-	^ page! !
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 15:10:11'!
+container
+	^ container ! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 8/31/2024 10:34:28'!
 presenter
@@ -2680,11 +2707,20 @@ presenter: aPresenter
 tool
 	^ presenter tool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 16:02:58'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 10/26/2024 14:42:15'!
+deleteBitMasks
+" Remove all the bitmask of the Stroke Morph "
+	pages do: [:aPage |
+		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 		] ]! !
+
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 10/26/2024 15:09:54'!
 initialize
 	super initialize.
 	self beColumn.
-	page := PageMorph newOn: presenter! !
+	pages := OrderedCollection new.
+	currentPage := PageMorph newOn: presenter.
+	container := PageContainer for: currentPage.
+	pages add: currentPage ! !
 
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:14'!
 adoptWidgetsColor: aColor 
@@ -2698,6 +2734,68 @@ defaultBorderColor
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:31'!
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 14:34:50'!
+currentPage
+	^ currentPage ! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 14:37:15'!
+currentPageIndex
+	^ pages indexOf: currentPage ! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 16:10:16'!
+deletePage
+" delete the current page "
+	| newIndex |
+	self numberOfPages > 1 ifTrue: [
+		newIndex := self currentPageIndex min: self numberOfPages - 1.
+		pages remove: currentPage.
+		self goPage: (self pageAt: newIndex)		 		]! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:45:59'!
+firstPage
+	^ self goPage: pages first! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:57:04'!
+goPage: aPage
+" I alway return the current page, whether the document jump to a new page or not "
+	(aPage notNil and: [aPage ~= currentPage]) ifTrue: [
+		container replaceSubmorph: currentPage by: aPage.
+		currentPage := aPage.
+		presenter controlsManager adjustPageCount.
+		presenter commandsManager release.
+		presenter resetTool].
+	^ currentPage! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:23:26'!
+insertPage
+" insert a page after the current page "
+	^ self goPage: (
+		pages 
+			add: (PageMorph newOn: presenter) 
+			after: currentPage)! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:39:43'!
+lastPage
+	^ self goPage: pages last! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:40:09'!
+nextPage
+	^ self goPage: (self pageAt: self currentPageIndex + 1)
+! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 14:39:00'!
+numberOfPages
+	^ pages size! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:14:37'!
+pageAt: anIndex
+	^ pages at: anIndex ifAbsent: nil! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:39:57'!
+previousPage
+	^ self goPage: (self pageAt: self currentPageIndex - 1)
+! !
 
 !DocumentView class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 16:02:50'!
 presenter: aPresenter

@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 23 October 2024 at 11:25:56 am'!
+'From Cuis7.1 [latest update: #6778] on 26 October 2024 at 4:12:13 pm'!
 'Description '!
-!provides: 'Dynabook' 1 80!
+!provides: 'Dynabook' 1 81!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -212,7 +212,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'dynabookView docView icons statusBar'
+	instanceVariableNames: 'dynabookView docView icons statusBar pageCount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -1208,9 +1208,6 @@ new
 daysOfWeek
 	^ Week dayNames collect: [:day | day translated]! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:17'!
-addPage! !
-
 !Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:54'!
 deletePage! !
 
@@ -1243,6 +1240,9 @@ goTasks
 	selectedSection := #tasks.
 	controlsManager plugTaskView.
 	self changed: #isSection:! !
+
+!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/26/2024 12:55:01'!
+insertPage! !
 
 !Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:25'!
 nextPage! !
@@ -1442,14 +1442,22 @@ paperRatio
 preferences
 	^ platform preferences! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/26/2024 14:41:02'!
+adjustPageCount
+	pageCount 
+		contents: (String streamContents: [:str | 
+			str nextPutAll: docView currentPageIndex printString;
+				nextPutAll: '/';
+				nextPutAll: docView numberOfPages printString 		])! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/26/2024 15:10:25'!
 buildDocView
 	| row col |
 	docView := DocumentView presenter: (Document controlsManager: self).
 	docView 
 		addMorph: self docHorizontalToolbar
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
-	row := LayoutMorph newRow 					addMorphUseAll: (PageContainer for: 		docView currentPage).
+	row := LayoutMorph newRow 					addMorphUseAll: docView container.
 	" vertical and zoom wheels at the right "
 	col := LayoutMorph newColumn name: #wheelsYZ.
 	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
@@ -1463,25 +1471,25 @@ buildDocView
 	
 	" status bar and horizontal wheel at the bottom "
 	row := LayoutMorph newRow name: #wheelX.
-	row addMorphUseAll: self statusBarInScroller;
+	row addMorph: self pageCounter layoutSpec: 	(LayoutSpec fixedWidth: 12) ;
+		addMorphUseAll: self statusBarInScroller;
 		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
 		addMorph: DyControlsManager spacer layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
 	docView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
 	docView adoptWidgetsColor: docView defaultBorderColor.
+	self adjustPageCount .
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/23/2024 10:51:51'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/26/2024 13:00:29'!
 docHorizontalToolbar
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow 		separation: 2.
 	buttonWidth := DySystem miniToolbarSize.
-	 #(pointer group 
+	 #(pen eraser highlighter undo redo 
 	blank
-	pen eraser highlighter undo redo 
-	blank 
-	previousPage nextPage 
-	blank 
-	deletePage addPage) do: [:aTool | 
+	pointer group 
+	blank
+	firstPage previousPage insertPage deletePage 	nextPage lastPage) do: [:aTool | 
 		aTool 
 			caseOf: {
 				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
@@ -1592,17 +1600,10 @@ penColorTools
 			with: (	icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
 			with: (help format: {aColor translated})		 	]! !
 
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:41:53'!
-addPageButtonData
-	^ {'New page' translated . 
-	#addObject . 
-	#addPage . 
-	'Insert a new page after the current one.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:44:15'!
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 12:44:47'!
 deletePageButtonData
 	^ {'Delete page' translated . 
-	#removeObject . 
+	#deletePage . 
 	#deletePage . 
 	'Delete the current page.' translated  }! !
 
@@ -1613,11 +1614,18 @@ eraserButtonData
 	EraserTool action . 
 	EraserTool description }! !
 
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/12/2024 11:15:36'!
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 12:56:14'!
+firstPageButtonData
+	^ {'First page' translated . 
+	#firstPage . 
+	#firstPage . 
+	'Go to the FIRST page of the document.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 14:28:44'!
 fitScreenButtonData
 	^ {'Fit screen' translated . 
 	#fitScreen . 
-	#fitScreenPage . 
+	#pageFitScreen . 
 	'Scale the page to make it entirely visible.' translated  }! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/11/2024 19:34:49'!
@@ -1640,6 +1648,20 @@ highlighterButtonData
 	HighlighterTool iconName . 
 	HighlighterTool action. 
 	HighlighterTool description }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 13:00:55'!
+insertPageButtonData
+	^ {'New page' translated . 
+	#insertPage . 
+	#insertPage . 
+	'Insert a new page after the current one.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 12:56:07'!
+lastPageButtonData
+	^ {'Last page' translated . 
+	#lastPage . 
+	#lastPage . 
+	'Go to the LAST page of the document.' translated  }! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:45:36'!
 nextPageButtonData
@@ -1763,6 +1785,18 @@ horizontalWheel
 		color: Color orange;
 		borderColor: Color black;
 		yourself! !
+
+!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/26/2024 14:25:59'!
+pageCounter
+"a view of the opage count"
+	^ pageCount ifNil: [
+		pageCount := TextParagraphMorph new
+			color: Color transparent;
+			padding: 4@4;
+			borderWidth: 0;
+			yourself	]
+	
+	! !
 
 !DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 8/31/2024 10:43:26'!
 statusBar
