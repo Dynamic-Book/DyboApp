@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 26 October 2024 at 4:12:13 pm'!
+'From Cuis7.1 [latest update: #6778] on 27 October 2024 at 9:36:22 pm'!
 'Description '!
-!provides: 'Dynabook' 1 81!
+!provides: 'Dynabook' 1 82!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -324,8 +324,11 @@ DynabookTestResource class
 !DyDomain commentStamp: '<historical>' prior: 0!
 The domain object of a Dynabook application.!
 
-!DyCourseHour commentStamp: '<historical>' prior: 0!
-Describes one or more contiguous teaching periods.!
+!DyCourseHour commentStamp: 'hlsf 10/27/2024 19:27:22' prior: 0!
+Describes one or more contiguous teaching periods.
+- room:  the physical location of the course (string)
+- dayOfWeek: 1 to 7, day of the week, 1 is Monday
+- timesSlots: a collection of time slot object!
 
 !DyDayInterval commentStamp: '<historical>' prior: 0!
 I represent an interval of days!
@@ -351,7 +354,9 @@ I describe a course of a teacher or a course attended by a student:
 - subject: the taught topic (Math, History,...)
 - color: distinctive color of the course
 - courseHours: a collection of course hour describing the teaching period
-- binder: a holder of the pedagogical documents
+- topics a collection of taught topics
+- teacher attributes only make sense when user is Student (DyUserData current user isStudent == true)
+
 My owner is a ClassGroup!
 
 !DySchool commentStamp: '<historical>' prior: 0!
@@ -485,6 +490,10 @@ initialize
 	dayOfWeek := 0.
 	timeSlots := OrderedCollection new! !
 
+!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 10/27/2024 19:51:18'!
+isAt: aTimeSlot day: aDayNumber
+	^ dayOfWeek = aDayNumber 		and: [timeSlots includes: aTimeSlot ]! !
+
 !DyCourseHour methodsFor: 'testing' stamp: 'hlsf 9/17/2023 21:32:38'!
 isDuring: aDateAndTime
 	^ dayOfWeek = aDateAndTime dayOfWeek 
@@ -498,11 +507,11 @@ label
 pluralLabel
 	^ 'Periods' translated! !
 
-!DyDayInterval methodsFor: 'printing' stamp: 'hlsf 8/11/2024 10:44:42'!
+!DyDayInterval methodsFor: 'printing' stamp: 'hlsf 10/27/2024 16:30:32'!
 printOn: aStream
 	start 
-		ifNotNil:  [aStream nextPutAll:  start ddmmyy ;
-				nextPutAll: ' - ';
+		ifNotNil:  [aStream nextPutAll:  start ddmmyy;
+				nextPutAll: ' - '; 
 				nextPutAll: self end ddmmyy .]
 		ifNil: [aStream nextPutAll: 'days inteval' translated]! !
 
@@ -794,13 +803,23 @@ teacher
 topics
 	^ topics! !
 
-!DyCourse methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:34:04'!
+!DyCourse methodsFor: 'printing' stamp: 'hlsf 10/27/2024 19:20:23'!
 printOn: aStream
-	aStream nextPutAll: subject! !
+	aStream nextPutAll: subject;
+		nextPutAll: ' (';
+		print: self classGroup;
+		nextPut: $)! !
 
 !DyCourse methodsFor: 'visiting' stamp: 'hlsf 7/1/2023 08:53:53'!
 accept: aVisitor
 	^ aVisitor visitCourse: self! !
+
+!DyCourse methodsFor: 'testing' stamp: 'hlsf 10/27/2024 19:51:49'!
+isAt: aTimeSlot day: aDayNumber
+	^ courseHours 
+		detect:  [:aCourseHour | aCourseHour isAt: aTimeSlot day: aDayNumber]
+		ifFound: [:aCourse | true]
+		ifNone: [false]! !
 
 !DyCourse methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:27:08'!
 isDuring: aDateAndTime
@@ -814,7 +833,7 @@ futureDates: qty
 " A list of future course hours & dates after today "
 	^ self next: qty courseHoursAfter: Date today! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/26/2023 22:02:46'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 10/27/2024 19:45:23'!
 next: qty courseHoursAfter: aDate
 " A list of qty course hours & dates after a given date"
 	| futureDates n next |
@@ -823,7 +842,7 @@ next: qty courseHoursAfter: aDate
 	next := self nextCourseHourAfter: aDate.
 	[n isZero or: [next isNil]] whileFalse:	 [
 		futureDates add: next.	
-		next := self nextCourseHourAfter: next second. "̈next date"
+		next := self nextCourseHourAfter: next second. "next date"
 		n := n - 1	] .
 	^ futureDates ! !
 
@@ -872,6 +891,16 @@ registerEvents
 classGroups
 	^ classGroups ! !
 
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 10/27/2024 20:49:33'!
+courseAt: aTimeSlot day: aDayNumber
+	classGroups do: [:aClassGroup |
+		aClassGroup courses 	
+			detect:  [:aCourse | aCourse isAt: aTimeSlot day: aDayNumber ]
+			ifFound:  [:aCourse | ^ aCourse ]
+			ifNone: []
+		].
+	^ nil! !
+
 !DySchool methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:38:51'!
 dirName
 	^ name asFileName! !
@@ -906,6 +935,23 @@ mold
 !DySchool methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:40:39'!
 printOn: str
 	str nextPutAll: name! !
+
+!DySchool methodsFor: 'printing' stamp: 'hlsf 10/27/2024 21:30:29'!
+timesTableOn: aStream
+	| indent |
+	indent := 6.
+	aStream nextPutAll: 'Période' ; tab: indent // 2.
+	(DyUserData daysOfWeek first: 5)
+		do: [:aDay | 		aStream nextPutAll: aDay]
+		separatedBy: [aStream tab: indent].
+	aStream lf.
+	timeSlots do: [:aTimeSlot |
+		aStream nextPutAll: aTimeSlot slotName ; tab: indent // 2.		
+		1 to: 7 do: [:aDay |
+			(self courseAt: aTimeSlot day: aDay) 	
+				ifNotNil:  [:thisCourse | aStream nextPutAll: (thisCourse printString contractTo: 20)] 			]
+			separatedBy: [aStream tab: indent]
+		] separatedBy: [aStream lf]! !
 
 !DySchool methodsFor: 'visiting' stamp: 'hlsf 6/30/2023 21:49:08'!
 accept: aVisitor 
@@ -1147,6 +1193,10 @@ printOn: str
 	user firstName 
 		ifNotNil:  [:firstName | str nextPutAll: ('{1}''s Dynabook' translated format: {firstName})]
 		ifNil: [super printOn: str]! !
+
+!DyUserData methodsFor: 'printing' stamp: 'hlsf 10/27/2024 19:29:28'!
+timesTables
+" One per user school "! !
 
 !DyUserData methodsFor: 'searching' stamp: 'hlsf 5/26/2024 22:51:36'!
 courseAndGroupAt: aDateTime
@@ -2007,17 +2057,18 @@ visitClassGroup: class
 		self editorsFor: class courses ofType: DyCourse in: class.
 		self editorsFor: class students ofType: DyStudent }! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 11:01:16'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 10/27/2024 19:09:23'!
 visitCourse: course 
-| mold |
+| mold columns |
 	mold := course mold.
 	mold when: #edited send: #triggerEvent: to: course with: #edited.
-	^ self newColumnWith: {
+	columns := OrderedCollection withAll: {
 		self decoratedPaneFor: mold labeled: 'Information' translated.
-		self editorsFor: course courseHours ofType: DyCourseHour .
-		self decoratedPaneFor: course teacher mold labeled: 'Teacher' translated.
-		self editorsFor: course topics ofType: DyTopic in: course
-		}! !
+		self editorsFor: course courseHours ofType: DyCourseHour}.
+	DyUserData current user isStudent ifTrue: [ columns add:
+		(self decoratedPaneFor: course teacher mold labeled: 'Teacher' translated)].
+	columns add: (	self editorsFor: course topics ofType: DyTopic in: course).
+	^ self newColumnWith:		 columns ! !
 
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 11:01:34'!
 visitCourseHour: courseHour
@@ -2352,14 +2403,16 @@ visitClassGroup: class
 		addMorph: (self paneFor: class students label: 'Students' translated browse: false).
 	^ self plugView: column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 10/8/2023 23:17:13'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 10/27/2024 19:05:55'!
 visitCourse: course
 	| column |
 	visitedModel := course .
 	column := LayoutMorph newColumn.
 	column
-		addMorph: (self paneFor: course courseHours label: 'Periods' translated browse: false);
-		addMorph: (self paneFor: course teacher label: 'Teacher' translated browse: false);
+		addMorph: (self paneFor: course courseHours label: 'Periods' translated browse: false).
+	DyUserData current user isStudent ifTrue: [
+		column 	addMorph: (self paneFor: course teacher label: 'Teacher' translated browse: false)].
+	column 
 		addMorph: (self paneFor: course topics label: 'Topics' translated browse: false).
 	^ self plugView: column! !
 
@@ -2425,13 +2478,13 @@ start
 start: aTime
 	startTime := aTime ! !
 
-!DyTimeSlot methodsFor: 'printing' stamp: 'hlsf 6/19/2023 21:50:54'!
+!DyTimeSlot methodsFor: 'printing' stamp: 'hlsf 10/27/2024 16:26:53'!
 printOn: aStream
 	name ifNil: [ super printOn: aStream ]
 		ifNotNil: [	
-			aStream nextPutAll: name; 				space.
+			aStream nextPutAll: name; 				tab; tab.
 			startTime print24: true showSeconds: false on: aStream.
-			aStream 	nextPut: $-.
+			aStream 	nextPutAll: ' - '.
 			endTime print24: true showSeconds: false on: aStream]! !
 
 !DyTimeSlot methodsFor: 'user interface' stamp: 'hlsf 6/30/2023 21:15:31'!
