@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 27 October 2024 at 9:36:22 pm'!
+'From Cuis7.1 [latest update: #6778] on 28 October 2024 at 11:35:25 pm'!
 'Description '!
-!provides: 'Dynabook' 1 82!
+!provides: 'Dynabook' 1 84!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -846,16 +846,23 @@ next: qty courseHoursAfter: aDate
 		n := n - 1	] .
 	^ futureDates ! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 5/26/2024 15:50:24'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 10/28/2024 23:24:53'!
 nextCourseHourAfter: aDate
 "Search for my next course hour after aDate"
 	| dayOfWeek currentCourseHourIndex nextCourseHour nextDate |
 	dayOfWeek := aDate dayOfWeek.
-	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | 
-		aCourseHour dayOfWeek = dayOfWeek].
-	currentCourseHourIndex = 0 ifTrue: [^ nil].
+
+	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | 		aCourseHour dayOfWeek = dayOfWeek].
+	currentCourseHourIndex = 0 ifTrue: [ 
+	"No course at this day, jump to the next day, and try again, as long as it is not end -of-schoolyear "
+		nextDate := aDate previous.
+		^ nextDate > self agenda end
+			ifTrue: [nil] ifFalse: [self nextCourseHourAfter: nextDate] ].
 	nextCourseHour := courseHours atWrap: currentCourseHourIndex + 1.
-	nextDate := aDate + (nextCourseHour dayOfWeek - dayOfWeek \\ 7) days.
+	nextDate := nextCourseHour dayOfWeek = dayOfWeek 
+		ifTrue: [aDate + 7 days]
+		ifFalse: [aDate + (nextCourseHour dayOfWeek - dayOfWeek \\ 7) days].
+		
 	nextDate > self agenda end
 		ifTrue: [^ nil "School is over, it is summer time !!"].
 	^ (self agenda isDayOff: nextDate)
@@ -2573,7 +2580,7 @@ classGroup
 " The selected class group, if any "
 	^ self classGroups at: classGroupIndex ifAbsent: [nil]! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:40:17'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/27/2024 22:23:20'!
 classGroupCourses
 	^ self classGroup ifNil: [`Array new`] ifNotNil: [:cg | cg courses]! !
 
@@ -2581,7 +2588,7 @@ classGroupCourses
 classGroupIndex
 	^ classGroupIndex! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 23:23:52'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 10/27/2024 22:29:32'!
 classGroupIndex: anIndex
 	classGroupIndex := anIndex.
 	self changed: #classGroupIndex:.
@@ -2957,12 +2964,14 @@ testCourseAgendaAccess
 	self assert: agenda start = '2023-08-21' asDate.
 	self assert: agenda end = '2024-06-28' asDate! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 10/1/2023 22:27:03'!
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 10/28/2024 22:26:32'!
 testCourseAt
-	| courseH courseM classGroup dateAndTime | 
+	| courseH courseM courseI classGroup dateAndTime | 
 	classGroup := data schools first classGroups first.
 	courseH := classGroup courses first.
 	courseM := classGroup courses second .
+	courseI := classGroup courses third .
+
 
 	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
 	self assert: (data courseAt: dateAndTime) equals: courseH.
@@ -2981,6 +2990,9 @@ testCourseAt
 	
 	dateAndTime := DateAndTime fromString: '2023-09-15 15:54'. 
 	self assert: (data courseAt: dateAndTime) equals: courseH.
+	
+	dateAndTime := DateAndTime fromString: '2023-09-11 14:00'. 
+	self assert: (data courseAt: dateAndTime) equals: courseI.
 	! !
 
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:29:19'!
@@ -3018,6 +3030,24 @@ testFutureDates
 	
 	self assert: futureDates third first dayOfWeek= 2 .
 	self assert: futureDates third first timeSlots first = 'P4 10:25 11:10' asTimeSlot.
+! !
+
+!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 10/28/2024 22:35:27'!
+testFutureDatesNoCourseThisDay
+	| course date futureDates| 
+	date := (DateAndTime fromString: '2023-09-12 10:45') date . "Tuesday"
+	course := data schools first classGroups first courses third.
+	futureDates := course next: 5 courseHoursAfter: date.
+	"Should be each Monday , time slot: P7 "
+	self assert: futureDates size = 5.
+	self assert: futureDates first  second = '2023-09-18' asDate.
+	self assert: futureDates second  second = '2023-09-25' asDate.
+	self assert: futureDates third  second = '2023-10-2' asDate.
+	self assert: futureDates fourth  second = '2023-10-9' asDate.
+	self assert: futureDates fifth  second = '2023-10-16' asDate.
+	
+	self assert: futureDates third first dayOfWeek= 1 .
+	self assert: futureDates third first timeSlots first = 'P7 13:35 14:20' asTimeSlot.
 ! !
 
 !DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:10:49'!
@@ -3146,10 +3176,11 @@ resources
 tearDownResources
 	self halt! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 10/8/2023 23:25:12'!
+!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 10/28/2024 22:23:00'!
 classGroup932in: school
 	| group course |
 	group := DyClassGroup number: '932' in: school.
+		
 	course := DyCourse subject: 'Histoire' in: group.
 	group courses add: course.
 	course courseHours
@@ -3170,6 +3201,12 @@ classGroup932in: school
 	course topics 
 		add: (DyTopic title: 'Rational' in: course);
 		add: (DyTopic title: 'Triangle' in: course).
+		
+	course := DyCourse subject: 'IOSP' in: group.
+	group courses add: course.
+	course courseHours
+		add: ('123 1 P7' asCourseHourIn: course).
+		
 	^ group! !
 
 !DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/24/2023 14:04:47'!
