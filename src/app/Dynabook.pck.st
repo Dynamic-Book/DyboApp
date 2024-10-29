@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 28 October 2024 at 11:35:25 pm'!
+'From Cuis7.1 [latest update: #6778] on 29 October 2024 at 9:24:23 pm'!
 'Description '!
-!provides: 'Dynabook' 1 84!
+!provides: 'Dynabook' 1 85!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -846,18 +846,16 @@ next: qty courseHoursAfter: aDate
 		n := n - 1	] .
 	^ futureDates ! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 10/28/2024 23:24:53'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 10/29/2024 21:24:16'!
 nextCourseHourAfter: aDate
 "Search for my next course hour after aDate"
 	| dayOfWeek currentCourseHourIndex nextCourseHour nextDate |
 	dayOfWeek := aDate dayOfWeek.
 
 	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | 		aCourseHour dayOfWeek = dayOfWeek].
-	currentCourseHourIndex = 0 ifTrue: [ 
-	"No course at this day, jump to the next day, and try again, as long as it is not end -of-schoolyear "
-		nextDate := aDate previous.
-		^ nextDate > self agenda end
-			ifTrue: [nil] ifFalse: [self nextCourseHourAfter: nextDate] ].
+	"No course at this day, jump to the previous day, and try again "
+	currentCourseHourIndex = 0 ifTrue: [		^ self nextCourseHourAfter: aDate previous].
+	
 	nextCourseHour := courseHours atWrap: currentCourseHourIndex + 1.
 	nextDate := nextCourseHour dayOfWeek = dayOfWeek 
 		ifTrue: [aDate + 7 days]
