@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 29 October 2024 at 9:24:23 pm'!
+'From Cuis7.1 [latest update: #6778] on 6 November 2024 at 7:32:40 pm'!
 'Description '!
-!provides: 'Dynabook' 1 85!
+!provides: 'Dynabook' 1 86!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -14,7 +14,6 @@ SystemOrganization addCategory: #'Dynabook-Model-Business'!
 SystemOrganization addCategory: #'Dynabook-View'!
 SystemOrganization addCategory: #'Dynabook-View-Business'!
 SystemOrganization addCategory: #'Dynabook-Presenter'!
-SystemOrganization addCategory: #'Dynabook-Presenter-Command'!
 SystemOrganization addCategory: #'Dynabook-Test'!
 SystemOrganization addCategory: #Dynabook!
 SystemOrganization addCategory: #'Dynabook-System'!
@@ -160,24 +159,14 @@ Object subclass: #DyUserData
 DyUserData class
 	instanceVariableNames: ''!
 
-!classDefinition: #Dynabook category: #'Dynabook-Presenter'!
-Object subclass: #Dynabook
+!classDefinition: #Dybo category: #'Dynabook-Presenter'!
+Object subclass: #Dybo
 	instanceVariableNames: 'domain controlsManager selectedSection'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Presenter'!
-!classDefinition: 'Dynabook class' category: #'Dynabook-Presenter'!
-Dynabook class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyCommand category: #'Dynabook-Presenter-Command'!
-Object subclass: #DyCommand
-	instanceVariableNames: 'presenter'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dynabook-Presenter-Command'!
-!classDefinition: 'DyCommand class' category: #'Dynabook-Presenter-Command'!
-DyCommand class
+!classDefinition: 'Dybo class' category: #'Dynabook-Presenter'!
+Dybo class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyPlatform category: #'Dynabook-System'!
@@ -300,24 +289,24 @@ SystemWindow subclass: #DynabookView
 DynabookView class
 	instanceVariableNames: ''!
 
-!classDefinition: #DynabookTestCase category: #'Dynabook-Test'!
-TestCase subclass: #DynabookTestCase
+!classDefinition: #DyboTestCase category: #'Dynabook-Test'!
+TestCase subclass: #DyboTestCase
 	instanceVariableNames: 'data'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Test'!
-!classDefinition: 'DynabookTestCase class' category: #'Dynabook-Test'!
-DynabookTestCase class
+!classDefinition: 'DyboTestCase class' category: #'Dynabook-Test'!
+DyboTestCase class
 	instanceVariableNames: ''!
 
-!classDefinition: #DynabookTestResource category: #'Dynabook-Test'!
-TestResource subclass: #DynabookTestResource
+!classDefinition: #DyboTestResource category: #'Dynabook-Test'!
+TestResource subclass: #DyboTestResource
 	instanceVariableNames: 'data backupData'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Test'!
-!classDefinition: 'DynabookTestResource class' category: #'Dynabook-Test'!
-DynabookTestResource class
+!classDefinition: 'DyboTestResource class' category: #'Dynabook-Test'!
+DyboTestResource class
 	instanceVariableNames: ''!
 
 
@@ -373,7 +362,7 @@ I am a Singleton, the root of the user data, both administrative and pedagogical
 - schools: collection of schools the student is enrolled in or the teacher teaches in
 - agenda of the user!
 
-!Dynabook commentStamp: '<historical>' prior: 0!
+!Dybo commentStamp: '<historical>' prior: 0!
 A presenter for a Dynabook application.!
 
 !DyPlatform commentStamp: '<historical>' prior: 0!
@@ -423,6 +412,11 @@ userData
 !DyDomain methodsFor: 'initialization' stamp: 'hlsf 8/16/2023 21:10:08'!
 initialize
 	userData := DyUserData current! !
+
+!DyDomain methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:27:29'!
+load
+	userData := ReferenceStream restoreFromFile: DySystem userDataPath // 'data.ob'.
+	DyUserData current: userData.! !
 
 !DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 9/28/2023 15:21:54'!
 mold: school
@@ -941,8 +935,8 @@ mold
 printOn: str
 	str nextPutAll: name! !
 
-!DySchool methodsFor: 'printing' stamp: 'hlsf 10/27/2024 21:30:29'!
-timesTableOn: aStream
+!DySchool methodsFor: 'printing' stamp: 'hlsf 11/6/2024 17:16:47'!
+printTimesTableOn: aStream
 	| indent |
 	indent := 6.
 	aStream nextPutAll: 'Période' ; tab: indent // 2.
@@ -1232,10 +1226,6 @@ nextCourseHourAfter: aDateAndTime
 accept: aVisitor
 	^ aVisitor visitUserData: self! !
 
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 9/12/2023 21:58:37'!
-basicCurrent
-	^ Current! !
-
 !DyUserData class methodsFor: 'accessing' stamp: 'hlsf 7/13/2023 09:42:21'!
 current
 	^ Current ifNil: [Current := self basicNew initialize]! !
@@ -1263,88 +1253,87 @@ new
 daysOfWeek
 	^ Week dayNames collect: [:day | day translated]! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:54'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:54'!
 deletePage! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:07'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:07'!
 goBinder
 	selectedSection := #binder.
 	controlsManager plugBinderView.
 	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/13/2024 13:10:07'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 10/13/2024 13:10:07'!
 goPage
 	selectedSection := #page.
 	controlsManager plugDocView .
 	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:10'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:10'!
 goSettings
 	selectedSection := #settings.
 	controlsManager plugSettingsView.
 	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:14'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:14'!
 goStart
 	selectedSection := #start.
 	controlsManager plugStartView.
 	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 8/29/2024 11:48:32'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 8/29/2024 11:48:32'!
 goTasks
 	selectedSection := #tasks.
 	controlsManager plugTaskView.
 	self changed: #isSection:! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/26/2024 12:55:01'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 10/26/2024 12:55:01'!
 insertPage! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:25'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:25'!
 nextPage! !
 
-!Dynabook methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:38'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:38'!
 previousPage! !
 
-!Dynabook methodsFor: 'testing' stamp: 'hlsf 8/14/2023 22:29:40'!
+!Dybo methodsFor: 'testing' stamp: 'hlsf 8/14/2023 22:29:40'!
 isSection: aSymbolSection
 "We have the start, task, binder, and settings sections"
 	^ selectedSection == aSymbolSection ! !
 
-!Dynabook methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 10:59:45'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:31:11'!
 initialize
 	domain := DyDomain new.
+	self installComponents ! !
+
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:31:02'!
+installComponents
 	controlsManager := DyControlsManager new.
 	controlsManager installDynabookView: self.
 	self goStart.
 	self view openInWorld ! !
 
-!Dynabook methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 09:59:47'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:31:22'!
+load
+	domain := DyDomain new load.
+	self installComponents ! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 09:59:47'!
 controlsManager
 	^ controlsManager ! !
 
-!Dynabook methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:40:14'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:40:14'!
 domain
 	^ domain! !
 
-!Dynabook methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:00:32'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:00:32'!
 view
 	^ controlsManager dynabookView! !
 
-!DyCommand methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:47:05'!
-presenter: aPresenter
-	presenter := aPresenter ! !
-
-!DyCommand methodsFor: 'command' stamp: 'hlsf 8/9/2023 14:47:27'!
-execute
-	self subclassResponsibility ! !
-
-!DyCommand methodsFor: 'command' stamp: 'hlsf 8/9/2023 14:47:30'!
-unexecute
-	self subclassResponsibility ! !
-
-!DyCommand methodsFor: 'initialize-release' stamp: 'hlsf 8/9/2023 14:48:16'!
-release
-" Let my subclass instances do clean up if necessary "! !
+!Dybo class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/6/2024 19:31:50'!
+load
+" load the user data in a new Dybo window "
+	self basicNew
+		load! !
 
 !DyPlatform methodsFor: 'user interface' stamp: 'hlsf 8/29/2024 11:50:31'!
 iconToolbarSize
@@ -2899,15 +2888,15 @@ for: aPresenter
 		presenter: aPresenter;
 		yourself! !
 
-!DynabookTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/13/2023 23:21:14'!
+!DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/13/2023 23:21:14'!
 setUp
 	data := self resources anyOne current data! !
 
-!DynabookTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 21:28:52'!
+!DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 21:28:52'!
 tearDown
 	self tearDownResources! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/24/2023 14:07:36'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/24/2023 14:07:36'!
 testAgenda
 	self assert: data agenda start = '2023-08-21' asDate.
 	self assert: data agenda end = '2024-06-28' asDate.
@@ -2922,7 +2911,7 @@ testAgenda
 	self deny: (data agenda isDayOff: '2024-05-16' asDate)
 	! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:49:44'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:49:44'!
 testAsCourseIn	
 	| school course courseHour | 
 	school := data schools first.
@@ -2940,7 +2929,7 @@ testAsCourseIn
 	courseHour timeSlots do: [:each |
 	self assert: (school timeSlots includes: each) ]! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:15:38'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:15:38'!
 testClassGroupCourse
 	| school group course | 
 	school := data schools first.
@@ -2952,7 +2941,7 @@ testClassGroupCourse
 	self assert: course subject equals: 'Histoire'
 	! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:28:35'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:28:35'!
 testCourseAgendaAccess
 	| school group course agenda | 
 	school := data schools first.
@@ -2962,7 +2951,7 @@ testCourseAgendaAccess
 	self assert: agenda start = '2023-08-21' asDate.
 	self assert: agenda end = '2024-06-28' asDate! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 10/28/2024 22:26:32'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 10/28/2024 22:26:32'!
 testCourseAt
 	| courseH courseM courseI classGroup dateAndTime | 
 	classGroup := data schools first classGroups first.
@@ -2993,7 +2982,7 @@ testCourseAt
 	self assert: (data courseAt: dateAndTime) equals: courseI.
 	! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:29:19'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:29:19'!
 testCourseHours
 	| school group courseHours | 
 	school := data schools first.
@@ -3012,7 +3001,7 @@ testCourseHours
 		aCourseHour timeSlots do: [:aTimeSlot | 		self assert: school timeSlots includes: aTimeSlot ] ]
 ! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/26/2023 22:04:27'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/26/2023 22:04:27'!
 testFutureDates
 	| course date futureDates| 
 	date := (DateAndTime fromString: '2023-09-05 10:45') date . "Tuesday"
@@ -3030,7 +3019,7 @@ testFutureDates
 	self assert: futureDates third first timeSlots first = 'P4 10:25 11:10' asTimeSlot.
 ! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 10/28/2024 22:35:27'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 10/28/2024 22:35:27'!
 testFutureDatesNoCourseThisDay
 	| course date futureDates| 
 	date := (DateAndTime fromString: '2023-09-12 10:45') date . "Tuesday"
@@ -3048,7 +3037,7 @@ testFutureDatesNoCourseThisDay
 	self assert: futureDates third first timeSlots first = 'P7 13:35 14:20' asTimeSlot.
 ! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:10:49'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:10:49'!
 testIsDuring
 	| courseHours classGroup dateAndTime | 
 	classGroup := data schools first classGroups first.
@@ -3072,7 +3061,7 @@ A course hour with 2 periods, isDuring: tested between the two period timeslots,
 	dateAndTime := DateAndTime fromString: '2023-09-12 11:12'. 
 	self assert: (courseHours second isDuring: dateAndTime).! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:24:02'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:24:02'!
 testNextCourseHourAfter
 	| nextCourse dateAndTime | 
 	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
@@ -3103,7 +3092,7 @@ testNextCourseHourAfter
 	self assert: nextCourse first timeSlots first = 'P2 8:35 9:20' asTimeSlot.
 ! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 11:12:53'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 11:12:53'!
 testNextCourseHourAfterWithDaysOff
 	| nextCourse dateAndTime | 
 	dateAndTime := DateAndTime fromString: '2023-09-05 10:45'. "Tuesday"
@@ -3130,12 +3119,12 @@ testNextCourseHourAfterWithDaysOff
 	self assert: nextCourse isNil
 ! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:36:08'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:36:08'!
 testSchoolsExist
 	self assert: data schools notEmpty.
 	self assert: (data schools anySatisfy: [:aSchool | aSchool schoolName = 'CO Foron'])! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:54:42'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:54:42'!
 testTimeSlotCompare
 	| t1 t2 t3 t4| 
 	t1 := 'P4 10:05 11:30' asTimeSlot.
@@ -3150,7 +3139,7 @@ testTimeSlotCompare
 	self assert: t3 > t1.
 	self assert: (t2 between: t1 and: t3)! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:42:10'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:42:10'!
 testTimeSlotInstance
 	| t | 
 	t := 'P4 10:05 11:30' asTimeSlot.
@@ -3158,7 +3147,7 @@ testTimeSlotInstance
 	self assert: t start equals: (Time fromString: '10:05').
 	self assert: t end equals: (Time fromString: '11:30')! !
 
-!DynabookTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:10:35'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:10:35'!
 testTimeSlotsOrder
 	| t | 
 	t := data schools first timeSlots.
@@ -3166,15 +3155,15 @@ testTimeSlotsOrder
 	self assert: t third slotName equals: 'P3'.
 	self assert: t last slotName equals: 'P9'! !
 
-!DynabookTestCase class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/13/2023 23:18:27'!
+!DyboTestCase class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/6/2024 19:12:53'!
 resources
-	^{DynabookTestResource }! !
+	^{DyboTestResource }! !
 
-!DynabookTestCase class methodsFor: 'nil' stamp: 'hlsf 9/28/2023 12:52:19'!
+!DyboTestCase class methodsFor: 'nil' stamp: 'hlsf 9/28/2023 12:52:19'!
 tearDownResources
 	self halt! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 10/28/2024 22:23:00'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 10/28/2024 22:23:00'!
 classGroup932in: school
 	| group course |
 	group := DyClassGroup number: '932' in: school.
@@ -3207,7 +3196,7 @@ classGroup932in: school
 		
 	^ group! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/24/2023 14:04:47'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/24/2023 14:04:47'!
 daysOff
 	^{ 
 		DyDayInterval start: '2023-10-23' end: '2023-10-27'.
@@ -3219,7 +3208,7 @@ daysOff
 		DyDayInterval start: '2024-05-01' end: '2024-05-01'		.
 		DyDayInterval start: '2024-05-20' end: '2024-05-20'	 }! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 10:57:04'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 10:57:04'!
 schoolA
 	| school  |
 	school := DySchool new schoolName: 'CO Foron'.
@@ -3235,34 +3224,34 @@ schoolA
 	school classGroups add: (self classGroup932in: school).
 	^ school! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 11/7/2023 23:52:52'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 11/7/2023 23:52:52'!
 setUp
 	data := DyUserData current.
 	data user: (DyTeacher new lastName: 'Dupont'; firstName: 'Eric').
 	self setUpAgenda.
 	data schools add: (self schoolA owner: data; yourself)! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 09:28:58'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 09:28:58'!
 setUpAgenda
 	data agenda
 		start: '2023-08-21' asDate;
 		end: '2024-06-28' asDate.
 	data agenda daysOff addAll: self daysOff ! !
 
-!DynabookTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:52:52'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:52:52'!
 tearDown
 	DyUserData reset.
 	data := nil.! !
 
-!DynabookTestResource methodsFor: 'testing' stamp: 'hlsf 9/13/2023 22:10:45'!
+!DyboTestResource methodsFor: 'testing' stamp: 'hlsf 9/13/2023 22:10:45'!
 isAvailable 
 	^ data notNil! !
 
-!DynabookTestResource methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 22:32:24'!
+!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 22:32:24'!
 data
 	^ data! !
 
-!DynabookTestResource class methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:28:49'!
+!DyboTestResource class methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:28:49'!
 isAvailable
 	^ true! !
 
