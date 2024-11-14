@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6778] on 26 October 2024 at 4:12:11 pm'!
+'From Cuis7.1 [latest update: #6814] on 14 November 2024 at 12:17:49 pm'!
 'Description '!
-!provides: 'Document' 1 54!
+!provides: 'Document' 1 55!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -70,7 +70,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'Document-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'tool controlsManager pen highlighter eraser commandsManager'
+	instanceVariableNames: 'timeStamp tool controlsManager pen highlighter eraser commandsManager model'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -350,7 +350,7 @@ PointerToolStateNeutral class
 
 !classDefinition: #DocumentModel category: #'Document-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: ''
+	instanceVariableNames: 'background'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
@@ -428,14 +428,24 @@ PaperMorph subclass: #AnnotatorMorph
 AnnotatorMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #BackgroundMorph category: #'Document-View'!
-ColoredBoxMorph subclass: #BackgroundMorph
+!classDefinition: #BackgroundHLMorph category: #'Document-View'!
+ColoredBoxMorph subclass: #BackgroundHLMorph
 	instanceVariableNames: 'style'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
-!classDefinition: 'BackgroundMorph class' category: #'Document-View'!
-BackgroundMorph class
+!classDefinition: 'BackgroundHLMorph class' category: #'Document-View'!
+BackgroundHLMorph class
+	instanceVariableNames: ''!
+
+!classDefinition: #BackgroundGridMorph category: #'Document-View'!
+BackgroundHLMorph subclass: #BackgroundGridMorph
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-View'!
+!classDefinition: 'BackgroundGridMorph class' category: #'Document-View'!
+BackgroundGridMorph class
 	instanceVariableNames: ''!
 
 !classDefinition: #PageContainer category: #'Document-View'!
@@ -480,8 +490,9 @@ We migrate a bit the control point a bit away from its sampled position.!
 !StrokerBezier3 commentStamp: '<historical>' prior: 0!
 Compute a cubic Bézier curve.!
 
-!Document commentStamp: '<historical>' prior: 0!
-The Presenter of the Document to handle the controllers and associated callbacks of the tools.!
+!Document commentStamp: 'hlsf 11/14/2024 10:57:08' prior: 0!
+The Presenter of the Document to handle the controllers and associated callbacks of the tools.
+- timeStamp : creating time, my unique id used a folder name on disk in myDocuments/ See #sortFilenamePrintOn:!
 
 !Command commentStamp: '<historical>' prior: 0!
 An abstract class to represent commands of user actions in a Document.
@@ -578,6 +589,12 @@ to grab the morphs to select.!
 We arrive at this state once the user press the pointer.
 We are either dragging the whole page or a grabbed annotator!
 
+!DocumentModel commentStamp: '<historical>' prior: 0!
+- background can be either 
+ 1. a path to a pdf document used as a model for BackgroundPDF. Each page of the Document use a PDF page as its background
+ 2. a class in the  BackgroundMorph hierachy. It is a model for the default background of each page of the Document
+!
+
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
 A quadratic Bézier stroke!
 
@@ -619,6 +636,9 @@ I always contain these two morphs of the same extent as me:
 My goal is to annotate with handwriting a placed morph (annotatedMorph). 
 My extent is adjusted to cover my annotated object and also the user handwriting. 
 My extent expands to enclosed new handwritings. It shrinks when handwritings are deleted.!
+
+!BackgroundHLMorph commentStamp: 'hlsf 11/12/2024 22:00:58' prior: 0!
+A white background ground with blue horizontal line!
 
 !PageContainer commentStamp: '<historical>' prior: 0!
 I am a container for a Page, I expand on the DocumentView, then let the Page be moved and scaled in me.
@@ -1165,6 +1185,10 @@ controlsManager: aControlsManager
 currentPage
 	^ self view currentPage! !
 
+!Document methodsFor: 'accessing' stamp: 'hlsf 11/12/2024 21:51:00'!
+model
+	^ model! !
+
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:42:08'!
 selectedTool
 	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
@@ -1239,11 +1263,13 @@ tool: aToolClass
 	self controlsManager statusBarMessage: aToolClass description.
 	self changed! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 9/11/2024 17:21:38'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 11/14/2024 10:56:55'!
 initialize
 	super initialize.
+	timeStamp := DateAndTime now.
 	self initializeWritingTools .
 	self penTool.
+	model := DocumentModel new.
 	commandsManager := CommandManager new! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:03:09'!
@@ -1924,6 +1950,15 @@ handlePress: localPosition in: paper
 		handlePress: localPosition in: paper
 	! !
 
+!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 11/12/2024 22:03:57'!
+initialize
+	super initialize.
+	background := BackgroundGridMorph! !
+
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/12/2024 21:52:34'!
+background
+	^ background ! !
+
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
 	^ color! !
@@ -2190,10 +2225,14 @@ paper
 presenter: documentPresenter
 	presenter := documentPresenter ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:02:42'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 11/12/2024 21:54:02'!
+initBackground
+	background := presenter model background perform: #new! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 11/12/2024 21:53:51'!
 initialize
 	super initialize.
-	background := BackgroundMorph new.
+	self initBackground.
 	paper := PaperMorph newOn: presenter.
 	paper stroker: StrokerBezier2XP.
 	self addMorphBack: background position: 0@0;
@@ -2651,11 +2690,11 @@ newOn: documentPresenter annotate: aPlacedMorph
 		annotate: aPlacedMorph;
 		yourself! !
 
-!BackgroundMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/12/2024 12:04:49'!
+!BackgroundHLMorph methodsFor: 'initialization' stamp: 'hlsf 9/12/2024 12:04:49'!
 defaultColor
 	^ Color white! !
 
-!BackgroundMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 10/11/2024 18:13:15'!
+!BackgroundHLMorph methodsFor: 'drawing' stamp: 'hlsf 10/11/2024 18:13:15'!
 drawOn: canvas 
 	| y  step |
 	super drawOn: canvas.
@@ -2668,9 +2707,22 @@ drawOn: canvas
 			y := y + step 			]		
 		]! !
 
-!BackgroundMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/12/2024 12:10:57'!
+!BackgroundHLMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/12/2024 12:10:57'!
 requiresVectorCanvas
 	^ true! !
+
+!BackgroundGridMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 11/12/2024 22:03:21'!
+drawOn: canvas 
+	| x  step |
+	super drawOn: canvas.
+	step := 50.
+	x := step.
+	canvas strokeWidth: (0.8 / owner scale min: 0.8) color: `Color blue` do: [
+		[ x < extent x ] whileTrue: [
+			canvas moveTo: x @ 0;
+				lineTo: x @ extent y.
+			x := x + step 			]		
+		]! !
 
 !PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/8/2024 18:41:55'!
 clipsSubmorphs
@@ -2821,3 +2873,29 @@ regression: y
 !Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:01:21'!
 variance
 	^ self squared sum / self size - self mean squared! !
+
+!DateAndTime methodsFor: '*Document' stamp: 'hlsf 11/14/2024 10:58:06'!
+sortFilenamePrintOn: aStream
+	"
+	As filename that can be sorted, with an accuraccy  of 1 second
+	String streamContents: [ :strm | DateAndTime now sortFilenamePrintOn: strm ] .
+	"
+	
+	| year month day |
+	self dayMonthYearDo: [ :d :m :y | year := y. month := m. day := d ].
+	year negative
+		ifTrue: [ aStream nextPut: $- ].
+	
+	aStream
+		nextPutAll: (year abs printString padded: #left to: 4 with: $0);
+		nextPut: $-;
+		nextPutAll: (month printString padded: #left to: 2 with: $0);
+		nextPut: $-;
+		nextPutAll: (day printString padded: #left to: 2 with: $0);
+		nextPut: $-;
+		nextPutAll: (self hour printString padded: #left to: 2 with: $0);
+		nextPut: $h;
+		nextPutAll: (self minute printString padded: #left to: 2 with: $0);
+		nextPut: $m;
+		nextPutAll: (self second printString padded: #left to: 2 with: $0);
+		nextPut: $s! !

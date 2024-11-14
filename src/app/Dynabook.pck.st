@@ -1,9 +1,10 @@
-'From Cuis7.1 [latest update: #6778] on 6 November 2024 at 7:32:40 pm'!
+'From Cuis7.1 [latest update: #6814] on 14 November 2024 at 12:17:51 pm'!
 'Description '!
-!provides: 'Dynabook' 1 86!
+!provides: 'Dynabook' 1 87!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
+!requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
@@ -1360,7 +1361,7 @@ userDataPath
 preferences
 	^ preferences ifNil: [self setPreferences ]! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 10/12/2024 10:39:10'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 11/12/2024 22:00:17'!
 setPreferences
 	preferences := PreferenceSet new.
 	preferences 
@@ -1373,8 +1374,8 @@ setPreferences
 		name: #paperBackground
 		description: 'The default background for a new page in a document.' translated
 		category: #dybo
-		type: {BackgroundMorph}
-		value: BackgroundMorph.
+		type: {BackgroundHLMorph}
+		value: BackgroundHLMorph.
 		
 	^ preferences! !
 
@@ -1425,6 +1426,11 @@ screenSize
 iconsPath
 	^ platform iconsPath! !
 
+!DySystem class methodsFor: 'path' stamp: 'hlsf 11/14/2024 11:13:13'!
+myDocumentsPath
+" the location of the user documents "
+	^ self userDataPath / 'myDocuments'! !
+
 !DySystem class methodsFor: 'path' stamp: 'hlsf 8/20/2023 14:30:45'!
 userDataPath
 " the location of the user data and documents "
@@ -1468,11 +1474,45 @@ removeUserData
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/14/2024 12:16:31'!
+convert: destEntry pages: interval dpi: integer
+" 
+	In dest, convert the doc.pdf interval pages at interger resolution	   
+"
+	| converstionCommand resolution |
+	resolution := integer min: 600 max: 150.
+	converstionCommand := interval 
+		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=80 {2}/doc.pdf {2}/doc' 				format: {
+			resolution . destEntry pathName			 }] 
+		ifNotNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=80 -f {2} -l {3} {4}/doc.pdf {4}/doc' format: {
+			resolution . 		
+			interval first . 			interval last .
+			destEntry pathName }].
+	^ OSProcess command: converstionCommand ! !
+
 !DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 10:58:37'!
 defaultPaperSize
 " Its width fill the screen, according to its default ratio "
 	
 	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
+
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/14/2024 12:06:22'!
+import: pdfEntry to: destEntry pages: interval
+"
+	In dest, convert the doc.pdf interval pages at interger resolution	
+"
+	| importCommand process |
+	destEntry assureExistence.
+	importCommand := interval 
+		ifNil:  ['pdftocairo -pdf {1} {2}/doc.pdf' format: { pdfEntry pathName . destEntry pathName } 		]
+		ifNotNil: ['pdftocairo -pdf {1} -f {2} -l {3} {4}/doc.pdf' format: {
+			pdfEntry pathName .
+			interval first.
+			interval last.
+			destEntry pathName 		}].
+	process := OSProcess command: importCommand.
+	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
+	^ self convert: destEntry pages: interval dpi: 75.! !
 
 !DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 10:51:41'!
 paperBackground
