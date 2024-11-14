@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6814] on 14 November 2024 at 12:17:51 pm'!
+'From Cuis7.1 [latest update: #6814] on 14 November 2024 at 11:26:57 pm'!
 'Description '!
-!provides: 'Dynabook' 1 87!
+!provides: 'Dynabook' 1 88!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1361,7 +1361,7 @@ userDataPath
 preferences
 	^ preferences ifNil: [self setPreferences ]! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 11/12/2024 22:00:17'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 11/14/2024 22:36:30'!
 setPreferences
 	preferences := PreferenceSet new.
 	preferences 
@@ -1564,12 +1564,14 @@ buildDocView
 	self adjustPageCount .
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/26/2024 13:00:29'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/14/2024 23:20:21'!
 docHorizontalToolbar
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow 		separation: 2.
 	buttonWidth := DySystem miniToolbarSize.
-	 #(pen eraser highlighter undo redo 
+	 #(#importPDF
+	blank
+	pen eraser highlighter undo redo 
 	blank
 	pointer group 
 	blank
@@ -1732,6 +1734,13 @@ highlighterButtonData
 	HighlighterTool iconName . 
 	HighlighterTool action. 
 	HighlighterTool description }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 11/14/2024 23:18:23'!
+importPDFButtonData
+	^ {'Import a PDF' translated . 
+	#import . 
+	#importPDF . 
+	'Import a PDF document as a new document.' translated  }! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 13:00:55'!
 insertPageButtonData
@@ -1984,7 +1993,7 @@ dynabookToolbar
 					self on: self dynabookPresenter 					button: aTool  					state: #isSection: 					size: buttonWidth )] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/2/2024 20:57:24'!
+!DyControlsManager methodsFor: 'main' stamp: 'hlsf 11/14/2024 23:20:05'!
 dynabookTools
 	^ #(start tasks binder page spacer settings)! !
 

@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6814] on 14 November 2024 at 12:17:49 pm'!
+'From Cuis7.1 [latest update: #6814] on 14 November 2024 at 11:26:59 pm'!
 'Description '!
-!provides: 'Document' 1 55!
+!provides: 'Document' 1 56!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1102,6 +1102,13 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/14/2024 23:26:30'!
+importPDF
+	DySystem 
+		import: '/home/hilaire/Travaux/Developpement/Cuis-Current/Cuis-Smalltalk-Dev/DyboApp/resources/samples/textbook1.pdf' asFileEntry
+		to: DySystem myDocumentsPath / self directoryPath 
+		pages: nil! !
+
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:37:58'!
 nibSize: aNumber
 	self penTool.
@@ -1185,6 +1192,10 @@ controlsManager: aControlsManager
 currentPage
 	^ self view currentPage! !
 
+!Document methodsFor: 'accessing' stamp: 'hlsf 11/14/2024 23:26:09'!
+directoryPath
+	^ String streamContents: [:s | timeStamp filenamePrintOn: s] ! !
+
 !Document methodsFor: 'accessing' stamp: 'hlsf 11/12/2024 21:51:00'!
 model
 	^ model! !
@@ -1192,6 +1203,10 @@ model
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:42:08'!
 selectedTool
 	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
+
+!Document methodsFor: 'accessing' stamp: 'hlsf 11/14/2024 22:33:19'!
+timeStamp
+	^ timeStamp ! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 14:40:30'!
 view
@@ -2874,8 +2889,8 @@ regression: y
 variance
 	^ self squared sum / self size - self mean squared! !
 
-!DateAndTime methodsFor: '*Document' stamp: 'hlsf 11/14/2024 10:58:06'!
-sortFilenamePrintOn: aStream
+!DateAndTime methodsFor: '*Document' stamp: 'hlsf 11/14/2024 23:24:31'!
+filenamePrintOn: aStream
 	"
 	As filename that can be sorted, with an accuraccy  of 1 second
 	String streamContents: [ :strm | DateAndTime now sortFilenamePrintOn: strm ] .
