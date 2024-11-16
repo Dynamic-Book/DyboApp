@@ -41,14 +41,14 @@ world := UISupervisor ui.
 		morph := Browser open 
 			morphPosition: area extent // 2;
 			morphExtent: extent.
-		morph model setClass: (Smalltalk at: #Dynabook) selector: nil.
+		morph model setClass: (Smalltalk at: #Dybo) selector: nil.
 		"Open a Workspace with some default contents"
 		morph := Workspace open.
 		morph model actualContents: 'ChangeSet installNewUpdates.
 DySystem beDevelopment. 
 DySystem beApplication.
-Dynabook new.
-DynabookTestResource new data.
+Dybo new.
+DyboTestResource new data.
 DyUserData reset.'.
 		morph 
 			morphPosition: 0 @ (area height // 2);
