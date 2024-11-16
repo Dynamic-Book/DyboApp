@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6814] on 16 November 2024 at 1:37:02 pm'!
+'From Cuis7.1 [latest update: #6814] on 16 November 2024 at 5:44:31 pm'!
 'Description '!
-!provides: 'Document' 1 58!
+!provides: 'Document' 1 60!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1381,11 +1381,11 @@ deletedStrokes: aDictionayOfStroke in: aPage
 		initialize
 		! !
 
-!ErasingAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 9/29/2024 18:14:05'!
+!ErasingAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 11/16/2024 17:14:02'!
 initialize
 	super initialize.
 	bounds := domain fullBoundsInOwner.
-	domain adjustBounds ! !
+	domain adjustBounds! !
 
 !ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 9/29/2024 18:13:53'!
 execute
@@ -2711,7 +2711,7 @@ endWritingAt: localPosition
 drawOn: aCanvas 
 	aCanvas frameRectangle: self localBounds borderWidth: 1 color: (Color gray alpha: 0.2)! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 9/29/2024 16:51:03'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 11/16/2024 17:19:51'!
 adjustBounds
 " Adjust my extent and position so that all my submoprhs are whithin my bounds.
   There should be no visual differences
@@ -2719,13 +2719,13 @@ adjustBounds
 	self adjustBoundsTo: (self externalizeBoundingRectOf: (self topLeftCorner corner: self bottomRightCorner))
 	! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 10/19/2024 12:33:00'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 11/16/2024 17:32:17'!
 adjustBoundsTo: newBoundsInOwner
 " adjust my bounds and translate my submoprhs accordingly
  " 
 	| translate |
-	translate := newBoundsInOwner origin - self fullBoundsInOwner origin.
-	self fitInto: newBoundsInOwner .
+	translate := (newBoundsInOwner origin - self fullBoundsInOwner origin) asIntegerPoint.
+	self fitInto: (newBoundsInOwner origin asIntegerPoint corner: newBoundsInOwner corner asIntegerPoint). 
 	self submorphsDo: [:each | 						each morphPosition: each morphPosition - translate 		]! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 10/19/2024 12:40:10'!
@@ -2835,17 +2835,19 @@ drawOn: canvas
 is: aSymbol
 	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2024 13:36:28'!
+!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2024 16:37:08'!
 resampleFrom: oldScale to: newScale
 	" Do I need to be resampled "
 	| newDpi |
 	newDpi := dpi.
-	(newScale > 1.5 and: [self scale < 1.5]) 		ifTrue: [newDpi := 200					].
-	((newScale between: 1 and: 1.5) and: [(self scale between: 1 and: 1.5) not])
-		ifTrue: [newDpi := 150].
-	((newScale between: 0.5 and: 0.99) and: [(self scale between: 0.5 and: 0.99) not])
+	(newScale > 1.5 and: [oldScale < 1.5]) 		ifTrue: [newDpi := 300					].
+	((newScale between: 1 and: 1.5) and: [(oldScale between: 1 and: 1.5) not])
+		ifTrue: [newDpi := 200].
+	((newScale between: 0.6 and: 0.99) and: [(oldScale between: 0.6 and: 0.99) not])
+		ifTrue: [newDpi := 150].			
+	((newScale between: 0.5 and: 0.59) and: [(oldScale between: 0.5 and: 0.59) not])
 		ifTrue: [newDpi := 100].			
-	(newScale < 0.49 and: [self scale > 0.49])
+	(newScale < 0.49 and: [oldScale > 0.49])
 		ifTrue: [newDpi := 75].
 	newDpi ~= dpi ifTrue: [
 		self sampleAt: newDpi.

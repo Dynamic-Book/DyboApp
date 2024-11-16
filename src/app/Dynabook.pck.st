@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6814] on 16 November 2024 at 1:37:05 pm'!
+'From Cuis7.1 [latest update: #6814] on 16 November 2024 at 4:40:03 pm'!
 'Description '!
-!provides: 'Dynabook' 1 90!
+!provides: 'Dynabook' 1 91!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1474,7 +1474,7 @@ removeUserData
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 13:10:17'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 16:35:16'!
 convert: destEntry pages: interval dpi: integer
 " 
 	In dest, convert the doc.pdf interval pages at interger resolution	   
@@ -1482,9 +1482,9 @@ convert: destEntry pages: interval dpi: integer
 	| converstionCommand resolution |
 	resolution := integer min: 300 max: 75.
 	converstionCommand := interval 
-		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=80 {2}/doc.pdf {2}/doc' 				format: {
+		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 {2}/doc.pdf {2}/doc' 				format: {
 			resolution . destEntry pathName			 }] 
-		ifNotNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=80 -f {2} -l {3} {4}/doc.pdf {4}/doc' format: {
+		ifNotNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 -f {2} -l {3} {4}/doc.pdf {4}/doc' format: {
 			resolution . 		
 			interval first . 			interval last .
 			destEntry pathName }].
