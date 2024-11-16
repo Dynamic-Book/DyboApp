@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6814] on 14 November 2024 at 11:26:57 pm'!
+'From Cuis7.1 [latest update: #6814] on 16 November 2024 at 1:37:05 pm'!
 'Description '!
-!provides: 'Dynabook' 1 88!
+!provides: 'Dynabook' 1 90!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1361,7 +1361,7 @@ userDataPath
 preferences
 	^ preferences ifNil: [self setPreferences ]! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 11/14/2024 22:36:30'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 11/15/2024 20:01:24'!
 setPreferences
 	preferences := PreferenceSet new.
 	preferences 
@@ -1371,11 +1371,11 @@ setPreferences
 		type: {4@3 . 16@9 . 210@297} 
 		value: 16@9;
 		
-		name: #paperBackground
-		description: 'The default background for a new page in a document.' translated
+		name: #paperModel
+		description: 'The default model for a new page in a document.' translated
 		category: #dybo
-		type: {BackgroundHLMorph}
-		value: BackgroundHLMorph.
+		type: {PageModelHL}
+		value: PageModelHL.
 		
 	^ preferences! !
 
@@ -1474,13 +1474,13 @@ removeUserData
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/14/2024 12:16:31'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 13:10:17'!
 convert: destEntry pages: interval dpi: integer
 " 
 	In dest, convert the doc.pdf interval pages at interger resolution	   
 "
 	| converstionCommand resolution |
-	resolution := integer min: 600 max: 150.
+	resolution := integer min: 300 max: 75.
 	converstionCommand := interval 
 		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=80 {2}/doc.pdf {2}/doc' 				format: {
 			resolution . destEntry pathName			 }] 
@@ -1496,7 +1496,7 @@ defaultPaperSize
 	
 	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/14/2024 12:06:22'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 12:30:26'!
 import: pdfEntry to: destEntry pages: interval
 "
 	In dest, convert the doc.pdf interval pages at interger resolution	
@@ -1512,7 +1512,7 @@ import: pdfEntry to: destEntry pages: interval
 			destEntry pathName 		}].
 	process := OSProcess command: importCommand.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
-	^ self convert: destEntry pages: interval dpi: 75.! !
+	^ self convert: destEntry pages: interval dpi: 150.! !
 
 !DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 10:51:41'!
 paperBackground
