@@ -1,20 +1,20 @@
-'From Cuis7.1 [latest update: #6814] on 16 November 2024 at 5:44:31 pm'!
+'From Cuis7.1 [latest update: #6817] on 17 November 2024 at 1:06:11 pm'!
 'Description '!
-!provides: 'Document' 1 60!
+!provides: 'Document' 1 61!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
-SystemOrganization addCategory: 'Document-Presenter-Tool'!
-SystemOrganization addCategory: 'Document-Presenter-Command'!
+SystemOrganization addCategory: #'Document-Presenter-Tool'!
+SystemOrganization addCategory: #'Document-Presenter-Command'!
 
 
-!classDefinition: #CommandStack category: 'Document-Presenter-Command'!
+!classDefinition: #CommandStack category: #'Document-Presenter-Command'!
 ReadWriteStream subclass: #CommandStack
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'CommandStack class' category: 'Document-Presenter-Command'!
+!classDefinition: 'CommandStack class' category: #'Document-Presenter-Command'!
 CommandStack class
 	instanceVariableNames: ''!
 
@@ -78,273 +78,273 @@ Object subclass: #Document
 Document class
 	instanceVariableNames: ''!
 
-!classDefinition: #Command category: 'Document-Presenter-Command'!
+!classDefinition: #Command category: #'Document-Presenter-Command'!
 Object subclass: #Command
 	instanceVariableNames: 'domain'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'Command class' category: 'Document-Presenter-Command'!
+!classDefinition: 'Command class' category: #'Document-Presenter-Command'!
 Command class
 	instanceVariableNames: ''!
 
-!classDefinition: #ErasingCommand category: 'Document-Presenter-Command'!
+!classDefinition: #ErasingCommand category: #'Document-Presenter-Command'!
 Command subclass: #ErasingCommand
 	instanceVariableNames: 'deletedStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'ErasingCommand class' category: 'Document-Presenter-Command'!
+!classDefinition: 'ErasingCommand class' category: #'Document-Presenter-Command'!
 ErasingCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #ErasingAnnotatorCommand category: 'Document-Presenter-Command'!
+!classDefinition: #ErasingAnnotatorCommand category: #'Document-Presenter-Command'!
 ErasingCommand subclass: #ErasingAnnotatorCommand
 	instanceVariableNames: 'bounds'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'ErasingAnnotatorCommand class' category: 'Document-Presenter-Command'!
+!classDefinition: 'ErasingAnnotatorCommand class' category: #'Document-Presenter-Command'!
 ErasingAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #MoveAnnotatorCommand category: 'Document-Presenter-Command'!
+!classDefinition: #MoveAnnotatorCommand category: #'Document-Presenter-Command'!
 Command subclass: #MoveAnnotatorCommand
 	instanceVariableNames: 'annotator delta'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'MoveAnnotatorCommand class' category: 'Document-Presenter-Command'!
+!classDefinition: 'MoveAnnotatorCommand class' category: #'Document-Presenter-Command'!
 MoveAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #MoveGroupCommand category: 'Document-Presenter-Command'!
+!classDefinition: #MoveGroupCommand category: #'Document-Presenter-Command'!
 Command subclass: #MoveGroupCommand
 	instanceVariableNames: 'selection delta'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'MoveGroupCommand class' category: 'Document-Presenter-Command'!
+!classDefinition: 'MoveGroupCommand class' category: #'Document-Presenter-Command'!
 MoveGroupCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #MoveGroupInAnnotatorCommand category: 'Document-Presenter-Command'!
+!classDefinition: #MoveGroupInAnnotatorCommand category: #'Document-Presenter-Command'!
 MoveGroupCommand subclass: #MoveGroupInAnnotatorCommand
 	instanceVariableNames: 'bounds'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'MoveGroupInAnnotatorCommand class' category: 'Document-Presenter-Command'!
+!classDefinition: 'MoveGroupInAnnotatorCommand class' category: #'Document-Presenter-Command'!
 MoveGroupInAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #WritingCommand category: 'Document-Presenter-Command'!
+!classDefinition: #WritingCommand category: #'Document-Presenter-Command'!
 Command subclass: #WritingCommand
 	instanceVariableNames: 'strokeGroup'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'WritingCommand class' category: 'Document-Presenter-Command'!
+!classDefinition: 'WritingCommand class' category: #'Document-Presenter-Command'!
 WritingCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #WritingAnnotatorCommand category: 'Document-Presenter-Command'!
+!classDefinition: #WritingAnnotatorCommand category: #'Document-Presenter-Command'!
 WritingCommand subclass: #WritingAnnotatorCommand
 	instanceVariableNames: 'bounds'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'WritingAnnotatorCommand class' category: 'Document-Presenter-Command'!
+!classDefinition: 'WritingAnnotatorCommand class' category: #'Document-Presenter-Command'!
 WritingAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #CommandManager category: 'Document-Presenter-Command'!
+!classDefinition: #CommandManager category: #'Document-Presenter-Command'!
 Object subclass: #CommandManager
 	instanceVariableNames: 'stack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Command'!
-!classDefinition: 'CommandManager class' category: 'Document-Presenter-Command'!
+!classDefinition: 'CommandManager class' category: #'Document-Presenter-Command'!
 CommandManager class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageTool category: 'Document-Presenter-Tool'!
+!classDefinition: #PageTool category: #'Document-Presenter-Tool'!
 Object subclass: #PageTool
 	instanceVariableNames: 'state presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PageTool class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'PageTool class' category: #'Document-Presenter-Tool'!
 PageTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #EraserTool category: 'Document-Presenter-Tool'!
+!classDefinition: #EraserTool category: #'Document-Presenter-Tool'!
 PageTool subclass: #EraserTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'EraserTool class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'EraserTool class' category: #'Document-Presenter-Tool'!
 EraserTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #GroupTool category: 'Document-Presenter-Tool'!
+!classDefinition: #GroupTool category: #'Document-Presenter-Tool'!
 PageTool subclass: #GroupTool
 	instanceVariableNames: 'corner selection paper'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'GroupTool class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'GroupTool class' category: #'Document-Presenter-Tool'!
 GroupTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #HighlighterTool category: 'Document-Presenter-Tool'!
+!classDefinition: #HighlighterTool category: #'Document-Presenter-Tool'!
 PageTool subclass: #HighlighterTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'HighlighterTool class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'HighlighterTool class' category: #'Document-Presenter-Tool'!
 HighlighterTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #PenTool category: 'Document-Presenter-Tool'!
+!classDefinition: #PenTool category: #'Document-Presenter-Tool'!
 PageTool subclass: #PenTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PenTool class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'PenTool class' category: #'Document-Presenter-Tool'!
 PenTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #PointerTool category: 'Document-Presenter-Tool'!
+!classDefinition: #PointerTool category: #'Document-Presenter-Tool'!
 PageTool subclass: #PointerTool
 	instanceVariableNames: 'grabbed'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PointerTool class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'PointerTool class' category: #'Document-Presenter-Tool'!
 PointerTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageToolState category: 'Document-Presenter-Tool'!
+!classDefinition: #PageToolState category: #'Document-Presenter-Tool'!
 Object subclass: #PageToolState
 	instanceVariableNames: 'context'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PageToolState class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'PageToolState class' category: #'Document-Presenter-Tool'!
 PageToolState class
 	instanceVariableNames: ''!
 
-!classDefinition: #EraserToolStateErasing category: 'Document-Presenter-Tool'!
+!classDefinition: #EraserToolStateErasing category: #'Document-Presenter-Tool'!
 PageToolState subclass: #EraserToolStateErasing
 	instanceVariableNames: 'deletedStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'EraserToolStateErasing class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'EraserToolStateErasing class' category: #'Document-Presenter-Tool'!
 EraserToolStateErasing class
 	instanceVariableNames: ''!
 
-!classDefinition: #EraserToolStateNeutral category: 'Document-Presenter-Tool'!
+!classDefinition: #EraserToolStateNeutral category: #'Document-Presenter-Tool'!
 PageToolState subclass: #EraserToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'EraserToolStateNeutral class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'EraserToolStateNeutral class' category: #'Document-Presenter-Tool'!
 EraserToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #GroupToolStateDragging category: 'Document-Presenter-Tool'!
+!classDefinition: #GroupToolStateDragging category: #'Document-Presenter-Tool'!
 PageToolState subclass: #GroupToolStateDragging
 	instanceVariableNames: 'prevPosition initialPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'GroupToolStateDragging class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'GroupToolStateDragging class' category: #'Document-Presenter-Tool'!
 GroupToolStateDragging class
 	instanceVariableNames: ''!
 
-!classDefinition: #GroupToolStateGrabbing category: 'Document-Presenter-Tool'!
+!classDefinition: #GroupToolStateGrabbing category: #'Document-Presenter-Tool'!
 PageToolState subclass: #GroupToolStateGrabbing
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'GroupToolStateGrabbing class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'GroupToolStateGrabbing class' category: #'Document-Presenter-Tool'!
 GroupToolStateGrabbing class
 	instanceVariableNames: ''!
 
-!classDefinition: #GroupToolStateNeutral category: 'Document-Presenter-Tool'!
+!classDefinition: #GroupToolStateNeutral category: #'Document-Presenter-Tool'!
 PageToolState subclass: #GroupToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'GroupToolStateNeutral class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'GroupToolStateNeutral class' category: #'Document-Presenter-Tool'!
 GroupToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #HighligtherToolStateNeutral category: 'Document-Presenter-Tool'!
+!classDefinition: #HighligtherToolStateNeutral category: #'Document-Presenter-Tool'!
 PageToolState subclass: #HighligtherToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'HighligtherToolStateNeutral class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'HighligtherToolStateNeutral class' category: #'Document-Presenter-Tool'!
 HighligtherToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #PenToolStateNeutral category: 'Document-Presenter-Tool'!
+!classDefinition: #PenToolStateNeutral category: #'Document-Presenter-Tool'!
 PageToolState subclass: #PenToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PenToolStateNeutral class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'PenToolStateNeutral class' category: #'Document-Presenter-Tool'!
 PenToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #PenToolStateWriting category: 'Document-Presenter-Tool'!
+!classDefinition: #PenToolStateWriting category: #'Document-Presenter-Tool'!
 PageToolState subclass: #PenToolStateWriting
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PenToolStateWriting class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'PenToolStateWriting class' category: #'Document-Presenter-Tool'!
 PenToolStateWriting class
 	instanceVariableNames: ''!
 
-!classDefinition: #HighligtherToolStateWriting category: 'Document-Presenter-Tool'!
+!classDefinition: #HighligtherToolStateWriting category: #'Document-Presenter-Tool'!
 PenToolStateWriting subclass: #HighligtherToolStateWriting
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'HighligtherToolStateWriting class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'HighligtherToolStateWriting class' category: #'Document-Presenter-Tool'!
 HighligtherToolStateWriting class
 	instanceVariableNames: ''!
 
-!classDefinition: #PointerToolStateDragging category: 'Document-Presenter-Tool'!
+!classDefinition: #PointerToolStateDragging category: #'Document-Presenter-Tool'!
 PageToolState subclass: #PointerToolStateDragging
 	instanceVariableNames: 'initialPosition prevPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PointerToolStateDragging class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'PointerToolStateDragging class' category: #'Document-Presenter-Tool'!
 PointerToolStateDragging class
 	instanceVariableNames: ''!
 
-!classDefinition: #PointerToolStateNeutral category: 'Document-Presenter-Tool'!
+!classDefinition: #PointerToolStateNeutral category: #'Document-Presenter-Tool'!
 PageToolState subclass: #PointerToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PointerToolStateNeutral class' category: 'Document-Presenter-Tool'!
+!classDefinition: 'PointerToolStateNeutral class' category: #'Document-Presenter-Tool'!
 PointerToolStateNeutral class
 	instanceVariableNames: ''!
 
@@ -1026,21 +1026,21 @@ insertPage
 lastPage
 	self view lastPage! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:35:47'!
+!Document methodsFor: 'pages' stamp: 'hlsf 11/16/2024 22:57:11'!
 moveOXAction: increment
 	| page |
 	page := self currentPage.
 	page morphPosition: (page morphPosition + (increment @ 0) 
 		min: self view container morphExtent 
-		max: page morphExtent negated)! !
+		max: page morphExtent negated * page scale)! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:36:00'!
+!Document methodsFor: 'pages' stamp: 'hlsf 11/16/2024 22:58:11'!
 moveOYAction: increment
 	| page |
 	page := self currentPage.
 	page morphPosition: (page morphPosition - (0@increment) 
 		min: self view container morphExtent 
-		max: page morphExtent negated)! !
+		max: page morphExtent negated * page scale)! !
 
 !Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:46:24'!
 nextPage
@@ -1136,13 +1136,15 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/16/2024 11:23:17'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/16/2024 22:39:52'!
 importPDF
-	DySystem 
+	| process |
+	process := DySystem 
 		import: '/home/hilaire/Travaux/Developpement/Cuis-Current/Cuis-Smalltalk-Dev/DyboApp/resources/samples/textbook1.pdf' asFileEntry
 		to: DySystem myDocumentsPath / model directory 
 		pages: nil.
-	model pageModel: DySystem myDocumentsPath / model directory.
+	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
+	model pageModel: DySystem myDocumentsPath / model directory.	
 	1 to: model pdfNumberOfPage do: [:index | | newPage |
 		newPage := PageMorph newOn: self model: (self model newPdfPageModel: index).
 		self view insertPage: newPage 	]
@@ -2835,7 +2837,7 @@ drawOn: canvas
 is: aSymbol
 	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2024 16:37:08'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/16/2024 16:37:08'!
 resampleFrom: oldScale to: newScale
 	" Do I need to be resampled "
 	| newDpi |
@@ -2856,7 +2858,7 @@ resampleFrom: oldScale to: newScale
 		
 		! !
 
-!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2024 13:30:41'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/16/2024 13:30:41'!
 sampleAt: newDpi
 	| process |
 	process := DySystem 
