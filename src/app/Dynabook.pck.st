@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6814] on 16 November 2024 at 4:40:03 pm'!
+'From Cuis7.1 [latest update: #6817] on 24 November 2024 at 8:02:10 pm'!
 'Description '!
-!provides: 'Dynabook' 1 91!
+!provides: 'Dynabook' 1 93!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -202,7 +202,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'dynabookView docView icons statusBar pageCount'
+	instanceVariableNames: 'dynabookView docView icons'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -1526,18 +1526,11 @@ paperRatio
 preferences
 	^ platform preferences! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/26/2024 14:41:02'!
-adjustPageCount
-	pageCount 
-		contents: (String streamContents: [:str | 
-			str nextPutAll: docView currentPageIndex printString;
-				nextPutAll: '/';
-				nextPutAll: docView numberOfPages printString 		])! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/26/2024 15:10:25'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/24/2024 20:01:28'!
 buildDocView
-	| row col |
-	docView := DocumentView presenter: (Document controlsManager: self).
+	| row col presenter |
+	docView := DocumentView presenter: (presenter := Document controlsManager: self).
+	presenter view: docView.
 	docView 
 		addMorph: self docHorizontalToolbar
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
@@ -1555,21 +1548,22 @@ buildDocView
 	
 	" status bar and horizontal wheel at the bottom "
 	row := LayoutMorph newRow name: #wheelX.
-	row addMorph: self pageCounter layoutSpec: 	(LayoutSpec fixedWidth: 12) ;
-		addMorphUseAll: self statusBarInScroller;
+	row addMorph: docView pageCounter layoutSpec: 	(LayoutSpec fixedWidth: 12) ;
+		addMorphUseAll: docView statusBarInScroller;
 		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
 		addMorph: DyControlsManager spacer layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
 	docView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
 	docView adoptWidgetsColor: docView defaultBorderColor.
-	self adjustPageCount .
+	presenter penTool.
+	docView adjustPageCount .
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/14/2024 23:20:21'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/24/2024 18:26:08'!
 docHorizontalToolbar
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow 		separation: 2.
 	buttonWidth := DySystem miniToolbarSize.
-	 #(#importPDF
+	 #(#importPDF loadDoc saveDoc
 	blank
 	pen eraser highlighter undo redo 
 	blank
@@ -1589,18 +1583,6 @@ docHorizontalToolbar
 docPresenter
 " Access the presenter of the currently used document, if any "
 	^ docView presenter! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
-docView
-	^ docView! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 8/31/2024 10:45:00'!
-statusBarMessage: aString
-	statusBar ifNotNil: [
-		statusBar contents: aString;
-			adjustExtent ;
-			redrawNeeded]
-		! !
 
 !DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/20/2024 16:01:55'!
 docCircularToolbar
@@ -1735,10 +1717,10 @@ highlighterButtonData
 	HighlighterTool action. 
 	HighlighterTool description }! !
 
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 11/14/2024 23:18:23'!
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 11/24/2024 18:24:10'!
 importPDFButtonData
 	^ {'Import a PDF' translated . 
-	#import . 
+	#importPDF . 
 	#importPDF . 
 	'Import a PDF document as a new document.' translated  }! !
 
@@ -1755,6 +1737,13 @@ lastPageButtonData
 	#lastPage . 
 	#lastPage . 
 	'Go to the LAST page of the document.' translated  }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 11/24/2024 18:26:50'!
+loadDocButtonData
+	^ {'Save document' translated . 
+	#load . 
+	#loadDocument . 
+	'Load a document from my data.' translated  }! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:45:36'!
 nextPageButtonData
@@ -1798,6 +1787,13 @@ redoButtonData
 	#redo . 
 	#redoAction . 
 	'Redo your last undone action.' translated }! !
+
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 11/24/2024 18:26:43'!
+saveDocButtonData
+	^ {'Save document' translated . 
+	#save . 
+	#saveDocument . 
+	'Save the current document in my data.' translated  }! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:42:52'!
 undoButtonData
@@ -1877,38 +1873,6 @@ horizontalWheel
 		borderWidth: 3;
 		color: Color orange;
 		borderColor: Color black;
-		yourself! !
-
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/26/2024 14:25:59'!
-pageCounter
-"a view of the opage count"
-	^ pageCount ifNil: [
-		pageCount := TextParagraphMorph new
-			color: Color transparent;
-			padding: 4@4;
-			borderWidth: 0;
-			yourself	]
-	
-	! !
-
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 8/31/2024 10:43:26'!
-statusBar
-"A bar to print contextual information"
-	^ statusBar ifNil: [
-		statusBar := TextParagraphMorph new
-			color: Color transparent;
-			borderWidth: 0;
-			setHeightOnContent ;
-			yourself	]
-	
-	! !
-
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 8/31/2024 10:43:38'!
-statusBarInScroller
-	^ PluggableScrollPane new scroller: self statusBar; 
-		borderWidth: 2;
-		borderColor: Color transparent ;
-		color: Color transparent;
 		yourself! !
 
 !DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 13:07:58'!

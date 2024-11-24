@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 17 November 2024 at 1:06:11 pm'!
+'From Cuis7.1 [latest update: #6817] on 24 November 2024 at 8:02:08 pm'!
 'Description '!
-!provides: 'Document' 1 61!
+!provides: 'Document' 1 63!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -70,7 +70,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'Document-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'timeStamp tool controlsManager pen highlighter eraser commandsManager model'
+	instanceVariableNames: 'tool controlsManager pen highlighter eraser commandsManager model view'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -480,7 +480,7 @@ PageContainer class
 
 !classDefinition: #DocumentView category: #'Document-View'!
 LayoutMorph subclass: #DocumentView
-	instanceVariableNames: 'presenter pages currentPage container'
+	instanceVariableNames: 'presenter pages currentPage container statusBar pageCount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -510,9 +510,9 @@ We migrate a bit the control point a bit away from its sampled position.!
 !StrokerBezier3 commentStamp: '<historical>' prior: 0!
 Compute a cubic Bézier curve.!
 
-!Document commentStamp: 'hlsf 11/14/2024 10:57:08' prior: 0!
+!Document commentStamp: '<historical>' prior: 0!
 The Presenter of the Document to handle the controllers and associated callbacks of the tools.
-- timeStamp : creating time, my unique id used a folder name on disk in myDocuments/ See #sortFilenamePrintOn:!
+- timeStamp : creating time, my unique id used as a folder name on disk in myDocuments/ See #sortFilenamePrintOn:!
 
 !Command commentStamp: '<historical>' prior: 0!
 An abstract class to represent commands of user actions in a Document.
@@ -1136,11 +1136,11 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/16/2024 22:39:52'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/24/2024 18:31:11'!
 importPDF
 	| process |
 	process := DySystem 
-		import: '/home/hilaire/Travaux/Developpement/Cuis-Current/Cuis-Smalltalk-Dev/DyboApp/resources/samples/textbook1.pdf' asFileEntry
+		import: DySystem myDocumentsPath parent parent / 'samples' // 'textbook1.pdf'
 		to: DySystem myDocumentsPath / model directory 
 		pages: nil.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
@@ -1212,6 +1212,13 @@ penWhite
 redoAction
 	commandsManager redo.! !
 
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/24/2024 18:40:48'!
+saveDocument
+	ReferenceStream 
+		dumpOnFile:  DySystem myDocumentsPath / model directory // 'doc.obj'
+		object: self.
+	! !
+
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/26/2024 15:56:53'!
 undoAction
 	commandsManager undo.
@@ -1241,9 +1248,13 @@ model
 selectedTool
 	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 14:40:30'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 11/24/2024 19:36:54'!
 view
-	^ controlsManager docView! !
+	^ view! !
+
+!Document methodsFor: 'accessing' stamp: 'hlsf 11/24/2024 19:36:47'!
+view: aMorph
+	view := aMorph ! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/7/2024 11:52:43'!
 writingTool
@@ -1303,19 +1314,18 @@ resetTool
 tool
 	^ tool! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 9/8/2024 16:40:01'!
+!Document methodsFor: 'tool' stamp: 'hlsf 11/24/2024 19:51:46'!
 tool: aToolClass
 	tool ifNotNil: [tool release].
 	tool := aToolClass presenter: self.
 	tool registerObserver: self.
-	self controlsManager statusBarMessage: aToolClass description.
+	view statusBarMessage: aToolClass description.
 	self changed! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 11/16/2024 10:32:47'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 11/24/2024 19:57:44'!
 initialize
 	super initialize.
 	self initializeWritingTools .
-	self penTool.
 	model := DocumentModel new.
 	commandsManager := CommandManager new! !
 
@@ -1335,10 +1345,6 @@ controlsManager: aControlsManager
 		controlsManager: aControlsManager ;
 		initialize ;
 		yourself! !
-
-!Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:42'!
-new
-	self error: 'Instanciate with a controls manager'! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:05:57'!
 execute
@@ -2817,6 +2823,10 @@ drawOn: canvas
 dpi
 	^ dpi ifNil: [dpi := 150]! !
 
+!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 11/24/2024 13:02:00'!
+form
+	^ form ifNil: [form := self documentModel pdfFormPage: pageNumber ]! !
+
 !PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 11/15/2024 22:50:23'!
 form: aForm
 	form := aForm ! !
@@ -2825,13 +2835,13 @@ form: aForm
 pageNumber: integer
 	pageNumber := integer! !
 
-!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 11/16/2024 11:14:34'!
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 11/24/2024 17:36:44'!
 defaultExtent
-	^ form extent! !
+	^ self form extent! !
 
-!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 11/16/2024 11:24:33'!
+!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 11/24/2024 17:36:49'!
 drawOn: canvas
-	canvas image: form at: 0@0! !
+	canvas image: self form at: 0@0! !
 
 !PageModelPdf methodsFor: 'testing' stamp: 'hlsf 11/16/2024 12:37:49'!
 is: aSymbol
@@ -2858,7 +2868,7 @@ resampleFrom: oldScale to: newScale
 		
 		! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/16/2024 13:30:41'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/24/2024 13:01:46'!
 sampleAt: newDpi
 	| process |
 	process := DySystem 
@@ -2866,7 +2876,11 @@ sampleAt: newDpi
 		pages:  (pageNumber to: pageNumber)
 		dpi: newDpi .
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
-	self form: (self documentModel pdfFormPage: pageNumber)! !
+	form := self documentModel pdfFormPage: pageNumber! !
+
+!PageModelPdf methodsFor: 'object serialization' stamp: 'hlsf 11/24/2024 19:09:38'!
+prepareToBeSaved
+	form := nil! !
 
 !PageModelPdf class methodsFor: 'instance creation' stamp: 'hlsf 11/16/2024 11:15:42'!
 new
@@ -2946,6 +2960,38 @@ defaultBorderColor
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:52:15'!
+pageCounter
+"a view of the opage count"
+	^ pageCount ifNil: [
+		pageCount := TextParagraphMorph new
+			color: Color transparent;
+			padding: 4@4;
+			borderWidth: 0;
+			yourself	]
+	
+	! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:53:57'!
+statusBar
+"A bar to print contextual information"
+	^ statusBar ifNil: [
+		statusBar := TextParagraphMorph new
+			color: Color transparent;
+			borderWidth: 0;
+			setHeightOnContent ;
+			yourself	]
+	
+	! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:54:03'!
+statusBarInScroller
+	^ PluggableScrollPane new scroller: self statusBar; 
+		borderWidth: 2;
+		borderColor: Color transparent ;
+		color: Color transparent;
+		yourself! !
+
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 14:34:50'!
 currentPage
 	^ currentPage ! !
@@ -2967,13 +3013,13 @@ deletePage
 firstPage
 	^ self goPage: pages first! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:57:04'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 11/24/2024 19:50:40'!
 goPage: aPage
 " I alway return the current page, whether the document jump to a new page or not "
 	(aPage notNil and: [aPage ~= currentPage]) ifTrue: [
 		container replaceSubmorph: currentPage by: aPage.
 		currentPage := aPage.
-		presenter controlsManager adjustPageCount.
+		self adjustPageCount.
 		presenter commandsManager release.
 		presenter resetTool].
 	^ currentPage! !
@@ -3011,6 +3057,22 @@ pageAt: anIndex
 previousPage
 	^ self goPage: (self pageAt: self currentPageIndex - 1)
 ! !
+
+!DocumentView methodsFor: 'update' stamp: 'hlsf 11/24/2024 19:50:13'!
+adjustPageCount
+	pageCount 
+		contents: (String streamContents: [:str | 
+			str nextPutAll: self currentPageIndex printString;
+				nextPutAll: '/';
+				nextPutAll: self numberOfPages printString 		])! !
+
+!DocumentView methodsFor: 'update' stamp: 'hlsf 11/24/2024 19:51:30'!
+statusBarMessage: aString
+	statusBar ifNotNil: [
+		statusBar contents: aString;
+			adjustExtent ;
+			redrawNeeded]
+		! !
 
 !DocumentView class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 16:02:50'!
 presenter: aPresenter
