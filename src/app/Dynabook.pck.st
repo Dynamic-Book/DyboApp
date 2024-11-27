@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 26 November 2024 at 9:50:40 pm'!
+'From Cuis7.1 [latest update: #6817] on 27 November 2024 at 10:59:49 pm'!
 'Description '!
-!provides: 'Dynabook' 1 94!
+!provides: 'Dynabook' 1 95!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -591,6 +591,15 @@ start: startDateString end: endDateString
 		start: startDateString asDate;
 		end: endDateString  asDate! !
 
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:21:09'!
+dirName
+	self subclassResponsibility ! !
+
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:50:57'!
+directory
+"Location on of the object data and associated document "
+	^ owner directory / self dirName! !
+
 !DyObject methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:04:50'!
 owner
 	^ owner! !
@@ -981,6 +990,10 @@ color: anObject
 course
 	^ owner! !
 
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:29:15'!
+dirName
+	^ title asFileName ! !
+
 !DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
 documents
 	"Answer the value of documents"
@@ -1168,6 +1181,11 @@ classGroups
 	^ schools inject: OrderedCollection new into: [:classGroups :aSchool |
 		classGroups addAll: aSchool classGroups.
 		classGroups ]! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:19:32'!
+directory
+" Mydirectory entry "
+	^ DySystem userDataPath ! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:13'!
 schools
@@ -1448,24 +1466,22 @@ rename: oldName to: newName in: parentDir
 				ifTrue: [dir rename: newName asFileName ] 
 				ifFalse: [(parentDir / newName asFileName ) assureExistence]						]! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 10/3/2023 22:38:26'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 11/27/2024 21:26:24'!
 renameClassGroup: aClassGroup from: oldName to: newName
-	self rename: oldName to: newName in: self userDataPath / aClassGroup school dirName! !
+	self rename: oldName to: newName in: aClassGroup directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 10/3/2023 22:37:42'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 11/27/2024 21:27:30'!
 renameCourse: aCourse from: oldName to: newName
-	| school classGroup |
-	classGroup := aCourse classGroup.
-	school := classGroup school.
-	self rename: oldName to: newName in: self userDataPath / school dirName / classGroup dirName! !
+	self rename: oldName to: newName in: aCourse directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/22/2023 21:25:21'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 11/27/2024 21:24:55'!
 renameSchool: aSchool from: oldName to: newName
 "Should use a data manager facade at some point "
-	self rename: oldName to: newName in: self userDataPath! !
+	self rename: oldName to: newName in: aSchool directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/20/2023 17:06:56'!
-renameTopic: aTopic from: oldName to: newName! !
+!DySystem class methodsFor: 'events' stamp: 'hlsf 11/27/2024 21:27:52'!
+renameTopic: aTopic from: oldName to: newName
+	self rename: oldName to: newName in: aTopic directory parent! !
 
 !DySystem class methodsFor: 'cleaning' stamp: 'hlsf 8/22/2023 20:57:02'!
 removeUserData

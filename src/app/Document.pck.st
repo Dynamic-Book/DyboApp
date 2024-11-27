@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 26 November 2024 at 9:50:37 pm'!
+'From Cuis7.1 [latest update: #6817] on 27 November 2024 at 10:59:47 pm'!
 'Description '!
-!provides: 'Document' 1 64!
+!provides: 'Document' 1 65!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1136,25 +1136,25 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/24/2024 18:31:11'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/27/2024 21:59:24'!
 importPDF
 	| process |
 	process := DySystem 
 		import: DySystem myDocumentsPath parent parent / 'samples' // 'textbook1.pdf'
-		to: DySystem myDocumentsPath / model directory 
+		to: DySystem myDocumentsPath / model dirName 
 		pages: nil.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
-	model pageModel: DySystem myDocumentsPath / model directory.	
+	model pageModel: DySystem myDocumentsPath / model dirName.	
 	1 to: model pdfNumberOfPage do: [:index | | newPage |
 		newPage := PageMorph newOn: self model: (self model newPdfPageModel: index).
 		self view insertPage: newPage 	]
 	! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/26/2024 21:39:11'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/27/2024 21:59:30'!
 loadDocument
 	| newPresenter |
 	
-	newPresenter := ReferenceStream restoreFromFile:  DySystem myDocumentsPath / model directory // 'doc.obj'.
+	newPresenter := ReferenceStream restoreFromFile:  DySystem myDocumentsPath / model dirName // 'doc.obj'.
 	newPresenter controlsManager: controlsManager.
 	controlsManager docView: newPresenter view.
 	controlsManager plugInDynabookView: newPresenter view.
@@ -1222,15 +1222,16 @@ penWhite
 redoAction
 	commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/26/2024 20:59:03'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/27/2024 21:59:37'!
 saveDocument
 	| temporary |
 	temporary := controlsManager.
 	controlsManager := nil.
 	ReferenceStream 
-		dumpOnFile:  DySystem myDocumentsPath / model directory // 'doc.obj'
+		dumpOnFile:  DySystem myDocumentsPath / model dirName // 'doc.obj'
 		object: self.
-	controlsManager := temporary 
+	controlsManager := temporary.
+	GZipWriteStream compressFile: DySystem myDocumentsPath / model dirName // 'doc.obj'
 	! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/26/2024 15:56:53'!
@@ -2043,8 +2044,8 @@ pdfPages
 	^ (pageModel children select: [:each | each extension = 'jpg'])
 		sort: [:f1 :f2 | f1 name < f2 name]! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 10:35:20'!
-directory
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:59:06'!
+dirName
 	^ String streamContents: [:s | timeStamp filenamePrintOn: s] ! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 11:17:03'!
@@ -2882,11 +2883,11 @@ resampleFrom: oldScale to: newScale
 		
 		! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/24/2024 13:01:46'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/27/2024 21:59:50'!
 sampleAt: newDpi
 	| process |
 	process := DySystem 
-		convert:  DySystem myDocumentsPath / self documentModel directory
+		convert:  DySystem myDocumentsPath / self documentModel dirName
 		pages:  (pageNumber to: pageNumber)
 		dpi: newDpi .
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
