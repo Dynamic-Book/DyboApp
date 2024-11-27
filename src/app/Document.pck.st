@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 24 November 2024 at 8:02:08 pm'!
+'From Cuis7.1 [latest update: #6817] on 26 November 2024 at 9:50:37 pm'!
 'Description '!
-!provides: 'Document' 1 63!
+!provides: 'Document' 1 64!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1150,6 +1150,16 @@ importPDF
 		self view insertPage: newPage 	]
 	! !
 
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/26/2024 21:39:11'!
+loadDocument
+	| newPresenter |
+	
+	newPresenter := ReferenceStream restoreFromFile:  DySystem myDocumentsPath / model directory // 'doc.obj'.
+	newPresenter controlsManager: controlsManager.
+	controlsManager docView: newPresenter view.
+	controlsManager plugInDynabookView: newPresenter view.
+	! !
+
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:37:58'!
 nibSize: aNumber
 	self penTool.
@@ -1212,11 +1222,15 @@ penWhite
 redoAction
 	commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/24/2024 18:40:48'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/26/2024 20:59:03'!
 saveDocument
+	| temporary |
+	temporary := controlsManager.
+	controlsManager := nil.
 	ReferenceStream 
 		dumpOnFile:  DySystem myDocumentsPath / model directory // 'doc.obj'
 		object: self.
+	controlsManager := temporary 
 	! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/26/2024 15:56:53'!

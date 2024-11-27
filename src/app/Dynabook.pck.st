@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 24 November 2024 at 8:02:10 pm'!
+'From Cuis7.1 [latest update: #6817] on 26 November 2024 at 9:50:40 pm'!
 'Description '!
-!provides: 'Dynabook' 1 93!
+!provides: 'Dynabook' 1 94!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1583,6 +1583,11 @@ docHorizontalToolbar
 docPresenter
 " Access the presenter of the currently used document, if any "
 	^ docView presenter! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/26/2024 21:04:17'!
+docView: aView
+" Update the docView of the current document "
+	docView := aView ! !
 
 !DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/20/2024 16:01:55'!
 docCircularToolbar
