@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 27 November 2024 at 10:59:49 pm'!
+'From Cuis7.1 [latest update: #6817] on 28 November 2024 at 12:09:32 pm'!
 'Description '!
-!provides: 'Dynabook' 1 95!
+!provides: 'Dynabook' 1 96!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1117,16 +1117,16 @@ initialize
 	lastName := 'Unknown person' translated.
 	firstName := ''! !
 
-!DyStudent methodsFor: 'testing' stamp: 'hlsf 5/23/2023 20:18:38'!
-isStudent
-	^ true! !
-
-!DyStudent methodsFor: 'comparing' stamp: 'hlsf 7/27/2023 00:47:41'!
+!DyPerson methodsFor: 'comparing' stamp: 'hlsf 11/28/2024 10:35:00'!
 <= aPerson
 	^ lastName < aPerson lastName 
 	or: [lastName = aPerson lastName 
 		and: [	firstName <= aPerson firstName]
 		]! !
+
+!DyStudent methodsFor: 'testing' stamp: 'hlsf 5/23/2023 20:18:38'!
+isStudent
+	^ true! !
 
 !DyStudent class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:35:08'!
 label
@@ -1163,6 +1163,14 @@ isTeacher
 !DyTeacher methodsFor: 'visiting' stamp: 'hlsf 6/28/2023 00:18:07'!
 accept: aVisitor
 	^ aVisitor visitTeacher: self! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 11/28/2024 11:13:28'!
+dirName
+	^ 'tasks'! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 11/28/2024 11:15:03'!
+directory
+	^ DySystem userDataPath / self dirName! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:36:55'!
 agenda
