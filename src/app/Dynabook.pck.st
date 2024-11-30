@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 28 November 2024 at 12:09:32 pm'!
+'From Cuis7.1 [latest update: #6817] on 30 November 2024 at 4:05:03 pm'!
 'Description '!
-!provides: 'Dynabook' 1 96!
+!provides: 'Dynabook' 1 97!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1967,6 +1967,18 @@ tasksButtonData
 	#goTasks . 
 	'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 11/30/2024 15:21:08'!
+buttonColor
+	^ dynabookView 
+		ifNotNil: [:v | v buttonColor ] 
+		ifNil: [Theme current buttonColorFrom: Theme current workspace ]! !
+
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 11/30/2024 15:20:04'!
+defaultColor
+	^ dynabookView 
+		ifNotNil: [:v | v defaultColor] 
+		ifNil: [Theme current paneBackgroundFrom: Theme current transcript ]! !
+
 !DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 9/17/2024 18:07:57'!
 initialize
 	icons := IconImporter path: DySystem iconsPath ! !
@@ -2031,7 +2043,7 @@ plugStartView
 plugTaskView
 	self plugInDynabookView: (DyAgendaView presenter: self dynabookPresenter)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 9/17/2024 18:08:45'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 11/30/2024 15:21:35'!
 on: aPresenter button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
@@ -2046,9 +2058,9 @@ on: aPresenter button: symbol state: stateGetter size: size
 		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
 		icon: (icons getForm: array second ofSize: size);
 		setBalloonText: array fourth;
-		color: dynabookView defaultColor ;
-		selectedColor: dynabookView buttonColor ;
-		borderColor: dynabookView defaultColor darker;
+		color: self defaultColor ;
+		selectedColor: self buttonColor ;
+		borderColor: self defaultColor darker;
 		borderWidth: 2;
 		morphExtent: (size  * 1.3) rounded asPoint;
 		yourself	! !

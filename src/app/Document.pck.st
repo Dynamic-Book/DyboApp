@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 30 November 2024 at 1:09:04 pm'!
+'From Cuis7.1 [latest update: #6817] on 30 November 2024 at 4:05:00 pm'!
 'Description '!
-!provides: 'Document' 1 66!
+!provides: 'Document' 1 67!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -70,7 +70,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'Document-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'tool controlsManager pen highlighter eraser commandsManager model view'
+	instanceVariableNames: 'tool controlsManager pen highlighter eraser commandsManager model view savesReal'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -1336,12 +1336,13 @@ tool: aToolClass
 	view statusBarMessage: aToolClass description.
 	self changed! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 11/24/2024 19:57:44'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 11/30/2024 15:59:44'!
 initialize
 	super initialize.
 	self initializeWritingTools .
 	model := DocumentModel new.
-	commandsManager := CommandManager new! !
+	commandsManager := CommandManager new.
+	savesReal := false. "When sending message #saveDocument"! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:03:09'!
 initializeWritingTools
@@ -1357,15 +1358,23 @@ initializeWritingTools
 documentPath
 	^ DySystem myDocumentsPath / model dirName! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 11/30/2024 13:04:51'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 11/30/2024 16:01:17'!
 objectForDataStream: str
-"Each document instance is saved in its own serialisation "
-	self saveDocument.
-	^ DiskProxy 
-		global: #Document 
-		selector: #loadDocument: 
-		args: (Array with: self documentPath)
-		! !
+"Each document instance is saved in its own serialisation, we have two states:
+1. When saving from a tree of object -> respond a diskproxy 
+2. When saving for real the Document in its own location 
+"
+	^ savesReal 
+		ifFalse: [
+			savesReal := true.
+			self saveDocument.
+			DiskProxy 				
+				global: #Document 				
+				selector: #loadDocument:  				
+				args: (Array with: self documentPath)		 ]
+		ifTrue: [
+			savesReal := false.
+			 self].! !
 
 !Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
 controlsManager: aControlsManager
@@ -2060,10 +2069,6 @@ pdfPages
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:59:06'!
 dirName
 	^ String streamContents: [:s | timeStamp filenamePrintOn: s] ! !
-
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/30/2024 13:00:37'!
-documentPath
-	^ DySystem myDocumentsPath / self dirName! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 11:17:03'!
 newPageModel
