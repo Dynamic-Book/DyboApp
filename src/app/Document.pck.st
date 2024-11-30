@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 27 November 2024 at 10:59:47 pm'!
+'From Cuis7.1 [latest update: #6817] on 30 November 2024 at 1:09:04 pm'!
 'Description '!
-!provides: 'Document' 1 65!
+!provides: 'Document' 1 66!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1136,25 +1136,25 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/27/2024 21:59:24'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/30/2024 13:04:26'!
 importPDF
 	| process |
 	process := DySystem 
 		import: DySystem myDocumentsPath parent parent / 'samples' // 'textbook1.pdf'
-		to: DySystem myDocumentsPath / model dirName 
+		to: self documentPath 
 		pages: nil.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
-	model pageModel: DySystem myDocumentsPath / model dirName.	
+	model pageModel: self documentPath .	
 	1 to: model pdfNumberOfPage do: [:index | | newPage |
 		newPage := PageMorph newOn: self model: (self model newPdfPageModel: index).
 		self view insertPage: newPage 	]
 	! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/27/2024 21:59:30'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/30/2024 13:04:41'!
 loadDocument
 	| newPresenter |
 	
-	newPresenter := ReferenceStream restoreFromFile:  DySystem myDocumentsPath / model dirName // 'doc.obj'.
+	newPresenter := ReferenceStream restoreFromFile:  self documentPath // 'doc.obj'.
 	newPresenter controlsManager: controlsManager.
 	controlsManager docView: newPresenter view.
 	controlsManager plugInDynabookView: newPresenter view.
@@ -1222,16 +1222,15 @@ penWhite
 redoAction
 	commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/27/2024 21:59:37'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 11/30/2024 13:04:56'!
 saveDocument
 	| temporary |
 	temporary := controlsManager.
 	controlsManager := nil.
 	ReferenceStream 
-		dumpOnFile:  DySystem myDocumentsPath / model dirName // 'doc.obj'
+		dumpOnFile:  self documentPath // 'doc.obj'
 		object: self.
 	controlsManager := temporary.
-	GZipWriteStream compressFile: DySystem myDocumentsPath / model dirName // 'doc.obj'
 	! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/26/2024 15:56:53'!
@@ -1353,6 +1352,20 @@ initializeWritingTools
 		threshold: 6 squared.
 	eraser := Pen new 	width: 2
 ! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 11/30/2024 13:04:18'!
+documentPath
+	^ DySystem myDocumentsPath / model dirName! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 11/30/2024 13:04:51'!
+objectForDataStream: str
+"Each document instance is saved in its own serialisation "
+	self saveDocument.
+	^ DiskProxy 
+		global: #Document 
+		selector: #loadDocument: 
+		args: (Array with: self documentPath)
+		! !
 
 !Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
 controlsManager: aControlsManager
@@ -2048,6 +2061,10 @@ pdfPages
 dirName
 	^ String streamContents: [:s | timeStamp filenamePrintOn: s] ! !
 
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/30/2024 13:00:37'!
+documentPath
+	^ DySystem myDocumentsPath / self dirName! !
+
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 11:17:03'!
 newPageModel
 	^ pageModel new! !
@@ -2294,9 +2311,10 @@ isCloserThan: distance toPixel: positionInWorld
 deleteBitMasks
 	submorphs do: [:each| each removeProperty: #bitMask]! !
 
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 11/16/2024 13:28:10'!
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 11/30/2024 13:08:39'!
 scale: newScale
-	(pageModel is: #PageModelPdf) ifTrue: [pageModel resampleFrom: self scale to: newScale].
+	(pageModel is: #PageModelPdf) ifTrue: [
+		pageModel resampleFrom: self scale to: newScale in: presenter documentPath].
 	super scale: newScale! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/26/2024 11:35:01'!
@@ -2862,8 +2880,8 @@ drawOn: canvas
 is: aSymbol
 	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/16/2024 16:37:08'!
-resampleFrom: oldScale to: newScale
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/30/2024 13:07:51'!
+resampleFrom: oldScale to: newScale in: documentPath
 	" Do I need to be resampled "
 	| newDpi |
 	newDpi := dpi.
@@ -2877,17 +2895,17 @@ resampleFrom: oldScale to: newScale
 	(newScale < 0.49 and: [oldScale > 0.49])
 		ifTrue: [newDpi := 75].
 	newDpi ~= dpi ifTrue: [
-		self sampleAt: newDpi.
+		self sampleAt: newDpi in: documentPath .
 		self scaleBy: (self dpi / newDpi) asFloat.
 		dpi := newDpi 		]
 		
 		! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/27/2024 21:59:50'!
-sampleAt: newDpi
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/30/2024 13:07:48'!
+sampleAt: newDpi in: documentPath
 	| process |
 	process := DySystem 
-		convert:  DySystem myDocumentsPath / self documentModel dirName
+		convert:  documentPath 
 		pages:  (pageNumber to: pageNumber)
 		dpi: newDpi .
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
