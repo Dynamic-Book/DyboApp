@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 1 December 2024 at 11:26:01 am'!
+'From Cuis7.1 [latest update: #6817] on 1 December 2024 at 6:48:36 pm'!
 'Description '!
-!provides: 'Dynabook' 1 98!
+!provides: 'Dynabook' 1 100!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -38,6 +38,16 @@ Object subclass: #DyCourseHour
 	category: 'Dynabook-Model-Business'!
 !classDefinition: 'DyCourseHour class' category: #'Dynabook-Model-Business'!
 DyCourseHour class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyCourseHourDate category: #'Dynabook-Model-Business'!
+Object subclass: #DyCourseHourDate
+	instanceVariableNames: 'date timeSlots'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dynabook-Model-Business'!
+!classDefinition: 'DyCourseHourDate class' category: #'Dynabook-Model-Business'!
+DyCourseHourDate class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyDayInterval category: #'Dynabook-Model-Business'!
@@ -142,7 +152,7 @@ DyTeacher class
 
 !classDefinition: #DyTask category: #'Dynabook-Model-Business'!
 Object subclass: #DyTask
-	instanceVariableNames: 'date timeSlot document'
+	instanceVariableNames: 'courseHourDate document'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Model-Business'!
@@ -162,7 +172,7 @@ DyUserData class
 
 !classDefinition: #Dybo category: #'Dynabook-Presenter'!
 Object subclass: #Dybo
-	instanceVariableNames: 'domain controlsManager selectedView'
+	instanceVariableNames: 'domain controlsManager activeViewType'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Presenter'!
@@ -202,7 +212,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'dynabookView docView icons'
+	instanceVariableNames: 'dyboView docView icons'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -320,6 +330,9 @@ Describes one or more contiguous teaching periods.
 - dayOfWeek: 1 to 7, day of the week, 1 is Monday
 - timesSlots: a collection of time slot object!
 
+!DyCourseHourDate commentStamp: '<historical>' prior: 0!
+I represent a course hour in a week described by a date and a time slot.!
+
 !DyDayInterval commentStamp: '<historical>' prior: 0!
 I represent an interval of days!
 
@@ -419,6 +432,10 @@ load
 	userData := ReferenceStream restoreFromFile: DySystem userDataPath // 'data.ob'.
 	DyUserData current: userData.! !
 
+!DyDomain methodsFor: 'as yet unclassified' stamp: 'hlsf 12/1/2024 18:38:26'!
+newTask: aTask
+	userData agenda tasks add: aTask! !
+
 !DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 9/28/2023 15:21:54'!
 mold: school
 	| mold |
@@ -501,6 +518,44 @@ label
 !DyCourseHour class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:36:05'!
 pluralLabel
 	^ 'Periods' translated! !
+
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:59:16'!
+date
+	"Answer the value of date"
+
+	^ date! !
+
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:59:16'!
+date: anObject
+	"Set the value of date"
+
+	date := anObject! !
+
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:01:34'!
+printOn: stream
+	stream nextPutAll: date ddmmyyyy ;
+		nextPut: Character space.
+	timeSlots 		
+		do: [:each | 	stream nextPutAll: each slotName ]
+		separatedBy: [stream nextPut: $-]					! !
+
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:01:45'!
+timeSlots
+	"Answer the value of timeSlots"
+
+	^ timeSlots! !
+
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:01:45'!
+timeSlots: anObject
+	"Set the value of timeSlots"
+
+	timeSlots := anObject! !
+
+!DyCourseHourDate methodsFor: 'converting' stamp: 'hlsf 12/1/2024 18:25:55'!
+asDateAndTime
+	^ DateAndTime 
+		date: date
+		time: timeSlots first start! !
 
 !DyDayInterval methodsFor: 'printing' stamp: 'hlsf 10/27/2024 16:30:32'!
 printOn: aStream
@@ -669,6 +724,10 @@ start
 start: aDate
 	start := 	aDate ! !
 
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:34:08'!
+tasks
+	^ tasks! !
+
 !DyAgenda methodsFor: 'testing' stamp: 'hlsf 9/24/2023 14:02:05'!
 isDayOff: aDate
 	^ daysOff anySatisfy: [:aDayInteverval | aDayInteverval 	 includes: aDate]! !
@@ -832,10 +891,14 @@ isDuring: aDateAndTime
 		ifFound: [:aCourse | true]
 		ifNone: [false]! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 9/28/2023 15:44:15'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 12/1/2024 18:13:51'!
 futureDates: qty
-" A list of future course hours & dates after today "
-	^ self next: qty courseHoursAfter: Date today! !
+" A list of future course hours dates after today "
+	^ (self next: qty courseHoursAfter: Date today) collect: [: anArray |
+		DyCourseHourDate new 
+			timeSlots: anArray first timeSlots;
+			date: anArray second;
+			yourself]! !
 
 !DyCourse methodsFor: 'searching' stamp: 'hlsf 10/27/2024 19:45:23'!
 next: qty courseHoursAfter: aDate
@@ -1164,6 +1227,18 @@ isTeacher
 accept: aVisitor
 	^ aVisitor visitTeacher: self! !
 
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:36:16'!
+courseHourDate
+	"Answer the value of courseHourDate"
+
+	^ courseHourDate! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:36:16'!
+courseHourDate: anObject
+	"Set the value of courseHourDate"
+
+	courseHourDate := anObject! !
+
 !DyTask methodsFor: 'accessing' stamp: 'hlsf 11/28/2024 11:13:28'!
 dirName
 	^ 'tasks'! !
@@ -1171,6 +1246,18 @@ dirName
 !DyTask methodsFor: 'accessing' stamp: 'hlsf 11/28/2024 11:15:03'!
 directory
 	^ DySystem userDataPath / self dirName! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:36:16'!
+document
+	"Answer the value of document"
+
+	^ document! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:36:16'!
+document: anObject
+	"Set the value of document"
+
+	document := anObject! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:36:55'!
 agenda
@@ -1280,62 +1367,60 @@ new
 daysOfWeek
 	^ Week dayNames collect: [:day | day translated]! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:54'!
-deletePage! !
-
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
 goBinder
-	selectedView := #binder.
+	activeViewType := #binder.
 	controlsManager plugBinder.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
 goDocument
-	selectedView := #document.
+	activeViewType := #document.
 	controlsManager plugDocument .
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
 goSettings
-	selectedView := #settings.
+	activeViewType := #settings.
 	controlsManager plugSettings.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
 goStart
-	selectedView := #start.
+	activeViewType := #start.
 	controlsManager plugStart.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
 goTasks
-	selectedView := #tasks.
+	activeViewType := #tasks.
 	controlsManager plugTask.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 10/26/2024 12:55:01'!
-insertPage! !
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 18:45:09'!
+saveTask
+	| taskView task |
+	taskView := controlsManager pluggedView.
+	task := DyTask new
+		courseHourDate: taskView courseHourDate;
+		document: controlsManager docPresenter.		
+	domain newTask: task.
+	DySystem saveData.! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:25'!
-nextPage! !
-
-!Dybo methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:38'!
-previousPage! !
-
-!Dybo methodsFor: 'testing' stamp: 'hlsf 12/1/2024 11:03:32'!
+!Dybo methodsFor: 'testing' stamp: 'hlsf 12/1/2024 17:18:51'!
 isView: aSymbolView
 " We have the start, tasks, binder, and settings views "
-	^ selectedView == aSymbolView ! !
+	^ activeViewType == aSymbolView ! !
 
 !Dybo methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:31:11'!
 initialize
 	domain := DyDomain new.
 	self installComponents ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:31:02'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:03:09'!
 installComponents
 	controlsManager := DyControlsManager new.
-	controlsManager installDynabookView: self.
+	controlsManager installDyboView: self.
 	self goStart.
 	self view openInWorld ! !
 
@@ -1343,6 +1428,10 @@ installComponents
 load
 	domain := DyDomain new load.
 	self installComponents ! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:18:51'!
+activeViewType
+	^ activeViewType ! !
 
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 09:59:47'!
 controlsManager
@@ -1352,13 +1441,9 @@ controlsManager
 domain
 	^ domain! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 11:06:36'!
-selectedView
-	^ selectedView ! !
-
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:00:32'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:02:49'!
 view
-	^ controlsManager dynabookView! !
+	^ controlsManager dyboView! !
 
 !Dybo class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/6/2024 19:31:50'!
 load
@@ -1559,13 +1644,61 @@ paperRatio
 preferences
 	^ platform preferences! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/24/2024 20:01:28'!
-buildDocView
+!DySystem class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/1/2024 18:44:34'!
+saveData
+	ReferenceStream 
+		dumpOnFile: (DySystem userDataPath // 'data.ob') 
+		object: DyUserData current! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
+docPresenter
+" Access the presenter of the currently used document, if any "
+	^ docView presenter! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:03:47'!
+docToolbar: aSpec
+	| toolbar buttonWidth |
+	toolbar := LayoutMorph newRow 		separation: 2.
+	buttonWidth := DySystem miniToolbarSize.
+	aSpec do: [:aTool | 
+		aTool 
+			caseOf: {
+				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
+				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
+			otherwise: [		
+				toolbar addMorph: (				
+					self on: self docPresenter 					button: aTool 			state: #isTool: 					size: buttonWidth )] 				].
+	^ toolbar! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:09:40'!
+docToolbarSpec
+	^ #(#importPDF loadDoc saveDoc
+	blank
+	pen eraser highlighter undo redo 
+	blank
+	pointer group 
+	blank
+	firstPage previousPage insertPage deletePage 	nextPage lastPage)! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/26/2024 21:04:17'!
+docView: aView
+" Update the docView of the current document "
+	docView := aView ! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:09:35'!
+miniDocToolbarSpec
+" Toolbar for a one page document "
+	^ #(pen eraser highlighter undo redo 
+	blank
+	pointer group)! !
+
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:04:14'!
+newDocument
 	| row col presenter |
 	docView := DocumentView presenter: (presenter := Document controlsManager: self).
 	presenter view: docView.
 	docView 
-		addMorph: self docHorizontalToolbar
+		addMorph: (self docToolbar: self docToolbarSpec)
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
 	row := LayoutMorph newRow 					addMorphUseAll: docView container.
 	" vertical and zoom wheels at the right "
@@ -1591,38 +1724,20 @@ buildDocView
 	docView adjustPageCount .
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/24/2024 18:26:08'!
-docHorizontalToolbar
-	| toolbar buttonWidth |
-	toolbar := LayoutMorph newRow 		separation: 2.
-	buttonWidth := DySystem miniToolbarSize.
-	 #(#importPDF loadDoc saveDoc
-	blank
-	pen eraser highlighter undo redo 
-	blank
-	pointer group 
-	blank
-	firstPage previousPage insertPage deletePage 	nextPage lastPage) do: [:aTool | 
-		aTool 
-			caseOf: {
-				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
-				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
-			otherwise: [		
-				toolbar addMorph: (				
-					self on: self docPresenter 					button: aTool 			state: #isTool: 					size: buttonWidth )] 				].
-	^ toolbar! !
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:12:17'!
+newMiniDocument
+	| presenter |
+	docView := DocumentView presenter: (presenter := Document controlsManager: self).
+	presenter view: docView.
+	docView 
+		addMorph: (self docToolbar: self miniDocToolbarSpec)
+		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
+	docView 		addMorphUseAll: docView container.
+	docView adoptWidgetsColor: docView defaultBorderColor.
+	presenter penTool.
+	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
-docPresenter
-" Access the presenter of the currently used document, if any "
-	^ docView presenter! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/26/2024 21:04:17'!
-docView: aView
-" Update the docView of the current document "
-	docView := aView ! !
-
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/20/2024 16:01:55'!
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/1/2024 17:02:23'!
 docCircularToolbar
 	| toolsData docTools |
 	toolsData := OrderedCollection 
@@ -1632,8 +1747,8 @@ docCircularToolbar
 		with: self highligtherSizeTools
 		with: self eraserSizeTools .
 	docTools := CircularToolbarMorph new
-		color: dynabookView defaultColor ;
-		selectedColor: dynabookView buttonColor;
+		color: dyboView defaultColor ;
+		selectedColor: dyboView buttonColor;
 		extent: 180;
 		buttonSize: DySystem iconToolbarSize + 8;
 		dropDownHeight: 15.
@@ -1936,17 +2051,17 @@ zoomWheel
 		borderColor: Color black;
 		yourself! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:01:23'!
-dynabookPresenter
-	^ dynabookView presenter! !
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:18:37'!
+activeViewType
+	^ self dyboPresenter activeViewType ! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:00:47'!
-dynabookView
-	^ dynabookView! !
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:02:37'!
+dyboPresenter
+	^ dyboView presenter! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 11:07:11'!
-selectedView
-	^ self dynabookView selectedView ! !
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:02:49'!
+dyboView
+	^ dyboView! !
 
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:00'!
 binderButtonData
@@ -1980,15 +2095,15 @@ tasksButtonData
 	#goTasks . 
 	'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 11/30/2024 15:21:08'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:02:23'!
 buttonColor
-	^ dynabookView 
+	^ dyboView 
 		ifNotNil: [:v | v buttonColor ] 
 		ifNil: [Theme current buttonColorFrom: Theme current workspace ]! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 11/30/2024 15:20:04'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:02:23'!
 defaultColor
-	^ dynabookView 
+	^ dyboView 
 		ifNotNil: [:v | v defaultColor] 
 		ifNil: [Theme current paneBackgroundFrom: Theme current transcript ]! !
 
@@ -1996,82 +2111,82 @@ defaultColor
 initialize
 	icons := IconImporter path: DySystem iconsPath ! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 10:32:31'!
-installDynabookView: aPresenter
-	dynabookView := DynabookView for: aPresenter.
-	dynabookView 
-		addMorph: self dynabookToolbar 
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:03:09'!
+installDyboView: aPresenter
+	dyboView := DynabookView for: aPresenter.
+	dyboView 
+		addMorph: self dyboToolbar 
 		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
 	self plugStart! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:31:57'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
 plugBinder
-	self plugInDynabookView: (DyBinderView presenter: self dynabookPresenter)! !
+	self plugInDyboView: (DyBinderView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:35:04'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:10'!
 plugDocument
 " Plug a new document "
-	self plugInDynabookView: self buildDocView ! !
+	self plugInDyboView: self newDocument ! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:35:15'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:10'!
 plugDocument: aDocument
 " Plug an existing document "
 	aDocument controlsManager: self.
 	self docView: aDocument view.
-	self plugInDynabookView: docView! !
+	self plugInDyboView: docView! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 11:18:22'!
-plugInDynabookView: aMorph
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:23'!
+plugInDyboView: aMorph
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout pluggedView |
-	layout := dynabookView layoutMorph.
+	layout := dyboView layoutMorph.
 	pluggedView := self pluggedView.
 	pluggedView ifNotNil: [		layout removeMorph: pluggedView].
 	layout 	 addMorphUseAll: aMorph.
-	dynabookView changed! !
+	dyboView changed! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:32:22'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
 plugSettings
-	self plugInDynabookView: (
+	self plugInDyboView: (
 		BreadcrumbsPane 
-			on: self dynabookPresenter domain userData 
+			on: self dyboPresenter domain userData 
 			with: DyViewerVisitor )! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:32:31'!
 plugStart
 ! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:32:40'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
 plugTask
-	self plugInDynabookView: (DyAgendaView presenter: self dynabookPresenter)! !
+	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 11:19:25'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:23'!
 pluggedView
 " plugged view is the first submoprh in the dynabook layout, below its toolsbar "
 	| layout |
-	layout := dynabookView layoutMorph.
+	layout := dyboView layoutMorph.
 	^ layout submorphCount = 2 
 		ifTrue: [	layout firstSubmorph]
 		ifFalse: [nil]
 ! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/1/2024 11:02:56'!
-dynabookToolbar
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/1/2024 17:02:37'!
+dyboToolbar
 	| toolbar buttonWidth|
 	toolbar := LayoutMorph newRow 		separation: 5.
 	buttonWidth := DySystem iconToolbarSize.
-	self dynabookTools do: [:aTool | 
+	self dyboToolbarSpec do: [:aTool | 
 		aTool 
 			caseOf: {
 				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
 				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
 			otherwise: [	
 				toolbar addMorph: (
-					self on: self dynabookPresenter 					button: aTool  					state: #isView: 					size: buttonWidth )] ].
+					self on: self dyboPresenter 					button: aTool  					state: #isView: 					size: buttonWidth )] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 11/14/2024 23:20:05'!
-dynabookTools
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/1/2024 17:01:30'!
+dyboToolbarSpec
 	^ #(start tasks binder page spacer settings)! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 11/30/2024 15:21:35'!
@@ -2406,7 +2521,7 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 	attributeView morphWidth: scroller viewableExtent x.
 	^ DecoratedPane open: scroller label: aTitle ! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 8/27/2023 15:50:40'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 12/1/2024 18:44:42'!
 plugView: aMorph
 " Add an Edit button to this contents "
 	| viewer |
@@ -2418,10 +2533,7 @@ plugView: aMorph
 			viewer owner 
 				replaceView: viewer 
 				byView: (visitedModel accept: DyEditorVisitor new)			] 
-		altAction: [		
-			ReferenceStream 
-				dumpOnFile: (DySystem userDataPath // 'data.ob') 
-				object: DyUserData current] 
+		altAction: [DySystem saveData] 
 		::
 		buttonLabel: 'Edit' translated;
 		altButtonLabel: 'Save' translated;
@@ -2743,7 +2855,7 @@ incomingTasksPanel
 "A view to browse the tasks already assigned "
 	^ LayoutMorph newRow addMorph: (LabelMorph contents: 'Future tasks' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 9/1/2024 09:59:19'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/1/2024 17:21:44'!
 newTaskPanel
 "The tools to assign a new task : which classGroup, which course and when "
 	^​ LayoutMorph newRow ::
@@ -2754,7 +2866,7 @@ newTaskPanel
 		addMorph: self courseHourDateListMorph;
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: (PluggableButtonMorph 
-			model: presenter
+			model: self
 			action: #saveTask
 			label: 'Save' translated)! !
 
@@ -2765,19 +2877,17 @@ classGroupIndex: anIndex
 	self changed: #courseHourDates.
 	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 15:12:20'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:26:36'!
+courseHourDate
+" The selected course hour date "
+	^ self courseHourDates at: courseHourIndex ifAbsent: [nil]! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:06:49'!
 courseHourDates
-" A list of future course hour date"
+" A list of future course hour dates "
 	^ self course 
 		ifNil: [Array new]
-		ifNotNil: [:course | |future |
-			future := course futureDates: 10.
-			future collect: [:aCourseHourAndDate | 
-				String streamContents: [:str |
-					str nextPutAll: aCourseHourAndDate second ddmmyyyy; space.
-					aCourseHourAndDate first timeSlots 
-						do: [:each | str nextPutAll: each slotName ]
-						separatedBy: [str nextPut: $-]					 ] ] ]
+		ifNotNil: [:course | course futureDates: 10]
 		! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 11:13:57'!
@@ -2796,7 +2906,7 @@ courseIndex: anIndex
 	self changed: #courseHourDates.
 	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 5/26/2024 23:21:22'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:09:12'!
 initialize
 	| courseGroupNow |
 	super initialize.
@@ -2810,6 +2920,8 @@ initialize
 		ifNil: [	classGroupIndex := courseIndex := courseHourIndex := 0			].
 	
 	self addMorphKeepMorphHeight: self newTaskPanel.
+	self addMorph: presenter controlsManager newMiniDocument.
+	self addAdjusterMorph.
 	self addMorphUseAll: self incomingTasksPanel.
 	self adoptWidgetsColor: self defaultBorderColor 
 	

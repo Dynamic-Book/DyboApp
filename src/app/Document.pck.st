@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 1 December 2024 at 11:25:58 am'!
+'From Cuis7.1 [latest update: #6817] on 1 December 2024 at 6:38:47 pm'!
 'Description '!
-!provides: 'Document' 1 68!
+!provides: 'Document' 1 69!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1344,18 +1344,18 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 11:24:37'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 17:18:37'!
 documentPath
 " My path depends on which context I was created "
 	| path |
-	path := controlsManager selectedView 
+	path := controlsManager activeViewType 
 		caseOf: {
 			[#tasks] -> [DySystem tasksPath] .
 			[#binder] -> [			controlsManager pluggedView topic directory] 		}
 		otherwise: [	DySystem myDocumentsPath].
 	^ path  / model dirName! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 10:15:58'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 11:38:32'!
 objectForDataStream: str
 "Each document instance is saved in its own serialisation, we have two states:
 1. When saving from a tree of object -> respond a diskproxy but have a distinct save on disk first
@@ -1371,16 +1371,17 @@ objectForDataStream: str
 				args: (Array with: self documentPath)		 ]
 		ifTrue: [
 			savesReal := false.
-			 self].! !
+			self].! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 10:13:42'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 15:40:19'!
 saveToDisk
 " Save me in my distinct disk location "
-	| temporary |
+	| temporary path |
+	path := self documentPath.
 	temporary := controlsManager.
 	controlsManager := nil.
 	ReferenceStream 
-		dumpOnFile:  self documentPath // 'doc.obj'
+		dumpOnFile:  path // 'doc.obj'
 		object: self.
 	controlsManager := temporary.
 	! !
