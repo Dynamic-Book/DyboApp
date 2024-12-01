@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 30 November 2024 at 4:05:00 pm'!
+'From Cuis7.1 [latest update: #6817] on 1 December 2024 at 11:25:58 am'!
 'Description '!
-!provides: 'Document' 1 67!
+!provides: 'Document' 1 68!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1150,14 +1150,10 @@ importPDF
 		self view insertPage: newPage 	]
 	! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/30/2024 13:04:41'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/1/2024 10:36:26'!
 loadDocument
-	| newPresenter |
-	
-	newPresenter := ReferenceStream restoreFromFile:  self documentPath // 'doc.obj'.
-	newPresenter controlsManager: controlsManager.
-	controlsManager docView: newPresenter view.
-	controlsManager plugInDynabookView: newPresenter view.
+	controlsManager 
+		plugDocument: (ReferenceStream restoreFromFile:  self documentPath // 'doc.obj')
 	! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:37:58'!
@@ -1222,16 +1218,10 @@ penWhite
 redoAction
 	commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/30/2024 13:04:56'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/1/2024 10:11:20'!
 saveDocument
-	| temporary |
-	temporary := controlsManager.
-	controlsManager := nil.
-	ReferenceStream 
-		dumpOnFile:  self documentPath // 'doc.obj'
-		object: self.
-	controlsManager := temporary.
-	! !
+	savesReal := true.
+	self saveToDisk ! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/26/2024 15:56:53'!
 undoAction
@@ -1354,20 +1344,27 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 11/30/2024 13:04:18'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 11:24:37'!
 documentPath
-	^ DySystem myDocumentsPath / model dirName! !
+" My path depends on which context I was created "
+	| path |
+	path := controlsManager selectedView 
+		caseOf: {
+			[#tasks] -> [DySystem tasksPath] .
+			[#binder] -> [			controlsManager pluggedView topic directory] 		}
+		otherwise: [	DySystem myDocumentsPath].
+	^ path  / model dirName! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 11/30/2024 16:01:17'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 10:15:58'!
 objectForDataStream: str
 "Each document instance is saved in its own serialisation, we have two states:
-1. When saving from a tree of object -> respond a diskproxy 
-2. When saving for real the Document in its own location 
+1. When saving from a tree of object -> respond a diskproxy but have a distinct save on disk first
+2. When saving for real the Document in its own location, respond self
 "
 	^ savesReal 
 		ifFalse: [
 			savesReal := true.
-			self saveDocument.
+			self saveToDisk. 
 			DiskProxy 				
 				global: #Document 				
 				selector: #loadDocument:  				
@@ -1376,12 +1373,33 @@ objectForDataStream: str
 			savesReal := false.
 			 self].! !
 
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 10:13:42'!
+saveToDisk
+" Save me in my distinct disk location "
+	| temporary |
+	temporary := controlsManager.
+	controlsManager := nil.
+	ReferenceStream 
+		dumpOnFile:  self documentPath // 'doc.obj'
+		object: self.
+	controlsManager := temporary.
+	! !
+
 !Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
 controlsManager: aControlsManager
 	^ self basicNew 
 		controlsManager: aControlsManager ;
 		initialize ;
 		yourself! !
+
+!Document class methodsFor: 'object serialization' stamp: 'hlsf 12/1/2024 10:24:52'!
+loadDocument: aDirectoryEntry 
+"
+	Once restored, the controlManager needs to be associated back and 
+	the view plug in the dynamic book main view
+"
+
+	^ ReferenceStream restoreFromFile: aDirectoryEntry // 'doc.obj'! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:05:57'!
 execute

@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 30 November 2024 at 4:05:03 pm'!
+'From Cuis7.1 [latest update: #6817] on 1 December 2024 at 11:26:01 am'!
 'Description '!
-!provides: 'Dynabook' 1 97!
+!provides: 'Dynabook' 1 98!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -162,7 +162,7 @@ DyUserData class
 
 !classDefinition: #Dybo category: #'Dynabook-Presenter'!
 Object subclass: #Dybo
-	instanceVariableNames: 'domain controlsManager selectedSection'
+	instanceVariableNames: 'domain controlsManager selectedView'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Presenter'!
@@ -1283,35 +1283,35 @@ daysOfWeek
 !Dybo methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:54'!
 deletePage! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:07'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
 goBinder
-	selectedSection := #binder.
-	controlsManager plugBinderView.
-	self changed: #isSection:! !
+	selectedView := #binder.
+	controlsManager plugBinder.
+	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 10/13/2024 13:10:07'!
-goPage
-	selectedSection := #page.
-	controlsManager plugDocView .
-	self changed: #isSection:! !
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
+goDocument
+	selectedView := #document.
+	controlsManager plugDocument .
+	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:10'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
 goSettings
-	selectedSection := #settings.
-	controlsManager plugSettingsView.
-	self changed: #isSection:! !
+	selectedView := #settings.
+	controlsManager plugSettings.
+	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 8/16/2023 21:36:14'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
 goStart
-	selectedSection := #start.
-	controlsManager plugStartView.
-	self changed: #isSection:! !
+	selectedView := #start.
+	controlsManager plugStart.
+	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 8/29/2024 11:48:32'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 11:03:12'!
 goTasks
-	selectedSection := #tasks.
-	controlsManager plugTaskView.
-	self changed: #isSection:! !
+	selectedView := #tasks.
+	controlsManager plugTask.
+	self changed: #isView:! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 10/26/2024 12:55:01'!
 insertPage! !
@@ -1322,10 +1322,10 @@ nextPage! !
 !Dybo methodsFor: 'callback' stamp: 'hlsf 10/10/2024 21:56:38'!
 previousPage! !
 
-!Dybo methodsFor: 'testing' stamp: 'hlsf 8/14/2023 22:29:40'!
-isSection: aSymbolSection
-"We have the start, task, binder, and settings sections"
-	^ selectedSection == aSymbolSection ! !
+!Dybo methodsFor: 'testing' stamp: 'hlsf 12/1/2024 11:03:32'!
+isView: aSymbolView
+" We have the start, tasks, binder, and settings views "
+	^ selectedView == aSymbolView ! !
 
 !Dybo methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:31:11'!
 initialize
@@ -1351,6 +1351,10 @@ controlsManager
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:40:14'!
 domain
 	^ domain! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 11:06:36'!
+selectedView
+	^ selectedView ! !
 
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:00:32'!
 view
@@ -1456,6 +1460,11 @@ iconsPath
 myDocumentsPath
 " the location of the user documents "
 	^ self userDataPath / 'myDocuments'! !
+
+!DySystem class methodsFor: 'path' stamp: 'hlsf 12/1/2024 10:50:42'!
+tasksPath
+" the location of the user documents "
+	^ self userDataPath / 'tasks'! !
 
 !DySystem class methodsFor: 'path' stamp: 'hlsf 8/20/2023 14:30:45'!
 userDataPath
@@ -1781,13 +1790,13 @@ nextPageButtonData
 	#nextPage . 
 	'Go to the next page of the document.' translated  }! !
 
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:11:21'!
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 12/1/2024 10:30:34'!
 pageButtonData
 " label - iconName - callback - description "
-	^ {'New page' translated . 
-	#page . 
-	#goPage . 
-	'Open a blank page to start writing.' translated }! !
+	^ {'Open document' translated . 
+	#document . 
+	#goDocument . 
+	'Open a blank document to start writing.' translated }! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:38:30'!
 penButtonData
@@ -1935,6 +1944,10 @@ dynabookPresenter
 dynabookView
 	^ dynabookView! !
 
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 11:07:11'!
+selectedView
+	^ self dynabookView selectedView ! !
+
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:00'!
 binderButtonData
 " label - iconName - callback - description "
@@ -1983,7 +1996,66 @@ defaultColor
 initialize
 	icons := IconImporter path: DySystem iconsPath ! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 10/10/2024 11:09:55'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 10:32:31'!
+installDynabookView: aPresenter
+	dynabookView := DynabookView for: aPresenter.
+	dynabookView 
+		addMorph: self dynabookToolbar 
+		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
+	self plugStart! !
+
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:31:57'!
+plugBinder
+	self plugInDynabookView: (DyBinderView presenter: self dynabookPresenter)! !
+
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:35:04'!
+plugDocument
+" Plug a new document "
+	self plugInDynabookView: self buildDocView ! !
+
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:35:15'!
+plugDocument: aDocument
+" Plug an existing document "
+	aDocument controlsManager: self.
+	self docView: aDocument view.
+	self plugInDynabookView: docView! !
+
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 11:18:22'!
+plugInDynabookView: aMorph
+" plug in the dynabook main view this morph, below its toolbar "
+	| layout pluggedView |
+	layout := dynabookView layoutMorph.
+	pluggedView := self pluggedView.
+	pluggedView ifNotNil: [		layout removeMorph: pluggedView].
+	layout 	 addMorphUseAll: aMorph.
+	dynabookView changed! !
+
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:32:22'!
+plugSettings
+	self plugInDynabookView: (
+		BreadcrumbsPane 
+			on: self dynabookPresenter domain userData 
+			with: DyViewerVisitor )! !
+
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:32:31'!
+plugStart
+! !
+
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:32:40'!
+plugTask
+	self plugInDynabookView: (DyAgendaView presenter: self dynabookPresenter)! !
+
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 11:19:25'!
+pluggedView
+" plugged view is the first submoprh in the dynabook layout, below its toolsbar "
+	| layout |
+	layout := dynabookView layoutMorph.
+	^ layout submorphCount = 2 
+		ifTrue: [	layout firstSubmorph]
+		ifFalse: [nil]
+! !
+
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/1/2024 11:02:56'!
 dynabookToolbar
 	| toolbar buttonWidth|
 	toolbar := LayoutMorph newRow 		separation: 5.
@@ -1995,53 +2067,12 @@ dynabookToolbar
 				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
 			otherwise: [	
 				toolbar addMorph: (
-					self on: self dynabookPresenter 					button: aTool  					state: #isSection: 					size: buttonWidth )] ].
+					self on: self dynabookPresenter 					button: aTool  					state: #isView: 					size: buttonWidth )] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 11/14/2024 23:20:05'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 11/14/2024 23:20:05'!
 dynabookTools
 	^ #(start tasks binder page spacer settings)! !
-
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:00:47'!
-installDynabookView: aPresenter
-	dynabookView := DynabookView for: aPresenter.
-	dynabookView 
-		addMorph: self dynabookToolbar 
-		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
-	self plugStartView! !
-
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:01:23'!
-plugBinderView
-	self plugInDynabookView: (DyBinderView presenter: self dynabookPresenter)! !
-
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 10/13/2024 13:10:07'!
-plugDocView
-	self plugInDynabookView: self buildDocView ! !
-
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:00:47'!
-plugInDynabookView: aMorph
-" plug in the dynabook main view this morph, below its toolbar "
-	| layout |
-	layout := dynabookView layoutMorph.
-	layout submorphCount = 2 ifTrue: [
-		layout removeMorph: layout firstSubmorph].
-	layout addMorphUseAll: aMorph.
-	dynabookView changed! !
-
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:01:23'!
-plugSettingsView
-	self plugInDynabookView: (
-		BreadcrumbsPane 
-			on: self dynabookPresenter domain userData 
-			with: DyViewerVisitor )! !
-
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 8/16/2023 21:08:23'!
-plugStartView
-! !
-
-!DyControlsManager methodsFor: 'main' stamp: 'hlsf 9/5/2024 11:01:23'!
-plugTaskView
-	self plugInDynabookView: (DyAgendaView presenter: self dynabookPresenter)! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 11/30/2024 15:21:35'!
 on: aPresenter button: symbol state: stateGetter size: size
@@ -2810,6 +2841,11 @@ sortIndex: anIndex
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 11:51:47'!
 sortOptions
 	^ `Array with: 'Newer first' translated with: 'Older first' translated with: 'By name' translated`! !
+
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 11:23:19'!
+topic
+" The selected topic, if any "
+	^ self topics at: topicIndex ifAbsent: [nil]! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/4/2023 22:39:04'!
 topicIndex
