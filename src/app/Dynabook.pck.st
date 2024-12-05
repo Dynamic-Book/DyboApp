@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 5 December 2024 at 12:15:22 pm'!
+'From Cuis7.1 [latest update: #6817] on 5 December 2024 at 11:20:10 pm'!
 'Description '!
-!provides: 'Dynabook' 1 101!
+!provides: 'Dynabook' 1 102!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -302,7 +302,7 @@ DynabookView class
 
 !classDefinition: #DyboTestCase category: #'Dynabook-Test'!
 TestCase subclass: #DyboTestCase
-	instanceVariableNames: 'data'
+	instanceVariableNames: 'domain'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Test'!
@@ -3160,33 +3160,33 @@ for: aPresenter
 		presenter: aPresenter;
 		yourself! !
 
-!DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/13/2023 23:21:14'!
+!DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 12/5/2024 23:15:26'!
 setUp
-	data := self resources anyOne current data! !
+	domain := self resources anyOne current domain! !
 
 !DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 21:28:52'!
 tearDown
 	self tearDownResources! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/24/2023 14:07:36'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:16:53'!
 testAgenda
-	self assert: data agenda start = '2023-08-21' asDate.
-	self assert: data agenda end = '2024-06-28' asDate.
-	self deny: (data agenda isDayOff: '2023-08-21' asDate).
-	self deny: (data agenda isDayOff: '2023-06-28' asDate).	
+	self assert: self data agenda start = '2023-08-21' asDate.
+	self assert: self data agenda end = '2024-06-28' asDate.
+	self deny: (self data agenda isDayOff: '2023-08-21' asDate).
+	self deny: (self data agenda isDayOff: '2023-06-28' asDate).	
 	
-	self assert: (data agenda isDayOff: '2023-9-7' asDate).
-	self assert: (data agenda isDayOff: '2024-02-21' asDate).
-	self assert: (data agenda isDayOff: '2023-12-25' asDate).
-	self assert: (data agenda isDayOff: '2024-01-5' asDate).
-	self deny: (data agenda isDayOff: '2024-01-6' asDate).
-	self deny: (data agenda isDayOff: '2024-05-16' asDate)
+	self assert: (self data agenda isDayOff: '2023-9-7' asDate).
+	self assert: (self data agenda isDayOff: '2024-02-21' asDate).
+	self assert: (self data agenda isDayOff: '2023-12-25' asDate).
+	self assert: (self data agenda isDayOff: '2024-01-5' asDate).
+	self deny: (self data agenda isDayOff: '2024-01-6' asDate).
+	self deny: (self data agenda isDayOff: '2024-05-16' asDate)
 	! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:49:44'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:03'!
 testAsCourseIn	
 	| school course courseHour | 
-	school := data schools first.
+	school := self data schools first.
 	course := school classGroups first courses first.
 	courseHour := '123 1 P2' asCourseHourIn: course.
 	self assert: courseHour room = '123'.
@@ -3201,10 +3201,10 @@ testAsCourseIn
 	courseHour timeSlots do: [:each |
 	self assert: (school timeSlots includes: each) ]! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:15:38'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:10'!
 testClassGroupCourse
 	| school group course | 
-	school := data schools first.
+	school := self data schools first.
 	group := school classGroups first.
 	course := group courses first.
 	self assert: group school equals: school.
@@ -3213,51 +3213,51 @@ testClassGroupCourse
 	self assert: course subject equals: 'Histoire'
 	! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:28:35'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:14'!
 testCourseAgendaAccess
 	| school group course agenda | 
-	school := data schools first.
+	school := self data schools first.
 	group := school classGroups first.
 	course := group courses first.
 	agenda := course agenda.
 	self assert: agenda start = '2023-08-21' asDate.
 	self assert: agenda end = '2024-06-28' asDate! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 10/28/2024 22:26:32'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:45'!
 testCourseAt
 	| courseH courseM courseI classGroup dateAndTime | 
-	classGroup := data schools first classGroups first.
+	classGroup := self data schools first classGroups first.
 	courseH := classGroup courses first.
 	courseM := classGroup courses second .
 	courseI := classGroup courses third .
 
 
 	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
-	self assert: (data courseAt: dateAndTime) equals: courseH.
+	self assert: (domain courseAt: dateAndTime) equals: courseH.
 	dateAndTime := DateAndTime fromString: '2023-09-11 7:00'. 
-	self assert: (data courseAt: dateAndTime) equals: nil.
+	self assert: (domain courseAt: dateAndTime) equals: nil.
 	
 	dateAndTime := DateAndTime fromString: '2023-09-12 11:30'.
-	self assert: (data courseAt: dateAndTime) equals: courseH.
+	self assert: (domain courseAt: dateAndTime) equals: courseH.
 	dateAndTime := DateAndTime fromString: '2023-09-12 11:15'.
-	self assert: (data courseAt: dateAndTime) equals: courseH.
+	self assert: (domain courseAt: dateAndTime) equals: courseH.
 	dateAndTime := DateAndTime fromString: '2023-09-12 11:13'.
-	self assert: (data courseAt: dateAndTime) equals: courseH.
+	self assert: (domain courseAt: dateAndTime) equals: courseH.
 
 	dateAndTime := DateAndTime fromString: '2023-09-13 9:00'. 
-	self assert: (data courseAt: dateAndTime) equals: courseM.
+	self assert: (domain courseAt: dateAndTime) equals: courseM.
 	
 	dateAndTime := DateAndTime fromString: '2023-09-15 15:54'. 
-	self assert: (data courseAt: dateAndTime) equals: courseH.
+	self assert: (domain courseAt: dateAndTime) equals: courseH.
 	
 	dateAndTime := DateAndTime fromString: '2023-09-11 14:00'. 
-	self assert: (data courseAt: dateAndTime) equals: courseI.
+	self assert: (domain courseAt: dateAndTime) equals: courseI.
 	! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:29:19'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:52'!
 testCourseHours
 	| school group courseHours | 
-	school := data schools first.
+	school := self data schools first.
 	group := school classGroups first.
 	courseHours := group courses first courseHours .
 	" Qty "
@@ -3273,11 +3273,11 @@ testCourseHours
 		aCourseHour timeSlots do: [:aTimeSlot | 		self assert: school timeSlots includes: aTimeSlot ] ]
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/26/2023 22:04:27'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:01'!
 testFutureDates
 	| course date futureDates| 
 	date := (DateAndTime fromString: '2023-09-05 10:45') date . "Tuesday"
-	course := data schools first classGroups first courses first.
+	course := self data schools first classGroups first courses first.
 	futureDates := course next: 5 courseHoursAfter: date.
 	"Should be Friday (Wednesday no course, Thursday day off), time slot: P9 "
 	self assert: futureDates size = 5.
@@ -3291,11 +3291,11 @@ testFutureDates
 	self assert: futureDates third first timeSlots first = 'P4 10:25 11:10' asTimeSlot.
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 10/28/2024 22:35:27'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:06'!
 testFutureDatesNoCourseThisDay
 	| course date futureDates| 
 	date := (DateAndTime fromString: '2023-09-12 10:45') date . "Tuesday"
-	course := data schools first classGroups first courses third.
+	course := self data schools first classGroups first courses third.
 	futureDates := course next: 5 courseHoursAfter: date.
 	"Should be each Monday , time slot: P7 "
 	self assert: futureDates size = 5.
@@ -3309,10 +3309,10 @@ testFutureDatesNoCourseThisDay
 	self assert: futureDates third first timeSlots first = 'P7 13:35 14:20' asTimeSlot.
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:10:49'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:11'!
 testIsDuring
 	| courseHours classGroup dateAndTime | 
-	classGroup := data schools first classGroups first.
+	classGroup := self data schools first classGroups first.
 	courseHours := classGroup courses first courseHours.
 
 	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
@@ -3333,11 +3333,11 @@ A course hour with 2 periods, isDuring: tested between the two period timeslots,
 	dateAndTime := DateAndTime fromString: '2023-09-12 11:12'. 
 	self assert: (courseHours second isDuring: dateAndTime).! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 10:24:02'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:19:31'!
 testNextCourseHourAfter
 	| nextCourse dateAndTime | 
 	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
-	nextCourse := data nextCourseHourAfter: dateAndTime.
+	nextCourse := domain nextCourseHourAfter: dateAndTime.
 	"Should be: next day, time slots: P4 P5 "
 	self assert: nextCourse second = '2023-09-12' asDate.
 	self assert: nextCourse first room = '123' .
@@ -3346,29 +3346,29 @@ testNextCourseHourAfter
 	self assert: nextCourse first timeSlots second = 'P5 11:15 12:00' asTimeSlot.
 	""
 	dateAndTime := DateAndTime fromString: '2023-09-12 9:00'. "Tuesday, no course at this time"
-	nextCourse := data nextCourseHourAfter: dateAndTime.
+	nextCourse := domain nextCourseHourAfter: dateAndTime.
 	self assert: nextCourse isNil.
 	""
 	dateAndTime := DateAndTime fromString: '2023-09-12 11:12'.
-	nextCourse := data nextCourseHourAfter: dateAndTime.
+	nextCourse := domain nextCourseHourAfter: dateAndTime.
 	"Should be: two days later, time slots: P7 "
 	self assert: nextCourse second = '2023-09-14' asDate.
 	self assert: nextCourse first dayOfWeek= 4 .
 	self assert: nextCourse first timeSlots first = 'P7 13:35 14:20' asTimeSlot.
 	""
 	dateAndTime := DateAndTime fromString: '2023-09-15 16:01'. "Friday"
-	nextCourse := data nextCourseHourAfter: dateAndTime.
+	nextCourse := domain nextCourseHourAfter: dateAndTime.
 	" Should be next monday, time slot P2 "
 	self assert: nextCourse second = '2023-09-18' asDate.
 	self assert: nextCourse first dayOfWeek= 1 .
 	self assert: nextCourse first timeSlots first = 'P2 8:35 9:20' asTimeSlot.
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/23/2023 11:12:53'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:38'!
 testNextCourseHourAfterWithDaysOff
 	| nextCourse dateAndTime | 
 	dateAndTime := DateAndTime fromString: '2023-09-05 10:45'. "Tuesday"
-	nextCourse := data nextCourseHourAfter: dateAndTime.
+	nextCourse := domain nextCourseHourAfter: dateAndTime.
 	"Should be Friday (Wednesday no course, Thursday day off), time slot: P9 "
 	self assert: nextCourse second = '2023-09-8' asDate.
 	self assert: nextCourse first room = '123' .
@@ -3376,25 +3376,25 @@ testNextCourseHourAfterWithDaysOff
 	self assert: nextCourse first timeSlots first = 'P9 15:25 16:10' asTimeSlot.
 
 	dateAndTime := DateAndTime fromString: '2023-10-20 16:00'. "Friday, before 1 week holiday"
-	nextCourse := data nextCourseHourAfter: dateAndTime.
+	nextCourse := domain nextCourseHourAfter: dateAndTime.
 	"Should be Monday, one week later"
 	self assert: nextCourse second = '2023-10-30' asDate.
 	
 	dateAndTime := DateAndTime fromString: '2024-5-7 11:00'. "Tuesday"
-	nextCourse := data nextCourseHourAfter: dateAndTime.
+	nextCourse := domain nextCourseHourAfter: dateAndTime.
 	"Should be Monday, next week"
 	self assert: nextCourse second = '2024-5-13' asDate.
 	
 	dateAndTime := DateAndTime fromString: '2024-6-28 16:00'. "Friday, end of school"
-	nextCourse := data nextCourseHourAfter: dateAndTime.
+	nextCourse := domain nextCourseHourAfter: dateAndTime.
 	"Should be nil"
 	self assert: nextCourse isNil
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:36:08'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:46'!
 testSchoolsExist
-	self assert: data schools notEmpty.
-	self assert: (data schools anySatisfy: [:aSchool | aSchool schoolName = 'CO Foron'])! !
+	self assert: self data schools notEmpty.
+	self assert: (self data schools anySatisfy: [:aSchool | aSchool schoolName = 'CO Foron'])! !
 
 !DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:54:42'!
 testTimeSlotCompare
@@ -3419,13 +3419,17 @@ testTimeSlotInstance
 	self assert: t start equals: (Time fromString: '10:05').
 	self assert: t end equals: (Time fromString: '11:30')! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 16:10:35'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:53'!
 testTimeSlotsOrder
 	| t | 
-	t := data schools first timeSlots.
+	t := self data schools first timeSlots.
 	self assert: t first slotName equals: 'P1'.
 	self assert: t third slotName equals: 'P3'.
 	self assert: t last slotName equals: 'P9'! !
+
+!DyboTestCase methodsFor: 'as yet unclassified' stamp: 'hlsf 12/5/2024 23:15:53'!
+data
+	^ domain userData ! !
 
 !DyboTestCase class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/6/2024 19:12:53'!
 resources
@@ -3503,25 +3507,29 @@ setUp
 	self setUpAgenda.
 	self data schools add: (self schoolA owner: self data; yourself)! !
 
-!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 09:28:58'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 12/5/2024 23:11:39'!
 setUpAgenda
-	data agenda
+	self data agenda
 		start: '2023-08-21' asDate;
 		end: '2024-06-28' asDate.
-	data agenda daysOff addAll: self daysOff ! !
+	self data agenda daysOff addAll: self daysOff ! !
 
-!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 12:52:52'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 12/5/2024 23:12:25'!
 tearDown
 	DyUserData reset.
-	data := nil.! !
+	domain := nil.! !
 
 !DyboTestResource methodsFor: 'testing' stamp: 'hlsf 12/5/2024 12:12:07'!
 isAvailable 
 	^ domain data notNil! !
 
-!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 12:11:57'!
+!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 23:16:02'!
 data
-	^ domain data! !
+	^ domain userData! !
+
+!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 23:14:33'!
+domain
+	^ domain! !
 
 !DyboTestResource class methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:28:49'!
 isAvailable
