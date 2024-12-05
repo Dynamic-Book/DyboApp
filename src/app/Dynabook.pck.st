@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 5 December 2024 at 11:20:10 pm'!
+'From Cuis7.1 [latest update: #6817] on 6 December 2024 at 12:25:09 am'!
 'Description '!
-!provides: 'Dynabook' 1 102!
+!provides: 'Dynabook' 1 103!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1393,10 +1393,11 @@ goTasks
 	controlsManager plugTask.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/5/2024 11:04:29'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/5/2024 23:48:59'!
 saveTask
 	| taskView task |
 	taskView := controlsManager activeView.
+	taskView isTaskValid ifFalse: [^ self].
 	task := DyTask new
 		courseHourDate: taskView courseHourDate;
 		document: controlsManager docPresenter.		
@@ -2877,12 +2878,12 @@ newTaskPanel
 			action: #saveTask
 			label: 'Save' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/5/2024 11:29:55'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/5/2024 23:40:43'!
 tasksListMorph
 " Present a list of forthcomming tasks "
 	^ PluggableListMorph 
 		withModel: self
-		listGetter: #tasks
+		listGetter: #tasksPrint
 		indexGetter: #taskIndex
 		indexSetter: #taskIndex: ::
 		autoDeselect: false.! !
@@ -2944,7 +2945,18 @@ taskIndex: anIndex
 tasks
 	^ self data agenda tasks! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:59:04'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 23:43:14'!
+tasksPrint
+	^ self tasks collect: [:aTask | 
+		String streamContents: [:str |
+			(self domain courseAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourse |
+				str print: aCourse;					
+					nextPutAll: ' - '].
+			aTask courseHourDate printOn: str]
+		]
+				! !
+
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 23:41:03'!
 initTask
 	" Guess the course at current time, then its classGroup "
 	| courseGroupNow |
@@ -2963,7 +2975,7 @@ initTask
 	self changed: #courseHourIndex:		.
 	" No task selected by default. Selecting a task reveal its associated mini document "
 	taskIndex := 0.
-	self changed: #tasks.
+	self changed: #tasksPrint.
 	self changed: #taskIndex:
 	! !
 
@@ -2996,6 +3008,13 @@ plugNewMiniDocument
 resetTask
 	self initTask.
 	self plugNewMiniDocument ! !
+
+!DyAgendaView methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:48:20'!
+isTaskValid
+" Is the currently edited task valid "
+	^ classGroupIndex > 0 
+	and: [courseIndex >0
+	and: [courseHourIndex > 0 ]]! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:17:48'!
 classGroupIndex: anIndex
