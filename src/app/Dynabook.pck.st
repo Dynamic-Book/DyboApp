@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 1 December 2024 at 6:48:36 pm'!
+'From Cuis7.1 [latest update: #6817] on 5 December 2024 at 12:15:22 pm'!
 'Description '!
-!provides: 'Dynabook' 1 100!
+!provides: 'Dynabook' 1 101!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -28,6 +28,16 @@ Object subclass: #DyDomain
 	category: 'Dynabook-Model'!
 !classDefinition: 'DyDomain class' category: #'Dynabook-Model'!
 DyDomain class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyUserData category: #'Dynabook-Model'!
+Object subclass: #DyUserData
+	instanceVariableNames: 'user schools agenda'
+	classVariableNames: 'Current'
+	poolDictionaries: ''
+	category: 'Dynabook-Model'!
+!classDefinition: 'DyUserData class' category: #'Dynabook-Model'!
+DyUserData class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyCourseHour category: #'Dynabook-Model-Business'!
@@ -160,16 +170,6 @@ Object subclass: #DyTask
 DyTask class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyUserData category: #'Dynabook-Model-Business'!
-Object subclass: #DyUserData
-	instanceVariableNames: 'user schools agenda'
-	classVariableNames: 'Current'
-	poolDictionaries: ''
-	category: 'Dynabook-Model-Business'!
-!classDefinition: 'DyUserData class' category: #'Dynabook-Model-Business'!
-DyUserData class
-	instanceVariableNames: ''!
-
 !classDefinition: #Dybo category: #'Dynabook-Presenter'!
 Object subclass: #Dybo
 	instanceVariableNames: 'domain controlsManager activeViewType'
@@ -272,7 +272,7 @@ DyView class
 
 !classDefinition: #DyAgendaView category: #'Dynabook-View'!
 DyView subclass: #DyAgendaView
-	instanceVariableNames: 'courseHourIndex'
+	instanceVariableNames: 'courseHourIndex miniDocument taskIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -312,7 +312,7 @@ DyboTestCase class
 
 !classDefinition: #DyboTestResource category: #'Dynabook-Test'!
 TestResource subclass: #DyboTestResource
-	instanceVariableNames: 'data backupData'
+	instanceVariableNames: 'domain backupData'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Test'!
@@ -323,6 +323,12 @@ DyboTestResource class
 
 !DyDomain commentStamp: '<historical>' prior: 0!
 The domain object of a Dynabook application.!
+
+!DyUserData commentStamp: '<historical>' prior: 0!
+I am a Singleton, the root of the user data, both administrative and pedagogical.
+- user: a teacher or student 
+- schools: collection of schools the student is enrolled in or the teacher teaches in
+- agenda of the user!
 
 !DyCourseHour commentStamp: 'hlsf 10/27/2024 19:27:22' prior: 0!
 Describes one or more contiguous teaching periods.
@@ -369,12 +375,6 @@ My owner is a DyUserData instance
 
 !DyTopic commentStamp: '<historical>' prior: 0!
 Pedagogical document grouped in one topic.!
-
-!DyUserData commentStamp: '<historical>' prior: 0!
-I am a Singleton, the root of the user data, both administrative and pedagogical.
-- user: a teacher or student 
-- schools: collection of schools the student is enrolled in or the teacher teaches in
-- agenda of the user!
 
 !Dybo commentStamp: '<historical>' prior: 0!
 A presenter for a Dynabook application.!
@@ -423,9 +423,9 @@ I am the main view of the Dynabook app.!
 userData
 	^ userData! !
 
-!DyDomain methodsFor: 'initialization' stamp: 'hlsf 8/16/2023 21:10:08'!
+!DyDomain methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 12:14:17'!
 initialize
-	userData := DyUserData current! !
+	DyUserData current: (userData := DyUserData new)! !
 
 !DyDomain methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:27:29'!
 load
@@ -436,7 +436,111 @@ load
 newTask: aTask
 	userData agenda tasks add: aTask! !
 
-!DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 9/28/2023 15:21:54'!
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:57:14'!
+allCourses
+" Returns the collection of the user's courses"
+	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
+		courses 	addAll: aClassGroup courses.
+		courses ]! !
+
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:59:33'!
+classGroups
+" Returns the collection of the user's class groups"
+	^ userData schools inject: OrderedCollection new into: [:classGroups :aSchool |
+		classGroups addAll: aSchool classGroups.
+		classGroups ]! !
+
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:59:27'!
+courseAndGroupAt: aDateTime
+" Search my course and group occuring at this date and time "
+	userData schools do: [:aSchool |
+		aSchool classGroups do: [:aClassGroup |
+			aClassGroup courses do: [:aCourse |
+				(aCourse isDuring: aDateTime) ifTrue: [^ Array with: aCourse with: aClassGroup ] 
+			]
+		]
+	].
+	^ nil! !
+
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:59:55'!
+courseAt: aDateTime
+" Search my course occuring at this date and time "
+	^ (self courseAndGroupAt: aDateTime) ifNotNil: [:anArray | anArray first]! !
+
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 12:02:18'!
+nextCourseHourAfter: aDateAndTime
+"Search for the next course hour in the same course occuring at aDateAndTime"
+	| course |
+	course := self courseAt: aDateAndTime.
+	course ifNil: [^nil].
+	^ course nextCourseHourAfter: aDateAndTime date! !
+
+!DyDomain class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/5/2024 12:10:54'!
+daysOfWeek
+	^ Week dayNames collect: [:day | day translated]! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:36:55'!
+agenda
+	^ agenda ifNil: [agenda := DyAgenda new]! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:19:32'!
+directory
+" Mydirectory entry "
+	^ DySystem userDataPath ! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:13'!
+schools
+	^ schools ! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:03'!
+user
+	^ user! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 11/7/2023 23:50:33'!
+user: aPerson
+	user := aPerson ! !
+
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 9/24/2023 14:38:24'!
+initialize
+	super initialize.
+	schools := OrderedCollection new.
+	user := DyTeacher new.
+	agenda := DyAgenda new owner: self! !
+
+!DyUserData methodsFor: 'printing' stamp: 'hlsf 6/28/2023 00:09:47'!
+printOn: str
+	user firstName 
+		ifNotNil:  [:firstName | str nextPutAll: ('{1}''s Dynabook' translated format: {firstName})]
+		ifNil: [super printOn: str]! !
+
+!DyUserData methodsFor: 'visiting' stamp: 'hlsf 6/26/2023 21:28:11'!
+accept: aVisitor
+	^ aVisitor visitUserData: self! !
+
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 12:09:48'!
+current
+	^ Current ifNil: [Current := self new]! !
+
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 9/11/2023 22:24:43'!
+current: aDyUserData
+	Current := aDyUserData ! !
+
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 7/13/2023 09:44:29'!
+schoolOf: anObject
+"Search the school tree this object belongs to"
+	self current  schools do: [:school |			
+		(school treePointsTo: anObject			) ifTrue: [^ school] ].
+	^ nil! !
+
+!DyUserData class methodsFor: 'initialization' stamp: 'hlsf 9/12/2023 21:54:25'!
+reset
+	self current: nil! !
+
+!DyUserData class methodsFor: 'translated' stamp: 'hlsf 9/28/2023 11:23:46'!
+daysOfWeek
+	^ Week dayNames collect: [:day | day translated]! !
+
+!DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 12/5/2024 12:11:02'!
 mold: school
 	| mold |
 	mold := Mold new.
@@ -446,7 +550,7 @@ mold: school
 		beRequired.
 	mold selectField 
 		label: 'Day' translated;
-		on: #listIndex of: (ListModel with: DyUserData daysOfWeek :: listIndex: dayOfWeek );
+		on: #listIndex of: (ListModel with: DyDomain daysOfWeek :: listIndex: dayOfWeek );
 		callback: [:input | self dayOfWeek: input];
 		beRequired.
 	mold selectMultiField 
@@ -487,10 +591,10 @@ timeSlots: aCollection
 accept: aVisitor
 	^ aVisitor visitCourseHour: self! !
 
-!DyCourseHour methodsFor: 'printing' stamp: 'hlsf 9/28/2023 11:24:04'!
+!DyCourseHour methodsFor: 'printing' stamp: 'hlsf 12/5/2024 12:11:08'!
 printOn: str
 	dayOfWeek 
-		ifNotNil:  [str nextPutAll: (DyUserData daysOfWeek at: dayOfWeek);
+		ifNotNil:  [str nextPutAll: (DyDomain daysOfWeek at: dayOfWeek);
 				nextPutAll: ' (';
 				nextPutAll: room;
 				nextPut: $)]
@@ -1008,12 +1112,12 @@ mold
 printOn: str
 	str nextPutAll: name! !
 
-!DySchool methodsFor: 'printing' stamp: 'hlsf 11/6/2024 17:16:47'!
+!DySchool methodsFor: 'printing' stamp: 'hlsf 12/5/2024 12:11:15'!
 printTimesTableOn: aStream
 	| indent |
 	indent := 6.
 	aStream nextPutAll: 'Période' ; tab: indent // 2.
-	(DyUserData daysOfWeek first: 5)
+	(DyDomain daysOfWeek first: 5)
 		do: [:aDay | 		aStream nextPutAll: aDay]
 		separatedBy: [aStream tab: indent].
 	aStream lf.
@@ -1259,114 +1363,6 @@ document: anObject
 
 	document := anObject! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:36:55'!
-agenda
-	^ agenda ifNil: [agenda := DyAgenda new]! !
-
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:24:19'!
-allCourses
-" Returns the collection of the user's courses"
-	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
-		courses 	addAll: aClassGroup courses.
-		courses ]! !
-
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 9/24/2023 15:44:35'!
-classGroups
-" Returns the collection of the user's class groups"
-	^ schools inject: OrderedCollection new into: [:classGroups :aSchool |
-		classGroups addAll: aSchool classGroups.
-		classGroups ]! !
-
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:19:32'!
-directory
-" Mydirectory entry "
-	^ DySystem userDataPath ! !
-
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:13'!
-schools
-	^ schools ! !
-
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:03'!
-user
-	^ user! !
-
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 11/7/2023 23:50:33'!
-user: aPerson
-	user := aPerson ! !
-
-!DyUserData methodsFor: 'initialization' stamp: 'hlsf 9/24/2023 14:38:24'!
-initialize
-	super initialize.
-	schools := OrderedCollection new.
-	user := DyTeacher new.
-	agenda := DyAgenda new owner: self! !
-
-!DyUserData methodsFor: 'printing' stamp: 'hlsf 6/28/2023 00:09:47'!
-printOn: str
-	user firstName 
-		ifNotNil:  [:firstName | str nextPutAll: ('{1}''s Dynabook' translated format: {firstName})]
-		ifNil: [super printOn: str]! !
-
-!DyUserData methodsFor: 'printing' stamp: 'hlsf 10/27/2024 19:29:28'!
-timesTables
-" One per user school "! !
-
-!DyUserData methodsFor: 'searching' stamp: 'hlsf 5/26/2024 22:51:36'!
-courseAndGroupAt: aDateTime
-" Search my course and group occuring at this date and time "
-	schools do: [:aSchool |
-		aSchool classGroups do: [:aClassGroup |
-			aClassGroup courses do: [:aCourse |
-				(aCourse isDuring: aDateTime) ifTrue: [^ Array with: aCourse with: aClassGroup ] 
-			]
-		]
-	].
-	^ nil! !
-
-!DyUserData methodsFor: 'searching' stamp: 'hlsf 5/26/2024 22:52:20'!
-courseAt: aDateTime
-" Search my course occuring at this date and time "
-	^ (self courseAndGroupAt: aDateTime) ifNotNil: [:anArray | anArray first]! !
-
-!DyUserData methodsFor: 'searching' stamp: 'hlsf 9/21/2023 11:43:46'!
-nextCourseHourAfter: aDateAndTime
-"Search for the next course hour in the same course occuring at aDateAndTime"
-	| course |
-	course := self courseAt: aDateAndTime.
-	course ifNil: [^nil].
-	^ course nextCourseHourAfter: aDateAndTime date! !
-
-!DyUserData methodsFor: 'visiting' stamp: 'hlsf 6/26/2023 21:28:11'!
-accept: aVisitor
-	^ aVisitor visitUserData: self! !
-
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 7/13/2023 09:42:21'!
-current
-	^ Current ifNil: [Current := self basicNew initialize]! !
-
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 9/11/2023 22:24:43'!
-current: aDyUserData
-	Current := aDyUserData ! !
-
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 7/13/2023 09:44:29'!
-schoolOf: anObject
-"Search the school tree this object belongs to"
-	self current  schools do: [:school |			
-		(school treePointsTo: anObject			) ifTrue: [^ school] ].
-	^ nil! !
-
-!DyUserData class methodsFor: 'initialization' stamp: 'hlsf 9/12/2023 21:54:25'!
-reset
-	self current: nil! !
-
-!DyUserData class methodsFor: 'instance creation' stamp: 'hlsf 9/12/2023 21:57:49'!
-new
-	self error: 'Class ', self name, ' has only one instance active at a time'! !
-
-!DyUserData class methodsFor: 'translated' stamp: 'hlsf 9/28/2023 11:23:46'!
-daysOfWeek
-	^ Week dayNames collect: [:day | day translated]! !
-
 !Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
 goBinder
 	activeViewType := #binder.
@@ -1397,15 +1393,17 @@ goTasks
 	controlsManager plugTask.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 18:45:09'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/5/2024 11:04:29'!
 saveTask
 	| taskView task |
-	taskView := controlsManager pluggedView.
+	taskView := controlsManager activeView.
 	task := DyTask new
 		courseHourDate: taskView courseHourDate;
 		document: controlsManager docPresenter.		
 	domain newTask: task.
-	DySystem saveData.! !
+	DySystem saveData.
+	taskView resetTask 
+	! !
 
 !Dybo methodsFor: 'testing' stamp: 'hlsf 12/1/2024 17:18:51'!
 isView: aSymbolView
@@ -2119,6 +2117,19 @@ installDyboView: aPresenter
 		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
 	self plugStart! !
 
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/5/2024 10:33:17'!
+activeView
+" 	The active view is the view where the user operates. It is a subview in the Dybo view.
+	It can be the Home, the Task, the Binder, the Document or the Settings view 
+	It is the first submoprh in the dybo view layout, below its toolsbar
+ "
+	| layout |
+	layout := dyboView layoutMorph.
+	^ layout submorphCount = 2 
+		ifTrue: [	layout firstSubmorph]
+		ifFalse: [nil]
+! !
+
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
 plugBinder
 	self plugInDyboView: (DyBinderView presenter: self dyboPresenter)! !
@@ -2135,12 +2146,12 @@ plugDocument: aDocument
 	self docView: aDocument view.
 	self plugInDyboView: docView! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:23'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/5/2024 10:31:01'!
 plugInDyboView: aMorph
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout pluggedView |
 	layout := dyboView layoutMorph.
-	pluggedView := self pluggedView.
+	pluggedView := self activeView.
 	pluggedView ifNotNil: [		layout removeMorph: pluggedView].
 	layout 	 addMorphUseAll: aMorph.
 	dyboView changed! !
@@ -2159,16 +2170,6 @@ plugStart
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
-
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:23'!
-pluggedView
-" plugged view is the first submoprh in the dynabook layout, below its toolsbar "
-	| layout |
-	layout := dyboView layoutMorph.
-	^ layout submorphCount = 2 
-		ifTrue: [	layout firstSubmorph]
-		ifFalse: [nil]
-! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/1/2024 17:02:37'!
 dyboToolbar
@@ -2780,10 +2781,10 @@ classGroupIndex: anIndex
 	self changed: #classGroupCourses.
 	self courseIndex: (self classGroupCourses ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:29:17'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:54:24'!
 classGroups
 " All the user class groups "
-	^ self data classGroups! !
+	^ self domain classGroups! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 23:23:00'!
 course
@@ -2803,6 +2804,10 @@ courseIndex: anIndex
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:24'!
 data
 	^ presenter  domain userData ! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:54:11'!
+domain
+	^ presenter  domain! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:52:42'!
 presenter: aPresenter
@@ -2850,12 +2855,14 @@ courseHourDateListMorph
 		indexSetter: #courseHourIndex: ::
 		autoDeselect: false.! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 10/7/2023 11:24:12'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/5/2024 11:31:02'!
 incomingTasksPanel
 "A view to browse the tasks already assigned "
-	^ LayoutMorph newRow addMorph: (LabelMorph contents: 'Future tasks' translated)! !
+	^ LayoutMorph newColumn 
+		addMorph: (LabelMorph contents: 'Future tasks' translated);
+		addMorphUseAll: self tasksListMorph ! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/1/2024 17:21:44'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/5/2024 11:07:42'!
 newTaskPanel
 "The tools to assign a new task : which classGroup, which course and when "
 	^​ LayoutMorph newRow ::
@@ -2866,9 +2873,19 @@ newTaskPanel
 		addMorph: self courseHourDateListMorph;
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: (PluggableButtonMorph 
-			model: self
+			model: presenter
 			action: #saveTask
 			label: 'Save' translated)! !
+
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/5/2024 11:29:55'!
+tasksListMorph
+" Present a list of forthcomming tasks "
+	^ PluggableListMorph 
+		withModel: self
+		listGetter: #tasks
+		indexGetter: #taskIndex
+		indexSetter: #taskIndex: ::
+		autoDeselect: false.! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:15:41'!
 classGroupIndex: anIndex
@@ -2906,26 +2923,79 @@ courseIndex: anIndex
 	self changed: #courseHourDates.
 	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:09:12'!
-initialize
-	| courseGroupNow |
-	super initialize.
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:36:32'!
+task
+	" the selected task "
+	^ self tasks at: taskIndex ifAbsent: [nil]! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:44:16'!
+taskIndex
+	^ taskIndex! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:45:26'!
+taskIndex: anIndex
+	taskIndex := anIndex.
+	self changed: #taskIndex:.
+	self task ifNotNil: [:aTask |
+		self plugMiniDocument: aTask document view]
+		! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:28:11'!
+tasks
+	^ self data agenda tasks! !
+
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:59:04'!
+initTask
 	" Guess the course at current time, then its classGroup "
-	courseGroupNow := self data courseAndGroupAt: DateAndTime now.
+	| courseGroupNow |
+	courseGroupNow := self domain courseAndGroupAt: DateAndTime now.
 	courseGroupNow 
 		ifNotNil: 		[
 			classGroupIndex := self classGroups indexOf: courseGroupNow second.
 			courseIndex := self classGroupCourses indexOf: courseGroupNow first 	.
-			courseHourIndex := self courseHourDates ifEmpty: [0] ifNotEmpty: [1] ]
+			courseHourIndex := self courseHourDates ifEmpty: [0] ifNotEmpty: [1]						 ]
 		ifNil: [	classGroupIndex := courseIndex := courseHourIndex := 0			].
-	
+	self changed: #classGroups.
+	self changed: #classGroupCourses.
+	self changed: #courseHourDates.
+	self changed: #classGroupIndex:.
+	self changed: #courseIndex:.
+	self changed: #courseHourIndex:		.
+	" No task selected by default. Selecting a task reveal its associated mini document "
+	taskIndex := 0.
+	self changed: #tasks.
+	self changed: #taskIndex:
+	! !
+
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 10:37:31'!
+initialize
+	super initialize.
+	self initTask.	
 	self addMorphKeepMorphHeight: self newTaskPanel.
-	self addMorph: presenter controlsManager newMiniDocument.
+	self plugNewMiniDocument.
 	self addAdjusterMorph.
 	self addMorphUseAll: self incomingTasksPanel.
 	self adoptWidgetsColor: self defaultBorderColor 
 	
 ! !
+
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:41:31'!
+plugMiniDocument: aDocument
+" plug the mini document in my view "
+	miniDocument 
+		ifNotNil:  [self replaceSubmorph: miniDocument by: aDocument]
+		ifNil: [	self addMorph: aDocument ].
+	miniDocument := aDocument.! !
+
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:41:58'!
+plugNewMiniDocument
+" Insert a new empty mini document  "
+	self plugMiniDocument: presenter controlsManager newMiniDocument! !
+
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:04:04'!
+resetTask
+	self initTask.
+	self plugNewMiniDocument ! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:17:48'!
 classGroupIndex: anIndex
@@ -3426,12 +3496,12 @@ schoolA
 	school classGroups add: (self classGroup932in: school).
 	^ school! !
 
-!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 11/7/2023 23:52:52'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 12/5/2024 12:14:48'!
 setUp
-	data := DyUserData current.
-	data user: (DyTeacher new lastName: 'Dupont'; firstName: 'Eric').
+	domain := DyDomain new.
+	self data user: (DyTeacher new lastName: 'Dupont'; firstName: 'Eric').
 	self setUpAgenda.
-	data schools add: (self schoolA owner: data; yourself)! !
+	self data schools add: (self schoolA owner: self data; yourself)! !
 
 !DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 09:28:58'!
 setUpAgenda
@@ -3445,13 +3515,13 @@ tearDown
 	DyUserData reset.
 	data := nil.! !
 
-!DyboTestResource methodsFor: 'testing' stamp: 'hlsf 9/13/2023 22:10:45'!
+!DyboTestResource methodsFor: 'testing' stamp: 'hlsf 12/5/2024 12:12:07'!
 isAvailable 
-	^ data notNil! !
+	^ domain data notNil! !
 
-!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 22:32:24'!
+!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 12:11:57'!
 data
-	^ data! !
+	^ domain data! !
 
 !DyboTestResource class methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:28:49'!
 isAvailable
