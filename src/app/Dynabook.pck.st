@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 6 December 2024 at 12:25:09 am'!
+'From Cuis7.1 [latest update: #6817] on 7 December 2024 at 11:10:15 am'!
 'Description '!
-!provides: 'Dynabook' 1 103!
+!provides: 'Dynabook' 1 105!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -432,6 +432,11 @@ load
 	userData := ReferenceStream restoreFromFile: DySystem userDataPath // 'data.ob'.
 	DyUserData current: userData.! !
 
+!DyDomain methodsFor: 'as yet unclassified' stamp: 'hlsf 12/7/2024 11:00:35'!
+deleteTask: aTask
+	userData agenda tasks remove: aTask.
+	aTask document documentPath recursiveDelete ! !
+
 !DyDomain methodsFor: 'as yet unclassified' stamp: 'hlsf 12/1/2024 18:38:26'!
 newTask: aTask
 	userData agenda tasks add: aTask! !
@@ -660,6 +665,15 @@ asDateAndTime
 	^ DateAndTime 
 		date: date
 		time: timeSlots first start! !
+
+!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 12/7/2024 09:39:53'!
+= aCourseHourDate
+	^ date = aCourseHourDate date 
+	and: [timeSlots = aCourseHourDate timeSlots]! !
+
+!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 12/7/2024 09:41:14'!
+hash
+	^ date hash bitXor: timeSlots hash! !
 
 !DyDayInterval methodsFor: 'printing' stamp: 'hlsf 10/27/2024 16:30:32'!
 printOn: aStream
@@ -970,12 +984,12 @@ teacher
 topics
 	^ topics! !
 
-!DyCourse methodsFor: 'printing' stamp: 'hlsf 10/27/2024 19:20:23'!
+!DyCourse methodsFor: 'printing' stamp: 'hlsf 12/7/2024 09:34:58'!
 printOn: aStream
-	aStream nextPutAll: subject;
+	aStream nextPutAll: subject";
 		nextPutAll: ' (';
 		print: self classGroup;
-		nextPut: $)! !
+		nextPut: $)"! !
 
 !DyCourse methodsFor: 'visiting' stamp: 'hlsf 7/1/2023 08:53:53'!
 accept: aVisitor
@@ -1362,6 +1376,11 @@ document: anObject
 	"Set the value of document"
 
 	document := anObject! !
+
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/7/2024 11:09:55'!
+deleteTask: aDyTask 
+	domain deleteTask: aDyTask.
+	controlsManager activeView resetTask.! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
 goBinder
@@ -2766,6 +2785,10 @@ classGroup
 " The selected class group, if any "
 	^ self classGroups at: classGroupIndex ifAbsent: [nil]! !
 
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/7/2024 09:27:27'!
+classGroup: aClassGroup
+	self classGroupIndex: (self classGroups indexOf: aClassGroup ifAbsent: 0)! !
+
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/27/2024 22:23:20'!
 classGroupCourses
 	^ self classGroup ifNil: [`Array new`] ifNotNil: [:cg | cg courses]! !
@@ -2791,6 +2814,10 @@ classGroups
 course
 " The selected course, if any "
 	^ self classGroupCourses at: courseIndex ifAbsent: [nil]! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/7/2024 09:29:06'!
+course: aCourse
+	self courseIndex: (self classGroupCourses indexOf: aCourse ifAbsent: [0])! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:21:53'!
 courseIndex
@@ -2878,12 +2905,12 @@ newTaskPanel
 			action: #saveTask
 			label: 'Save' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/5/2024 23:40:43'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/7/2024 09:51:25'!
 tasksListMorph
 " Present a list of forthcomming tasks "
-	^ PluggableListMorph 
+	^ PluggableListOfMorph 
 		withModel: self
-		listGetter: #tasksPrint
+		listGetter: #tasksWidget
 		indexGetter: #taskIndex
 		indexSetter: #taskIndex: ::
 		autoDeselect: false.! !
@@ -2899,6 +2926,10 @@ classGroupIndex: anIndex
 courseHourDate
 " The selected course hour date "
 	^ self courseHourDates at: courseHourIndex ifAbsent: [nil]! !
+
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/7/2024 09:42:22'!
+courseHourDate: aCourseHourDate
+	self courseHourIndex: (self courseHourDates indexOf: aCourseHourDate ifAbsent: [0])! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:06:49'!
 courseHourDates
@@ -2924,39 +2955,63 @@ courseIndex: anIndex
 	self changed: #courseHourDates.
 	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:36:32'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/7/2024 10:26:14'!
+labelForTask: aTask
+	^String streamContents: [:str |
+		(self domain courseAndGroupAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourseGroup |
+			str print: aCourseGroup first;
+				nextPutAll: ' (';
+				print: aCourseGroup second;
+				nextPutAll: ') - '].
+		aTask courseHourDate printOn: str]
+		
+				! !
+
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/5/2024 11:36:32'!
 task
 	" the selected task "
 	^ self tasks at: taskIndex ifAbsent: [nil]! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:44:16'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/5/2024 11:44:16'!
 taskIndex
 	^ taskIndex! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:45:26'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/7/2024 09:32:09'!
 taskIndex: anIndex
 	taskIndex := anIndex.
 	self changed: #taskIndex:.
 	self task ifNotNil: [:aTask |
+		(self domain courseAndGroupAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourseGroup |
+			self classGroup: aCourseGroup second.
+			self course: aCourseGroup first.
+			self courseHourDate: aTask courseHourDate			].
 		self plugMiniDocument: aTask document view]
 		! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:28:11'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/5/2024 11:28:11'!
 tasks
 	^ self data agenda tasks! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 23:43:14'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/7/2024 10:00:02'!
 tasksPrint
-	^ self tasks collect: [:aTask | 
-		String streamContents: [:str |
-			(self domain courseAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourse |
-				str print: aCourse;					
-					nextPutAll: ' - '].
-			aTask courseHourDate printOn: str]
-		]
+	^ self tasks collect: [:aTask | self labelForTask: aTask 	]
 				! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 23:41:03'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/7/2024 11:08:09'!
+tasksWidget
+	^ self tasks collect: [:aTask | | label |
+		label := self labelForTask: aTask.
+		LayoutMorph newRow
+			color: Color transparent;
+			gap: 8;
+			addMorph: (PluggableButtonMorph model: presenter action: #deleteTask: actionArgument: aTask ::
+				icon: Theme current cancelIcon;
+				setBalloonText: ('Delete the task {1}?' translated format: {label bold}));
+			addMorph: (LabelMorph contents: label)
+			yourself		]
+				! !
+
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/7/2024 10:47:59'!
 initTask
 	" Guess the course at current time, then its classGroup "
 	| courseGroupNow |
@@ -2967,16 +3022,8 @@ initTask
 			courseIndex := self classGroupCourses indexOf: courseGroupNow first 	.
 			courseHourIndex := self courseHourDates ifEmpty: [0] ifNotEmpty: [1]						 ]
 		ifNil: [	classGroupIndex := courseIndex := courseHourIndex := 0			].
-	self changed: #classGroups.
-	self changed: #classGroupCourses.
-	self changed: #courseHourDates.
-	self changed: #classGroupIndex:.
-	self changed: #courseIndex:.
-	self changed: #courseHourIndex:		.
-	" No task selected by default. Selecting a task reveal its associated mini document "
-	taskIndex := 0.
-	self changed: #tasksPrint.
-	self changed: #taskIndex:
+	self changedNewTask		.
+	self changedFutureTasks 
 	! !
 
 !DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 10:37:31'!
@@ -3015,6 +3062,24 @@ isTaskValid
 	^ classGroupIndex > 0 
 	and: [courseIndex >0
 	and: [courseHourIndex > 0 ]]! !
+
+!DyAgendaView methodsFor: 'update' stamp: 'hlsf 12/7/2024 11:01:42'!
+changedFutureTasks
+	" No task selected by default. Selecting a task reveal its associated mini document "
+	taskIndex := 0.
+	self changed: #tasksWidget.
+	self changed: #taskIndex:
+	! !
+
+!DyAgendaView methodsFor: 'update' stamp: 'hlsf 12/7/2024 09:20:33'!
+changedNewTask
+
+	self changed: #classGroups.
+	self changed: #classGroupCourses.
+	self changed: #courseHourDates.
+	self changed: #classGroupIndex:.
+	self changed: #courseIndex:.
+	self changed: #courseHourIndex:! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:17:48'!
 classGroupIndex: anIndex

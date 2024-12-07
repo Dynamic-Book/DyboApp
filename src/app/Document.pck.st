@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 5 December 2024 at 12:15:20 pm'!
+'From Cuis7.1 [latest update: #6817] on 7 December 2024 at 11:02:40 am'!
 'Description '!
-!provides: 'Document' 1 70!
+!provides: 'Document' 1 71!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1344,11 +1344,11 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/5/2024 10:31:01'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/7/2024 10:43:37'!
 documentPath
 " My path depends on which context I was created "
 	| path |
-	path := controlsManager activeViewType 
+	path := (controlsManager ifNil: [#tasks] ifNotNil: [:controller | controller activeViewType])
 		caseOf: {
 			[#tasks] -> [DySystem tasksPath] .
 			[#binder] -> [			controlsManager activeView topic directory] 		}
