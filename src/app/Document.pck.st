@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 7 December 2024 at 11:02:40 am'!
+'From Cuis7.1 [latest update: #6817] on 8 December 2024 at 1:21:01 pm'!
 'Description '!
-!provides: 'Document' 1 71!
+!provides: 'Document' 1 72!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -70,7 +70,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'Document-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'tool controlsManager pen highlighter eraser commandsManager model view savesReal'
+	instanceVariableNames: 'tool controlsManager pen highlighter eraser commandsManager model view savesReal isSaved'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -1150,10 +1150,13 @@ importPDF
 		self view insertPage: newPage 	]
 	! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/1/2024 10:36:26'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/8/2024 13:14:30'!
 loadDocument
+	| newDocument |
+	newDocument := self documentFromDisk.
 	controlsManager 
-		plugDocument: (ReferenceStream restoreFromFile:  self documentPath // 'doc.obj')
+		docView: newDocument view;
+		plugInDyboView: newDocument view.
 	! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:37:58'!
@@ -1344,6 +1347,10 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:14:30'!
+documentFromDisk
+	^ ReferenceStream restoreFromFile:  self documentPath // 'doc.obj'.	! !
+
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/7/2024 10:43:37'!
 documentPath
 " My path depends on which context I was created "
@@ -1354,6 +1361,16 @@ documentPath
 			[#binder] -> [			controlsManager activeView topic directory] 		}
 		otherwise: [	DySystem myDocumentsPath].
 	^ path  / model dirName! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:02:02'!
+isModified
+	" Was the page modified recently, ie changed not saved to disk "
+	isSaved := false
+	! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:55'!
+isSaved
+	^ isSaved ifNil: [true]! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 11:38:32'!
 objectForDataStream: str
@@ -1373,7 +1390,7 @@ objectForDataStream: str
 			savesReal := false.
 			self].! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 15:40:19'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:22'!
 saveToDisk
 " Save me in my distinct disk location "
 	| temporary path |
@@ -1384,6 +1401,7 @@ saveToDisk
 		dumpOnFile:  path // 'doc.obj'
 		object: self.
 	controlsManager := temporary.
+	isSaved := true
 	! !
 
 !Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
@@ -1908,7 +1926,7 @@ handleMouseAt: localPosition in: paper
 			"... then we don't need the individual strokes, we remember of the whole group "
 			deletedStrokes at: aGroup put: aGroup] 	]! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 9/29/2024 22:54:11'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:04:02'!
 handleRelease: localPosition in: paper
 	paper redrawNeeded.
 	context deleteBitsMasks.
@@ -1916,6 +1934,7 @@ handleRelease: localPosition in: paper
 		 (deletedStrokes values first isCollection 
 			and: [deletedStrokes values first isEmpty]) ifTrue: [self halt: 'Should have strokes but is empty'].
 		self commandsManager deletedStrokes: deletedStrokes in: paper ].
+	context presenter isModified.
 	context switchState: EraserToolStateNeutral ! !
 
 !EraserToolStateErasing methodsFor: 'initialization' stamp: 'hlsf 9/11/2024 20:48:01'!
@@ -1951,12 +1970,13 @@ handlePress: localPosition in: paper
 			context switchState: GroupToolStateNeutral.
 			^ context handlePress: localPosition in: paper			]! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/24/2024 12:26:59'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:04:25'!
 handleRelease: locaPosition in: paper
 	self commandsManager 
 		moveGroup: context 		selection 
 		to: ((paper externalizeToWorld: locaPosition) - initialPosition) / context currentPage scale
-		in: context paper! !
+		in: context paper.
+	context presenter isModified.! !
 
 !GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:18:50'!
 handleMouseAt: localPosition in: paper
@@ -2010,19 +2030,21 @@ handleMouseAt: localPosition in: paper
 	paper writingAt: localPosition
 	! !
 
-!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/29/2024 18:17:04'!
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:05:22'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
+	context presenter isModified.
 	context switchState: PenToolStateNeutral 
 	! !
 
-!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 9/29/2024 22:20:22'!
+!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:05:29'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
+	context presenter isModified.
 	context switchState: HighligtherToolStateNeutral 
 	! !
 
@@ -2043,12 +2065,13 @@ handleMouseAt: localPosition in: paper
 handlePress: localPosition in: paper
 	initialPosition := prevPosition := paper externalizeToWorld: localPosition ! !
 
-!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/24/2024 14:06:53'!
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:05:46'!
 handleRelease: localPosition in: paper
 	self commandsManager 
 		move: context grabbed 
 		to:  (paper externalizeToWorld: 	localPosition) - initialPosition / paper owner scale
 		in: paper owner.
+	context presenter isModified.
 	context switchState: PointerToolStateNeutral ! !
 
 !PointerToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:04:20'!
@@ -2389,9 +2412,10 @@ initialize
 clipsSubmorphs
 	^ true! !
 
-!PageMorph methodsFor: 'drawing' stamp: 'hlsf 9/12/2024 11:20:55'!
+!PageMorph methodsFor: 'drawing' stamp: 'hlsf 12/8/2024 13:07:52'!
 drawOn: canvas
-! !
+	presenter isSaved ifFalse: [
+		canvas frameRectangle: (self localBounds outsetBy: 2) borderWidth: 2 color: Color red]! !
 
 !PageMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 10:25:19'!
 is: aSymbol

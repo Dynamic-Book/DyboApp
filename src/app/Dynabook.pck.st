@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 7 December 2024 at 11:10:15 am'!
+'From Cuis7.1 [latest update: #6817] on 8 December 2024 at 1:21:03 pm'!
 'Description '!
-!provides: 'Dynabook' 1 105!
+!provides: 'Dynabook' 1 106!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -272,7 +272,7 @@ DyView class
 
 !classDefinition: #DyAgendaView category: #'Dynabook-View'!
 DyView subclass: #DyAgendaView
-	instanceVariableNames: 'courseHourIndex miniDocument taskIndex'
+	instanceVariableNames: 'courseHourIndex miniDocView taskIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -1377,8 +1377,20 @@ document: anObject
 
 	document := anObject! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/7/2024 11:09:55'!
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:05:22'!
+printOn: aStream
+	aStream print: courseHourDate ! !
+
+!DyTask methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:15:09'!
+restoreDocumentFromDisk
+	document := document documentFromDisk ! !
+
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 12:11:23'!
 deleteTask: aDyTask 
+	(PopUpMenu 
+		confirm: ('Delete the task at {1}?' translated format: {aDyTask})
+		trueChoice: 'Yes' translated falseChoice: 'No' translated) ifFalse: [^ self].
+	aDyTask document 
 	domain deleteTask: aDyTask.
 	controlsManager activeView resetTask.! !
 
@@ -1412,8 +1424,14 @@ goTasks
 	controlsManager plugTask.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/5/2024 23:48:59'!
-saveTask
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 13:20:07'!
+saveExistingTask
+	controlsManager activeView task document saveToDisk.
+	DySystem saveData.
+	! !
+
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 13:16:54'!
+saveNewTask
 	| taskView task |
 	taskView := controlsManager activeView.
 	taskView isTaskValid ifFalse: [^ self].
@@ -1423,6 +1441,13 @@ saveTask
 	domain newTask: task.
 	DySystem saveData.
 	taskView resetTask 
+	! !
+
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 13:20:55'!
+saveTask
+	controlsManager activeView task
+		ifNotNil: [self saveExistingTask]
+		ifNil: [self saveNewTask]
 	! !
 
 !Dybo methodsFor: 'testing' stamp: 'hlsf 12/1/2024 17:18:51'!
@@ -1698,10 +1723,12 @@ docToolbarSpec
 	blank
 	firstPage previousPage insertPage deletePage 	nextPage lastPage)! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 11/26/2024 21:04:17'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/8/2024 12:25:04'!
 docView: aView
-" Update the docView of the current document "
-	docView := aView ! !
+" Connect the control manager document view to aView (doc)
+Update the docView of the current document "
+	docView := aView.
+	docView presenter controlsManager: self! !
 
 !DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:09:35'!
 miniDocToolbarSpec
@@ -2158,13 +2185,6 @@ plugBinder
 plugDocument
 " Plug a new document "
 	self plugInDyboView: self newDocument ! !
-
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:10'!
-plugDocument: aDocument
-" Plug an existing document "
-	aDocument controlsManager: self.
-	self docView: aDocument view.
-	self plugInDyboView: docView! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/5/2024 10:31:01'!
 plugInDyboView: aMorph
@@ -2789,16 +2809,18 @@ classGroup
 classGroup: aClassGroup
 	self classGroupIndex: (self classGroups indexOf: aClassGroup ifAbsent: 0)! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/27/2024 22:23:20'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:45:06'!
 classGroupCourses
+	" The existing courses of the selected class group "
 	^ self classGroup ifNil: [`Array new`] ifNotNil: [:cg | cg courses]! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:45:18'!
 classGroupIndex
 	^ classGroupIndex! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/27/2024 22:29:32'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:43:45'!
 classGroupIndex: anIndex
+	" Set the class group "
 	classGroupIndex := anIndex.
 	self changed: #classGroupIndex:.
 	self courseIndex: 0.
@@ -2810,13 +2832,14 @@ classGroups
 " All the user class groups "
 	^ self domain classGroups! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 23:23:00'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:45:52'!
 course
-" The selected course, if any "
+	" The selected course, if any "
 	^ self classGroupCourses at: courseIndex ifAbsent: [nil]! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/7/2024 09:29:06'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:46:17'!
 course: aCourse
+	" Set the course for the selected class group "
 	self courseIndex: (self classGroupCourses indexOf: aCourse ifAbsent: [0])! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:21:53'!
@@ -2824,8 +2847,9 @@ courseIndex
 " The selected course index in a give class group "
 	^ courseIndex! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:48:17'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:45:37'!
 courseIndex: anIndex
+	" Set the course index of the selected class group "
 	courseIndex := anIndex.
 	self changed: #courseIndex:.! !
 
@@ -2943,10 +2967,13 @@ courseHourDates
 courseHourIndex
 	^ courseHourIndex! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 16:31:16'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:49:30'!
 courseHourIndex: anIndex
+	" Set the course hour date (date+timeslot) index of the selected class group and course "
 	courseHourIndex := anIndex.
-	self changed: #courseHourIndex:! !
+	self changed: #courseHourIndex:.
+	courseHourIndex isZero ifFalse: [self plugNewMiniDocument]
+	! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:16:38'!
 courseIndex: anIndex
@@ -2955,7 +2982,7 @@ courseIndex: anIndex
 	self changed: #courseHourDates.
 	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/7/2024 10:26:14'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/8/2024 12:06:49'!
 labelForTask: aTask
 	^String streamContents: [:str |
 		(self domain courseAndGroupAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourseGroup |
@@ -2963,7 +2990,7 @@ labelForTask: aTask
 				nextPutAll: ' (';
 				print: aCourseGroup second;
 				nextPutAll: ') - '].
-		aTask courseHourDate printOn: str]
+		aTask printOn: str]
 		
 				! !
 
@@ -2976,7 +3003,7 @@ task
 taskIndex
 	^ taskIndex! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/7/2024 09:32:09'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/8/2024 13:15:21'!
 taskIndex: anIndex
 	taskIndex := anIndex.
 	self changed: #taskIndex:.
@@ -2985,17 +3012,13 @@ taskIndex: anIndex
 			self classGroup: aCourseGroup second.
 			self course: aCourseGroup first.
 			self courseHourDate: aTask courseHourDate			].
+		aTask restoreDocumentFromDisk.
 		self plugMiniDocument: aTask document view]
 		! !
 
 !DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/5/2024 11:28:11'!
 tasks
 	^ self data agenda tasks! !
-
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/7/2024 10:00:02'!
-tasksPrint
-	^ self tasks collect: [:aTask | self labelForTask: aTask 	]
-				! !
 
 !DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/7/2024 11:08:09'!
 tasksWidget
@@ -3038,13 +3061,14 @@ initialize
 	
 ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:41:31'!
-plugMiniDocument: aDocument
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/8/2024 12:31:33'!
+plugMiniDocument: aDocView
 " plug the mini document in my view "
-	miniDocument 
-		ifNotNil:  [self replaceSubmorph: miniDocument by: aDocument]
-		ifNil: [	self addMorph: aDocument ].
-	miniDocument := aDocument.! !
+	miniDocView 
+		ifNotNil:  [self replaceSubmorph: miniDocView by: aDocView ]
+		ifNil: [	self addMorph: aDocView ].
+	miniDocView := aDocView .
+	presenter controlsManager docView: miniDocView! !
 
 !DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:41:58'!
 plugNewMiniDocument
