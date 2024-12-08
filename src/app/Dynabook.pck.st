@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 8 December 2024 at 1:21:03 pm'!
+'From Cuis7.1 [latest update: #6817] on 8 December 2024 at 8:16:19 pm'!
 'Description '!
-!provides: 'Dynabook' 1 106!
+!provides: 'Dynabook' 1 107!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1385,12 +1385,11 @@ printOn: aStream
 restoreDocumentFromDisk
 	document := document documentFromDisk ! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 12:11:23'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 19:15:56'!
 deleteTask: aDyTask 
 	(PopUpMenu 
 		confirm: ('Delete the task at {1}?' translated format: {aDyTask})
 		trueChoice: 'Yes' translated falseChoice: 'No' translated) ifFalse: [^ self].
-	aDyTask document 
 	domain deleteTask: aDyTask.
 	controlsManager activeView resetTask.! !
 
@@ -1424,10 +1423,23 @@ goTasks
 	controlsManager plugTask.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 13:20:07'!
-saveExistingTask
-	controlsManager activeView task document saveToDisk.
-	DySystem saveData.
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 20:15:28'!
+saveCurrentTask
+	" The user is viewing an existing task, save what has been edited, if any "
+	| task agendaView dataAlreadySaved |
+	dataAlreadySaved := false.
+	agendaView := controlsManager activeView.
+	task :=  agendaView task.
+	" Does the task's document have unsaved state? "
+	task document isSaved ifFalse: [
+		task document saveToDisk. 
+		DySystem saveData.
+		dataAlreadySaved := true].
+	" Was the task's course hour date modified? "
+	agendaView courseHourDate = task courseHourDate ifFalse: [	
+		task courseHourDate: agendaView courseHourDate .
+		dataAlreadySaved ifFalse: [DySystem saveData].
+		agendaView changedFutureTasks]
 	! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 13:16:54'!
@@ -1443,10 +1455,10 @@ saveNewTask
 	taskView resetTask 
 	! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 13:20:55'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/8/2024 19:00:55'!
 saveTask
 	controlsManager activeView task
-		ifNotNil: [self saveExistingTask]
+		ifNotNil: [self saveCurrentTask]
 		ifNil: [self saveNewTask]
 	! !
 
@@ -2929,7 +2941,7 @@ newTaskPanel
 			action: #saveTask
 			label: 'Save' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/7/2024 09:51:25'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/8/2024 19:26:09'!
 tasksListMorph
 " Present a list of forthcomming tasks "
 	^ PluggableListOfMorph 
@@ -2937,7 +2949,7 @@ tasksListMorph
 		listGetter: #tasksWidget
 		indexGetter: #taskIndex
 		indexSetter: #taskIndex: ::
-		autoDeselect: false.! !
+		autoDeselect: true.! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:15:41'!
 classGroupIndex: anIndex
@@ -2967,13 +2979,11 @@ courseHourDates
 courseHourIndex
 	^ courseHourIndex! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:49:30'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 19:31:58'!
 courseHourIndex: anIndex
 	" Set the course hour date (date+timeslot) index of the selected class group and course "
 	courseHourIndex := anIndex.
-	self changed: #courseHourIndex:.
-	courseHourIndex isZero ifFalse: [self plugNewMiniDocument]
-	! !
+	self changed: #courseHourIndex:! !
 
 !DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:16:38'!
 courseIndex: anIndex
@@ -3003,17 +3013,19 @@ task
 taskIndex
 	^ taskIndex! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/8/2024 13:15:21'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/8/2024 19:29:00'!
 taskIndex: anIndex
 	taskIndex := anIndex.
 	self changed: #taskIndex:.
-	self task ifNotNil: [:aTask |
-		(self domain courseAndGroupAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourseGroup |
-			self classGroup: aCourseGroup second.
-			self course: aCourseGroup first.
-			self courseHourDate: aTask courseHourDate			].
-		aTask restoreDocumentFromDisk.
-		self plugMiniDocument: aTask document view]
+	self task 
+		ifNotNil: [:aTask |
+			(self domain courseAndGroupAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourseGroup |
+				self classGroup: aCourseGroup second.
+				self course: aCourseGroup first.
+				self courseHourDate: aTask courseHourDate			].
+			aTask restoreDocumentFromDisk.
+			self plugMiniDocument: aTask document view]
+		ifNil: [	self plugNewMiniDocument]
 		! !
 
 !DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/5/2024 11:28:11'!
@@ -3034,7 +3046,7 @@ tasksWidget
 			yourself		]
 				! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/7/2024 10:47:59'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/8/2024 19:34:01'!
 initTask
 	" Guess the course at current time, then its classGroup "
 	| courseGroupNow |
@@ -3046,6 +3058,7 @@ initTask
 			courseHourIndex := self courseHourDates ifEmpty: [0] ifNotEmpty: [1]						 ]
 		ifNil: [	classGroupIndex := courseIndex := courseHourIndex := 0			].
 	self changedNewTask		.
+	taskIndex := 0.
 	self changedFutureTasks 
 	! !
 
@@ -3087,10 +3100,8 @@ isTaskValid
 	and: [courseIndex >0
 	and: [courseHourIndex > 0 ]]! !
 
-!DyAgendaView methodsFor: 'update' stamp: 'hlsf 12/7/2024 11:01:42'!
+!DyAgendaView methodsFor: 'update' stamp: 'hlsf 12/8/2024 19:34:18'!
 changedFutureTasks
-	" No task selected by default. Selecting a task reveal its associated mini document "
-	taskIndex := 0.
 	self changed: #tasksWidget.
 	self changed: #taskIndex:
 	! !

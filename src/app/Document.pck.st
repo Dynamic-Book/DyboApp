@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 8 December 2024 at 1:21:01 pm'!
+'From Cuis7.1 [latest update: #6817] on 8 December 2024 at 8:16:17 pm'!
 'Description '!
-!provides: 'Document' 1 72!
+!provides: 'Document' 1 73!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1362,15 +1362,15 @@ documentPath
 		otherwise: [	DySystem myDocumentsPath].
 	^ path  / model dirName! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:02:02'!
-isModified
-	" Was the page modified recently, ie changed not saved to disk "
-	isSaved := false
-	! !
-
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:55'!
 isSaved
 	^ isSaved ifNil: [true]! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 19:59:37'!
+modified
+	" get notified the page was modified recently, ie changes not saved to disk "
+	isSaved := false
+	! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/1/2024 11:38:32'!
 objectForDataStream: str
@@ -1926,7 +1926,7 @@ handleMouseAt: localPosition in: paper
 			"... then we don't need the individual strokes, we remember of the whole group "
 			deletedStrokes at: aGroup put: aGroup] 	]! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:04:02'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 12/8/2024 19:58:51'!
 handleRelease: localPosition in: paper
 	paper redrawNeeded.
 	context deleteBitsMasks.
@@ -1934,7 +1934,7 @@ handleRelease: localPosition in: paper
 		 (deletedStrokes values first isCollection 
 			and: [deletedStrokes values first isEmpty]) ifTrue: [self halt: 'Should have strokes but is empty'].
 		self commandsManager deletedStrokes: deletedStrokes in: paper ].
-	context presenter isModified.
+	context presenter modified.
 	context switchState: EraserToolStateNeutral ! !
 
 !EraserToolStateErasing methodsFor: 'initialization' stamp: 'hlsf 9/11/2024 20:48:01'!
@@ -1970,13 +1970,13 @@ handlePress: localPosition in: paper
 			context switchState: GroupToolStateNeutral.
 			^ context handlePress: localPosition in: paper			]! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:04:25'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 12/8/2024 19:58:51'!
 handleRelease: locaPosition in: paper
 	self commandsManager 
 		moveGroup: context 		selection 
 		to: ((paper externalizeToWorld: locaPosition) - initialPosition) / context currentPage scale
 		in: context paper.
-	context presenter isModified.! !
+	context presenter modified.! !
 
 !GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/18/2024 21:18:50'!
 handleMouseAt: localPosition in: paper
@@ -2030,21 +2030,21 @@ handleMouseAt: localPosition in: paper
 	paper writingAt: localPosition
 	! !
 
-!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:05:22'!
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 12/8/2024 19:58:51'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
-	context presenter isModified.
+	context presenter modified.
 	context switchState: PenToolStateNeutral 
 	! !
 
-!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:05:29'!
+!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 12/8/2024 19:58:51'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
-	context presenter isModified.
+	context presenter modified.
 	context switchState: HighligtherToolStateNeutral 
 	! !
 
@@ -2065,13 +2065,13 @@ handleMouseAt: localPosition in: paper
 handlePress: localPosition in: paper
 	initialPosition := prevPosition := paper externalizeToWorld: localPosition ! !
 
-!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 12/8/2024 13:05:46'!
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 12/8/2024 19:58:51'!
 handleRelease: localPosition in: paper
 	self commandsManager 
 		move: context grabbed 
 		to:  (paper externalizeToWorld: 	localPosition) - initialPosition / paper owner scale
 		in: paper owner.
-	context presenter isModified.
+	context grabbed ifNotNil: [context presenter modified].
 	context switchState: PointerToolStateNeutral ! !
 
 !PointerToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:04:20'!
@@ -2412,10 +2412,8 @@ initialize
 clipsSubmorphs
 	^ true! !
 
-!PageMorph methodsFor: 'drawing' stamp: 'hlsf 12/8/2024 13:07:52'!
-drawOn: canvas
-	presenter isSaved ifFalse: [
-		canvas frameRectangle: (self localBounds outsetBy: 2) borderWidth: 2 color: Color red]! !
+!PageMorph methodsFor: 'drawing' stamp: 'hlsf 12/8/2024 18:57:15'!
+drawOn: canvas! !
 
 !PageMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 10:25:19'!
 is: aSymbol
@@ -2722,8 +2720,10 @@ writingAt: localPosition
 						sampleIndex := sampleIndex +1 ] ]	 	] ]	.
 		lineMorphs redrawNeeded ! !
 
-!PaperMorph methodsFor: 'drawing' stamp: 'hlsf 9/18/2024 20:33:48'!
-drawOn: aCanvas! !
+!PaperMorph methodsFor: 'drawing' stamp: 'hlsf 12/8/2024 18:54:05'!
+drawOn: canvas
+	presenter isSaved ifFalse: [
+		canvas frameRectangle: self localBounds borderWidth: 2 color: Color red]! !
 
 !PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/19/2024 10:07:27'!
 clearSelection
