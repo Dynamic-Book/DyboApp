@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 8 December 2024 at 8:16:17 pm'!
+'From Cuis7.1 [latest update: #6817] on 9 December 2024 at 9:55:53 pm'!
 'Description '!
-!provides: 'Document' 1 73!
+!provides: 'Document' 1 74!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1297,13 +1297,6 @@ toolName takes value penRed,  hightlighterYellow, etc.  "
 	^ (toolName includesSubString: self selectedTool) 
 	and: [toolName includesSubString: (self writingTool color alpha: 1) colorName capitalized ]! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 10/13/2024 16:24:35'!
-openCircularToolbar
-	controlsManager docCircularToolbar 
-		morphPosition: self activeHand morphPosition ;
-		openInWorld
-	! !
-
 !Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 10:38:17'!
 penTool
 	self tool: PenTool ! !
@@ -2518,9 +2511,9 @@ mouseButton1Down: event localPosition: localPosition
 mouseButton1Up: event localPosition: localPosition
 	self tool handleRelease: localPosition in: self! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 10/13/2024 16:23:19'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 12/9/2024 20:26:13'!
 mouseButton2Up: evt localPosition: localPosition
-	presenter openCircularToolbar! !
+	presenter controlsManager openDocumentCircularToolbar! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:38:29'!
 mouseMove: event localPosition: localPosition

@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 8 December 2024 at 8:16:19 pm'!
+'From Cuis7.1 [latest update: #6817] on 9 December 2024 at 9:55:56 pm'!
 'Description '!
-!provides: 'Dynabook' 1 107!
+!provides: 'Dynabook' 1 108!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -212,7 +212,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'dyboView docView icons'
+	instanceVariableNames: 'dyboView docView icons documentCircularToolbar'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -1735,10 +1735,11 @@ docToolbarSpec
 	blank
 	firstPage previousPage insertPage deletePage 	nextPage lastPage)! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/8/2024 12:25:04'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/9/2024 20:29:13'!
 docView: aView
 " Connect the control manager document view to aView (doc)
 Update the docView of the current document "
+	self deleteDocumentCircularToolbar .
 	docView := aView.
 	docView presenter controlsManager: self! !
 
@@ -1794,25 +1795,11 @@ newMiniDocument
 	presenter penTool.
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/1/2024 17:02:23'!
-docCircularToolbar
-	| toolsData docTools |
-	toolsData := OrderedCollection 
-		with: self penColorTools 
-		with: self nibSizeTools 
-		with: self highlighterColorTools
-		with: self highligtherSizeTools
-		with: self eraserSizeTools .
-	docTools := CircularToolbarMorph new
-		color: dyboView defaultColor ;
-		selectedColor: dyboView buttonColor;
-		extent: 180;
-		buttonSize: DySystem iconToolbarSize + 8;
-		dropDownHeight: 15.
-	toolsData do: [:subToolsData | | dropDown |
-		dropDown := (self addChevron: subToolsData first to: docTools) addDropDown .
-		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
-	^ docTools ! !
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/9/2024 20:28:59'!
+deleteDocumentCircularToolbar
+	documentCircularToolbar ifNotNil: [
+		documentCircularToolbar delete.
+		documentCircularToolbar := nil]! !
 
 !DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/16/2024 22:56:53'!
 eraserSizeTools
@@ -1863,6 +1850,28 @@ nibSizeTools
 			with:	(#nibSize, nibSize asString) asValidSelector asSymbol
 			with: (self handStroke: size width: nibSize color: Color black)
 			with: (help format: {nibSize })		 	]! !
+
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/9/2024 20:25:55'!
+openDocumentCircularToolbar
+	| toolsData |
+	toolsData := OrderedCollection 
+		with: self penColorTools 
+		with: self nibSizeTools 
+		with: self highlighterColorTools
+		with: self highligtherSizeTools
+		with: self eraserSizeTools .
+	documentCircularToolbar := CircularToolbarMorph new
+		color: dyboView defaultColor ;
+		selectedColor: dyboView buttonColor;
+		extent: 180;
+		buttonSize: DySystem iconToolbarSize + 8;
+		dropDownHeight: 15.
+	toolsData do: [:subToolsData | | dropDown |
+		dropDown := (self addChevron: subToolsData first to: documentCircularToolbar) addDropDown .
+		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
+	documentCircularToolbar 
+		morphPosition: self activeHand morphPosition ;
+		openInWorld! !
 
 !DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:34:51'!
 penColorTools
@@ -2193,15 +2202,16 @@ activeView
 plugBinder
 	self plugInDyboView: (DyBinderView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:10'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/9/2024 20:29:37'!
 plugDocument
 " Plug a new document "
 	self plugInDyboView: self newDocument ! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/5/2024 10:31:01'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/9/2024 20:29:46'!
 plugInDyboView: aMorph
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout pluggedView |
+	self deleteDocumentCircularToolbar.
 	layout := dyboView layoutMorph.
 	pluggedView := self activeView.
 	pluggedView ifNotNil: [		layout removeMorph: pluggedView].
