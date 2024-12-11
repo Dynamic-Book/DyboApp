@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 9 December 2024 at 9:55:53 pm'!
+'From Cuis7.1 [latest update: #6817] on 11 December 2024 at 7:43:29 pm'!
 'Description '!
-!provides: 'Document' 1 74!
+!provides: 'Document' 1 75!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -350,7 +350,7 @@ PointerToolStateNeutral class
 
 !classDefinition: #DocumentModel category: #'Document-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'timeStamp pageModel'
+	instanceVariableNames: 'timeStamp pageModel owner'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
@@ -511,8 +511,7 @@ We migrate a bit the control point a bit away from its sampled position.!
 Compute a cubic Bézier curve.!
 
 !Document commentStamp: '<historical>' prior: 0!
-The Presenter of the Document to handle the controllers and associated callbacks of the tools.
-- timeStamp : creating time, my unique id used as a folder name on disk in myDocuments/ See #sortFilenamePrintOn:!
+The Presenter of the Document to handle the controllers and associated callbacks of the tools.!
 
 !Command commentStamp: '<historical>' prior: 0!
 An abstract class to represent commands of user actions in a Document.
@@ -610,8 +609,8 @@ We arrive at this state once the user press the pointer.
 We are either dragging the whole page or a grabbed annotator!
 
 !DocumentModel commentStamp: '<historical>' prior: 0!
-- timeStamp : creation time of a Document. An unique identifier. It is used to create a dedicated
-directory on disk in the user space "myDocuments/" See #sortFilenamePrintOn:
+- timeStamp : creation time of a Document. An unique identifier. It is used to create a dedicated directory on disk in the tasks or topic directory
+- owner: the context I am created from can be aDyTopic instance or a DyTask (not needed in this later case)
 - pageModel can be either 
  1. a path to a pdf document used as a model for PageModelPdf. Each page of the Document use a PDF page as its model
  2. a class in the  PageModel hierachy, the default model for each page of the Document
@@ -1221,7 +1220,7 @@ penWhite
 redoAction
 	commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/1/2024 10:11:20'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/11/2024 19:40:34'!
 saveDocument
 	savesReal := true.
 	self saveToDisk ! !
@@ -1344,14 +1343,14 @@ initializeWritingTools
 documentFromDisk
 	^ ReferenceStream restoreFromFile:  self documentPath // 'doc.obj'.	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/7/2024 10:43:37'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/11/2024 19:28:52'!
 documentPath
 " My path depends on which context I was created "
 	| path |
 	path := (controlsManager ifNil: [#tasks] ifNotNil: [:controller | controller activeViewType])
 		caseOf: {
 			[#tasks] -> [DySystem tasksPath] .
-			[#binder] -> [			controlsManager activeView topic directory] 		}
+			[#binder] -> [			controlsManager activeView presenter model owner directory] 		}
 		otherwise: [	DySystem myDocumentsPath].
 	^ path  / model dirName! !
 
@@ -2108,6 +2107,14 @@ dirName
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 11:17:03'!
 newPageModel
 	^ pageModel new! !
+
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/11/2024 19:22:43'!
+owner
+	^ owner! !
+
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/11/2024 19:22:55'!
+owner: anObject
+	owner := anObject ! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 10:45:47'!
 pageModel: aDirEntryOrPageModelClass

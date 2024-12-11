@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 9 December 2024 at 9:55:56 pm'!
+'From Cuis7.1 [latest update: #6817] on 11 December 2024 at 7:43:31 pm'!
 'Description '!
-!provides: 'Dynabook' 1 108!
+!provides: 'Dynabook' 1 109!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1182,12 +1182,6 @@ documents
 	^ documents! !
 
 !DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
-documents: anObject
-	"Set the value of documents"
-
-	documents := anObject! !
-
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
 title
 	"Answer the value of title"
 
@@ -1198,6 +1192,12 @@ title: newTitle
 	"Set the value of title"
 	self triggerEvent: #renamedTopic withArguments: {self. title . newTitle }.
 	title := newTitle.! !
+
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 12/11/2024 19:27:49'!
+addDocument: aDocumentPresenter
+	documents add: aDocumentPresenter.
+	aDocumentPresenter model owner: self
+	! !
 
 !DyTopic methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:33:08'!
 initialize
@@ -1219,7 +1219,7 @@ mold
 		beRequired.
 	^ mold! !
 
-!DyTopic methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:33:19'!
+!DyTopic methodsFor: 'printing' stamp: 'hlsf 12/11/2024 18:48:02'!
 printOn: str
 	str nextPutAll: title! !
 
@@ -1399,10 +1399,10 @@ goBinder
 	controlsManager plugBinder.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/11/2024 19:05:59'!
 goDocument
 	activeViewType := #document.
-	controlsManager plugDocument .
+	controlsManager plugNewDocument .
 	self changed: #isView:! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
@@ -1611,34 +1611,33 @@ userDataPath
 " the location of the user data and documents "
 	^ platform userDataPath! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/11/2024 10:47:46'!
-rename: oldName to: newName in: parentDir
-	| dir |
-	oldName = newName ifTrue: [^ self].
-	oldName 
-		ifNil: [" folder does not exist yet, create it "
+!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:58:26'!
+rename: prevName to: newName in: parentDir
+	| prevDir |
+	prevName = newName ifTrue: [^ self].
+	(prevName isNil or: [prevDir := parentDir / prevName asFileName exists not])
+		ifTrue: [" no prevName or previous folder does not exist yet, create the new one " 
 			(parentDir / newName asFileName ) assureExistence ]
-	 	ifNotNil: [ " folder exists, rename it "
-			(dir := parentDir / oldName asFileName) exists 
-				ifTrue: [dir rename: newName asFileName ] 
-				ifFalse: [(parentDir / newName asFileName ) assureExistence]						]! !
+	 	ifFalse: [ " previous folder exists, rename it " 			
+			prevDir rename: newName asFileName ] 
+			! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 11/27/2024 21:26:24'!
-renameClassGroup: aClassGroup from: oldName to: newName
-	self rename: oldName to: newName in: aClassGroup directory parent! !
+!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:58:55'!
+renameClassGroup: aClassGroup from: prevName to: newName
+	self rename: prevName to: newName in: aClassGroup directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 11/27/2024 21:27:30'!
-renameCourse: aCourse from: oldName to: newName
-	self rename: oldName to: newName in: aCourse directory parent! !
+!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:59:02'!
+renameCourse: aCourse from: prevName to: newName
+	self rename: prevName to: newName in: aCourse directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 11/27/2024 21:24:55'!
-renameSchool: aSchool from: oldName to: newName
+!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:59:07'!
+renameSchool: aSchool from: prevName to: newName
 "Should use a data manager facade at some point "
-	self rename: oldName to: newName in: aSchool directory parent! !
+	self rename: prevName to: newName in: aSchool directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 11/27/2024 21:27:52'!
-renameTopic: aTopic from: oldName to: newName
-	self rename: oldName to: newName in: aTopic directory parent! !
+!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:59:12'!
+renameTopic: aTopic from: prevName to: newName
+	self rename: prevName to: newName in: aTopic directory parent! !
 
 !DySystem class methodsFor: 'cleaning' stamp: 'hlsf 8/22/2023 20:57:02'!
 removeUserData
@@ -2202,11 +2201,6 @@ activeView
 plugBinder
 	self plugInDyboView: (DyBinderView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/9/2024 20:29:37'!
-plugDocument
-" Plug a new document "
-	self plugInDyboView: self newDocument ! !
-
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/9/2024 20:29:46'!
 plugInDyboView: aMorph
 " plug in the dynabook main view this morph, below its toolbar "
@@ -2217,6 +2211,12 @@ plugInDyboView: aMorph
 	pluggedView ifNotNil: [		layout removeMorph: pluggedView].
 	layout 	 addMorphUseAll: aMorph.
 	dyboView changed! !
+
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/11/2024 19:07:11'!
+plugNewDocument
+" Plug a new document and return its presenter "
+	self plugInDyboView: self newDocument.
+	^ self docPresenter ! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
 plugSettings
@@ -3257,6 +3257,11 @@ initialize
 	self addMorphKeepMorphHeight: self documentSelectorPanel.
 	self addMorphUseAll: self selectedDocumentsPanel.
 	self adoptWidgetsColor: self defaultBorderColor ! !
+
+!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 12/11/2024 19:08:37'!
+newDocument
+	self topic addDocument: presenter controlsManager plugNewDocument.
+	DySystem saveData ! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
 adoptWidgetsColor: aColor 
