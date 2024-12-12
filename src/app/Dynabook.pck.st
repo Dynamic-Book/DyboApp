@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 12 December 2024 at 7:49:36 pm'!
+'From Cuis7.1 [latest update: #6817] on 12 December 2024 at 10:59:47 pm'!
 'Description '!
-!provides: 'Dynabook' 1 111!
+!provides: 'Dynabook' 1 112!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -406,6 +406,15 @@ I am a view to browse the past document, depending on the class groups, courses 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/7/2024 11:00:35'!
+deleteTask: aTask
+	userData agenda tasks remove: aTask.
+	aTask document documentPath recursiveDelete ! !
+
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:38:26'!
+newTask: aTask
+	userData agenda tasks add: aTask! !
+
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
 	^ userData! !
@@ -419,14 +428,11 @@ load
 	userData := ReferenceStream restoreFromFile: DySystem userDataPath // 'data.ob'.
 	DyUserData current: userData.! !
 
-!DyDomain methodsFor: 'as yet unclassified' stamp: 'hlsf 12/7/2024 11:00:35'!
-deleteTask: aTask
-	userData agenda tasks remove: aTask.
-	aTask document documentPath recursiveDelete ! !
-
-!DyDomain methodsFor: 'as yet unclassified' stamp: 'hlsf 12/1/2024 18:38:26'!
-newTask: aTask
-	userData agenda tasks add: aTask! !
+!DyDomain methodsFor: 'dangerous' stamp: 'hlsf 12/12/2024 22:19:52'!
+purge
+	self allTopics do: [:aTopic | 
+		aTopic documents do: [:aDocument | aTopic removeDocument: aDocument ]].
+	userData agenda tasks do: [:aTask | self deleteTask: aTask]! !
 
 !DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:57:14'!
 allCourses
@@ -434,6 +440,13 @@ allCourses
 	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
 		courses 	addAll: aClassGroup courses.
 		courses ]! !
+
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/12/2024 22:12:59'!
+allTopics
+" Returns the collection of the user's topcis "
+	^ self allCourses inject: OrderedCollection new into: [:topics :aCourse |
+		topics 	addAll: aCourse topics.
+		topics ]! !
 
 !DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:59:33'!
 classGroups
@@ -1180,11 +1193,9 @@ title: newTitle
 	self triggerEvent: #renamedTopic withArguments: {self. title . newTitle }.
 	title := newTitle.! !
 
-!DyTopic methodsFor: 'initialization' stamp: 'hlsf 12/11/2024 19:27:49'!
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 12/12/2024 22:13:30'!
 addDocument: aDocumentPresenter
-	documents add: aDocumentPresenter.
-	aDocumentPresenter model owner: self
-	! !
+	documents add: aDocumentPresenter.! !
 
 !DyTopic methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:33:08'!
 initialize
@@ -1195,6 +1206,11 @@ initialize
 !DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:11'!
 registerEvents
 	self when: #renamedTopic send: #renameTopic:from:to: to: DySystem! !
+
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 12/12/2024 22:18:09'!
+removeDocument: aDocumentPresenter
+	documents remove: aDocumentPresenter.
+	aDocumentPresenter documentPath recursiveDelete ! !
 
 !DyTopic methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:37:49'!
 mold
@@ -1372,20 +1388,37 @@ printOn: aStream
 restoreDocumentFromDisk
 	document := document documentFromDisk ! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/8/2024 19:15:56'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/12/2024 22:02:33'!
+newDocument
+	| topic newDoc |
+	topic := self activeView topic.
+	topic ifNil: [^ self].
+	topic addDocument: (newDoc := self goDocument).
+	newDoc saveToDisk .
+	DySystem saveData! !
+
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/12/2024 22:31:20'!
+openDocument: aDocument
+	| restoredDocument |
+	restoredDocument := aDocument documentFromDisk.
+	controlsManager 
+		docView: restoredDocument view;
+		plugInDyboView: restoredDocument view! !
+
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/12/2024 21:09:38'!
 deleteTask: aDyTask 
 	(PopUpMenu 
 		confirm: ('Delete the task at {1}?' translated format: {aDyTask})
 		trueChoice: 'Yes' translated falseChoice: 'No' translated) ifFalse: [^ self].
 	domain deleteTask: aDyTask.
-	controlsManager activeView resetTask.! !
+	self activeView resetTask.! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/8/2024 20:15:28'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/12/2024 21:09:43'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
 	| task agendaView dataAlreadySaved |
 	dataAlreadySaved := false.
-	agendaView := controlsManager activeView.
+	agendaView := self activeView.
 	task :=  agendaView task.
 	" Does the task's document have unsaved state? "
 	task document isSaved ifFalse: [
@@ -1399,10 +1432,10 @@ saveCurrentTask
 		agendaView changedFutureTasks]
 	! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/8/2024 13:16:54'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/12/2024 21:09:47'!
 saveNewTask
 	| taskView task |
-	taskView := controlsManager activeView.
+	taskView := self activeView.
 	taskView isTaskValid ifFalse: [^ self].
 	task := DyTask new
 		courseHourDate: taskView courseHourDate;
@@ -1412,9 +1445,9 @@ saveNewTask
 	taskView resetTask 
 	! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/8/2024 19:00:55'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/12/2024 21:09:51'!
 saveTask
-	controlsManager activeView task
+	self activeView task
 		ifNotNil: [self saveCurrentTask]
 		ifNil: [self saveNewTask]
 	! !
@@ -1425,11 +1458,13 @@ goBinder
 	controlsManager plugBinder.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/11/2024 19:05:59'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/12/2024 21:12:24'!
 goDocument
+	| newDoc |
 	activeViewType := #document.
-	controlsManager plugNewDocument .
-	self changed: #isView:! !
+	newDoc := controlsManager plugNewDocument .
+	self changed: #isView:.
+	^ newDoc! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
 goSettings
@@ -1470,6 +1505,10 @@ installComponents
 load
 	domain := DyDomain new load.
 	self installComponents ! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/12/2024 21:08:35'!
+activeView
+	^ controlsManager activeView ! !
 
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:18:51'!
 activeViewType
@@ -1736,8 +1775,8 @@ miniDocToolbarSpec
 	blank
 	pointer group)! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:04:14'!
-newDocument
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/12/2024 21:16:15'!
+newDocumentView
 	| row col presenter |
 	docView := DocumentView presenter: (presenter := Document controlsManager: self).
 	presenter view: docView.
@@ -1768,8 +1807,8 @@ newDocument
 	docView adjustPageCount .
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:12:17'!
-newMiniDocument
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/12/2024 21:15:34'!
+newMiniDocumentView
 	| presenter |
 	docView := DocumentView presenter: (presenter := Document controlsManager: self).
 	presenter view: docView.
@@ -2201,10 +2240,10 @@ plugInDyboView: aMorph
 	layout 	 addMorphUseAll: aMorph.
 	dyboView changed! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/11/2024 19:07:11'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/12/2024 21:16:15'!
 plugNewDocument
 " Plug a new document and return its presenter "
-	self plugInDyboView: self newDocument.
+	self plugInDyboView: self newDocumentView.
 	^ self docPresenter ! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
@@ -2222,7 +2261,7 @@ plugStart
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/1/2024 17:02:37'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/12/2024 21:05:08'!
 dyboToolbar
 	| toolbar buttonWidth|
 	toolbar := LayoutMorph newRow 		separation: 5.
@@ -2234,7 +2273,7 @@ dyboToolbar
 				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
 			otherwise: [	
 				toolbar addMorph: (
-					self on: self dyboPresenter 					button: aTool  					state: #isView: 					size: buttonWidth )] ].
+					self on: self dyboPresenter 					button: aTool state: #isView: size: buttonWidth )] ].
 	^ toolbar! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/1/2024 17:01:30'!
@@ -3075,10 +3114,10 @@ plugMiniDocument: aDocView
 	miniDocView := aDocView .
 	presenter controlsManager docView: miniDocView! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:41:58'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/12/2024 21:15:34'!
 plugNewMiniDocument
 " Insert a new empty mini document  "
-	self plugMiniDocument: presenter controlsManager newMiniDocument! !
+	self plugMiniDocument: presenter controlsManager newMiniDocumentView! !
 
 !DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:04:04'!
 resetTask
@@ -3167,10 +3206,10 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 19:13:07'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 21:55:16'!
 documentsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
-	| quickButtons |
+	| quickButtons scroller |
 	quickButtons := Array 
 		with: (PluggableButtonMorph model: presenter action: #newDocument ::
 			icon: Theme current listAddIcon;
@@ -3178,12 +3217,15 @@ documentsPanel
 		with: (PluggableButtonMorph model: presenter action: #importResource ::
 			icon: Theme current openIcon;
 			setBalloonText: 'Import a resource in the selected topic.' translated).
+	scroller := PluggableScrollPane new ::
+		layoutSpec: LayoutSpec useAll;
+		scroller: (previewPanel := LayoutMorph newColumn) .
 	^ DecoratedPane 
-		open: (previewPanel := LayoutMorph newColumn) 
+		open: scroller
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 19:23:47'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 21:38:04'!
 previewFor: aDocument
 	| buttons |
 	buttons := Array
@@ -3196,7 +3238,8 @@ previewFor: aDocument
 	^ PreviewMorph 
 		object:  aDocument 
 		image:  aDocument view preview
-		buttons: buttons! !
+		buttons: buttons
+		label: aDocument documentPath name! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 19:02:18'!
 previewRow
@@ -3237,18 +3280,13 @@ initialize
 	self addMorphUseAll: self documentsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 12/11/2024 19:08:37'!
-newDocument
-	self topic addDocument: presenter controlsManager plugNewDocument.
-	DySystem saveData ! !
-
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 12/12/2024 19:27:20'!
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 12/12/2024 21:56:31'!
 updateDocumentPreviews
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	documents := self topic ifNil: [`Array new`] ifNotNil: [:aTopic | aTopic documents].
 	previewPanel removeAllMorphs.
-	previewsPerLine := previewPanel morphWidth // 
+	previewsPerLine := self morphWidth // 
 		(DocumentView previewExtent x + DocumentView previewGap).
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
 		previewPanel addMorph: (			documentsRow 
