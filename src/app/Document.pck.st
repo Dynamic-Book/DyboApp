@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 12 December 2024 at 12:06:31 pm'!
+'From Cuis7.1 [latest update: #6817] on 12 December 2024 at 7:49:33 pm'!
 'Description '!
-!provides: 'Document' 1 76!
+!provides: 'Document' 1 77!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1395,10 +1395,6 @@ saveToDisk
 	controlsManager := temporary.
 	isSaved := true
 	! !
-
-!Document methodsFor: 'visiting' stamp: 'hlsf 12/12/2024 09:58:06'!
-accept: aVisitor
-	^ aVisitor visitDocument: self! !
 
 !Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
 controlsManager: aControlsManager
@@ -3057,12 +3053,12 @@ pageCounter
 	
 	! !
 
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/12/2024 10:47:33'!
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/12/2024 19:01:32'!
 preview
 " Shrinkg a bit then cut a piece from the origin with a given extent "
 	| shrinkFactor |
-	shrinkFactor := (DyPreviewVisitor previewExtent x / currentPage morphWidth ) * 3.
-	^ ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (0@0 corner: DyPreviewVisitor previewExtent)! !
+	shrinkFactor := (self class previewExtent x / currentPage morphWidth ) * 3.
+	^ ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (0@0 corner: self class previewExtent)! !
 
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:53:57'!
 statusBar
@@ -3166,7 +3162,16 @@ statusBarMessage: aString
 			redrawNeeded]
 		! !
 
-!DocumentView class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 16:02:50'!
+!DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/12/2024 19:00:34'!
+previewExtent
+	^ `1920@1080 // 12`! !
+
+!DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/12/2024 19:00:25'!
+previewGap
+" Gap between two previews in a row "
+	^ 12! !
+
+!DocumentView class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 16:02:50'!
 presenter: aPresenter
 	^ self basicNew 
 		presenter: aPresenter;
