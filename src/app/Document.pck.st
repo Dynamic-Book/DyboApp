@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 11 December 2024 at 7:43:29 pm'!
+'From Cuis7.1 [latest update: #6817] on 12 December 2024 at 12:06:31 pm'!
 'Description '!
-!provides: 'Document' 1 75!
+!provides: 'Document' 1 76!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1395,6 +1395,10 @@ saveToDisk
 	controlsManager := temporary.
 	isSaved := true
 	! !
+
+!Document methodsFor: 'visiting' stamp: 'hlsf 12/12/2024 09:58:06'!
+accept: aVisitor
+	^ aVisitor visitDocument: self! !
 
 !Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
 controlsManager: aControlsManager
@@ -3052,6 +3056,13 @@ pageCounter
 			yourself	]
 	
 	! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/12/2024 10:47:33'!
+preview
+" Shrinkg a bit then cut a piece from the origin with a given extent "
+	| shrinkFactor |
+	shrinkFactor := (DyPreviewVisitor previewExtent x / currentPage morphWidth ) * 3.
+	^ ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (0@0 corner: DyPreviewVisitor previewExtent)! !
 
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:53:57'!
 statusBar

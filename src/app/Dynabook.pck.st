@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 11 December 2024 at 7:43:31 pm'!
+'From Cuis7.1 [latest update: #6817] on 12 December 2024 at 12:06:34 pm'!
 'Description '!
-!provides: 'Dynabook' 1 109!
+!provides: 'Dynabook' 1 110!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -2562,9 +2562,14 @@ quickImport: args
 !DyPreviewVisitor methodsFor: 'visiting' stamp: 'hlsf 10/14/2023 17:11:09'!
 visitDocument: document! !
 
-!DyPreviewVisitor methodsFor: 'ui' stamp: 'hlsf 10/14/2023 17:15:09'!
-previewWidth
-	^ `150 + 12`! !
+!DyPreviewVisitor class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/12/2024 10:40:17'!
+previewExtent
+	^ `1920@1080 // 12`! !
+
+!DyPreviewVisitor class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/12/2024 10:12:19'!
+previewGap
+" Gap between two previews in a row "
+	^ 12! !
 
 !DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 6/26/2023 21:29:08'!
 paneFor: anObject label: aTitle 
@@ -3174,25 +3179,6 @@ topics
 		ifNotNil: [:aCourse | aCourse topics]
 		ifNil: [`Array new`]! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/14/2023 17:21:30'!
-documentPreviewPanel
-" Fill the preview panel with document previews from the user selected classGroup-course-topic "
-	| previewsPerLine previewVisitor documents |
-	documents := self topics documents.
-	previewVisitor := DyPreviewVisitor new.
-	previewPanel removeAllMorphs.
-	previewsPerLine := previewPanel morphWidth // previewVisitor previewWidth.
-	documents groupsOf: previewsPerLine atATimeDo: [:documentsGroup | 
-		previewPanel addMorph: (			documentsGroup 
-			inject: self previewRow 
-			into: [:row :document |			row addMorph: (document accept: previewVisitor)		]) ].
-	documents size \\ previewsPerLine ifNotZero: [ "There is an incomplete row to add "
-		previewPanel addMorph: (
-			(documents allButFirst: (documents size // previewsPerLine * previewsPerLine))
-				inject: self previewRow 
-				into: [:row :document |			row addMorph: (document accept: previewVisitor)		]) 		].
-	^ previewPanel ! !
-
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 9/1/2024 09:59:19'!
 documentSelectorPanel
 " A view to select documents according to classGroups, courses, topics and sorting option "
@@ -3203,16 +3189,8 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/14/2023 16:53:21'!
-previewRow
-	^ ​ LayoutMorph newRow 	:: 
-		separation: 8; 
-		adoptWidgetsColor: 
-		self defaultColor
-	! !
-
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 10/7/2023 15:55:36'!
-selectedDocumentsPanel
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 09:50:32'!
+documentsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
 	| quickButtons |
 	quickButtons := Array 
@@ -3224,8 +3202,16 @@ selectedDocumentsPanel
 			setBalloonText: 'Import a resource' translated).
 	^ DecoratedPane 
 		open: (previewPanel := LayoutMorph newColumn) 
-		label:  'Selected documents' translated
+		label:  'My documents' translated
 		quickButtons: quickButtons! !
+
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 10:19:16'!
+previewRow
+	^ ​ LayoutMorph newRow 	:: 
+		separation: DyPreviewVisitor previewGap ; 
+		adoptWidgetsColor: 
+		self defaultColor
+	! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 5/26/2024 15:45:41'!
 sortListMorph
@@ -3247,7 +3233,7 @@ topicListMorph
 		indexSetter: #topicIndex: ::
 		autoDeselect: false.! !
 
-!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 5/26/2024 23:21:34'!
+!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 12/12/2024 09:50:32'!
 initialize
 	super initialize.
 	classGroupIndex :=  self classGroups ifNotEmpty: [1] ifEmpty: [0].
@@ -3255,13 +3241,33 @@ initialize
 	topicIndex := self topics ifNotEmpty: [1] ifEmpty: [0].
 	sortIndex := 1.
 	self addMorphKeepMorphHeight: self documentSelectorPanel.
-	self addMorphUseAll: self selectedDocumentsPanel.
+	self addMorphUseAll: self documentsPanel.
 	self adoptWidgetsColor: self defaultBorderColor ! !
 
 !DyBinderView methodsFor: 'initialization' stamp: 'hlsf 12/11/2024 19:08:37'!
 newDocument
 	self topic addDocument: presenter controlsManager plugNewDocument.
 	DySystem saveData ! !
+
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 12/12/2024 10:41:46'!
+updateDocumentPreviews
+" Fill the preview panel with document previews from the user selected classGroup-course-topic "
+	| previewsPerLine previewVisitor documents |
+	documents := self topic ifNil: [`Array new`] ifNotNil: [:aTopic | aTopic document].
+	previewVisitor := DyPreviewVisitor new.
+	previewPanel removeAllMorphs.
+	previewsPerLine := previewPanel morphWidth // 
+		(DyPreviewVisitor previewExtent x + DyPreviewVisitor previewGap).
+	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
+		previewPanel addMorph: (			documentsRow 
+			inject: self previewRow 
+			into: [:row :document |			row addMorph: (document accept: previewVisitor)		]) ].
+	documents size \\ previewsPerLine ifNotZero: [ "There is an incomplete row to add "
+		previewPanel addMorph: (
+			(documents allButFirst: (documents size // previewsPerLine * previewsPerLine))
+				inject: self previewRow 
+				into: [:row :document |			row addMorph: (document accept: previewVisitor)		]) 		].
+	^ previewPanel ! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
 adoptWidgetsColor: aColor 
