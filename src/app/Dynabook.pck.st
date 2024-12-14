@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 11:32:53 am'!
+'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 3:33:30 pm'!
 'Description '!
-!provides: 'Dynabook' 1 114!
+!provides: 'Dynabook' 1 115!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -172,7 +172,7 @@ DyTask class
 
 !classDefinition: #Dybo category: #'Dynabook-Presenter'!
 Object subclass: #Dybo
-	instanceVariableNames: 'domain controlsManager activeViewType'
+	instanceVariableNames: 'domain controlsManager activeViewType currentTopic'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-Presenter'!
@@ -212,7 +212,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'dyboView docView icons'
+	instanceVariableNames: 'dyboView docView icons activeView'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -406,9 +406,9 @@ I am a view to browse the past document, depending on the class groups, courses 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:24:31'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 14:03:59'!
 addDocument: aDocument to: topic
-	topic documents remove: aDocument.
+	topic documents add: aDocument.
 	aDocument saveToDisk: topic directory! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:31:05'!
@@ -1403,21 +1403,26 @@ deleteDocument: aDocument
 	DySystem saveData 
 	! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 11:27:20'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 14:23:13'!
 newDocument
-	| topic |
-	topic := self activeView topic.
-	topic ifNil: [^ self].
-	domain addDocument: self goDocument to: topic.
+	currentTopic := self activeView topic.
+	currentTopic ifNil: [^ self].
+	domain addDocument: self goDocument to: currentTopic.
 	DySystem saveData ! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/12/2024 22:31:20'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 15:03:04'!
 openDocument: aDocument
 	| restoredDocument |
-	restoredDocument := aDocument documentFromDisk.
-	controlsManager 
-		docView: restoredDocument view;
-		plugInDyboView: restoredDocument view! !
+	currentTopic := self activeView topic.
+	restoredDocument := aDocument loadFromDisk: currentTopic directory.
+	self goDocument: restoredDocument view! !
+
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 14:23:24'!
+saveDocument
+" Called when a DocumentView is the activeView "
+	self activeView presenter saveToDisk: currentTopic directory
+	
+	! !
 
 !Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/14/2024 11:27:57'!
 deleteTask: aDyTask 
@@ -1473,13 +1478,21 @@ goBinder
 	controlsManager plugBinder.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/12/2024 21:12:24'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/14/2024 14:42:26'!
 goDocument
-	| newDoc |
+" Plug a new document "
+	^ self goDocument:  controlsManager newDocumentView
+! !
+
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/14/2024 14:55:15'!
+goDocument: aDocumentView
+" Go to an existing document "
 	activeViewType := #document.
-	newDoc := controlsManager plugNewDocument .
+	controlsManager 
+		docView: aDocumentView;
+		plugInDyboView: aDocumentView.
 	self changed: #isView:.
-	^ newDoc! !
+	^ controlsManager docPresenter! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
 goSettings
@@ -1525,10 +1538,6 @@ load
 activeView
 	^ controlsManager activeView ! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:18:51'!
-activeViewType
-	^ activeViewType ! !
-
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 09:59:47'!
 controlsManager
 	^ controlsManager ! !
@@ -1540,6 +1549,10 @@ domain
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:02:49'!
 view
 	^ controlsManager dyboView! !
+
+!Dybo methodsFor: 'tool' stamp: 'hlsf 12/14/2024 14:27:18'!
+isTool: aToolName
+	^ controlsManager docPresenter isTool: aToolName ! !
 
 !Dybo class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/6/2024 19:31:50'!
 load
@@ -1765,9 +1778,9 @@ docToolbar: aSpec
 					self on: self docPresenter 					button: aTool 			state: #isTool: 					size: buttonWidth )] 				].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:09:40'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 14:07:45'!
 docToolbarSpec
-	^ #(#importPDF loadDoc saveDoc
+	^ #(#importPDF saveDoc
 	blank
 	pen eraser highlighter undo redo 
 	blank
@@ -1775,10 +1788,11 @@ docToolbarSpec
 	blank
 	firstPage previousPage insertPage deletePage 	nextPage lastPage)! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 10:05:26'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 14:52:03'!
 docView: aView
 " Connect the control manager document view to aView (doc)
 Update the docView of the current document "
+	docView == aView ifTrue: [^ self]. " Already been there "
 	docView ifNotNil: [docView deleteCircularToolbar].
 	docView := aView! !
 
@@ -2040,12 +2054,14 @@ redoButtonData
 	#redoAction . 
 	'Redo your last undone action.' translated }! !
 
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 11/24/2024 18:26:43'!
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 12/14/2024 14:11:43'!
 saveDocButtonData
+" fifth = an alternate model, here the dyboPresenter and not the docPresenter "
 	^ {'Save document' translated . 
 	#save . 
 	#saveDocument . 
-	'Save the current document in my data.' translated  }! !
+	'Save the current document in my data.' translated.
+	dyboView presenter } ! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:42:52'!
 undoButtonData
@@ -2150,10 +2166,6 @@ zoomWheel
 		borderColor: Color black;
 		yourself! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:18:37'!
-activeViewType
-	^ self dyboPresenter activeViewType ! !
-
 !DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:02:37'!
 dyboPresenter
 	^ dyboView presenter! !
@@ -2218,18 +2230,13 @@ installDyboView: aPresenter
 		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
 	self plugStart! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/5/2024 10:33:17'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/14/2024 15:21:49'!
 activeView
 " 	The active view is the view where the user operates. It is a subview in the Dybo view.
 	It can be the Home, the Task, the Binder, the Document or the Settings view 
 	It is the first submoprh in the dybo view layout, below its toolsbar
  "
-	| layout |
-	layout := dyboView layoutMorph.
-	^ layout submorphCount = 2 
-		ifTrue: [	layout firstSubmorph]
-		ifFalse: [nil]
-! !
+	^ activeView! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/12/2024 19:48:47'!
 plugBinder
@@ -2237,21 +2244,15 @@ plugBinder
 	self runningWorld doOneCycleNow.
 	self activeView updateDocumentPreviews ! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/14/2024 10:32:28'!
-plugInDyboView: aMorph
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/14/2024 15:23:54'!
+plugInDyboView: aView
 " plug in the dynabook main view this morph, below its toolbar "
-	| layout pluggedView |
+	| layout |
 	layout := dyboView layoutMorph.
-	pluggedView := self activeView.
-	pluggedView ifNotNil: [		layout removeMorph: pluggedView].
-	layout 	 addMorphUseAll: aMorph.
+	activeView ifNotNil: [		layout removeMorph: activeView].
+	activeView := aView.
+	layout 	 addMorphUseAll: aView .
 	dyboView changed! !
-
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/12/2024 21:16:15'!
-plugNewDocument
-" Plug a new document and return its presenter "
-	self plugInDyboView: self newDocumentView.
-	^ self docPresenter ! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
 plugSettings
@@ -2287,16 +2288,17 @@ dyboToolbar
 dyboToolbarSpec
 	^ #(start tasks binder page spacer settings)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 11/30/2024 15:21:35'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/14/2024 14:13:25'!
 on: aPresenter button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
 	array third = symbol callback
-	array fourth = help string	"	
+	array fourth = help string	
+	array fifth = an alternate model "	
 	| array |
 	array := self perform: (symbol, #ButtonData) asSymbol.
 	^ ButtonMorph 
-		model: aPresenter
+		model: (array at: 5 ifAbsent: [aPresenter])
 		stateGetter: stateGetter
 		action: array third ::
 		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);

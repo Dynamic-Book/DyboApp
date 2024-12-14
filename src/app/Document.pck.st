@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 11:32:51 am'!
+'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 3:33:28 pm'!
 'Description '!
-!provides: 'Document' 1 80!
+!provides: 'Document' 1 81!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -70,7 +70,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'Document-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'tool controlsManager pen highlighter eraser commandsManager model view savesReal isSaved'
+	instanceVariableNames: 'tool pen highlighter eraser commandsManager model view savesReal isSaved'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -1148,15 +1148,6 @@ importPDF
 		self view insertPage: newPage 	]
 	! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/8/2024 13:14:30'!
-loadDocument
-	| newDocument |
-	newDocument := self documentFromDisk.
-	controlsManager 
-		docView: newDocument view;
-		plugInDyboView: newDocument view.
-	! !
-
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/14/2024 21:37:58'!
 nibSize: aNumber
 	self penTool.
@@ -1330,6 +1321,10 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
+!Document methodsFor: 'TO CLEAN' stamp: 'hlsf 12/14/2024 14:29:11'!
+documentFromDisk
+	self shouldNotHappen ! !
+
 !Document methodsFor: 'TO CLEAN' stamp: 'hlsf 12/14/2024 10:14:19'!
 trash_objectForDataStream: str
 "Each document instance is saved in its own serialisation, we have two states:
@@ -1348,28 +1343,13 @@ trash_objectForDataStream: str
 			savesReal := false.
 			self].! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:14:30'!
-documentFromDisk
-	^ ReferenceStream restoreFromFile:  self documentPath // 'doc.obj'.	! !
-
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/12/2024 22:24:54'!
-documentPath
-" My path depends on which context I was created "
-	| path |
-	path := (controlsManager ifNil: [#tasks] ifNotNil: [:controller | controller activeViewType])
-		caseOf: {
-			[#tasks] -> [DySystem tasksPath] .
-			[#binder] -> [	DySystem myDocumentsPath] 		. "Never used "
-			[#document] -> [	DySystem myDocumentsPath] 	}.
-	^ path  / model dirName! !
-
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:55'!
 isSaved
 	^ isSaved ifNil: [true]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 09:48:23'!
-loadFromDisk: relativePath
-	^ ReferenceStream restoreFromFile:  DySystem userDataPath / relativePath // 'doc.obj'! !
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 14:45:47'!
+loadFromDisk: aPath
+	^ ReferenceStream restoreFromFile: aPath / model dirName // 'doc.obj'! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 19:59:37'!
 modified
