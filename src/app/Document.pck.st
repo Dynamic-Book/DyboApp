@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 11:02:35 am'!
+'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 11:32:51 am'!
 'Description '!
-!provides: 'Document' 1 79!
+!provides: 'Document' 1 80!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1377,11 +1377,11 @@ modified
 	isSaved := false
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 09:47:57'!
-saveToDisk: relativePath
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 11:22:50'!
+saveToDisk: aPath
 " Save me in my distinct disk location "
 	ReferenceStream 
-		dumpOnFile:  DySystem userDataPath / relativePath // 'doc.obj'
+		dumpOnFile: aPath / model dirName // 'doc.obj'
 		object: self.
 	isSaved := true
 	! !

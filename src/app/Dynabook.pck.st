@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 11:02:37 am'!
+'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 11:32:53 am'!
 'Description '!
-!provides: 'Dynabook' 1 113!
+!provides: 'Dynabook' 1 114!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -406,10 +406,20 @@ I am a view to browse the past document, depending on the class groups, courses 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/7/2024 11:00:35'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:24:31'!
+addDocument: aDocument to: topic
+	topic documents remove: aDocument.
+	aDocument saveToDisk: topic directory! !
+
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:31:05'!
+deleteDocument: aDocument from: topic
+	topic documents remove: aDocument.
+	(topic directory / aDocument model dirName) recursiveDelete! !
+
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:31:30'!
 deleteTask: aTask
 	userData agenda tasks remove: aTask.
-	aTask document documentPath recursiveDelete ! !
+	(aTask directory / aTask document model dirName) recursiveDelete! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:38:26'!
 newTask: aTask
@@ -428,10 +438,10 @@ load
 	userData := ReferenceStream restoreFromFile: DySystem userDataPath // 'data.ob'.
 	DyUserData current: userData.! !
 
-!DyDomain methodsFor: 'dangerous' stamp: 'hlsf 12/12/2024 22:19:52'!
+!DyDomain methodsFor: 'dangerous' stamp: 'hlsf 12/14/2024 11:18:47'!
 purge
 	self allTopics do: [:aTopic | 
-		aTopic documents do: [:aDocument | aTopic removeDocument: aDocument ]].
+		aTopic documents do: [:aDocument | aTopic documents remove: aDocument ]].
 	userData agenda tasks do: [:aTask | self deleteTask: aTask]! !
 
 !DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:57:14'!
@@ -1193,10 +1203,6 @@ title: newTitle
 	self triggerEvent: #renamedTopic withArguments: {self. title . newTitle }.
 	title := newTitle.! !
 
-!DyTopic methodsFor: 'initialization' stamp: 'hlsf 12/12/2024 22:13:30'!
-addDocument: aDocumentPresenter
-	documents add: aDocumentPresenter.! !
-
 !DyTopic methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:33:08'!
 initialize
 	documents := OrderedCollection new.
@@ -1206,11 +1212,6 @@ initialize
 !DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:11'!
 registerEvents
 	self when: #renamedTopic send: #renameTopic:from:to: to: DySystem! !
-
-!DyTopic methodsFor: 'initialization' stamp: 'hlsf 12/12/2024 22:18:09'!
-removeDocument: aDocumentPresenter
-	documents remove: aDocumentPresenter.
-	aDocumentPresenter documentPath recursiveDelete ! !
 
 !DyTopic methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:37:49'!
 mold
@@ -1388,14 +1389,27 @@ printOn: aStream
 restoreDocumentFromDisk
 	document := document documentFromDisk ! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/12/2024 22:02:33'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 11:32:41'!
+deleteDocument: aDocument 
+ | topic binderView |
+	binderView := controlsManager activeView.
+	topic := binderView topic.
+	(PopUpMenu 
+		confirm: ('Delete the document {1} from {2}?' translated 
+			format: {aDocument model dirName. topic })
+		trueChoice: 'Yes' translated falseChoice: 'No' translated) ifFalse: [^ self].
+	domain deleteDocument: aDocument from: topic.
+	binderView updateDocumentPreviews.
+	DySystem saveData 
+	! !
+
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 11:27:20'!
 newDocument
-	| topic newDoc |
+	| topic |
 	topic := self activeView topic.
 	topic ifNil: [^ self].
-	topic addDocument: (newDoc := self goDocument).
-	newDoc saveToDisk .
-	DySystem saveData! !
+	domain addDocument: self goDocument to: topic.
+	DySystem saveData ! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/12/2024 22:31:20'!
 openDocument: aDocument
@@ -1405,12 +1419,13 @@ openDocument: aDocument
 		docView: restoredDocument view;
 		plugInDyboView: restoredDocument view! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/12/2024 21:09:38'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/14/2024 11:27:57'!
 deleteTask: aDyTask 
 	(PopUpMenu 
 		confirm: ('Delete the task at {1}?' translated format: {aDyTask})
 		trueChoice: 'Yes' translated falseChoice: 'No' translated) ifFalse: [^ self].
 	domain deleteTask: aDyTask.
+	DySystem saveData.
 	self activeView resetTask.! !
 
 !Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/12/2024 21:09:43'!
@@ -3216,7 +3231,7 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 21:38:04'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/14/2024 11:10:54'!
 previewFor: aDocument
 	| buttons |
 	buttons := Array
@@ -3230,7 +3245,7 @@ previewFor: aDocument
 		object:  aDocument 
 		image:  aDocument view preview
 		buttons: buttons
-		label: aDocument documentPath name! !
+		label: aDocument model dirName! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 19:02:18'!
 previewRow
