@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 12 December 2024 at 10:59:47 pm'!
+'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 11:02:37 am'!
 'Description '!
-!provides: 'Dynabook' 1 112!
+!provides: 'Dynabook' 1 113!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -212,7 +212,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'dyboView docView icons documentCircularToolbar'
+	instanceVariableNames: 'dyboView docView icons'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -1760,13 +1760,12 @@ docToolbarSpec
 	blank
 	firstPage previousPage insertPage deletePage 	nextPage lastPage)! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/9/2024 20:29:13'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 10:05:26'!
 docView: aView
 " Connect the control manager document view to aView (doc)
 Update the docView of the current document "
-	self deleteDocumentCircularToolbar .
-	docView := aView.
-	docView presenter controlsManager: self! !
+	docView ifNotNil: [docView deleteCircularToolbar].
+	docView := aView! !
 
 !DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:09:35'!
 miniDocToolbarSpec
@@ -1775,10 +1774,11 @@ miniDocToolbarSpec
 	blank
 	pointer group)! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/12/2024 21:16:15'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 10:56:17'!
 newDocumentView
 	| row col presenter |
-	docView := DocumentView presenter: (presenter := Document controlsManager: self).
+	self docView: (DocumentView presenter: (presenter := Document new)).
+	docView circularToolbar: self documentCircularToolbar.
 	presenter view: docView.
 	docView 
 		addMorph: (self docToolbar: self docToolbarSpec)
@@ -1807,10 +1807,11 @@ newDocumentView
 	docView adjustPageCount .
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/12/2024 21:15:34'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 10:56:39'!
 newMiniDocumentView
-	| presenter |
-	docView := DocumentView presenter: (presenter := Document controlsManager: self).
+	| presenter  |
+	self docView: (DocumentView presenter: (presenter := Document new)).
+	docView circularToolbar: self documentCircularToolbar.
 	presenter view: docView.
 	docView 
 		addMorph: (self docToolbar: self miniDocToolbarSpec)
@@ -1820,11 +1821,25 @@ newMiniDocumentView
 	presenter penTool.
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/9/2024 20:28:59'!
-deleteDocumentCircularToolbar
-	documentCircularToolbar ifNotNil: [
-		documentCircularToolbar delete.
-		documentCircularToolbar := nil]! !
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/14/2024 10:07:39'!
+documentCircularToolbar
+	| toolsData circularToolbar |
+	toolsData := OrderedCollection 
+		with: self penColorTools 
+		with: self nibSizeTools 
+		with: self highlighterColorTools
+		with: self highligtherSizeTools
+		with: self eraserSizeTools .
+	circularToolbar := CircularToolbarMorph new
+		color: dyboView defaultColor ;
+		selectedColor: dyboView buttonColor;
+		extent: 180;
+		buttonSize: DySystem iconToolbarSize + 8;
+		dropDownHeight: 15.
+	toolsData do: [:subToolsData | | dropDown |
+		dropDown := (self addChevron: subToolsData first to: circularToolbar) addDropDown .
+		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
+	^ circularToolbar ! !
 
 !DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/16/2024 22:56:53'!
 eraserSizeTools
@@ -1875,28 +1890,6 @@ nibSizeTools
 			with:	(#nibSize, nibSize asString) asValidSelector asSymbol
 			with: (self handStroke: size width: nibSize color: Color black)
 			with: (help format: {nibSize })		 	]! !
-
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/9/2024 20:25:55'!
-openDocumentCircularToolbar
-	| toolsData |
-	toolsData := OrderedCollection 
-		with: self penColorTools 
-		with: self nibSizeTools 
-		with: self highlighterColorTools
-		with: self highligtherSizeTools
-		with: self eraserSizeTools .
-	documentCircularToolbar := CircularToolbarMorph new
-		color: dyboView defaultColor ;
-		selectedColor: dyboView buttonColor;
-		extent: 180;
-		buttonSize: DySystem iconToolbarSize + 8;
-		dropDownHeight: 15.
-	toolsData do: [:subToolsData | | dropDown |
-		dropDown := (self addChevron: subToolsData first to: documentCircularToolbar) addDropDown .
-		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
-	documentCircularToolbar 
-		morphPosition: self activeHand morphPosition ;
-		openInWorld! !
 
 !DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:34:51'!
 penColorTools
@@ -2229,11 +2222,10 @@ plugBinder
 	self runningWorld doOneCycleNow.
 	self activeView updateDocumentPreviews ! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/9/2024 20:29:46'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/14/2024 10:32:28'!
 plugInDyboView: aMorph
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout pluggedView |
-	self deleteDocumentCircularToolbar.
 	layout := dyboView layoutMorph.
 	pluggedView := self activeView.
 	pluggedView ifNotNil: [		layout removeMorph: pluggedView].
@@ -3105,19 +3097,18 @@ initialize
 	
 ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/8/2024 12:31:33'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/14/2024 10:58:02'!
 plugMiniDocument: aDocView
 " plug the mini document in my view "
 	miniDocView 
 		ifNotNil:  [self replaceSubmorph: miniDocView by: aDocView ]
 		ifNil: [	self addMorph: aDocView ].
-	miniDocView := aDocView .
-	presenter controlsManager docView: miniDocView! !
+	miniDocView := aDocView ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/12/2024 21:15:34'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/14/2024 10:23:08'!
 plugNewMiniDocument
 " Insert a new empty mini document  "
-	self plugMiniDocument: presenter controlsManager newMiniDocumentView! !
+	self plugMiniDocument: presenter controlsManager newMiniDocumentView	! !
 
 !DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:04:04'!
 resetTask

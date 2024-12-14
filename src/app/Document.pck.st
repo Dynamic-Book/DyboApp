@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 12 December 2024 at 10:59:45 pm'!
+'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 11:02:35 am'!
 'Description '!
-!provides: 'Document' 1 78!
+!provides: 'Document' 1 79!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -480,7 +480,7 @@ PageContainer class
 
 !classDefinition: #DocumentView category: #'Document-View'!
 LayoutMorph subclass: #DocumentView
-	instanceVariableNames: 'presenter pages currentPage container statusBar pageCount'
+	instanceVariableNames: 'presenter circularToolbar pages currentPage container statusBar pageCount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -1233,14 +1233,6 @@ undoAction
 commandsManager
 	^ commandsManager ! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 10:49:06'!
-controlsManager
-	^ controlsManager ! !
-
-!Document methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 10:26:24'!
-controlsManager: aControlsManager
-	controlsManager := aControlsManager ! !
-
 !Document methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 14:40:39'!
 currentPage
 	^ self view currentPage! !
@@ -1320,7 +1312,7 @@ tool: aToolClass
 	view statusBarMessage: aToolClass description.
 	self changed! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 11/30/2024 15:59:44'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 12/14/2024 09:33:04'!
 initialize
 	super initialize.
 	self initializeWritingTools .
@@ -1337,6 +1329,24 @@ initializeWritingTools
 		threshold: 6 squared.
 	eraser := Pen new 	width: 2
 ! !
+
+!Document methodsFor: 'TO CLEAN' stamp: 'hlsf 12/14/2024 10:14:19'!
+trash_objectForDataStream: str
+"Each document instance is saved in its own serialisation, we have two states:
+1. When saving from a tree of object -> respond a diskproxy but have a distinct save on disk first
+2. When saving for real the Document in its own location, respond self
+"
+	^ savesReal 
+		ifFalse: [
+			savesReal := true.
+			self saveToDisk. 
+			DiskProxy 				
+				global: #Document 				
+				selector: #loadDocument:  				
+				args: (Array with: self documentPath)		 ]
+		ifTrue: [
+			savesReal := false.
+			self].! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:14:30'!
 documentFromDisk
@@ -1357,50 +1367,24 @@ documentPath
 isSaved
 	^ isSaved ifNil: [true]! !
 
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 09:48:23'!
+loadFromDisk: relativePath
+	^ ReferenceStream restoreFromFile:  DySystem userDataPath / relativePath // 'doc.obj'! !
+
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 19:59:37'!
 modified
 	" get notified the page was modified recently, ie changes not saved to disk "
 	isSaved := false
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/12/2024 22:59:14'!
-objectForDataStream: str
-"Each document instance is saved in its own serialisation, we have two states:
-1. When saving from a tree of object -> respond a diskproxy but have a distinct save on disk first
-2. When saving for real the Document in its own location, respond self
-"
-	^ savesReal 
-		ifFalse: [
-			savesReal := true.
-			self saveToDisk. 
-			DiskProxy 				
-				global: #Document 				
-				selector: #loadDocument:  				
-				args: (Array with: self documentPath)		 ]
-		ifTrue: [
-			savesReal := false.
-			self].! !
-
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:22'!
-saveToDisk
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 09:47:57'!
+saveToDisk: relativePath
 " Save me in my distinct disk location "
-	| temporary path |
-	path := self documentPath.
-	temporary := controlsManager.
-	controlsManager := nil.
 	ReferenceStream 
-		dumpOnFile:  path // 'doc.obj'
+		dumpOnFile:  DySystem userDataPath / relativePath // 'doc.obj'
 		object: self.
-	controlsManager := temporary.
 	isSaved := true
 	! !
-
-!Document class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 10:47:16'!
-controlsManager: aControlsManager
-	^ self basicNew 
-		controlsManager: aControlsManager ;
-		initialize ;
-		yourself! !
 
 !Document class methodsFor: 'object serialization' stamp: 'hlsf 12/1/2024 10:24:52'!
 loadDocument: aDirectoryEntry 
@@ -2509,9 +2493,9 @@ mouseButton1Down: event localPosition: localPosition
 mouseButton1Up: event localPosition: localPosition
 	self tool handleRelease: localPosition in: self! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 12/9/2024 20:26:13'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 12/14/2024 09:28:42'!
 mouseButton2Up: evt localPosition: localPosition
-	presenter controlsManager openDocumentCircularToolbar! !
+	presenter view  openCircularToolbar! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:38:29'!
 mouseMove: event localPosition: localPosition
@@ -2983,6 +2967,10 @@ for: aPage
 	^ self new
 		addMorphFront: aPage position: 0@0! !
 
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 09:26:19'!
+circularToolbar: aWidget
+	circularToolbar := aWidget ! !
+
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 15:10:11'!
 container
 	^ container ! !
@@ -3031,6 +3019,18 @@ defaultBorderColor
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:31'!
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 10:32:49'!
+deleteCircularToolbar
+	circularToolbar ifNotNil: [
+		circularToolbar delete.
+		circularToolbar := nil]! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 09:29:18'!
+openCircularToolbar
+	circularToolbar 
+		morphPosition: self activeHand morphPosition ;
+		openInWorld ! !
 
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:52:15'!
 pageCounter
