@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 3:33:30 pm'!
+'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 10:40:17 pm'!
 'Description '!
-!provides: 'Dynabook' 1 115!
+!provides: 'Dynabook' 1 117!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -10,7 +10,6 @@
 !requires: 'UI-Panel' 1 91 nil!
 !requires: 'Document' 1 5 nil!
 SystemOrganization addCategory: #'Dynabook-Model'!
-SystemOrganization addCategory: #'Dynabook-Model-Knowledge'!
 SystemOrganization addCategory: #'Dynabook-Model-Business'!
 SystemOrganization addCategory: #'Dynabook-View'!
 SystemOrganization addCategory: #'Dynabook-View-Business'!
@@ -416,14 +415,15 @@ deleteDocument: aDocument from: topic
 	topic documents remove: aDocument.
 	(topic directory / aDocument model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:31:30'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 20:15:42'!
 deleteTask: aTask
 	userData agenda tasks remove: aTask.
-	(aTask directory / aTask document model dirName) recursiveDelete! !
+	(DySystem tasksPath / aTask document model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:38:26'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 20:15:14'!
 newTask: aTask
-	userData agenda tasks add: aTask! !
+	userData agenda tasks add: aTask.
+	aTask document saveToDisk: DySystem tasksPath ! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
@@ -1361,14 +1361,6 @@ courseHourDate: anObject
 
 	courseHourDate := anObject! !
 
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 11/28/2024 11:13:28'!
-dirName
-	^ 'tasks'! !
-
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 11/28/2024 11:15:03'!
-directory
-	^ DySystem userDataPath / self dirName! !
-
 !DyTask methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:36:16'!
 document
 	"Answer the value of document"
@@ -1385,9 +1377,9 @@ document: anObject
 printOn: aStream
 	aStream print: courseHourDate ! !
 
-!DyTask methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:15:09'!
+!DyTask methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 20:09:45'!
 restoreDocumentFromDisk
-	document := document documentFromDisk ! !
+	document := document loadFromDisk: DySystem tasksPath ! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 11:32:41'!
 deleteDocument: aDocument 
@@ -1417,10 +1409,12 @@ openDocument: aDocument
 	restoredDocument := aDocument loadFromDisk: currentTopic directory.
 	self goDocument: restoredDocument view! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 14:23:24'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 21:56:40'!
 saveDocument
 " Called when a DocumentView is the activeView "
-	self activeView presenter saveToDisk: currentTopic directory
+	DySystem saveData 
+	
+	"self activeView presenter saveToDisk: currentTopic directory"
 	
 	! !
 
@@ -1433,7 +1427,7 @@ deleteTask: aDyTask
 	DySystem saveData.
 	self activeView resetTask.! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/12/2024 21:09:43'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/14/2024 20:16:26'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
 	| task agendaView dataAlreadySaved |
@@ -1442,7 +1436,7 @@ saveCurrentTask
 	task :=  agendaView task.
 	" Does the task's document have unsaved state? "
 	task document isSaved ifFalse: [
-		task document saveToDisk. 
+		task document saveToDisk: DySystem tasksPath. 
 		DySystem saveData.
 		dataAlreadySaved := true].
 	" Was the task's course hour date modified? "

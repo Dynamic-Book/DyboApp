@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 3:33:28 pm'!
+'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 10:40:14 pm'!
 'Description '!
-!provides: 'Document' 1 81!
+!provides: 'Document' 1 83!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1321,10 +1321,6 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
-!Document methodsFor: 'TO CLEAN' stamp: 'hlsf 12/14/2024 14:29:11'!
-documentFromDisk
-	self shouldNotHappen ! !
-
 !Document methodsFor: 'TO CLEAN' stamp: 'hlsf 12/14/2024 10:14:19'!
 trash_objectForDataStream: str
 "Each document instance is saved in its own serialisation, we have two states:
@@ -1347,9 +1343,10 @@ trash_objectForDataStream: str
 isSaved
 	^ isSaved ifNil: [true]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 14:45:47'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 21:55:14'!
 loadFromDisk: aPath
-	^ ReferenceStream restoreFromFile: aPath / model dirName // 'doc.obj'! !
+	^ self
+"	^ ReferenceStream restoreFromFile: aPath / model dirName // 'doc.obj'"! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 19:59:37'!
 modified
@@ -1357,14 +1354,15 @@ modified
 	isSaved := false
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 11:22:50'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 21:58:25'!
 saveToDisk: aPath
 " Save me in my distinct disk location "
-	ReferenceStream 
+
+"	ReferenceStream 
 		dumpOnFile: aPath / model dirName // 'doc.obj'
 		object: self.
-	isSaved := true
-	! !
+	"
+	isSaved := true! !
 
 !Document class methodsFor: 'object serialization' stamp: 'hlsf 12/1/2024 10:24:52'!
 loadDocument: aDirectoryEntry 
@@ -3000,11 +2998,9 @@ defaultBorderColor
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 10:32:49'!
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 22:23:49'!
 deleteCircularToolbar
-	circularToolbar ifNotNil: [
-		circularToolbar delete.
-		circularToolbar := nil]! !
+	circularToolbar ifNotNil: [		circularToolbar delete]! !
 
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 09:29:18'!
 openCircularToolbar
