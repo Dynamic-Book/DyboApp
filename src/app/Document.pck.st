@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 10:40:14 pm'!
+'From Cuis7.1 [latest update: #6817] on 16 December 2024 at 9:47:28 pm'!
 'Description '!
-!provides: 'Document' 1 83!
+!provides: 'Document' 1 85!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -480,7 +480,7 @@ PageContainer class
 
 !classDefinition: #DocumentView category: #'Document-View'!
 LayoutMorph subclass: #DocumentView
-	instanceVariableNames: 'presenter circularToolbar pages currentPage container statusBar pageCount'
+	instanceVariableNames: 'presenter circularToolbar pages currentPage container statusBar pageCount preview'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -1343,23 +1343,24 @@ trash_objectForDataStream: str
 isSaved
 	^ isSaved ifNil: [true]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 21:55:14'!
-loadFromDisk: aPath
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/16/2024 21:46:18'!
+loadFromDisk: relPath
 	^ self
-"	^ ReferenceStream restoreFromFile: aPath / model dirName // 'doc.obj'"! !
+"	^ ReferenceStream restoreFromFile: DySystem userDataPath / relPath / model dirName // 'doc.obj'"! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 19:59:37'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 22:57:18'!
 modified
 	" get notified the page was modified recently, ie changes not saved to disk "
-	isSaved := false
+	isSaved := false.
+	view resetPreview 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 21:58:25'!
-saveToDisk: aPath
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/16/2024 21:45:58'!
+saveToDisk: relPath
 " Save me in my distinct disk location "
 
 "	ReferenceStream 
-		dumpOnFile: aPath / model dirName // 'doc.obj'
+		dumpOnFile:  DySystem userDataPath / relPath / model dirName // 'doc.obj'
 		object: self.
 	"
 	isSaved := true! !
@@ -3020,12 +3021,18 @@ pageCounter
 	
 	! !
 
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/12/2024 19:01:32'!
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 22:56:53'!
 preview
 " Shrinkg a bit then cut a piece from the origin with a given extent "
 	| shrinkFactor |
-	shrinkFactor := (self class previewExtent x / currentPage morphWidth ) * 3.
-	^ ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (0@0 corner: self class previewExtent)! !
+	^ preview ifNil: [
+		shrinkFactor := (self class previewExtent x / currentPage morphWidth ) * 3.
+		preview := ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (0@0 corner: self class previewExtent)]! !
+
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 22:56:05'!
+resetPreview
+	preview := nil
+	! !
 
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:53:57'!
 statusBar
@@ -3128,6 +3135,10 @@ statusBarMessage: aString
 			adjustExtent ;
 			redrawNeeded]
 		! !
+
+!DocumentView methodsFor: 'fileIn/out' stamp: 'hlsf 12/14/2024 22:56:23'!
+prepareToBeSaved
+	self resetPreview ! !
 
 !DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/12/2024 19:00:34'!
 previewExtent

@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 14 December 2024 at 10:40:17 pm'!
+'From Cuis7.1 [latest update: #6817] on 16 December 2024 at 9:47:30 pm'!
 'Description '!
-!provides: 'Dynabook' 1 117!
+!provides: 'Dynabook' 1 119!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -405,25 +405,25 @@ I am a view to browse the past document, depending on the class groups, courses 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 14:03:59'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/16/2024 21:39:32'!
 addDocument: aDocument to: topic
 	topic documents add: aDocument.
-	aDocument saveToDisk: topic directory! !
+	aDocument saveToDisk: topic path! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:31:05'!
 deleteDocument: aDocument from: topic
 	topic documents remove: aDocument.
 	(topic directory / aDocument model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 20:15:42'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/16/2024 21:43:05'!
 deleteTask: aTask
 	userData agenda tasks remove: aTask.
-	(DySystem tasksPath / aTask document model dirName) recursiveDelete! !
+	(DySystem userDataPath / DySystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 20:15:14'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/16/2024 21:43:35'!
 newTask: aTask
 	userData agenda tasks add: aTask.
-	aTask document saveToDisk: DySystem tasksPath ! !
+	aTask document saveToDisk: DySystem tasksRelPath ! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
@@ -502,6 +502,10 @@ agenda
 directory
 " Mydirectory entry "
 	^ DySystem userDataPath ! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 12/16/2024 21:45:36'!
+relPath
+	^ ''! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:13'!
 schools
@@ -790,6 +794,11 @@ owner
 !DyObject methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:04:58'!
 owner: anObject
 	owner := 	anObject ! !
+
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 12/16/2024 21:45:13'!
+relPath
+"relative path to the object within the data "
+	^ owner relPath, '/', self dirName! !
 
 !DyObject class methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:29:21'!
 label
@@ -1377,9 +1386,9 @@ document: anObject
 printOn: aStream
 	aStream print: courseHourDate ! !
 
-!DyTask methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 20:09:45'!
+!DyTask methodsFor: 'persistence' stamp: 'hlsf 12/16/2024 21:43:49'!
 restoreDocumentFromDisk
-	document := document loadFromDisk: DySystem tasksPath ! !
+	document := document loadFromDisk: DySystem tasksRelPath ! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 11:32:41'!
 deleteDocument: aDocument 
@@ -1409,12 +1418,12 @@ openDocument: aDocument
 	restoredDocument := aDocument loadFromDisk: currentTopic directory.
 	self goDocument: restoredDocument view! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 21:56:40'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/16/2024 21:46:54'!
 saveDocument
 " Called when a DocumentView is the activeView "
-	DySystem saveData 
+	DySystem saveData .
 	
-	"self activeView presenter saveToDisk: currentTopic directory"
+	self activeView presenter saveToDisk: currentTopic relPath 
 	
 	! !
 
@@ -1427,7 +1436,7 @@ deleteTask: aDyTask
 	DySystem saveData.
 	self activeView resetTask.! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/14/2024 20:16:26'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/16/2024 21:43:05'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
 	| task agendaView dataAlreadySaved |
@@ -1436,7 +1445,7 @@ saveCurrentTask
 	task :=  agendaView task.
 	" Does the task's document have unsaved state? "
 	task document isSaved ifFalse: [
-		task document saveToDisk: DySystem tasksPath. 
+		task document saveToDisk: DySystem tasksRelPath. 
 		DySystem saveData.
 		dataAlreadySaved := true].
 	" Was the task's course hour date modified? "
@@ -1649,10 +1658,10 @@ myDocumentsPath
 " the location of the user documents "
 	^ self userDataPath / 'myDocuments'! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 12/1/2024 10:50:42'!
-tasksPath
+!DySystem class methodsFor: 'path' stamp: 'hlsf 12/16/2024 21:43:05'!
+tasksRelPath
 " the location of the user documents "
-	^ self userDataPath / 'tasks'! !
+	^ 'tasks'! !
 
 !DySystem class methodsFor: 'path' stamp: 'hlsf 8/20/2023 14:30:45'!
 userDataPath
