@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 16 December 2024 at 9:47:28 pm'!
+'From Cuis7.1 [latest update: #6817] on 18 December 2024 at 3:35:01 pm'!
 'Description '!
-!provides: 'Document' 1 85!
+!provides: 'Document' 1 86!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -350,7 +350,7 @@ PointerToolStateNeutral class
 
 !classDefinition: #DocumentModel category: #'Document-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'timeStamp pageModel'
+	instanceVariableNames: 'timeStamp pageModel relPath'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
@@ -610,6 +610,7 @@ We are either dragging the whole page or a grabbed annotator!
 
 !DocumentModel commentStamp: '<historical>' prior: 0!
 - timeStamp : creation time of a Document. An unique identifier. It is used to create a dedicated directory on disk in the tasks or topic directory
+- relPath, the path my folder is saved in with my associate data, relatively to userDataPath. Those my fullPath is userDataPath / relPath / dirName
 - pageModel can be either 
  1. a path to a pdf document used as a model for PageModelPdf. Each page of the Document use a PDF page as its model
  2. a class in the  PageModel hierachy, the default model for each page of the Document
@@ -1134,15 +1135,15 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 11/30/2024 13:04:26'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 15:32:57'!
 importPDF
 	| process |
 	process := DySystem 
 		import: DySystem myDocumentsPath parent parent / 'samples' // 'textbook1.pdf'
-		to: self documentPath 
+		to: model path
 		pages: nil.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
-	model pageModel: self documentPath .	
+	model pageModel: model path .	
 	1 to: model pdfNumberOfPage do: [:index | | newPage |
 		newPage := PageMorph newOn: self model: (self model newPdfPageModel: index).
 		self view insertPage: newPage 	]
@@ -1321,7 +1322,7 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
-!Document methodsFor: 'TO CLEAN' stamp: 'hlsf 12/14/2024 10:14:19'!
+!Document methodsFor: 'TO CLEAN' stamp: 'hlsf 12/18/2024 15:33:24'!
 trash_objectForDataStream: str
 "Each document instance is saved in its own serialisation, we have two states:
 1. When saving from a tree of object -> respond a diskproxy but have a distinct save on disk first
@@ -1334,7 +1335,7 @@ trash_objectForDataStream: str
 			DiskProxy 				
 				global: #Document 				
 				selector: #loadDocument:  				
-				args: (Array with: self documentPath)		 ]
+				args: (Array with: model path)		 ]
 		ifTrue: [
 			savesReal := false.
 			self].! !
@@ -1342,6 +1343,11 @@ trash_objectForDataStream: str
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:55'!
 isSaved
 	^ isSaved ifNil: [true]! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 15:24:25'!
+loadFromDisk
+	^ self
+"	^ ReferenceStream restoreFromFile: model path // 'doc.obj'"! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/16/2024 21:46:18'!
 loadFromDisk: relPath
@@ -1355,12 +1361,12 @@ modified
 	view resetPreview 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/16/2024 21:45:58'!
-saveToDisk: relPath
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 15:19:05'!
+saveToDisk
 " Save me in my distinct disk location "
 
 "	ReferenceStream 
-		dumpOnFile:  DySystem userDataPath / relPath / model dirName // 'doc.obj'
+		dumpOnFile:  model path // 'doc.obj'
 		object: self.
 	"
 	isSaved := true! !
@@ -2075,6 +2081,14 @@ pageModel: aDirEntryOrPageModelClass
 " Read class comment "
 	pageModel := aDirEntryOrPageModelClass ! !
 
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 15:18:17'!
+path
+	^ DySystem userDataPath / relPath / self dirName! !
+
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 15:17:32'!
+relPath: aString
+	relPath := relPath! !
+
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
 	^ color! !
@@ -2312,10 +2326,10 @@ isCloserThan: distance toPixel: positionInWorld
 deleteBitMasks
 	submorphs do: [:each| each removeProperty: #bitMask]! !
 
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 11/30/2024 13:08:39'!
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 12/18/2024 15:33:55'!
 scale: newScale
 	(pageModel is: #PageModelPdf) ifTrue: [
-		pageModel resampleFrom: self scale to: newScale in: presenter documentPath].
+		pageModel resampleFrom: self scale to: newScale in: self documentModel path].
 	super scale: newScale! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/26/2024 11:35:01'!
