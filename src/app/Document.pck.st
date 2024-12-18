@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 18 December 2024 at 3:35:01 pm'!
+'From Cuis7.1 [latest update: #6817] on 18 December 2024 at 10:34:37 pm'!
 'Description '!
-!provides: 'Document' 1 86!
+!provides: 'Document' 1 88!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -70,7 +70,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'Document-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'tool pen highlighter eraser commandsManager model view savesReal isSaved'
+	instanceVariableNames: 'tool pen highlighter eraser commandsManager model view savesReal isSaved controlsManager'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Presenter'!
@@ -480,7 +480,7 @@ PageContainer class
 
 !classDefinition: #DocumentView category: #'Document-View'!
 LayoutMorph subclass: #DocumentView
-	instanceVariableNames: 'presenter circularToolbar pages currentPage container statusBar pageCount preview'
+	instanceVariableNames: 'presenter pages currentPage container statusBar pageCount preview'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -1207,23 +1207,31 @@ penRed
 penWhite
 	self penColor: Color white! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/19/2024 12:21:46'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 21:45:34'!
 redoAction
-	commandsManager redo.! !
+	self commandsManager redo.! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 12/11/2024 19:40:34'!
 saveDocument
 	savesReal := true.
 	self saveToDisk ! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 10/26/2024 15:56:53'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 21:45:30'!
 undoAction
-	commandsManager undo.
+	self commandsManager undo.
 	self resetTool! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 9/11/2024 17:25:47'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 21:45:16'!
 commandsManager
-	^ commandsManager ! !
+	^ commandsManager ifNil: [commandsManager := CommandManager new]! !
+
+!Document methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 22:16:59'!
+controlsManager
+	^ controlsManager! !
+
+!Document methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 22:16:59'!
+controlsManager: aControlManager
+	controlsManager := aControlManager ! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 14:40:39'!
 currentPage
@@ -1304,12 +1312,11 @@ tool: aToolClass
 	view statusBarMessage: aToolClass description.
 	self changed! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 12/14/2024 09:33:04'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 12/18/2024 21:45:04'!
 initialize
 	super initialize.
 	self initializeWritingTools .
 	model := DocumentModel new.
-	commandsManager := CommandManager new.
 	savesReal := false. "When sending message #saveDocument"! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:03:09'!
@@ -1322,37 +1329,14 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
-!Document methodsFor: 'TO CLEAN' stamp: 'hlsf 12/18/2024 15:33:24'!
-trash_objectForDataStream: str
-"Each document instance is saved in its own serialisation, we have two states:
-1. When saving from a tree of object -> respond a diskproxy but have a distinct save on disk first
-2. When saving for real the Document in its own location, respond self
-"
-	^ savesReal 
-		ifFalse: [
-			savesReal := true.
-			self saveToDisk. 
-			DiskProxy 				
-				global: #Document 				
-				selector: #loadDocument:  				
-				args: (Array with: model path)		 ]
-		ifTrue: [
-			savesReal := false.
-			self].! !
-
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:55'!
 isSaved
 	^ isSaved ifNil: [true]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 15:24:25'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 16:50:10'!
 loadFromDisk
-	^ self
-"	^ ReferenceStream restoreFromFile: model path // 'doc.obj'"! !
-
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/16/2024 21:46:18'!
-loadFromDisk: relPath
-	^ self
-"	^ ReferenceStream restoreFromFile: DySystem userDataPath / relPath / model dirName // 'doc.obj'"! !
+	"^ self"
+	^ ReferenceStream restoreFromFile: model path // 'doc.obj'! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 22:57:18'!
 modified
@@ -1361,15 +1345,44 @@ modified
 	view resetPreview 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 15:19:05'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 16:48:24'!
+objectForDataStream: str
+"Each document instance is saved in its own serialisation, we have two states:
+1. When saving from a tree of object -> respond a diskproxy but have a distinct save on disk first
+2. When saving for real the Document in its own location, respond self
+"
+	^ false ifTrue: [self] ifFalse: [
+		savesReal 
+			ifFalse: [
+				savesReal := true.
+				self saveToDisk. 
+				DiskProxy 				
+					global: #Document 				
+					selector: #loadDocument:  				
+					args: (Array with: model path)		 ]
+			ifTrue: [
+				savesReal := false.
+				self]
+		]! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 16:49:59'!
 saveToDisk
 " Save me in my distinct disk location "
-
-"	ReferenceStream 
+	ReferenceStream 
 		dumpOnFile:  model path // 'doc.obj'
 		object: self.
-	"
 	isSaved := true! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 21:44:09'!
+storeDataOn: aDataStream
+	| backup |
+	backup := self backupThenNilAttributes.
+	super storeDataOn: aDataStream.
+	self restoreAttributes: backup! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 22:17:06'!
+unsavedAttributes
+	^ #(commandsManager controlsManager isSaved)! !
 
 !Document class methodsFor: 'object serialization' stamp: 'hlsf 12/1/2024 10:24:52'!
 loadDocument: aDirectoryEntry 
@@ -2085,9 +2098,9 @@ pageModel: aDirEntryOrPageModelClass
 path
 	^ DySystem userDataPath / relPath / self dirName! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 15:17:32'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 16:13:01'!
 relPath: aString
-	relPath := relPath! !
+	relPath := aString! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
@@ -2960,13 +2973,13 @@ for: aPage
 	^ self new
 		addMorphFront: aPage position: 0@0! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 09:26:19'!
-circularToolbar: aWidget
-	circularToolbar := aWidget ! !
-
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 15:10:11'!
 container
 	^ container ! !
+
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 22:16:33'!
+controlsManager
+	^ presenter controlsManager! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 11:01:30'!
 model
@@ -3013,13 +3026,9 @@ defaultBorderColor
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 22:23:49'!
-deleteCircularToolbar
-	circularToolbar ifNotNil: [		circularToolbar delete]! !
-
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 09:29:18'!
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/18/2024 22:16:33'!
 openCircularToolbar
-	circularToolbar 
+	self controlsManager documentCircularToolbar 
 		morphPosition: self activeHand morphPosition ;
 		openInWorld ! !
 
@@ -3089,13 +3098,13 @@ deletePage
 firstPage
 	^ self goPage: pages first! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 11/24/2024 19:50:40'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 12/18/2024 19:11:49'!
 goPage: aPage
 " I alway return the current page, whether the document jump to a new page or not "
 	(aPage notNil and: [aPage ~= currentPage]) ifTrue: [
 		container replaceSubmorph: currentPage by: aPage.
 		currentPage := aPage.
-		self adjustPageCount.
+		self adjustPageCounter.
 		presenter commandsManager release.
 		presenter resetTool].
 	^ currentPage! !
@@ -3134,9 +3143,9 @@ previousPage
 	^ self goPage: (self pageAt: self currentPageIndex - 1)
 ! !
 
-!DocumentView methodsFor: 'update' stamp: 'hlsf 11/24/2024 19:50:13'!
-adjustPageCount
-	pageCount 
+!DocumentView methodsFor: 'update' stamp: 'hlsf 12/18/2024 19:11:49'!
+adjustPageCounter
+	self pageCounter 
 		contents: (String streamContents: [:str | 
 			str nextPutAll: self currentPageIndex printString;
 				nextPutAll: '/';

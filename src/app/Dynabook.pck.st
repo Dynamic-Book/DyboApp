@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 18 December 2024 at 3:35:03 pm'!
+'From Cuis7.1 [latest update: #6817] on 18 December 2024 at 10:34:39 pm'!
 'Description '!
-!provides: 'Dynabook' 1 120!
+!provides: 'Dynabook' 1 122!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1420,14 +1420,6 @@ openDocument: aDocument
 	restoredDocument := aDocument loadFromDisk.
 	self goDocument: restoredDocument view! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/18/2024 15:23:30'!
-saveDocument
-" Called when a DocumentView is the activeView "
-	DySystem saveData .
-	self activeView presenter saveToDisk
-	
-	! !
-
 !Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/14/2024 11:27:57'!
 deleteTask: aDyTask 
 	(PopUpMenu 
@@ -1756,10 +1748,10 @@ paperRatio
 preferences
 	^ platform preferences! !
 
-!DySystem class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/1/2024 18:44:34'!
+!DySystem class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/18/2024 16:38:51'!
 saveData
 	ReferenceStream 
-		dumpOnFile: (DySystem userDataPath // 'data.ob') 
+		dumpOnFile: (DySystem userDataPath // 'data.obj') 
 		object: DyUserData current! !
 
 !DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
@@ -1792,13 +1784,14 @@ docToolbarSpec
 	blank
 	firstPage previousPage insertPage deletePage 	nextPage lastPage)! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 14:52:03'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/18/2024 22:23:03'!
 docView: aView
 " Connect the control manager document view to aView (doc)
 Update the docView of the current document "
 	docView == aView ifTrue: [^ self]. " Already been there "
-	docView ifNotNil: [docView deleteCircularToolbar].
-	docView := aView! !
+	docView := aView.
+	self docPresenter controlsManager: self
+	! !
 
 !DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:09:35'!
 miniDocToolbarSpec
@@ -1807,12 +1800,13 @@ miniDocToolbarSpec
 	blank
 	pointer group)! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 10:56:17'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/18/2024 22:16:49'!
 newDocumentView
 	| row col presenter |
 	self docView: (DocumentView presenter: (presenter := Document new)).
-	docView circularToolbar: self documentCircularToolbar.
-	presenter view: docView.
+	presenter 
+		controlsManager: self;
+		view: docView.
 	docView 
 		addMorph: (self docToolbar: self docToolbarSpec)
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
@@ -1837,15 +1831,16 @@ newDocumentView
 	docView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
 	docView adoptWidgetsColor: docView defaultBorderColor.
 	presenter penTool.
-	docView adjustPageCount .
+	docView adjustPageCounter .
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 10:56:39'!
+!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/18/2024 22:16:49'!
 newMiniDocumentView
 	| presenter  |
-	self docView: (DocumentView presenter: (presenter := Document new)).
-	docView circularToolbar: self documentCircularToolbar.
-	presenter view: docView.
+	self docView: (DocumentView presenter: (presenter := Document new)).	
+	presenter 
+		controlsManager: self;
+		view: docView.
 	docView 
 		addMorph: (self docToolbar: self miniDocToolbarSpec)
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
@@ -1854,7 +1849,7 @@ newMiniDocumentView
 	presenter penTool.
 	^ docView! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/14/2024 10:07:39'!
+!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/18/2024 21:56:47'!
 documentCircularToolbar
 	| toolsData circularToolbar |
 	toolsData := OrderedCollection 
@@ -1872,6 +1867,7 @@ documentCircularToolbar
 	toolsData do: [:subToolsData | | dropDown |
 		dropDown := (self addChevron: subToolsData first to: circularToolbar) addDropDown .
 		subToolsData do: [:aToolData | self addChevron: aToolData to: dropDown subtoolbar 		] ].
+	self when: #switchView send: #delete to: circularToolbar.
 	^ circularToolbar ! !
 
 !DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/16/2024 22:56:53'!
@@ -2058,14 +2054,12 @@ redoButtonData
 	#redoAction . 
 	'Redo your last undone action.' translated }! !
 
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 12/14/2024 14:11:43'!
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 12/18/2024 19:20:33'!
 saveDocButtonData
-" fifth = an alternate model, here the dyboPresenter and not the docPresenter "
 	^ {'Save document' translated . 
 	#save . 
-	#saveDocument . 
-	'Save the current document in my data.' translated.
-	dyboView presenter } ! !
+	#saveToDisk . 
+	'Save the current document in my data.' translated } ! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:42:52'!
 undoButtonData
@@ -2248,7 +2242,7 @@ plugBinder
 	self runningWorld doOneCycleNow.
 	self activeView updateDocumentPreviews ! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/14/2024 15:23:54'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/18/2024 21:57:53'!
 plugInDyboView: aView
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout |
@@ -2256,7 +2250,8 @@ plugInDyboView: aView
 	activeView ifNotNil: [		layout removeMorph: activeView].
 	activeView := aView.
 	layout 	 addMorphUseAll: aView .
-	dyboView changed! !
+	dyboView changed.
+	self triggerEvent: #switchView! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
 plugSettings
@@ -2292,17 +2287,16 @@ dyboToolbar
 dyboToolbarSpec
 	^ #(start tasks binder page spacer settings)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/14/2024 14:13:25'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/18/2024 19:20:54'!
 on: aPresenter button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
 	array third = symbol callback
-	array fourth = help string	
-	array fifth = an alternate model "	
+	array fourth = help string	 "	
 	| array |
 	array := self perform: (symbol, #ButtonData) asSymbol.
 	^ ButtonMorph 
-		model: (array at: 5 ifAbsent: [aPresenter])
+		model: aPresenter
 		stateGetter: stateGetter
 		action: array third ::
 		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
@@ -2888,6 +2882,10 @@ classGroups
 " All the user class groups "
 	^ self domain classGroups! !
 
+!DyView methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 22:20:34'!
+controlsManager
+	^ presenter controlsManager ! !
+
 !DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:45:52'!
 course
 	" The selected course, if any "
@@ -3057,7 +3055,7 @@ task
 taskIndex
 	^ taskIndex! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/8/2024 19:29:00'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/18/2024 22:16:08'!
 taskIndex: anIndex
 	taskIndex := anIndex.
 	self changed: #taskIndex:.
@@ -3118,18 +3116,20 @@ initialize
 	
 ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/14/2024 10:58:02'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/18/2024 22:21:14'!
 plugMiniDocument: aDocView
 " plug the mini document in my view "
 	miniDocView 
 		ifNotNil:  [self replaceSubmorph: miniDocView by: aDocView ]
 		ifNil: [	self addMorph: aDocView ].
+	self controlsManager triggerEvent: #switchView.
+	self controlsManager docView: aDocView.
 	miniDocView := aDocView ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/14/2024 10:23:08'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/18/2024 22:20:51'!
 plugNewMiniDocument
 " Insert a new empty mini document  "
-	self plugMiniDocument: presenter controlsManager newMiniDocumentView	! !
+	self plugMiniDocument: self controlsManager newMiniDocumentView	! !
 
 !DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:04:04'!
 resetTask
@@ -3727,8 +3727,29 @@ treePointsTo: anObject
 		attributesToVisit anySatisfy: [:attribute | 
 			attribute == anObject or: [attribute treePointsTo: anObject		] 		] ]! !
 
+!Object methodsFor: '*Dynabook-object serialization' stamp: 'hlsf 12/18/2024 21:42:12'!
+backupThenNilAttributes
+"Make a backup of unsaved attributed then Nil-ified them.
+Return the backup "
+	| backup |
+	backup := self unsavedAttributes asOrderedCollection collect: [:each | 
+		self instVarNamed: each].
+	self unsavedAttributes do: [:attr | 	self instVarNamed: attr put: nil].
+	^ backup! !
+
 !Object methodsFor: '*Dynabook' stamp: 'hlsf 8/20/2023 16:05:49'!
 registerEvents! !
+
+!Object methodsFor: '*Dynabook-object serialization' stamp: 'hlsf 12/18/2024 21:43:17'!
+restoreAttributes: backup
+"Restore the unsaved attributes from a backup collection "
+	self unsavedAttributes withIndexDo: [:attr :index | 		
+		self instVarNamed: attr put: (backup at: index)]! !
+
+!Object methodsFor: '*Dynabook-object serialization' stamp: 'hlsf 12/18/2024 21:43:56'!
+unsavedAttributes
+"In the context for save in a DataStream, return a symbol collection of unsaved attributes"
+	^ #()! !
 
 !String methodsFor: '*Dynabook' stamp: 'hlsf 9/13/2023 23:17:33'!
 asCourseHourIn: aCourse
