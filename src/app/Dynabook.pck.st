@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 18 December 2024 at 10:34:39 pm'!
+'From Cuis7.1 [latest update: #6817] on 19 December 2024 at 11:59:39 am'!
 'Description '!
-!provides: 'Dynabook' 1 122!
+!provides: 'Dynabook' 1 123!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -405,11 +405,10 @@ I am a view to browse the past document, depending on the class groups, courses 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 15:21:57'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/19/2024 11:42:58'!
 addDocument: aDocument to: topic
 	topic documents add: aDocument.
-	aDocument model relPath: topic relPath.
-	aDocument saveToDisk! !
+	aDocument model relPath: topic relPath! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:31:05'!
 deleteDocument: aDocument from: topic
@@ -421,11 +420,10 @@ deleteTask: aTask
 	userData agenda tasks remove: aTask.
 	(DySystem userDataPath / DySystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 15:22:55'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/19/2024 11:45:28'!
 newTask: aTask
 	userData agenda tasks add: aTask.
-	aTask document model relPath: DySystem tasksRelPath .
-	aTask document saveToDisk.! !
+	aTask document model relPath: DySystem tasksRelPath ! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
@@ -435,9 +433,9 @@ userData
 initialize
 	DyUserData current: (userData := DyUserData new)! !
 
-!DyDomain methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:27:29'!
+!DyDomain methodsFor: 'initialization' stamp: 'hlsf 12/19/2024 11:00:19'!
 load
-	userData := ReferenceStream restoreFromFile: DySystem userDataPath // 'data.ob'.
+	userData := ReferenceStream restoreFromFile: DySystem userDataPath // 'data.obj'.
 	DyUserData current: userData.! !
 
 !DyDomain methodsFor: 'dangerous' stamp: 'hlsf 12/14/2024 11:18:47'!
@@ -1429,22 +1427,19 @@ deleteTask: aDyTask
 	DySystem saveData.
 	self activeView resetTask.! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/18/2024 15:23:15'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/19/2024 11:48:54'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
-	| task agendaView dataAlreadySaved |
-	dataAlreadySaved := false.
+	| task agendaView |
 	agendaView := self activeView.
 	task :=  agendaView task.
+	agendaView courseHourDate ifNil: [ ^ self ]. "Quit, no course hour date selected or one in the past nil-ified "
 	" Does the task's document have unsaved state? "
-	task document isSaved ifFalse: [
-		task document saveToDisk. 
-		DySystem saveData.
-		dataAlreadySaved := true].
+	task document saveDocument.
 	" Was the task's course hour date modified? "
 	agendaView courseHourDate = task courseHourDate ifFalse: [	
 		task courseHourDate: agendaView courseHourDate .
-		dataAlreadySaved ifFalse: [DySystem saveData].
+		DySystem saveData.
 		agendaView changedFutureTasks]
 	! !
 
@@ -2054,11 +2049,11 @@ redoButtonData
 	#redoAction . 
 	'Redo your last undone action.' translated }! !
 
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 12/18/2024 19:20:33'!
+!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 12/19/2024 11:43:49'!
 saveDocButtonData
 	^ {'Save document' translated . 
 	#save . 
-	#saveToDisk . 
+	#saveDocument . 
 	'Save the current document in my data.' translated } ! !
 
 !DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:42:52'!

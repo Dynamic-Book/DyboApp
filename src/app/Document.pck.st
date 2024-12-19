@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 18 December 2024 at 10:34:37 pm'!
+'From Cuis7.1 [latest update: #6817] on 19 December 2024 at 12:03:29 pm'!
 'Description '!
-!provides: 'Document' 1 88!
+!provides: 'Document' 1 90!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1211,7 +1211,7 @@ penWhite
 redoAction
 	self commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/11/2024 19:40:34'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/19/2024 11:58:24'!
 saveDocument
 	savesReal := true.
 	self saveToDisk ! !
@@ -1345,33 +1345,35 @@ modified
 	view resetPreview 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 16:48:24'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/19/2024 12:03:15'!
 objectForDataStream: str
 "Each document instance is saved in its own serialisation, we have two states:
 1. When saving from a tree of object -> respond a diskproxy but have a distinct save on disk first
 2. When saving for real the Document in its own location, respond self
 "
-	^ false ifTrue: [self] ifFalse: [
-		savesReal 
-			ifFalse: [
-				savesReal := true.
-				self saveToDisk. 
-				DiskProxy 				
-					global: #Document 				
-					selector: #loadDocument:  				
-					args: (Array with: model path)		 ]
-			ifTrue: [
-				savesReal := false.
-				self]
-		]! !
+	^ savesReal 
+		ifFalse: [
+			savesReal := true.
+			self saveToDisk. 
+			DiskProxy 				
+				global: #Document 				
+				selector: #loadDocument:  				
+				args: (Array with: model path)		 ]
+		ifTrue: [
+			savesReal := false.
+			self]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 16:49:59'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/19/2024 12:02:30'!
 saveToDisk
-" Save me in my distinct disk location "
+" NEVER SEND MESSAGE DIRECTLY, use saveDocument if necessary 
+Save me in my model disk location "
+	self isSaved ifTrue: [^ self].
+	'Saving to disk' print.
 	ReferenceStream 
 		dumpOnFile:  model path // 'doc.obj'
 		object: self.
-	isSaved := true! !
+	isSaved := true.
+	self currentPage redrawNeeded ! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 21:44:09'!
 storeDataOn: aDataStream
