@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 19 December 2024 at 12:03:29 pm'!
+'From Cuis7.1 [latest update: #6817] on 21 December 2024 at 10:58:52 am'!
 'Description '!
-!provides: 'Document' 1 90!
+!provides: 'Document' 1 91!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1211,10 +1211,10 @@ penWhite
 redoAction
 	self commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/19/2024 11:58:24'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/21/2024 10:42:24'!
 saveDocument
 	savesReal := true.
-	self saveToDisk ! !
+	self saveToDisk! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 21:45:30'!
 undoAction
@@ -2996,6 +2996,15 @@ presenter
 presenter: aPresenter
 	presenter := aPresenter ! !
 
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/21/2024 10:33:16'!
+preview
+" Shrinkg a bit then cut a piece from the origin with a given extent "
+	| shrinkFactor |
+	^ preview ifNil: [
+		('compute preview: ', self printString) print.
+		shrinkFactor := (self class previewExtent x / currentPage morphWidth ) * 3.
+		preview := ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (0@0 corner: self class previewExtent)]! !
+
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 15:09:59'!
 tool
 	^ presenter tool! !
@@ -3045,14 +3054,6 @@ pageCounter
 			yourself	]
 	
 	! !
-
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 22:56:53'!
-preview
-" Shrinkg a bit then cut a piece from the origin with a given extent "
-	| shrinkFactor |
-	^ preview ifNil: [
-		shrinkFactor := (self class previewExtent x / currentPage morphWidth ) * 3.
-		preview := ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (0@0 corner: self class previewExtent)]! !
 
 !DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 22:56:05'!
 resetPreview
@@ -3160,10 +3161,6 @@ statusBarMessage: aString
 			adjustExtent ;
 			redrawNeeded]
 		! !
-
-!DocumentView methodsFor: 'fileIn/out' stamp: 'hlsf 12/14/2024 22:56:23'!
-prepareToBeSaved
-	self resetPreview ! !
 
 !DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/12/2024 19:00:34'!
 previewExtent

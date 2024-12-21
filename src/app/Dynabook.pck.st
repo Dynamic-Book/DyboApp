@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 19 December 2024 at 11:59:39 am'!
+'From Cuis7.1 [latest update: #6817] on 21 December 2024 at 10:58:54 am'!
 'Description '!
-!provides: 'Dynabook' 1 123!
+!provides: 'Dynabook' 1 124!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1411,12 +1411,10 @@ newDocument
 	domain addDocument: self goDocument to: currentTopic.
 	DySystem saveData ! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/18/2024 15:30:22'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/21/2024 10:46:31'!
 openDocument: aDocument
-	| restoredDocument |
 	currentTopic := self activeView topic.
-	restoredDocument := aDocument loadFromDisk.
-	self goDocument: restoredDocument view! !
+	self goDocument: aDocument view! !
 
 !Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/14/2024 11:27:57'!
 deleteTask: aDyTask 
@@ -3232,9 +3230,9 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/14/2024 11:10:54'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/21/2024 10:51:18'!
 previewFor: aDocument
-	| buttons |
+	| buttons  |
 	buttons := Array
 		with: (PluggableButtonMorph 		model: presenter 		action: #openDocument: 		actionArgument: aDocument ::
 			icon: Theme current textEditorIcon;
