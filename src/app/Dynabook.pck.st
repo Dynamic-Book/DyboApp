@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 21 December 2024 at 10:58:54 am'!
+'From Cuis7.1 [latest update: #6817] on 22 December 2024 at 1:29:06 pm'!
 'Description '!
-!provides: 'Dynabook' 1 124!
+!provides: 'Dynabook' 1 125!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -405,10 +405,13 @@ I am a view to browse the past document, depending on the class groups, courses 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/19/2024 11:42:58'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 13:27:56'!
 addDocument: aDocument to: topic
 	topic documents add: aDocument.
-	aDocument model relPath: topic relPath! !
+	aDocument model ownerPath: topic relPath.
+	"Save the empty document in case the user does not do it after editing"
+	aDocument modified .
+	aDocument saveDocument.! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:31:05'!
 deleteDocument: aDocument from: topic
@@ -420,10 +423,10 @@ deleteTask: aTask
 	userData agenda tasks remove: aTask.
 	(DySystem userDataPath / DySystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/19/2024 11:45:28'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:37:52'!
 newTask: aTask
 	userData agenda tasks add: aTask.
-	aTask document model relPath: DySystem tasksRelPath ! !
+	aTask document model ownerPath: DySystem tasksRelPath ! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData
@@ -1654,16 +1657,17 @@ userDataPath
 " the location of the user data and documents "
 	^ platform userDataPath! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:58:26'!
-rename: prevName to: newName in: parentDir
-	| prevDir |
-	prevName = newName ifTrue: [^ self].
-	(prevName isNil or: [prevDir := parentDir / prevName asFileName exists not])
-		ifTrue: [" no prevName or previous folder does not exist yet, create the new one " 
+!DySystem class methodsFor: 'events' stamp: 'hlsf 8/11/2024 10:47:46'!
+rename: oldName to: newName in: parentDir
+	| dir |
+	oldName = newName ifTrue: [^ self].
+	oldName 
+		ifNil: [" folder does not exist yet, create it "
 			(parentDir / newName asFileName ) assureExistence ]
-	 	ifFalse: [ " previous folder exists, rename it " 			
-			prevDir rename: newName asFileName ] 
-			! !
+	 	ifNotNil: [ " folder exists, rename it "
+			(dir := parentDir / oldName asFileName) exists 
+				ifTrue: [dir rename: newName asFileName ] 
+				ifFalse: [(parentDir / newName asFileName ) assureExistence]						]! !
 
 !DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:58:55'!
 renameClassGroup: aClassGroup from: prevName to: newName

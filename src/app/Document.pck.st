@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 21 December 2024 at 10:58:52 am'!
+'From Cuis7.1 [latest update: #6817] on 22 December 2024 at 1:29:04 pm'!
 'Description '!
-!provides: 'Document' 1 91!
+!provides: 'Document' 1 92!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -350,7 +350,7 @@ PointerToolStateNeutral class
 
 !classDefinition: #DocumentModel category: #'Document-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'timeStamp pageModel relPath'
+	instanceVariableNames: 'timeStamp pageModel ownerPath'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Model'!
@@ -1211,10 +1211,16 @@ penWhite
 redoAction
 	self commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/21/2024 10:42:24'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/22/2024 13:14:48'!
 saveDocument
+	self isSaved ifTrue: [^ self].
+	"Update the preview so we save it too"
+	view preview.
 	savesReal := true.
-	self saveToDisk! !
+	self saveToDisk.
+	isSaved := true.
+	savesReal := false.
+	self currentPage redrawNeeded ! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 21:45:30'!
 undoAction
@@ -1333,9 +1339,8 @@ initializeWritingTools
 isSaved
 	^ isSaved ifNil: [true]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 16:50:10'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/22/2024 11:31:59'!
 loadFromDisk
-	"^ self"
 	^ ReferenceStream restoreFromFile: model path // 'doc.obj'! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 22:57:18'!
@@ -1345,35 +1350,29 @@ modified
 	view resetPreview 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/19/2024 12:03:15'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/22/2024 13:25:10'!
 objectForDataStream: str
-"Each document instance is saved in its own serialisation, we have two states:
-1. When saving from a tree of object -> respond a diskproxy but have a distinct save on disk first
-2. When saving for real the Document in its own location, respond self
+" We have two states when saving a document.
+1. When serialized from the data tree model -> respond a diskproxy, it is the default state saveReal == false
+2. When serialized and saved in its own tree at its own file location -> respond self, it is explicitly required, see #saveDocument
 "
 	^ savesReal 
 		ifFalse: [
-			savesReal := true.
-			self saveToDisk. 
 			DiskProxy 				
 				global: #Document 				
 				selector: #loadDocument:  				
-				args: (Array with: model path)		 ]
-		ifTrue: [
-			savesReal := false.
-			self]! !
+				args: (Array with: model relPath)		 ]
+		ifTrue: [	self]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/19/2024 12:02:30'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/22/2024 13:06:49'!
 saveToDisk
 " NEVER SEND MESSAGE DIRECTLY, use saveDocument if necessary 
 Save me in my model disk location "
-	self isSaved ifTrue: [^ self].
 	'Saving to disk' print.
 	ReferenceStream 
 		dumpOnFile:  model path // 'doc.obj'
-		object: self.
-	isSaved := true.
-	self currentPage redrawNeeded ! !
+		object: self
+! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 21:44:09'!
 storeDataOn: aDataStream
@@ -1386,14 +1385,20 @@ storeDataOn: aDataStream
 unsavedAttributes
 	^ #(commandsManager controlsManager isSaved)! !
 
-!Document class methodsFor: 'object serialization' stamp: 'hlsf 12/1/2024 10:24:52'!
-loadDocument: aDirectoryEntry 
+!Document methodsFor: 'as yet unclassified' stamp: 'hlsf 12/22/2024 13:18:26'!
+printOn: aStream
+	super printOn: aStream.
+	aStream nextPutAll: ' (';
+		nextPutAll: model dirName;
+		nextPut: $)! !
+
+!Document class methodsFor: 'object serialization' stamp: 'hlsf 12/22/2024 11:42:32'!
+loadDocument: relativePath
 "
 	Once restored, the controlManager needs to be associated back and 
 	the view plug in the dynamic book main view
 "
-
-	^ ReferenceStream restoreFromFile: aDirectoryEntry // 'doc.obj'! !
+	^ ReferenceStream restoreFromFile: DySystem userDataPath / relativePath // 'doc.obj'! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 9/10/2024 21:05:57'!
 execute
@@ -2091,18 +2096,24 @@ dirName
 newPageModel
 	^ pageModel new! !
 
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:40:27'!
+ownerPath: aString
+" The relative path of my owner, a topic or a task. 
+a topic path looks like School/Class/Course/topic/,  a task path is just topics/ "
+	ownerPath := aString! !
+
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 10:45:47'!
 pageModel: aDirEntryOrPageModelClass
 " Read class comment "
 	pageModel := aDirEntryOrPageModelClass ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 15:18:17'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:41:20'!
 path
-	^ DySystem userDataPath / relPath / self dirName! !
+	^ DySystem userDataPath / self relPath ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 16:13:01'!
-relPath: aString
-	relPath := aString! !
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:41:08'!
+relPath
+	^ ownerPath, '/', self dirName! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
@@ -2996,7 +3007,7 @@ presenter
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/21/2024 10:33:16'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:53:46'!
 preview
 " Shrinkg a bit then cut a piece from the origin with a given extent "
 	| shrinkFactor |
@@ -3055,7 +3066,7 @@ pageCounter
 	
 	! !
 
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/14/2024 22:56:05'!
+!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/22/2024 11:53:16'!
 resetPreview
 	preview := nil
 	! !
