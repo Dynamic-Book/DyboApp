@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 22 December 2024 at 1:29:04 pm'!
+'From Cuis7.1 [latest update: #6817] on 23 December 2024 at 12:12:25 pm'!
 'Description '!
-!provides: 'Document' 1 92!
+!provides: 'Document' 1 93!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1211,16 +1211,17 @@ penWhite
 redoAction
 	self commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/22/2024 13:14:48'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/23/2024 10:23:45'!
 saveDocument
-	self isSaved ifTrue: [^ self].
+	self isSaved ifTrue: [^ false].
 	"Update the preview so we save it too"
 	view preview.
 	savesReal := true.
 	self saveToDisk.
 	isSaved := true.
 	savesReal := false.
-	self currentPage redrawNeeded ! !
+	self currentPage redrawNeeded.
+	^ true! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 21:45:30'!
 undoAction
@@ -3173,9 +3174,9 @@ statusBarMessage: aString
 			redrawNeeded]
 		! !
 
-!DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/12/2024 19:00:34'!
+!DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/23/2024 10:24:19'!
 previewExtent
-	^ `1920@1080 // 12`! !
+	^ `1920@1080 // 10`! !
 
 !DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/12/2024 19:00:25'!
 previewGap

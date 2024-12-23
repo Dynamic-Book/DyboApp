@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 22 December 2024 at 1:29:06 pm'!
+'From Cuis7.1 [latest update: #6817] on 23 December 2024 at 12:12:28 pm'!
 'Description '!
-!provides: 'Dynabook' 1 125!
+!provides: 'Dynabook' 1 126!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1393,15 +1393,17 @@ printOn: aStream
 restoreDocumentFromDisk
 	document := document loadFromDisk! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 11:32:41'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/23/2024 10:42:15'!
 deleteDocument: aDocument 
  | topic binderView |
 	binderView := controlsManager activeView.
 	topic := binderView topic.
 	(PopUpMenu 
-		confirm: ('Delete the document {1} from {2}?' translated 
+		confirm: ('Delete the document: {1}
+in the topic: {2}?' translated 
 			format: {aDocument model dirName. topic })
-		trueChoice: 'Yes' translated falseChoice: 'No' translated) ifFalse: [^ self].
+		trueChoice: 'Yes, I want to delete it.' translated falseChoice: 'No, keep it.' translated) 
+			ifFalse: [^ self].
 	domain deleteDocument: aDocument from: topic.
 	binderView updateDocumentPreviews.
 	DySystem saveData 
@@ -1418,6 +1420,12 @@ newDocument
 openDocument: aDocument
 	currentTopic := self activeView topic.
 	self goDocument: aDocument view! !
+
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/23/2024 10:24:00'!
+saveDocument: aDocument 
+ | binderView |
+	binderView := controlsManager activeView.
+	aDocument saveDocument ifTrue: [	binderView updateDocumentPreviews]! !
 
 !Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/14/2024 11:27:57'!
 deleteTask: aDyTask 
@@ -3234,21 +3242,27 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/21/2024 10:51:18'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/23/2024 10:45:02'!
 previewFor: aDocument
 	| buttons  |
-	buttons := Array
-		with: (PluggableButtonMorph 		model: presenter 		action: #openDocument: 		actionArgument: aDocument ::
+	buttons := OrderedCollection new.
+	buttons add: (PluggableButtonMorph 		model: presenter 		action: #openDocument: 		actionArgument: aDocument ::
 			icon: Theme current textEditorIcon;
-			setBalloonText: 'Edit this document' translated)
-		with: (PluggableButtonMorph 		model: presenter 		action: #deleteDocument: 		actionArgument: aDocument ::
+			setBalloonText: 'Edit this document' translated).
+	aDocument isSaved ifFalse: [ buttons add:
+		(PluggableButtonMorph 		model: presenter 		action: #saveDocument: actionArgument: aDocument 		::
+			icon: Theme current saveIcon;
+			setBalloonText: 'Save this document' translated)].
+	buttons add: (PluggableButtonMorph 		model: presenter 		action: #deleteDocument: 		actionArgument: aDocument ::
 			icon: Theme current cancelIcon ;
 			setBalloonText: 'Delete this document' translated).
 	^ PreviewMorph 
 		object:  aDocument 
 		image:  aDocument view preview
 		buttons: buttons
-		label: aDocument model dirName! !
+		label: aDocument model dirName ::
+		borderWidth: 2;
+		borderColor: (aDocument isSaved ifTrue: [Color black] ifFalse: [Color red])! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 19:02:18'!
 previewRow
