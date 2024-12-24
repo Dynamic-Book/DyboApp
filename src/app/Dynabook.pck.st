@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 4:24:34 pm'!
+'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 5:05:21 pm'!
 'Description '!
-!provides: 'Dynabook' 1 127!
+!provides: 'Dynabook' 1 128!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -423,10 +423,14 @@ deleteTask: aTask
 	userData agenda tasks remove: aTask.
 	(DySystem userDataPath / DySystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:37:52'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/24/2024 16:43:42'!
 newTask: aTask
 	userData agenda tasks add: aTask.
-	aTask document model ownerPath: DySystem tasksRelPath ! !
+	aTask document model ownerPath: DySystem tasksRelPath.
+		"Save the empty document in case the user does not do it after editing"
+	aTask document
+		modified;
+		saveDocument! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
 userData

@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 4:24:32 pm'!
+'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 5:05:18 pm'!
 'Description '!
-!provides: 'Document' 1 95!
+!provides: 'Document' 1 96!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -480,7 +480,7 @@ PageContainer class
 
 !classDefinition: #DocumentView category: #'Document-View'!
 LayoutMorph subclass: #DocumentView
-	instanceVariableNames: 'presenter pages currentPage container statusBar pageCount preview'
+	instanceVariableNames: 'presenter pages currentPage container statusBar pageCount preview viewType'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -1336,9 +1336,10 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 16:10:39'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 17:01:41'!
 comeFullyUpOnReload: smartRefStream
-	self initializeWritingTools .
+	self initializeWritingTools.
+	savesReal := false.
 	'presenter came to life' print! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:55'!
@@ -1356,19 +1357,20 @@ modified
 	view resetPreview 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/22/2024 13:25:10'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 17:03:08'!
 objectForDataStream: str
 " We have two states when saving a document.
 1. When serialized from the data tree model -> respond a diskproxy, it is the default state saveReal == false
 2. When serialized and saved in its own tree at its own file location -> respond self, it is explicitly required, see #saveDocument
 "
 	^ savesReal 
-		ifFalse: [
+		ifFalse: [Transcript show: '   proxy saved: '; show: self; cr.
 			DiskProxy 				
 				global: #Document 				
 				selector: #loadDocument:  				
 				args: (Array with: model relPath)		 ]
-		ifTrue: [	self]! !
+		ifTrue: [	Transcript show: '   full object on disk: '; show: self; cr.
+			self]! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/22/2024 13:06:49'!
 saveToDisk
@@ -3070,8 +3072,9 @@ initialize
 	container := PageContainer for: currentPage.
 	pages add: currentPage! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:08:38'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:30:29'!
 installMiniView
+	viewType := #mini.
 	presenter view: self.
 	self 
 		addMorph: (self toolbarWith: self miniToolbarSpec)
@@ -3080,9 +3083,10 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:08:43'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:30:46'!
 installView
 	| row col |
+	viewType := #full.
 	presenter view: self.
 	self 	addMorph: (self toolbarWith: self toolbarSpec)
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
@@ -3204,10 +3208,12 @@ resetPreview
 	preview := nil
 	! !
 
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 16:10:44'!
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 16:31:45'!
 comeFullyUpOnReload: smartRefStream
 	submorphs := #().
-	self installView.
+	viewType == #mini
+		ifTrue: [self installMiniView]
+		ifFalse: [	self installView].
 	'view came to life' print! !
 
 !DocumentView methodsFor: 'persistence' stamp: 'hlsf 12/23/2024 13:52:58'!
