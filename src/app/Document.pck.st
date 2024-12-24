@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 5:05:18 pm'!
+'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 5:13:40 pm'!
 'Description '!
-!provides: 'Document' 1 96!
+!provides: 'Document' 1 97!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1207,9 +1207,9 @@ penRed
 penWhite
 	self penColor: Color white! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 21:45:34'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/24/2024 17:12:39'!
 redoAction
-	self commandsManager redo.! !
+	self commandsManager redo ifTrue: [self modified]! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 12/24/2024 16:13:27'!
 saveDocument
@@ -1223,9 +1223,9 @@ saveDocument
 	savesReal := false.
 	^ true! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 21:45:30'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/24/2024 17:12:27'!
 undoAction
-	self commandsManager undo.
+	self commandsManager undo ifTrue: [self modified].
 	self resetTool! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 21:45:16'!
@@ -1604,11 +1604,15 @@ moveGroup: aCollection to: delta in: aPaper
 		ifFalse: [MoveGroupCommand ].
 	stack nextPut: (command moveGroup: aCollection to: delta in: aPaper )! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:44'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 12/24/2024 17:11:37'!
 redo
 	| command |
 	command := stack next.
-	command ifNotNil:	 [command execute]! !
+	^ command 
+		ifNotNil:	 [
+			command execute.
+			true]
+		ifNil: [false]! !
 
 !CommandManager methodsFor: 'commands' stamp: 'hlsf 10/19/2024 11:23:59'!
 strokeGroup: aStrokeGroup in: aPaper
@@ -1618,11 +1622,15 @@ strokeGroup: aStrokeGroup in: aPaper
 		ifFalse: [WritingCommand].
 	stack nextPut: (command strokeGroup: aStrokeGroup in: aPaper )! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 9/11/2024 17:29:56'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 12/24/2024 17:11:42'!
 undo
 	| command |
 	command := stack previous.
-	command ifNotNil: [command unexecute]! !
+	^ command 
+		ifNotNil: [
+			command unexecute.
+			true]
+		ifNil: [false]! !
 
 !PageTool methodsFor: 'accessing' stamp: 'hlsf 10/19/2024 16:15:48'!
 currentPage
@@ -2359,10 +2367,6 @@ isCloserThan: distance toPixel: positionInWorld
 !StrokeGroupMorph methodsFor: 'clean up' stamp: 'hlsf 9/8/2024 19:03:55'!
 deleteBitMasks
 	submorphs do: [:each| each removeProperty: #bitMask]! !
-
-!StrokeGroupMorph methodsFor: 'clean up' stamp: 'hlsf 12/24/2024 15:54:09'!
-prepareToBeSaved 
-	self deleteBitMasks ! !
 
 !PageMorph methodsFor: 'geometry' stamp: 'hlsf 12/18/2024 15:33:55'!
 scale: newScale
