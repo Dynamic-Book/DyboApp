@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 23 December 2024 at 12:12:25 pm'!
+'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 4:24:32 pm'!
 'Description '!
-!provides: 'Document' 1 93!
+!provides: 'Document' 1 95!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1025,20 +1025,20 @@ insertPage
 lastPage
 	self view lastPage! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 11/16/2024 22:57:11'!
+!Document methodsFor: 'pages' stamp: 'hlsf 12/24/2024 14:39:54'!
 moveOXAction: increment
 	| page |
 	page := self currentPage.
 	page morphPosition: (page morphPosition + (increment @ 0) 
-		min: self view container morphExtent 
+		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 11/16/2024 22:58:11'!
+!Document methodsFor: 'pages' stamp: 'hlsf 12/24/2024 14:39:48'!
 moveOYAction: increment
 	| page |
 	page := self currentPage.
 	page morphPosition: (page morphPosition - (0@increment) 
-		min: self view container morphExtent 
+		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
 
 !Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:46:24'!
@@ -1062,9 +1062,9 @@ pageFitScreen
 previousPage
 	self view previousPage! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:36:13'!
+!Document methodsFor: 'pages' stamp: 'hlsf 12/24/2024 14:39:35'!
 zoomAction: increment	
-	self zoomAction: increment at: self view container center "container center"! !
+	self zoomAction: increment at: view container center "container center"! !
 
 !Document methodsFor: 'pages' stamp: 'hlsf 10/24/2024 15:18:25'!
 zoomAction: increment	 at: referencePoint
@@ -1211,16 +1211,16 @@ penWhite
 redoAction
 	self commandsManager redo.! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/23/2024 10:23:45'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/24/2024 16:13:27'!
 saveDocument
 	self isSaved ifTrue: [^ false].
 	"Update the preview so we save it too"
+	isSaved := true. "first, otherwise, we still have the red surrounding frame when cimputing the preview"
+	self currentPage redrawNeeded.
 	view preview.
 	savesReal := true.
 	self saveToDisk.
-	isSaved := true.
 	savesReal := false.
-	self currentPage redrawNeeded.
 	^ true! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 21:45:30'!
@@ -1319,12 +1319,12 @@ tool: aToolClass
 	view statusBarMessage: aToolClass description.
 	self changed! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 12/18/2024 21:45:04'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 12/23/2024 12:28:31'!
 initialize
 	super initialize.
 	self initializeWritingTools .
 	model := DocumentModel new.
-	savesReal := false. "When sending message #saveDocument"! !
+	savesReal := false. "Read comment in objectForDataStream:"! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:03:09'!
 initializeWritingTools
@@ -1335,6 +1335,11 @@ initializeWritingTools
 		threshold: 6 squared.
 	eraser := Pen new 	width: 2
 ! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 16:10:39'!
+comeFullyUpOnReload: smartRefStream
+	self initializeWritingTools .
+	'presenter came to life' print! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:55'!
 isSaved
@@ -1382,11 +1387,11 @@ storeDataOn: aDataStream
 	super storeDataOn: aDataStream.
 	self restoreAttributes: backup! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 22:17:06'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 16:17:11'!
 unsavedAttributes
-	^ #(commandsManager controlsManager isSaved)! !
+	^ #(commandsManager controlsManager isSaved pen highlighter eraser tool)! !
 
-!Document methodsFor: 'as yet unclassified' stamp: 'hlsf 12/22/2024 13:18:26'!
+!Document methodsFor: 'printing' stamp: 'hlsf 12/22/2024 13:18:26'!
 printOn: aStream
 	super printOn: aStream.
 	aStream nextPutAll: ' (';
@@ -2353,6 +2358,10 @@ isCloserThan: distance toPixel: positionInWorld
 deleteBitMasks
 	submorphs do: [:each| each removeProperty: #bitMask]! !
 
+!StrokeGroupMorph methodsFor: 'clean up' stamp: 'hlsf 12/24/2024 15:54:09'!
+prepareToBeSaved 
+	self deleteBitMasks ! !
+
 !PageMorph methodsFor: 'geometry' stamp: 'hlsf 12/18/2024 15:33:55'!
 scale: newScale
 	(pageModel is: #PageModelPdf) ifTrue: [
@@ -2987,6 +2996,11 @@ for: aPage
 	^ self new
 		addMorphFront: aPage position: 0@0! !
 
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 09:52:14'!
+adoptWidgetsColor: aColor 
+	super adoptWidgetsColor: aColor.
+	color := Theme current paneBackgroundFrom: aColor.! !
+
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 10/26/2024 15:10:11'!
 container
 	^ container ! !
@@ -3008,18 +3022,38 @@ presenter
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:53:46'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/24/2024 16:19:45'!
 preview
 " Shrinkg a bit then cut a piece from the origin with a given extent "
 	| shrinkFactor |
 	^ preview ifNil: [
 		('compute preview: ', self printString) print.
 		shrinkFactor := (self class previewExtent x / currentPage morphWidth ) * 3.
-		preview := ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (0@0 corner: self class previewExtent)]! !
+		preview := ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (2@2 corner: self class previewExtent)]! !
+
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 11/24/2024 19:51:30'!
+statusBarMessage: aString
+	statusBar ifNotNil: [
+		statusBar contents: aString;
+			adjustExtent ;
+			redrawNeeded]
+		! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 15:09:59'!
 tool
 	^ presenter tool! !
+
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 14:16:13'!
+buttonColor
+	^ Theme current buttonColorFrom: Theme current workspace ! !
+
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 09:52:25'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 09:52:31'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 10/26/2024 14:42:15'!
 deleteBitMasks
@@ -3027,70 +3061,69 @@ deleteBitMasks
 	pages do: [:aPage |
 		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 		] ]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 11/16/2024 11:17:03'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:08:32'!
 initialize
 	super initialize.
 	self beColumn.
 	pages := OrderedCollection new.
 	currentPage := PageMorph newOn: presenter model: self model newPageModel .
 	container := PageContainer for: currentPage.
-	pages add: currentPage ! !
+	pages add: currentPage! !
 
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:14'!
-adoptWidgetsColor: aColor 
-	super adoptWidgetsColor: aColor.
-	color := Theme current paneBackgroundFrom: aColor.! !
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:08:38'!
+installMiniView
+	presenter view: self.
+	self 
+		addMorph: (self toolbarWith: self miniToolbarSpec)
+		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
+	self	addMorphUseAll: container.
+	self adoptWidgetsColor: self defaultBorderColor.
+	presenter penTool! !
 
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:25'!
-defaultBorderColor
-	^ Theme current transcript! !
-
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 9/5/2024 09:52:31'!
-defaultColor
-	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
-
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/18/2024 22:16:33'!
-openCircularToolbar
-	self controlsManager documentCircularToolbar 
-		morphPosition: self activeHand morphPosition ;
-		openInWorld ! !
-
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:52:15'!
-pageCounter
-"a view of the opage count"
-	^ pageCount ifNil: [
-		pageCount := TextParagraphMorph new
-			color: Color transparent;
-			padding: 4@4;
-			borderWidth: 0;
-			yourself	]
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:08:43'!
+installView
+	| row col |
+	presenter view: self.
+	self 	addMorph: (self toolbarWith: self toolbarSpec)
+		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
+	row := LayoutMorph newRow 					addMorphUseAll: container.
+	" vertical and zoom wheels at the right "
+	col := LayoutMorph newColumn name: #wheelsYZ.
+	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
+	#(zoom100 fitWidth fitScreen) do: [:aZoomTool | 		col addMorph: 
+		(self button: aZoomTool state: #isTool: size: DySystem miniToolbarSize)].	
+	col	addMorphUseAll: DyControlsManager spacer;
+		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
+	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
+	self addMorph: row.
 	
-	! !
+	" status bar and horizontal wheel at the bottom "
+	row := LayoutMorph newRow name: #wheelX.
+	row addMorph: self pageCounter layoutSpec: 	(LayoutSpec fixedWidth: 12) ;
+		addMorphUseAll: self statusBarInScroller;
+		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
+		addMorph: DyControlsManager spacer layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
+	self addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
+	self adoptWidgetsColor: self defaultBorderColor.
+	presenter penTool.
+	self adjustPageCounter! !
 
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 12/22/2024 11:53:16'!
-resetPreview
-	preview := nil
-	! !
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 15:06:52'!
+miniToolbarSpec
+" Toolbar for a one page document "
+	^ #(pen eraser highlighter undo redo 
+	blank
+	pointer group)! !
 
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:53:57'!
-statusBar
-"A bar to print contextual information"
-	^ statusBar ifNil: [
-		statusBar := TextParagraphMorph new
-			color: Color transparent;
-			borderWidth: 0;
-			setHeightOnContent ;
-			yourself	]
-	
-	! !
-
-!DocumentView methodsFor: 'ui' stamp: 'hlsf 11/24/2024 19:54:03'!
-statusBarInScroller
-	^ PluggableScrollPane new scroller: self statusBar; 
-		borderWidth: 2;
-		borderColor: Color transparent ;
-		color: Color transparent;
-		yourself! !
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 15:06:25'!
+toolbarSpec
+	^ #(#importPDF saveDoc
+	blank
+	pen eraser highlighter undo redo 
+	blank
+	pointer group 
+	blank
+	firstPage previousPage insertPage deletePage 	nextPage lastPage)! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 14:34:50'!
 currentPage
@@ -3166,13 +3199,269 @@ adjustPageCounter
 				nextPutAll: '/';
 				nextPutAll: self numberOfPages printString 		])! !
 
-!DocumentView methodsFor: 'update' stamp: 'hlsf 11/24/2024 19:51:30'!
-statusBarMessage: aString
-	statusBar ifNotNil: [
-		statusBar contents: aString;
-			adjustExtent ;
-			redrawNeeded]
+!DocumentView methodsFor: 'update' stamp: 'hlsf 12/22/2024 11:53:16'!
+resetPreview
+	preview := nil
+	! !
+
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 16:10:44'!
+comeFullyUpOnReload: smartRefStream
+	submorphs := #().
+	self installView.
+	'view came to life' print! !
+
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 12/23/2024 13:52:58'!
+storeDataOn: aDataStream
+	| backup |
+	backup := self backupThenNilAttributes.
+	super storeDataOn: aDataStream.
+	self restoreAttributes: backup! !
+
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 15:50:03'!
+unsavedAttributes
+	^# (submorphs statusBar pageCount)! !
+
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 12/24/2024 15:40:39'!
+button: symbol state: stateGetter size: size
+	"array first = menu label or button label
+	array second = button form = section mode
+	array third = symbol callback
+	array fourth = help string	 "	
+	| array |
+	array := self perform: (symbol, #ButtonData) asSymbol.
+	^ ButtonMorph 
+		model: presenter
+		stateGetter: stateGetter
+		action: array third ::
+		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
+		icon: (DySystem icons getForm: array second ofSize: size);
+		setBalloonText: array fourth;
+		color: self defaultColor ;
+		selectedColor: self buttonColor ;
+		borderColor: self defaultColor darker;
+		borderWidth: 2;
+		morphExtent: (size  * 1.3) rounded asPoint;
+		yourself	! !
+
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 12/24/2024 14:09:58'!
+horizontalWheel 
+	^ (WheelMorph target: presenter actionSelector: #moveOXAction:)
+		beHorizontal; 
+		factor: 1; 
+		setBalloonText: 'Scroll the document to the left or right.' translated;
+		borderWidth: 3;
+		color: Color orange;
+		borderColor: Color black;
+		yourself! !
+
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 12/18/2024 22:16:33'!
+openCircularToolbar
+	self controlsManager documentCircularToolbar 
+		morphPosition: self activeHand morphPosition ;
+		openInWorld ! !
+
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 11/24/2024 19:52:15'!
+pageCounter
+"a view of the opage count"
+	^ pageCount ifNil: [
+		pageCount := TextParagraphMorph new
+			color: Color transparent;
+			padding: 4@4;
+			borderWidth: 0;
+			yourself	]
+	
+	! !
+
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 11/24/2024 19:53:57'!
+statusBar
+"A bar to print contextual information"
+	^ statusBar ifNil: [
+		statusBar := TextParagraphMorph new
+			color: Color transparent;
+			borderWidth: 0;
+			setHeightOnContent ;
+			yourself	]
+	
+	! !
+
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 11/24/2024 19:54:03'!
+statusBarInScroller
+	^ PluggableScrollPane new scroller: self statusBar; 
+		borderWidth: 2;
+		borderColor: Color transparent ;
+		color: Color transparent;
+		yourself! !
+
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 12/24/2024 15:21:20'!
+toolbarWith: aSpec
+	| toolbar buttonWidth |
+	toolbar := LayoutMorph newRow 		separation: 2.
+	buttonWidth := DySystem miniToolbarSize.
+	aSpec do: [:aTool | 
+		aTool 
+			caseOf: {
+				[ #spacer ] -> [ toolbar addMorphUseAll: DyControlsManager spacer ] .
+				[ #blank ] -> [ toolbar addMorph: (DyControlsManager spacer: buttonWidth) ] 			}
+			otherwise: [		
+				toolbar addMorph: (				
+					self 	button: aTool 			state: #isTool: 				size: buttonWidth )] 				].
+	^ toolbar! !
+
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 12/24/2024 14:10:09'!
+verticalWheel 
+	^  (WheelMorph target: self presenter actionSelector: #moveOYAction:)
+		beVertical; 
+		factor: 1; 
+		setBalloonText: 'Scroll the document up or down.' translated; 
+		borderWidth: 3;
+		color: Color orange;
+		borderColor: Color  black ;
+		yourself		
 		! !
+
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 12/24/2024 14:10:18'!
+zoomWheel 
+	^  (WheelMorph target: self presenter actionSelector: #zoomAction:)
+		beVertical; 
+		factor: 0.005; 
+		setBalloonText: 'Zoom in or out the document.' translated; 
+		borderWidth: 3;
+		color: Color gray;
+		borderColor: Color black;
+		yourself! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:20:03'!
+deletePageButtonData
+	^ {'Delete page' translated . 
+	#deletePage . 
+	#deletePage . 
+	'Delete the current page.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:20:12'!
+eraserButtonData
+	^ {EraserTool title. 
+	EraserTool iconName . 
+	EraserTool action . 
+	EraserTool description }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:20:20'!
+firstPageButtonData
+	^ {'First page' translated . 
+	#firstPage . 
+	#firstPage . 
+	'Go to the FIRST page of the document.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:20:32'!
+fitScreenButtonData
+	^ {'Fit screen' translated . 
+	#fitScreen . 
+	#pageFitScreen . 
+	'Scale the page to make it entirely visible.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:20:41'!
+fitWidthButtonData
+	^ {'Fit width' translated . 
+	#fitWidth . 
+	#fitWidthPage . 
+	'Scale the page to fit the window width.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:20:49'!
+groupButtonData
+	^ {GroupTool title. 
+	GroupTool iconName . 
+	GroupTool action . 
+	GroupTool description }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:20:55'!
+highlighterButtonData
+	^ {HighlighterTool title. 
+	HighlighterTool iconName . 
+	HighlighterTool action. 
+	HighlighterTool description }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:21:03'!
+importPDFButtonData
+	^ {'Import a PDF' translated . 
+	#importPDF . 
+	#importPDF . 
+	'Import a PDF document as a new document.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:21:11'!
+insertPageButtonData
+	^ {'New page' translated . 
+	#insertPage . 
+	#insertPage . 
+	'Insert a new page after the current one.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:22:31'!
+lastPageButtonData
+	^ {'Last page' translated . 
+	#lastPage . 
+	#lastPage . 
+	'Go to the LAST page of the document.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:22:38'!
+loadDocButtonData
+	^ {'Save document' translated . 
+	#load . 
+	#loadDocument . 
+	'Load a document from my data.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:22:44'!
+nextPageButtonData
+	^ {'Next page' translated . 
+	#nextObject . 
+	#nextPage . 
+	'Go to the next page of the document.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:22:58'!
+penButtonData
+	^ {PenTool title. 
+	PenTool iconName . 
+	PenTool action . 
+	PenTool description }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:23:05'!
+pointerButtonData
+	^ {PointerTool title. 
+	PointerTool iconName . 
+	PointerTool action . 
+	PointerTool description }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:23:12'!
+previousPageButtonData
+	^ {'Previous page' translated . 
+	#previousObject . 
+	#previousPage . 
+	'Go to the previous page of the document.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:23:19'!
+redoButtonData
+	^ {'Redo' translated . 
+	#redo . 
+	#redoAction . 
+	'Redo your last undone action.' translated }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:23:25'!
+saveDocButtonData
+	^ {'Save document' translated . 
+	#save . 
+	#saveDocument . 
+	'Save the current document in my data.' translated } ! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:23:31'!
+undoButtonData
+	^ {'Undo' translated . 
+	#undo . 
+	#undoAction . 
+	'Undo your last action.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:23:38'!
+zoom100ButtonData
+	^ {'Zoom 100%' translated . 
+	#zoom100 . 
+	#zoomPageTo100 . 
+	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
 
 !DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/23/2024 10:24:19'!
 previewExtent
@@ -3183,11 +3472,11 @@ previewGap
 " Gap between two previews in a row "
 	^ 12! !
 
-!DocumentView class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 16:02:50'!
+!DocumentView class methodsFor: 'instance creation' stamp: 'hlsf 12/24/2024 15:16:19'!
 presenter: aPresenter
 	^ self basicNew 
 		presenter: aPresenter;
-		initialize ;
+		initialize;
 		yourself! !
 
 !Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:22:27'!

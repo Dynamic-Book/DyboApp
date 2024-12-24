@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 23 December 2024 at 12:12:28 pm'!
+'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 4:24:34 pm'!
 'Description '!
-!provides: 'Dynabook' 1 126!
+!provides: 'Dynabook' 1 127!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -181,7 +181,7 @@ Dybo class
 
 !classDefinition: #DyPlatform category: #'Dynabook-System'!
 Object subclass: #DyPlatform
-	instanceVariableNames: 'preferences'
+	instanceVariableNames: 'preferences icons'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-System'!
@@ -211,7 +211,7 @@ DySystem class
 
 !classDefinition: #DyControlsManager category: #'Dynabook-View'!
 Object subclass: #DyControlsManager
-	instanceVariableNames: 'dyboView docView icons activeView'
+	instanceVariableNames: 'dyboView docView activeView'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dynabook-View'!
@@ -1478,10 +1478,10 @@ goBinder
 	controlsManager plugBinder.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/14/2024 14:42:26'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/24/2024 15:33:45'!
 goDocument
 " Plug a new document "
-	^ self goDocument:  controlsManager newDocumentView
+	^ self goDocument:  (DocumentView presenter: Document new :: 		installView)
 ! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 12/14/2024 14:55:15'!
@@ -1603,9 +1603,13 @@ setPreferences
 		
 	^ preferences! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 10/12/2024 10:50:06'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 12/24/2024 15:36:28'!
 reset
-	preferences := nil! !
+	icons := preferences := nil! !
+
+!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 12/24/2024 15:38:10'!
+icons
+	^ icons ifNil: [icons := IconImporter path: DySystem iconsPath]! !
 
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/13/2023 16:31:47'!
 iconsPath
@@ -1636,6 +1640,11 @@ reset
 iconToolbarSize
 " Size of the squared icons in the top toolbar"
 	^ platform iconToolbarSize ! !
+
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 12/24/2024 15:38:43'!
+icons
+" Access to the icons manager"
+	^ platform icons! !
 
 !DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/13/2023 17:16:57'!
 miniToolbarSize
@@ -1759,102 +1768,19 @@ saveData
 		dumpOnFile: (DySystem userDataPath // 'data.obj') 
 		object: DyUserData current! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 10/13/2024 13:09:40'!
-docPresenter
-" Access the presenter of the currently used document, if any "
-	^ docView presenter! !
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/13/2024 17:11:46'!
+addChevron: data to: aToolbar
+	"data first = action selector
+	data second = button form 
+	data third = help string	"	
+	^ (aToolbar addButton: data second)
+		model: self docPresenter ;
+		action: data first;
+		state: #isToolColor: ; 		argument: data first;
+		setBalloonText: data third ;
+		yourself	! !
 
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:03:47'!
-docToolbar: aSpec
-	| toolbar buttonWidth |
-	toolbar := LayoutMorph newRow 		separation: 2.
-	buttonWidth := DySystem miniToolbarSize.
-	aSpec do: [:aTool | 
-		aTool 
-			caseOf: {
-				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
-				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
-			otherwise: [		
-				toolbar addMorph: (				
-					self on: self docPresenter 					button: aTool 			state: #isTool: 					size: buttonWidth )] 				].
-	^ toolbar! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/14/2024 14:07:45'!
-docToolbarSpec
-	^ #(#importPDF saveDoc
-	blank
-	pen eraser highlighter undo redo 
-	blank
-	pointer group 
-	blank
-	firstPage previousPage insertPage deletePage 	nextPage lastPage)! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/18/2024 22:23:03'!
-docView: aView
-" Connect the control manager document view to aView (doc)
-Update the docView of the current document "
-	docView == aView ifTrue: [^ self]. " Already been there "
-	docView := aView.
-	self docPresenter controlsManager: self
-	! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/1/2024 17:09:35'!
-miniDocToolbarSpec
-" Toolbar for a one page document "
-	^ #(pen eraser highlighter undo redo 
-	blank
-	pointer group)! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/18/2024 22:16:49'!
-newDocumentView
-	| row col presenter |
-	self docView: (DocumentView presenter: (presenter := Document new)).
-	presenter 
-		controlsManager: self;
-		view: docView.
-	docView 
-		addMorph: (self docToolbar: self docToolbarSpec)
-		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
-	row := LayoutMorph newRow 					addMorphUseAll: docView container.
-	" vertical and zoom wheels at the right "
-	col := LayoutMorph newColumn name: #wheelsYZ.
-	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
-	#(zoom100 fitWidth fitScreen) do: [:aZoomTool |
-		col addMorph: 
-			(self on: self docPresenter button: aZoomTool state: #isTool: size: DySystem miniToolbarSize)].	
-	col	addMorphUseAll: DyControlsManager spacer;
-		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
-	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
-	docView addMorph: row.
-	
-	" status bar and horizontal wheel at the bottom "
-	row := LayoutMorph newRow name: #wheelX.
-	row addMorph: docView pageCounter layoutSpec: 	(LayoutSpec fixedWidth: 12) ;
-		addMorphUseAll: docView statusBarInScroller;
-		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
-		addMorph: DyControlsManager spacer layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
-	docView addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
-	docView adoptWidgetsColor: docView defaultBorderColor.
-	presenter penTool.
-	docView adjustPageCounter .
-	^ docView! !
-
-!DyControlsManager methodsFor: 'Doc' stamp: 'hlsf 12/18/2024 22:16:49'!
-newMiniDocumentView
-	| presenter  |
-	self docView: (DocumentView presenter: (presenter := Document new)).	
-	presenter 
-		controlsManager: self;
-		view: docView.
-	docView 
-		addMorph: (self docToolbar: self miniDocToolbarSpec)
-		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
-	docView 		addMorphUseAll: docView container.
-	docView adoptWidgetsColor: docView defaultBorderColor.
-	presenter penTool.
-	^ docView! !
-
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 12/18/2024 21:56:47'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/18/2024 21:56:47'!
 documentCircularToolbar
 	| toolsData circularToolbar |
 	toolsData := OrderedCollection 
@@ -1875,212 +1801,7 @@ documentCircularToolbar
 	self when: #switchView send: #delete to: circularToolbar.
 	^ circularToolbar ! !
 
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/16/2024 22:56:53'!
-eraserSizeTools
-" Data to build the circular sub toolbar of nib size "
-	| size help |
-	size := DySystem iconToolbarSize.
-	help := 'Erase with a width of {1} pixels.' translated.
-	^ #(4 8 16 ) collect: [:eraserSize | 
-		Array 
-			with:	(#eraserSize, eraserSize asString) asValidSelector asSymbol
-			with: (self eraser: size width: eraserSize )
-			with: (help format: {eraserSize })		 	]! !
-
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:31:05'!
-highlighterColorTools
-" Data to build the circular sub toolbar of highlighter colors "
-	| size help |
-	size := DySystem iconToolbarSize .
-	help := 'Highlight with a {1} color.' translated.
-	" XXX any other idea to get the color strings taken in consideration for translation? "	
-	'yellow' translated. " Other colors marked for translation in penColorToolsOn: method "
-	^ #('yellow' 'red' 'blue' 'green') collect: [:aColor | 
-		Array 
-			with:	(#highlighter, aColor capitalized) asSymbol
-			with: (	icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
-			with: (help format: {aColor translated})		 	]! !
-
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/16/2024 22:56:48'!
-highligtherSizeTools
-" Data to build the circular sub toolbar of highligther size "
-	| size help |
-	size := DySystem iconToolbarSize.
-	help := 'Highlit with a width of {1} pixels.' translated.
-	^ #(10 20 40) collect: [:nibSize | 
-		Array 
-			with:	(#highlighterSize, nibSize asString) asValidSelector asSymbol
-			with: (self tile: size width: nibSize / 2.0 color: (Color black))
-			with: (help format: {nibSize })		 	]! !
-
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/15/2024 18:31:39'!
-nibSizeTools
-" Data to build the circular sub toolbar of nib size "
-	| size help |
-	size := DySystem iconToolbarSize.
-	help := 'Write with a width of {1} pixel(s).' translated.
-	^ #(0.5 0.8 1 2 4 6 8 ) collect: [:nibSize | 
-		Array 
-			with:	(#nibSize, nibSize asString) asValidSelector asSymbol
-			with: (self handStroke: size width: nibSize color: Color black)
-			with: (help format: {nibSize })		 	]! !
-
-!DyControlsManager methodsFor: 'Doc-circularTool' stamp: 'hlsf 10/13/2024 16:34:51'!
-penColorTools
-" Data to build the circular sub toolbar of pen colors "
-	| size help |
-	size := DySystem iconToolbarSize.
-	help := 'Write with a {1} color.' translated.
-	" XXX any other idea to get the color strings taken in consideration for translation? "	
-	'black' translated. 'blue' translated. 	'green' translated. 'red' translated. 'white' translated.
-	^ #('black' 'blue' 'green' 'red' 'white') collect: [:aColor | 
-		Array 
-			with:	(#pen, aColor capitalized) asSymbol
-			with: (	icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
-			with: (help format: {aColor translated})		 	]! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 12:44:47'!
-deletePageButtonData
-	^ {'Delete page' translated . 
-	#deletePage . 
-	#deletePage . 
-	'Delete the current page.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:37:03'!
-eraserButtonData
-	^ {EraserTool title. 
-	EraserTool iconName . 
-	EraserTool action . 
-	EraserTool description }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 12:56:14'!
-firstPageButtonData
-	^ {'First page' translated . 
-	#firstPage . 
-	#firstPage . 
-	'Go to the FIRST page of the document.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 14:28:44'!
-fitScreenButtonData
-	^ {'Fit screen' translated . 
-	#fitScreen . 
-	#pageFitScreen . 
-	'Scale the page to make it entirely visible.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/11/2024 19:34:49'!
-fitWidthButtonData
-	^ {'Fit width' translated . 
-	#fitWidth . 
-	#fitWidthPage . 
-	'Scale the page to fit the window width.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/23/2024 10:51:27'!
-groupButtonData
-	^ {GroupTool title. 
-	GroupTool iconName . 
-	GroupTool action . 
-	GroupTool description }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:38:02'!
-highlighterButtonData
-	^ {HighlighterTool title. 
-	HighlighterTool iconName . 
-	HighlighterTool action. 
-	HighlighterTool description }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 11/24/2024 18:24:10'!
-importPDFButtonData
-	^ {'Import a PDF' translated . 
-	#importPDF . 
-	#importPDF . 
-	'Import a PDF document as a new document.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 13:00:55'!
-insertPageButtonData
-	^ {'New page' translated . 
-	#insertPage . 
-	#insertPage . 
-	'Insert a new page after the current one.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/26/2024 12:56:07'!
-lastPageButtonData
-	^ {'Last page' translated . 
-	#lastPage . 
-	#lastPage . 
-	'Go to the LAST page of the document.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 11/24/2024 18:26:50'!
-loadDocButtonData
-	^ {'Save document' translated . 
-	#load . 
-	#loadDocument . 
-	'Load a document from my data.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:45:36'!
-nextPageButtonData
-	^ {'Next page' translated . 
-	#nextObject . 
-	#nextPage . 
-	'Go to the next page of the document.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 12/1/2024 10:30:34'!
-pageButtonData
-" label - iconName - callback - description "
-	^ {'Open document' translated . 
-	#document . 
-	#goDocument . 
-	'Open a blank document to start writing.' translated }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 9/5/2024 11:38:30'!
-penButtonData
-	^ {PenTool title. 
-	PenTool iconName . 
-	PenTool action . 
-	PenTool description }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/23/2024 10:50:50'!
-pointerButtonData
-	^ {PointerTool title. 
-	PointerTool iconName . 
-	PointerTool action . 
-	PointerTool description }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:45:09'!
-previousPageButtonData
-	^ {'Previous page' translated . 
-	#previousObject . 
-	#previousPage . 
-	'Go to the previous page of the document.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:42:41'!
-redoButtonData
-	^ {'Redo' translated . 
-	#redo . 
-	#redoAction . 
-	'Redo your last undone action.' translated }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 12/19/2024 11:43:49'!
-saveDocButtonData
-	^ {'Save document' translated . 
-	#save . 
-	#saveDocument . 
-	'Save the current document in my data.' translated } ! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/10/2024 10:42:52'!
-undoButtonData
-	^ {'Undo' translated . 
-	#undo . 
-	#undoAction . 
-	'Undo your last action.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-controls data' stamp: 'hlsf 10/11/2024 19:36:38'!
-zoom100ButtonData
-	^ {'Zoom 100%' translated . 
-	#zoom100 . 
-	#zoomPageTo100 . 
-	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
-
-!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/16/2024 22:39:19'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/16/2024 22:39:19'!
 eraser: squareWidth width: width
 " An icon to represent partially erased handstrokes "
 	| aForm mask scale |
@@ -2094,7 +1815,19 @@ eraser: squareWidth width: width
 	^ aForm eraseShape: (mask asFormOfDepth: 1)
 ! !
 
-!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/16/2024 18:53:46'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/16/2024 22:56:53'!
+eraserSizeTools
+" Data to build the circular sub toolbar of nib size "
+	| size help |
+	size := DySystem iconToolbarSize.
+	help := 'Erase with a width of {1} pixels.' translated.
+	^ #(4 8 16 ) collect: [:eraserSize | 
+		Array 
+			with:	(#eraserSize, eraserSize asString) asValidSelector asSymbol
+			with: (self eraser: size width: eraserSize )
+			with: (help format: {eraserSize })		 	]! !
+
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/16/2024 18:53:46'!
 handStroke: squareWidth width: width color: color
 " Handstrokes to represent writting icon "
 	| aForm scale |
@@ -2109,7 +1842,59 @@ handStroke: squareWidth width: width color: color
 	^ aForm
 ! !
 
-!DyControlsManager methodsFor: 'Doc-form' stamp: 'hlsf 10/15/2024 21:10:56'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/24/2024 15:39:24'!
+highlighterColorTools
+" Data to build the circular sub toolbar of highlighter colors "
+	| size help |
+	size := DySystem iconToolbarSize .
+	help := 'Highlight with a {1} color.' translated.
+	" XXX any other idea to get the color strings taken in consideration for translation? "	
+	'yellow' translated. " Other colors marked for translation in penColorToolsOn: method "
+	^ #('yellow' 'red' 'blue' 'green') collect: [:aColor | 
+		Array 
+			with:	(#highlighter, aColor capitalized) asSymbol
+			with: (	DySystem icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (help format: {aColor translated})		 	]! !
+
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/16/2024 22:56:48'!
+highligtherSizeTools
+" Data to build the circular sub toolbar of highligther size "
+	| size help |
+	size := DySystem iconToolbarSize.
+	help := 'Highlit with a width of {1} pixels.' translated.
+	^ #(10 20 40) collect: [:nibSize | 
+		Array 
+			with:	(#highlighterSize, nibSize asString) asValidSelector asSymbol
+			with: (self tile: size width: nibSize / 2.0 color: (Color black))
+			with: (help format: {nibSize })		 	]! !
+
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/15/2024 18:31:39'!
+nibSizeTools
+" Data to build the circular sub toolbar of nib size "
+	| size help |
+	size := DySystem iconToolbarSize.
+	help := 'Write with a width of {1} pixel(s).' translated.
+	^ #(0.5 0.8 1 2 4 6 8 ) collect: [:nibSize | 
+		Array 
+			with:	(#nibSize, nibSize asString) asValidSelector asSymbol
+			with: (self handStroke: size width: nibSize color: Color black)
+			with: (help format: {nibSize })		 	]! !
+
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/24/2024 15:39:32'!
+penColorTools
+" Data to build the circular sub toolbar of pen colors "
+	| size help |
+	size := DySystem iconToolbarSize.
+	help := 'Write with a {1} color.' translated.
+	" XXX any other idea to get the color strings taken in consideration for translation? "	
+	'black' translated. 'blue' translated. 	'green' translated. 'red' translated. 'white' translated.
+	^ #('black' 'blue' 'green' 'red' 'white') collect: [:aColor | 
+		Array 
+			with:	(#pen, aColor capitalized) asSymbol
+			with: (	DySystem icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (help format: {aColor translated})		 	]! !
+
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/15/2024 21:10:56'!
 tile: squareWidth width: width color: color
 " A tile to represent a highlighter stroke "
 	| aForm scale |
@@ -2123,51 +1908,19 @@ tile: squareWidth width: width color: color
 	^ aForm 
 ! !
 
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 17:11:46'!
-addChevron: data to: aToolbar
-	"data first = action selector
-	data second = button form 
-	data third = help string	"	
-	^ (aToolbar addButton: data second)
-		model: self docPresenter ;
-		action: data first;
-		state: #isToolColor: ; 		argument: data first;
-		setBalloonText: data third ;
-		yourself	! !
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 10/13/2024 13:09:40'!
+docPresenter
+" Access the presenter of the currently used document, if any "
+	^ docView presenter! !
 
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 13:07:58'!
-horizontalWheel 
-	^ (WheelMorph target: self docPresenter actionSelector: #moveOXAction:)
-		beHorizontal; 
-		factor: 1; 
-		setBalloonText: 'Scroll the document to the left or right.' translated;
-		borderWidth: 3;
-		color: Color orange;
-		borderColor: Color black;
-		yourself! !
-
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 13:07:58'!
-verticalWheel 
-	^  (WheelMorph target: self docPresenter actionSelector: #moveOYAction:)
-		beVertical; 
-		factor: 1; 
-		setBalloonText: 'Scroll the document up or down.' translated; 
-		borderWidth: 3;
-		color: Color orange;
-		borderColor: Color  black ;
-		yourself		
-		! !
-
-!DyControlsManager methodsFor: 'Doc-widget' stamp: 'hlsf 10/13/2024 13:07:58'!
-zoomWheel 
-	^  (WheelMorph target: self docPresenter actionSelector: #zoomAction:)
-		beVertical; 
-		factor: 0.005; 
-		setBalloonText: 'Zoom in or out the document.' translated; 
-		borderWidth: 3;
-		color: Color gray;
-		borderColor: Color black;
-		yourself! !
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 22:23:03'!
+docView: aView
+" Connect the control manager document view to aView (doc)
+Update the docView of the current document "
+	docView == aView ifTrue: [^ self]. " Already been there "
+	docView := aView.
+	self docPresenter controlsManager: self
+	! !
 
 !DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:02:37'!
 dyboPresenter
@@ -2184,6 +1937,14 @@ binderButtonData
 	#binder . 
 	#goBinder . 
 	'In the Binders, find the documents of your courses and start a new one.' translated }! !
+
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 15:09:41'!
+pageButtonData
+" label - iconName - callback - description "
+	^ {'Open document' translated . 
+	#document . 
+	#goDocument . 
+	'Open a blank document to start writing.' translated }! !
 
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:51'!
 settingsButtonData
@@ -2220,10 +1981,6 @@ defaultColor
 	^ dyboView 
 		ifNotNil: [:v | v defaultColor] 
 		ifNil: [Theme current paneBackgroundFrom: Theme current transcript ]! !
-
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 9/17/2024 18:07:57'!
-initialize
-	icons := IconImporter path: DySystem iconsPath ! !
 
 !DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:03:09'!
 installDyboView: aPresenter
@@ -2292,7 +2049,7 @@ dyboToolbar
 dyboToolbarSpec
 	^ #(start tasks binder page spacer settings)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/18/2024 19:20:54'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/24/2024 15:39:28'!
 on: aPresenter button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
@@ -2305,7 +2062,7 @@ on: aPresenter button: symbol state: stateGetter size: size
 		stateGetter: stateGetter
 		action: array third ::
 		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
-		icon: (icons getForm: array second ofSize: size);
+		icon: (DySystem icons getForm: array second ofSize: size);
 		setBalloonText: array fourth;
 		color: self defaultColor ;
 		selectedColor: self buttonColor ;
@@ -2323,6 +2080,40 @@ spacer: size
 	^ ColoredBoxMorph new 
 		color: Color transparent; 
 		morphWidth: size;
+		yourself! !
+
+!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 12/23/2024 21:06:46'!
+horizontalWheel 
+	^ (WheelMorph target: self docPresenter actionSelector: #moveOXAction:)
+		beHorizontal; 
+		factor: 1; 
+		setBalloonText: 'Scroll the document to the left or right.' translated;
+		borderWidth: 3;
+		color: Color orange;
+		borderColor: Color black;
+		yourself! !
+
+!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 12/23/2024 21:06:41'!
+verticalWheel 
+	^  (WheelMorph target: self docPresenter actionSelector: #moveOYAction:)
+		beVertical; 
+		factor: 1; 
+		setBalloonText: 'Scroll the document up or down.' translated; 
+		borderWidth: 3;
+		color: Color orange;
+		borderColor: Color  black ;
+		yourself		
+		! !
+
+!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 12/23/2024 21:06:33'!
+zoomWheel 
+	^  (WheelMorph target: self docPresenter actionSelector: #zoomAction:)
+		beVertical; 
+		factor: 0.005; 
+		setBalloonText: 'Zoom in or out the document.' translated; 
+		borderWidth: 3;
+		color: Color gray;
+		borderColor: Color black;
 		yourself! !
 
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 10:25:09'!
@@ -3131,10 +2922,12 @@ plugMiniDocument: aDocView
 	self controlsManager docView: aDocView.
 	miniDocView := aDocView ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/18/2024 22:20:51'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 15:18:34'!
 plugNewMiniDocument
 " Insert a new empty mini document  "
-	self plugMiniDocument: self controlsManager newMiniDocumentView	! !
+	self plugMiniDocument: (DocumentView presenter: Document new :: 		installMiniView)
+	
+	! !
 
 !DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:04:04'!
 resetTask
@@ -3242,7 +3035,7 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/23/2024 10:45:02'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/24/2024 16:19:16'!
 previewFor: aDocument
 	| buttons  |
 	buttons := OrderedCollection new.
