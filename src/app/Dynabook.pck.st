@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 26 December 2024 at 11:52:23 am'!
+'From Cuis7.1 [latest update: #6817] on 26 December 2024 at 12:58:50 pm'!
 'Description '!
-!provides: 'Dynabook' 1 129!
+!provides: 'Dynabook' 1 130!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1414,7 +1414,7 @@ in the topic: {2}?' translated
 	DySystem saveData 
 	! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/26/2024 11:46:57'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/26/2024 12:54:38'!
 importPDF
 	| newDoc answer |
 	answer := (StandardFileMenu  new 
@@ -1427,6 +1427,10 @@ importPDF
 		importPDF: answer directory // answer name;
 		modified;
 		saveDocument.	
+	" Remove the former first page and present the first page "
+	newDoc view 
+		firstPage;
+		deletePage.		
 	^ newDoc! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/26/2024 11:16:20'!
