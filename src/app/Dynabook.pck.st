@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 5:05:21 pm'!
+'From Cuis7.1 [latest update: #6817] on 26 December 2024 at 11:52:23 am'!
 'Description '!
-!provides: 'Dynabook' 1 128!
+!provides: 'Dynabook' 1 129!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -405,13 +405,14 @@ I am a view to browse the past document, depending on the class groups, courses 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 13:27:56'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/26/2024 11:15:54'!
 addDocument: aDocument to: topic
 	topic documents add: aDocument.
 	aDocument model ownerPath: topic relPath.
 	"Save the empty document in case the user does not do it after editing"
 	aDocument modified .
-	aDocument saveDocument.! !
+	aDocument saveDocument.
+	^ aDocument ! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:31:05'!
 deleteDocument: aDocument from: topic
@@ -1413,12 +1414,29 @@ in the topic: {2}?' translated
 	DySystem saveData 
 	! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/14/2024 14:23:13'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/26/2024 11:46:57'!
+importPDF
+	| newDoc answer |
+	answer := (StandardFileMenu  new 
+		oldFileFrom:  DySystem myResourcesPath 
+		withPattern:  '*.pdf'
+		excludePattern: '.*') startUpWithCaption: 'Import a PDF document.' translated.
+	answer ifNil: [^ self].
+	newDoc := self newDocument.	
+	newDoc 
+		importPDF: answer directory // answer name;
+		modified;
+		saveDocument.	
+	^ newDoc! !
+
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/26/2024 11:16:20'!
 newDocument
+	| newDoc |
 	currentTopic := self activeView topic.
 	currentTopic ifNil: [^ self].
-	domain addDocument: self goDocument to: currentTopic.
-	DySystem saveData ! !
+	newDoc := domain addDocument: self goDocument to: currentTopic.
+	DySystem saveData.
+	^ newDoc ! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/21/2024 10:46:31'!
 openDocument: aDocument
@@ -1663,10 +1681,10 @@ screenSize
 iconsPath
 	^ platform iconsPath! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 11/14/2024 11:13:13'!
-myDocumentsPath
-" the location of the user documents "
-	^ self userDataPath / 'myDocuments'! !
+!DySystem class methodsFor: 'path' stamp: 'hlsf 12/26/2024 11:35:31'!
+myResourcesPath
+" the location of the user resources as PDF or other media files "
+	^ platform rootPath/ 'myResources'! !
 
 !DySystem class methodsFor: 'path' stamp: 'hlsf 12/16/2024 21:43:05'!
 tasksRelPath
@@ -3020,7 +3038,7 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 21:55:16'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/26/2024 11:26:40'!
 documentsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
 	| quickButtons scroller |
@@ -3028,9 +3046,9 @@ documentsPanel
 		with: (PluggableButtonMorph model: presenter action: #newDocument ::
 			icon: Theme current listAddIcon;
 			setBalloonText: 'Create a new document in the selected topic.' translated)
-		with: (PluggableButtonMorph model: presenter action: #importResource ::
+		with: (PluggableButtonMorph model: presenter action: #importPDF ::
 			icon: Theme current openIcon;
-			setBalloonText: 'Import a resource in the selected topic.' translated).
+			setBalloonText: 'Import a PDF document in the selected topic.' translated).
 	scroller := PluggableScrollPane new ::
 		layoutSpec: LayoutSpec useAll;
 		scroller: (previewPanel := LayoutMorph newColumn) .

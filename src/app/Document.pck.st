@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 24 December 2024 at 5:13:40 pm'!
+'From Cuis7.1 [latest update: #6817] on 26 December 2024 at 11:52:20 am'!
 'Description '!
-!provides: 'Document' 1 97!
+!provides: 'Document' 1 99!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1135,11 +1135,11 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/18/2024 15:32:57'!
-importPDF
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/26/2024 11:39:19'!
+importPDF: aFileEntry
 	| process |
 	process := DySystem 
-		import: DySystem myDocumentsPath parent parent / 'samples' // 'textbook1.pdf'
+		import: aFileEntry
 		to: model path
 		pages: nil.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
@@ -3028,14 +3028,16 @@ presenter
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/24/2024 16:19:45'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 12/25/2024 20:07:58'!
 preview
 " Shrinkg a bit then cut a piece from the origin with a given extent "
-	| shrinkFactor |
+	| shrinkFactor origin |
+	origin := 20 @10.
 	^ preview ifNil: [
 		('compute preview: ', self printString) print.
-		shrinkFactor := (self class previewExtent x / currentPage morphWidth ) * 3.
-		preview := ((currentPage imageForm: 32) magnifyBy: shrinkFactor) copy: (2@2 corner: self class previewExtent)]! !
+		shrinkFactor := (self class previewExtent x / currentPage morphWidth ) * 2.
+		preview := ((currentPage imageForm: 32) magnifyBy: shrinkFactor) 
+			copy: (origin corner: self class previewExtent + origin)]! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 11/24/2024 19:51:30'!
 statusBarMessage: aString
@@ -3123,9 +3125,9 @@ miniToolbarSpec
 	blank
 	pointer group)! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 15:06:25'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/26/2024 11:45:47'!
 toolbarSpec
-	^ #(#importPDF saveDoc
+	^ #(saveDoc
 	blank
 	pen eraser highlighter undo redo 
 	blank
@@ -3388,13 +3390,6 @@ highlighterButtonData
 	HighlighterTool iconName . 
 	HighlighterTool action. 
 	HighlighterTool description }! !
-
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:21:03'!
-importPDFButtonData
-	^ {'Import a PDF' translated . 
-	#importPDF . 
-	#importPDF . 
-	'Import a PDF document as a new document.' translated  }! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 14:21:11'!
 insertPageButtonData
