@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 26 December 2024 at 12:58:50 pm'!
+'From Cuis7.1 [latest update: #6817] on 26 December 2024 at 9:01:29 pm'!
 'Description '!
-!provides: 'Dynabook' 1 130!
+!provides: 'Dynabook' 1 131!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1758,7 +1758,7 @@ defaultPaperSize
 	
 	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 12:30:26'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/26/2024 20:54:20'!
 import: pdfEntry to: destEntry pages: interval
 "
 	In dest, convert the doc.pdf interval pages at interger resolution	
@@ -1766,8 +1766,8 @@ import: pdfEntry to: destEntry pages: interval
 	| importCommand process |
 	destEntry assureExistence.
 	importCommand := interval 
-		ifNil:  ['pdftocairo -pdf {1} {2}/doc.pdf' format: { pdfEntry pathName . destEntry pathName } 		]
-		ifNotNil: ['pdftocairo -pdf {1} -f {2} -l {3} {4}/doc.pdf' format: {
+		ifNil:  ['pdftocairo -pdf ''{1}'' ''{2}/doc.pdf''' format: { pdfEntry pathName . destEntry pathName } 		]
+		ifNotNil: ['pdftocairo -pdf ''{1}'' -f {2} -l {3} ''{4}/doc.pdf''' format: {
 			pdfEntry pathName .
 			interval first.
 			interval last.
