@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 26 December 2024 at 11:52:20 am'!
+'From Cuis7.3 [latest update: #6957] on 28 December 2024 at 8:38:51 pm'!
 'Description '!
-!provides: 'Document' 1 99!
+!provides: 'Document' 1 100!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1211,16 +1211,14 @@ penWhite
 redoAction
 	self commandsManager redo ifTrue: [self modified]! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/24/2024 16:13:27'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/28/2024 20:37:26'!
 saveDocument
 	self isSaved ifTrue: [^ false].
-	"Update the preview so we save it too"
-	isSaved := true. "first, otherwise, we still have the red surrounding frame when cimputing the preview"
-	self currentPage redrawNeeded.
-	view preview.
 	savesReal := true.
 	self saveToDisk.
 	savesReal := false.
+	isSaved := true.
+	self currentPage redrawNeeded.
 	^ true! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 12/24/2024 17:12:27'!
@@ -3221,6 +3219,10 @@ comeFullyUpOnReload: smartRefStream
 		ifTrue: [self installMiniView]
 		ifFalse: [	self installView].
 	'view came to life' print! !
+
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 12/28/2024 20:34:59'!
+prepareToBeSaved
+	preview := nil! !
 
 !DocumentView methodsFor: 'persistence' stamp: 'hlsf 12/23/2024 13:52:58'!
 storeDataOn: aDataStream
