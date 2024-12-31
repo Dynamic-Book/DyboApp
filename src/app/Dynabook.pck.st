@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 11:18:32 am'!
+'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 12:36:57 pm'!
 'Description '!
-!provides: 'Dynabook' 1 132!
+!provides: 'Dynabook' 1 133!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1433,18 +1433,16 @@ importPDF
 		deletePage.		
 	^ newDoc! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/26/2024 11:16:20'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/31/2024 12:34:39'!
 newDocument
 	| newDoc |
-	currentTopic := self activeView topic.
 	currentTopic ifNil: [^ self].
 	newDoc := domain addDocument: self goDocument to: currentTopic.
 	DySystem saveData.
 	^ newDoc ! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/21/2024 10:46:31'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/31/2024 12:35:33'!
 openDocument: aDocument
-	currentTopic := self activeView topic.
 	self goDocument: aDocument view! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/23/2024 10:24:00'!
@@ -1571,6 +1569,10 @@ controlsManager
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 11:08:13'!
 currentTopic
 	^ currentTopic ! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 12:33:21'!
+currentTopic: aTopic
+	currentTopic := aTopic ! !
 
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:40:14'!
 domain
@@ -3031,11 +3033,12 @@ topic: aTopic
 topicIndex
 	^ topicIndex! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 12/12/2024 19:25:40'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 12:34:04'!
 topicIndex: anIndex
 	topicIndex := anIndex.
 	self changed: #topicIndex:.
-	self updateDocumentPreviews ! !
+	self updateDocumentPreviews.
+	presenter currentTopic: self topic! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:57:40'!
 topics
