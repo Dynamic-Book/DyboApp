@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 11:18:30 am'!
+'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 7:43:55 pm'!
 'Description '!
-!provides: 'Document' 1 101!
+!provides: 'Document' 1 102!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1135,7 +1135,7 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 12/26/2024 11:39:19'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 12/31/2024 19:15:56'!
 importPDF: aFileEntry
 	| process |
 	process := DySystem 
@@ -1143,7 +1143,6 @@ importPDF: aFileEntry
 		to: model path
 		pages: nil.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
-	model pageModel: model path .	
 	1 to: model pdfNumberOfPage do: [:index | | newPage |
 		newPage := PageMorph newOn: self model: (self model newPdfPageModel: index).
 		self view insertPage: newPage 	]
@@ -2097,9 +2096,9 @@ pdfFormPage: integer
 pdfNumberOfPage
 	^ self pdfPages size! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 11/15/2024 22:58:33'!
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 12/31/2024 19:18:28'!
 pdfPages
-	^ (pageModel children select: [:each | each extension = 'jpg'])
+	^ (self path children select: [:each | each extension = 'jpg'])
 		sort: [:f1 :f2 | f1 name < f2 name]! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:59:06'!
@@ -2115,11 +2114,6 @@ ownerPath: aString
 " The relative path of my owner, a topic or a task. 
 a topic path looks like School/Class/Course/topic/,  a task path is just topics/ "
 	ownerPath := aString! !
-
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 10:45:47'!
-pageModel: aDirEntryOrPageModelClass
-" Read class comment "
-	pageModel := aDirEntryOrPageModelClass ! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:41:20'!
 path

@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 12:36:57 pm'!
+'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 7:43:57 pm'!
 'Description '!
-!provides: 'Dynabook' 1 133!
+!provides: 'Dynabook' 1 134!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -3076,7 +3076,7 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/31/2024 10:22:06'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/31/2024 19:29:17'!
 previewFor: aDocument
 	| buttons  |
 	buttons := OrderedCollection new.
