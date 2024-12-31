@@ -1,6 +1,6 @@
-'From Cuis7.1 [latest update: #6817] on 26 December 2024 at 9:01:29 pm'!
+'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 11:18:32 am'!
 'Description '!
-!provides: 'Dynabook' 1 131!
+!provides: 'Dynabook' 1 132!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1194,7 +1194,7 @@ color: anObject
 
 	color := anObject! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 10/8/2023 23:20:15'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 10:55:31'!
 course
 	^ owner! !
 
@@ -1498,11 +1498,11 @@ saveTask
 		ifNil: [self saveNewTask]
 	! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 12/31/2024 11:07:16'!
 goBinder
 	activeViewType := #binder.
 	controlsManager plugBinder.
-	self changed: #isView:! !
+	self changed: #isView:	! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 12/24/2024 15:33:45'!
 goDocument
@@ -1567,6 +1567,10 @@ activeView
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 09:59:47'!
 controlsManager
 	^ controlsManager ! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 11:08:13'!
+currentTopic
+	^ currentTopic ! !
 
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:40:14'!
 domain
@@ -2024,20 +2028,21 @@ activeView
  "
 	^ activeView! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/12/2024 19:48:47'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/31/2024 11:10:02'!
 plugBinder
 	self plugInDyboView: (DyBinderView presenter: self dyboPresenter).
-	self runningWorld doOneCycleNow.
-	self activeView updateDocumentPreviews ! !
+	self activeView updateDocumentPreviews .
+	self dyboPresenter currentTopic ifNotNil: [:aTopic | activeView topic: aTopic].
+	self runningWorld doOneCycleNow.! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/18/2024 21:57:53'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/31/2024 11:08:55'!
 plugInDyboView: aView
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout |
 	layout := dyboView layoutMorph.
-	activeView ifNotNil: [		layout removeMorph: activeView].
+	activeView ifNotNil: [layout removeMorph: activeView].
 	activeView := aView.
-	layout 	 addMorphUseAll: aView .
+	layout addMorphUseAll: aView .
 	dyboView changed.
 	self triggerEvent: #switchView! !
 
@@ -3015,6 +3020,13 @@ topic
 " The selected topic, if any "
 	^ self topics at: topicIndex ifAbsent: [nil]! !
 
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 10:59:00'!
+topic: aTopic
+" Set the selected topic once the classGroup and course are set accordingly "
+	self classGroup: aTopic course classGroup.
+	self course: aTopic course.
+	self topicIndex: (self topics indexOf: aTopic ifAbsent: [0])! !
+
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/4/2023 22:39:04'!
 topicIndex
 	^ topicIndex! !
@@ -3061,18 +3073,20 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/24/2024 16:19:16'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/31/2024 10:22:06'!
 previewFor: aDocument
 	| buttons  |
 	buttons := OrderedCollection new.
-	buttons add: (PluggableButtonMorph 		model: presenter 		action: #openDocument: 		actionArgument: aDocument ::
+	buttons add: 
+		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocument ::
 			icon: Theme current textEditorIcon;
 			setBalloonText: 'Edit this document' translated).
 	aDocument isSaved ifFalse: [ buttons add:
-		(PluggableButtonMorph 		model: presenter 		action: #saveDocument: actionArgument: aDocument 		::
+		(PluggableButtonMorph model: presenter action: #saveDocument: actionArgument: aDocument ::
 			icon: Theme current saveIcon;
 			setBalloonText: 'Save this document' translated)].
-	buttons add: (PluggableButtonMorph 		model: presenter 		action: #deleteDocument: 		actionArgument: aDocument ::
+	buttons add: 
+		(PluggableButtonMorph model: presenter action: #deleteDocument: actionArgument: aDocument ::
 			icon: Theme current cancelIcon ;
 			setBalloonText: 'Delete this document' translated).
 	^ PreviewMorph 
@@ -3122,13 +3136,13 @@ initialize
 	self addMorphUseAll: self documentsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 12/12/2024 21:56:31'!
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 12/31/2024 11:12:59'!
 updateDocumentPreviews
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	documents := self topic ifNil: [`Array new`] ifNotNil: [:aTopic | aTopic documents].
 	previewPanel removeAllMorphs.
-	previewsPerLine := self morphWidth // 
+	previewsPerLine := self owner morphWidth - 50 // 
 		(DocumentView previewExtent x + DocumentView previewGap).
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
 		previewPanel addMorph: (			documentsRow 

@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6957] on 28 December 2024 at 8:38:51 pm'!
+'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 11:18:30 am'!
 'Description '!
-!provides: 'Document' 1 100!
+!provides: 'Document' 1 101!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2284,7 +2284,7 @@ drawOn: canvas
 		]
 	]! !
 
-!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 9/8/2024 16:14:52'!
+!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 12/29/2024 10:36:25'!
 drawOn: canvas
 " I draw manually my submorphs "
 	| nextIndex endIndex strokesQty stroke color width |
@@ -2298,12 +2298,12 @@ drawOn: canvas
 		endIndex :=  nextIndex + 1.
 		[endIndex <= strokesQty 
 			and: [(stroke := submorphs at: endIndex) color = color 
-			and: [stroke width = width]]] whileTrue: [			endIndex := endIndex + 1		].
+			and: [stroke width = width]]] whileTrue: [endIndex := endIndex + 1].
 		canvas strokeWidth: width color: color do: [
 			nextIndex to: (endIndex - 1) do: [ :i |
 				stroke := submorphs at: i.
 				 stroke drawCurveOn: canvas ] ].
-		nextIndex := endIndex	].	
+		nextIndex := endIndex ].	
 	self showTangents ifTrue: [submorphs do: [:each | each drawTangentsOn: canvas] ].
 	self showControls ifTrue: [submorphs do: [:each | each drawControlsOn: canvas] ].
 	self showPoints ifTrue: [submorphs do: [:each | each drawPointsOn: canvas] ]! !
