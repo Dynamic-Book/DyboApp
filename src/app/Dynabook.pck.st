@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 7:43:57 pm'!
+'From Cuis7.3 [latest update: #6962] on 3 January 2025 at 10:23:25 am'!
 'Description '!
-!provides: 'Dynabook' 1 134!
+!provides: 'Dynabook' 1 135!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -1742,10 +1742,10 @@ removeUserData
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 16:35:16'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 1/3/2025 10:16:53'!
 convert: destEntry pages: interval dpi: integer
 " 
-	In dest, convert the doc.pdf interval pages at interger resolution	   
+	In destEntry, convert the doc.pdf interval pages at interger resolution	   
 "
 	| converstionCommand resolution |
 	resolution := integer min: 300 max: 75.
@@ -1764,10 +1764,11 @@ defaultPaperSize
 	
 	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/26/2024 20:54:20'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 1/3/2025 10:17:24'!
 import: pdfEntry to: destEntry pages: interval
 "
-	In dest, convert the doc.pdf interval pages at interger resolution	
+	In our destEntry, generate a doc.pdf document with the selected pages interval, if fany ;
+	then in destEntry, convert the doc.pdf interval pages at interger resolution	
 "
 	| importCommand process |
 	destEntry assureExistence.
