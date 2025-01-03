@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6960] on 31 December 2024 at 7:43:55 pm'!
+'From Cuis7.3 [latest update: #6962] on 3 January 2025 at 10:00:40 am'!
 'Description '!
-!provides: 'Document' 1 102!
+!provides: 'Document' 1 103!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2177,14 +2177,16 @@ printOn: str
 	
 ! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 4/2/2023 22:51:31'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:58:59'!
 drawControlsOn: canvas
-	canvas fillColor: Color red do: [	canvas circleCenter: c1 radius: 1.5]! !
+	canvas fillColor: `Color red` do: [
+		canvas circleCenter: c1 radius: 1.5]! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 4/8/2023 12:38:57'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:56:19'!
 drawCurveOn: canvas
-	canvas moveTo: p1.
-	canvas quadraticBezierTo: p2 control: c1! !
+	canvas 
+		moveTo: p1;
+		quadraticBezierTo: p2 control: c1! !
 
 !Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 4/8/2023 13:11:24'!
 drawOn: canvas
@@ -2194,17 +2196,20 @@ drawOn: canvas
 	self showPoints ifTrue: [self drawPointsOn: canvas]
 	! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 4/1/2023 15:57:18'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:58:42'!
 drawPointsOn: canvas
-	canvas fillColor: Color blue do: [canvas circleCenter: p1 radius: 1.5].
-	canvas fillColor: Color blue do: [canvas circleCenter: p2 radius: 1.5]! !
+	canvas fillColor: `Color blue` do: [
+		canvas 
+			circleCenter: p1 radius: 1.5;
+			circleCenter: p2 radius: 1.5]! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 4/2/2023 22:51:18'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:58:04'!
 drawTangentsOn: canvas
-	canvas strokeWidth: 0.8 color: Color green do: [		
-			canvas moveTo: p1.
-			canvas lineTo: c1.
-			canvas lineTo: p2]! !
+	canvas strokeWidth: 0.8 color: `Color green` do: [		
+			canvas 
+				moveTo: p1;
+				lineTo: c1;
+				lineTo: p2]! !
 
 !Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 4/3/2023 19:33:00'!
 is: aSymbol
@@ -2246,23 +2251,27 @@ printOn: str
 	
 ! !
 
-!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 4/2/2023 22:51:42'!
+!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:59:33'!
 drawControlsOn: canvas
-	super drawControlsOn: canvas.
-	canvas fillColor: Color red do: [	canvas circleCenter: c2 radius: 1.5]! !
+	canvas fillColor: `Color red` do: [
+		canvas 
+			circleCenter: c1 radius: 1.5;
+			circleCenter: c2 radius: 1.5]! !
 
-!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 4/8/2023 12:40:01'!
+!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:56:04'!
 drawCurveOn: canvas
 	canvas moveTo: p1.
-	c1 ifNil: [canvas lineTo: p2]	 ifNotNil: [canvas cubicBezierTo: p2 control1: c1 control2: c2]! !
+	c1 
+		ifNil: [canvas lineTo: p2]
+		ifNotNil: [canvas cubicBezierTo: p2 control1: c1 control2: c2]! !
 
-!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 4/2/2023 14:39:30'!
+!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:58:32'!
 drawTangentsOn: canvas
-	canvas strokeWidth: 0.8 color: Color green do: [		
-				canvas moveTo: p1.
-				canvas lineTo: c1.
-				canvas moveTo: p2.
-				canvas lineTo: c2] ! !
+	canvas strokeWidth: 0.8 color: `Color green` do: [		
+				canvas moveTo: p1;
+					lineTo: c1;
+					moveTo: p2;
+					lineTo: c2] ! !
 
 !LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 10/13/2024 18:47:48'!
 drawOn: canvas
@@ -2278,7 +2287,7 @@ drawOn: canvas
 		]
 	]! !
 
-!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 12/29/2024 10:36:25'!
+!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:55:24'!
 drawOn: canvas
 " I draw manually my submorphs "
 	| nextIndex endIndex strokesQty stroke color width |
@@ -2286,6 +2295,7 @@ drawOn: canvas
 	strokesQty isZero ifTrue: [ ^ self ].
 	nextIndex := 1.
 	[nextIndex <= strokesQty] whileTrue: [
+		" Collect the strokes with the same width and color, then draw them collectively "
 		stroke := submorphs at: nextIndex.
 		color := stroke color.
 		width := stroke width.
@@ -2293,10 +2303,9 @@ drawOn: canvas
 		[endIndex <= strokesQty 
 			and: [(stroke := submorphs at: endIndex) color = color 
 			and: [stroke width = width]]] whileTrue: [endIndex := endIndex + 1].
-		canvas strokeWidth: width color: color do: [
-			nextIndex to: (endIndex - 1) do: [ :i |
-				stroke := submorphs at: i.
-				 stroke drawCurveOn: canvas ] ].
+		nextIndex to: (endIndex - 1) do: [ :i |
+			canvas strokeWidth: width color: color do: [
+				(submorphs at: i) drawCurveOn: canvas ] ].
 		nextIndex := endIndex ].	
 	self showTangents ifTrue: [submorphs do: [:each | each drawTangentsOn: canvas] ].
 	self showControls ifTrue: [submorphs do: [:each | each drawControlsOn: canvas] ].
@@ -2722,10 +2731,10 @@ writingAt: localPosition
 						sampleIndex := sampleIndex +1 ] ]	 	] ]	.
 		lineMorphs redrawNeeded ! !
 
-!PaperMorph methodsFor: 'drawing' stamp: 'hlsf 12/8/2024 18:54:05'!
+!PaperMorph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 10:00:17'!
 drawOn: canvas
 	presenter isSaved ifFalse: [
-		canvas frameRectangle: self localBounds borderWidth: 2 color: Color red]! !
+		canvas frameRectangle: self localBounds borderWidth: 2 color: `Color red`]! !
 
 !PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/19/2024 10:07:27'!
 clearSelection
@@ -2798,9 +2807,9 @@ endWritingAt: localPosition
 	
 	^ strokeGroup ! !
 
-!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 9/28/2024 16:36:06'!
+!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 10:00:06'!
 drawOn: aCanvas 
-	aCanvas frameRectangle: self localBounds borderWidth: 1 color: (Color gray alpha: 0.2)! !
+	aCanvas frameRectangle: self localBounds borderWidth: 1 color: `Color gray alpha: 0.2`! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 11/16/2024 17:19:51'!
 adjustBounds
@@ -2872,34 +2881,39 @@ documentModel
 defaultColor
 	^ Color white! !
 
-!PageModelHL methodsFor: 'drawing' stamp: 'hlsf 10/11/2024 18:13:15'!
+!PageModelHL methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:46:53'!
 drawOn: canvas 
-	| y  step |
+	| y  step width |
 	super drawOn: canvas.
 	step := 50.
+	width := self lineWidth.
 	y := step.
-	canvas strokeWidth: (0.8 / owner scale min: 0.8) color: `Color blue` do: [
-		[ y < extent y ] whileTrue: [
+ 	[ y < extent y ] whileTrue: [
+		canvas strokeWidth: width color: `Color blue` do: [
 			canvas moveTo: 0 @ y;
-				lineTo: extent x @ y.
-			y := y + step 			]		
-		]! !
+				lineTo: extent x @ y ].
+            y := y + step ]   ! !
+
+!PageModelHL methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:46:42'!
+lineWidth
+	^  0.8 / owner scale min: 0.8! !
 
 !PageModelHL methodsFor: 'geometry testing' stamp: 'hlsf 9/12/2024 12:10:57'!
 requiresVectorCanvas
 	^ true! !
 
-!PageModelGrid methodsFor: 'drawing' stamp: 'hlsf 11/12/2024 22:03:21'!
+!PageModelGrid methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:48:40'!
 drawOn: canvas 
-	| x  step |
+	| x  step width |
 	super drawOn: canvas.
 	step := 50.
 	x := step.
-	canvas strokeWidth: (0.8 / owner scale min: 0.8) color: `Color blue` do: [
-		[ x < extent x ] whileTrue: [
+	width := self lineWidth.
+	[ x < extent x ] whileTrue: [
+		canvas strokeWidth: width color: `Color blue` do: [
 			canvas moveTo: x @ 0;
 				lineTo: x @ extent y.
-			x := x + step 			]		
+			x := x + step ]
 		]! !
 
 !PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 13:31:16'!
