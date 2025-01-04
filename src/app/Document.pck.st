@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 3:51:01 pm'!
+'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 7:11:51 pm'!
 'Description '!
-!provides: 'Document' 1 109!
+!provides: 'Document' 1 110!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -999,15 +999,15 @@ newStroke
 	
 	! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 16:04:43'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 10/26/2024 16:04:43'!
 deletePage
 	self view deletePage! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:45:38'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 10/26/2024 15:45:38'!
 firstPage
 	self view firstPage! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/12/2024 11:18:01'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 10/12/2024 11:18:01'!
 fitWidthPage
 	" Take PageContainer width for our current page "
 	| page |
@@ -1017,15 +1017,15 @@ fitWidthPage
 		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
 	! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:38:17'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 10/26/2024 15:38:17'!
 insertPage
 	self view insertPage! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:45:29'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 10/26/2024 15:45:29'!
 lastPage
 	self view lastPage! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 12/24/2024 14:39:54'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 12/24/2024 14:39:54'!
 moveOXAction: increment
 	| page |
 	page := self currentPage.
@@ -1033,7 +1033,7 @@ moveOXAction: increment
 		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 12/24/2024 14:39:48'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 12/24/2024 14:39:48'!
 moveOYAction: increment
 	| page |
 	page := self currentPage.
@@ -1041,11 +1041,11 @@ moveOYAction: increment
 		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:46:24'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 10/26/2024 15:46:24'!
 nextPage
 	self view nextPage! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 14:28:44'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 10/26/2024 14:28:44'!
 pageFitScreen
 	" Make the page entirely visible in the PageContainer "
 	| page scaleX scaleY |
@@ -1058,15 +1058,15 @@ pageFitScreen
 		scale: (scaleX min: scaleY)
 	! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/26/2024 15:46:33'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 10/26/2024 15:46:33'!
 previousPage
 	self view previousPage! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 12/24/2024 14:39:35'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 12/24/2024 14:39:35'!
 zoomAction: increment	
 	self zoomAction: increment at: view container center "container center"! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 1/3/2025 14:57:51'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 1/3/2025 14:57:51'!
 zoomAction: increment	 at: referencePoint
 " zoom centered at the referencePoint position in the container "
 	|  center page |
@@ -1076,11 +1076,11 @@ zoomAction: increment	 at: referencePoint
 	center := page externalize: center.
 	page morphPosition: page morphPosition - center + referencePoint ! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 1/3/2025 15:01:52'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 1/4/2025 18:12:35'!
 zoomPageTo100
 	self currentPage 
 		morphPosition: 0@0;
-		scale: 1! !
+		scale: 1.001! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/16/2024 19:28:13'!
 eraserSize: aNumber
@@ -1282,7 +1282,7 @@ groupTool
 highlighterTool
 	self tool:HighlighterTool ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 11:39:44'!
+!Document methodsFor: 'tool' stamp: 'hlsf 1/4/2025 18:47:34'!
 isTool: aToolName
 	^ self selectedTool == aToolName ! !
 
@@ -1310,13 +1310,12 @@ resetTool
 tool
 	^ tool! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 11/24/2024 19:51:46'!
+!Document methodsFor: 'tool' stamp: 'hlsf 1/4/2025 19:09:41'!
 tool: aToolClass
 	tool ifNotNil: [tool release].
 	tool := aToolClass presenter: self.
-	tool registerObserver: self.
 	view statusBarMessage: aToolClass description.
-	self changed! !
+	self changed: #isTool:! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 12/23/2024 12:28:31'!
 initialize
@@ -1349,11 +1348,13 @@ isSaved
 loadFromDisk
 	^ ReferenceStream restoreFromFile: model path // 'doc.obj'! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/14/2024 22:57:18'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 1/4/2025 18:24:38'!
 modified
 	" get notified the page was modified recently, ie changes not saved to disk "
+	isSaved ifFalse: [^ self].
 	isSaved := false.
-	view resetPreview 
+	view resetPreview.
+	view currentPage paper redrawNeeded 
 	! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 17:03:08'!
@@ -1646,12 +1647,6 @@ presenter: aPresenter
 !PageTool methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:37:34'!
 toolName
 	^ self class iconName! !
-
-!PageTool methodsFor: 'initialization' stamp: 'hlsf 9/1/2024 11:15:48'!
-registerObserver: anObserver
-" 
-	Register here any observer about event(s) occuring during the tool operations
-"! !
 
 !PageTool methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 16:39:56'!
 release
@@ -2941,7 +2936,7 @@ drawOn: canvas
 is: aSymbol
 	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 1/3/2025 14:32:54'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 1/4/2025 18:16:57'!
 resampleFrom: oldScale to: newScale in: documentPath
 	" Do I need to be resampled "
 	| newDpi |
@@ -2959,6 +2954,7 @@ resampleFrom: oldScale to: newScale in: documentPath
 	newDpi ~= dpi ifTrue: [
 		self sampleAt: newDpi in: documentPath .
 		self scaleBy: (self dpi / newDpi) asFloat.
+		extent := form extent.
 		dpi := newDpi ]! !
 
 !PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/30/2024 13:07:48'!
@@ -3077,11 +3073,11 @@ defaultBorderColor
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 10/26/2024 14:42:15'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 1/4/2025 18:47:19'!
 deleteBitMasks
 " Remove all the bitmask of the Stroke Morph "
 	pages do: [:aPage |
-		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 		] ]! !
+		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:08:32'!
 initialize
@@ -3139,7 +3135,7 @@ miniToolbarSpec
 	blank
 	pointer group)! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/26/2024 11:45:47'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 1/4/2025 18:46:51'!
 toolbarSpec
 	^ #(saveDoc
 	blank
@@ -3147,7 +3143,7 @@ toolbarSpec
 	blank
 	pointer group 
 	blank
-	firstPage previousPage insertPage deletePage 	nextPage lastPage)! !
+	firstPage previousPage insertPage deletePage nextPage lastPage)! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 10/26/2024 14:34:50'!
 currentPage
@@ -3322,7 +3318,7 @@ statusBarInScroller
 		color: Color transparent;
 		yourself! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 1/4/2025 11:15:36'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 1/4/2025 18:43:18'!
 toolbarWith: aSpec
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow separation: 2.
@@ -3334,7 +3330,7 @@ toolbarWith: aSpec
 				[ #blank ] -> [ toolbar addMorph: (DyControlsManager spacer: buttonWidth) ] }
 			otherwise: [		
 				toolbar addMorph: (				
-					self 	button: aTool  state: #isTool: 	size: buttonWidth )] ].
+					self 	button: aTool  state: #isTool: size: buttonWidth )] ].
 	^ toolbar! !
 
 !DocumentView methodsFor: 'widget' stamp: 'hlsf 12/24/2024 14:10:09'!
