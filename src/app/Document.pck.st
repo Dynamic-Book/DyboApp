@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 7:11:51 pm'!
+'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 7:52:55 pm'!
 'Description '!
-!provides: 'Document' 1 110!
+!provides: 'Document' 1 111!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1317,12 +1317,13 @@ tool: aToolClass
 	view statusBarMessage: aToolClass description.
 	self changed: #isTool:! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 12/23/2024 12:28:31'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 1/4/2025 19:38:01'!
 initialize
 	super initialize.
 	self initializeWritingTools .
 	model := DocumentModel new.
-	savesReal := false. "Read comment in objectForDataStream:"! !
+	savesReal := false. "Read comment in objectForDataStream:"
+	isSaved := true! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:03:09'!
 initializeWritingTools
@@ -1334,10 +1335,11 @@ initializeWritingTools
 	eraser := Pen new 	width: 2
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 12/24/2024 17:01:41'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 1/4/2025 19:39:22'!
 comeFullyUpOnReload: smartRefStream
 	self initializeWritingTools.
 	savesReal := false.
+	isSaved := true.
 	'presenter came to life' print! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 12/8/2024 13:00:55'!
