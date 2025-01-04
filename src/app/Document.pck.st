@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 3 January 2025 at 10:00:40 am'!
+'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 11:26:23 am'!
 'Description '!
-!provides: 'Document' 1 103!
+!provides: 'Document' 1 108!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -410,7 +410,7 @@ PageMorph class
 
 !classDefinition: #PaperMorph category: #'Document-View'!
 BoxMorph subclass: #PaperMorph
-	instanceVariableNames: 'stroker samples sampleIndex lineMorphs lastMousePosition presenter selectionMorph'
+	instanceVariableNames: 'stroker samples sampleIndex lineMorphs lastMousePosition presenter selectionMorph currentStrokeGroup'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -1066,19 +1066,21 @@ previousPage
 zoomAction: increment	
 	self zoomAction: increment at: view container center "container center"! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/24/2024 15:18:25'!
+!Document methodsFor: 'pages' stamp: 'hlsf 1/3/2025 14:57:51'!
 zoomAction: increment	 at: referencePoint
 " zoom centered at the referencePoint position in the container "
 	|  center page |
 	page := self currentPage.
 	center := page internalize: referencePoint .
-	page scale: (page scale - increment 		min: 2 		max: 0.1).
+	page scale: (page scale - increment min: 2 max: 0.1).
 	center := page externalize: center.
 	page morphPosition: page morphPosition - center + referencePoint ! !
 
-!Document methodsFor: 'pages' stamp: 'hlsf 10/11/2024 22:08:09'!
+!Document methodsFor: 'pages' stamp: 'hlsf 1/3/2025 15:01:52'!
 zoomPageTo100
-	self currentPage scale: 1! !
+	self currentPage 
+		morphPosition: 0@0;
+		scale: 1! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 10/16/2024 19:28:13'!
 eraserSize: aNumber
@@ -1837,13 +1839,13 @@ action
 description
 	^ 'A pen for your handwriting.' translated ! !
 
+!PenTool class methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:38:17'!
+iconName
+	^ #pen! !
+
 !PenTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 10:03:57'!
 title
 	^ 'Pencil' translated! !
-
-!PenTool class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/5/2024 11:38:17'!
-iconName
-	^ #pen! !
 
 !PointerTool methodsFor: 'initialization' stamp: 'hlsf 10/23/2024 11:10:55'!
 initialize
@@ -2273,7 +2275,7 @@ drawTangentsOn: canvas
 					moveTo: p2;
 					lineTo: c2] ! !
 
-!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 10/13/2024 18:47:48'!
+!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 1/4/2025 10:42:50'!
 drawOn: canvas
 	| samples lastIndex |
 	owner class ~= PaperMorph ifTrue: [^ self].
@@ -2281,13 +2283,13 @@ drawOn: canvas
 	lastIndex := owner sampleIndex - 1.
 	lastIndex ifNotZero: [
 		canvas strokeWidth: owner writingTool width color: owner writingTool color do: [
-			canvas moveTo: owner samples first.
+			canvas moveTo: samples first.
 			2 to: lastIndex do: [:i | canvas lineTo: ( samples at: i )].
-			owner lastMousePosition ifNotNil: [:postiion | canvas lineTo: postiion 				] 	
+			owner lastMousePosition ifNotNil: [:postiion | canvas lineTo: postiion ]
 		]
 	]! !
 
-!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:55:24'!
+!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 12/29/2024 10:36:25'!
 drawOn: canvas
 " I draw manually my submorphs "
 	| nextIndex endIndex strokesQty stroke color width |
@@ -2295,7 +2297,6 @@ drawOn: canvas
 	strokesQty isZero ifTrue: [ ^ self ].
 	nextIndex := 1.
 	[nextIndex <= strokesQty] whileTrue: [
-		" Collect the strokes with the same width and color, then draw them collectively "
 		stroke := submorphs at: nextIndex.
 		color := stroke color.
 		width := stroke width.
@@ -2303,9 +2304,10 @@ drawOn: canvas
 		[endIndex <= strokesQty 
 			and: [(stroke := submorphs at: endIndex) color = color 
 			and: [stroke width = width]]] whileTrue: [endIndex := endIndex + 1].
-		nextIndex to: (endIndex - 1) do: [ :i |
-			canvas strokeWidth: width color: color do: [
-				(submorphs at: i) drawCurveOn: canvas ] ].
+		canvas strokeWidth: width color: color do: [
+			nextIndex to: (endIndex - 1) do: [ :i |
+				stroke := submorphs at: i.
+				 stroke drawCurveOn: canvas ] ].
 		nextIndex := endIndex ].	
 	self showTangents ifTrue: [submorphs do: [:each | each drawTangentsOn: canvas] ].
 	self showControls ifTrue: [submorphs do: [:each | each drawControlsOn: canvas] ].
@@ -2471,19 +2473,12 @@ lastMousePosition
 "In local coordinate "
 	^ lastMousePosition ! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 17:43:44'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 1/4/2025 10:48:55'!
 lastStroke
 " Return the last strokes, if any, added to the last stroke group "
-	^ self lastStrokeGroup lastStroke 
+	^ currentStrokeGroup lastStroke 
 
 ! !
-
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 10/15/2024 19:00:59'!
-lastStrokeGroup
-" Return the last stroke group morph, including the one during a hand stroke event (penDown, penUp) 
-BEWARE, at each endWriting, we push the lineMorphs as first, to avoid unpleasant artifact when writing (line drawing in the back of previous stroke group morph)
-"	
-	^ submorphs detect: [:aMorph | aMorph is: #StrokeGroupMorph]! !
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 16:01:24'!
 presenter: documentPresenter
@@ -2538,7 +2533,7 @@ mouseMove: event localPosition: localPosition
 	event mouseButton1Pressed not ifTrue: [		^ self ].
 	self tool handleMouseAt: localPosition in: self! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/7/2024 12:00:44'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 1/4/2025 10:48:42'!
 mouseMove2: event localPosition: endPosition
 " With mouse trail  enabled "
 	| needUpdate |
@@ -2551,7 +2546,7 @@ mouseMove2: event localPosition: endPosition
 			sampleIndex := sampleIndex + 1.
 			sampleIndex > self samplesQty			ifTrue: [
 				needUpdate := true.
-				self lastStrokeGroup 
+				currentStrokeGroup 
 					addMorph: stroker newStroke.
 				self resetSamplingTo: localPosition] 		] ].
 	needUpdate ifTrue: [self redrawNeeded]! !
@@ -2687,49 +2682,50 @@ strokeGroupsAt: worldPosition
 		(each is: #StrokeGroupMorph) 
 		and: [	each isCloserThan: self writingTool width toPixel: worldPosition ] 	]! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/15/2024 18:57:51'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 1/4/2025 10:51:12'!
 endWritingAt: localPosition
 	samples at: sampleIndex put: localPosition.
 	sampleIndex := sampleIndex + 1.
 	"In case there is not enought sample, clone the last one"
-	sampleIndex to: self samplesQty do: [	:i |				samples at: i put: localPosition].
-	self lastStrokeGroup 
+	sampleIndex to: self samplesQty do: [	:i | samples at: i put: localPosition].
+	currentStrokeGroup 
 		addStroke: stroker newStroke;
 		redrawNeeded.
 	self resetSamplingTo: nil.
 	lastMousePosition := nil.
 	lineMorphs redrawNeeded;
 		comeToFront.
-	^ self lastStrokeGroup 
+	^ currentStrokeGroup 
 ! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/15/2024 19:06:30'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 1/4/2025 10:48:22'!
 startWritingAt: localPosition
 " Initilize the user writing "
 	self resetSamplingTo: localPosition.
-	self addMorph: StrokeGroupMorph new.! !
+	self addMorph: (currentStrokeGroup := StrokeGroupMorph new).! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 10/15/2024 19:07:14'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 1/4/2025 11:06:10'!
 writingAt: localPosition
 " the user is still writing "
-	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > 9 		ifTrue: [	
+	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > 9 ifTrue: [	
 		lastMousePosition := localPosition.
 		samples at: sampleIndex put: localPosition.
 		sampleIndex := sampleIndex + 1.
 		sampleIndex > self samplesQty ifTrue: [
 			(self lastStroke isNil or: [stroker isSamplesValid])
 				ifTrue: [" First stroke of the group or valid samples "
-					self lastStrokeGroup 
+					currentStrokeGroup 
 						addStroke: stroker newStroke.
 					self	resetSamplingTo: localPosition.
-					self redrawNeeded	]
+					currentStrokeGroup redrawNeeded.
+					lineMorphs redrawNeeded ]
 				ifFalse: ["Reconnect to previous stroke as our first sample..."
 					sampleIndex := 2. "first samples is already connected, just move the index "
 					"... and skip the second sample and keep the following ones"
 					self samplesQty - 2 timesRepeat: [
-						samples 		at: sampleIndex 			put: (samples at: sampleIndex + 1).
-						sampleIndex := sampleIndex +1 ] ]	 	] ]	.
-		lineMorphs redrawNeeded ! !
+						samples at: sampleIndex put: (samples at: sampleIndex + 1).
+						sampleIndex := sampleIndex +1 ] ] ] ].
+		lineMorphs redrawNeeded! !
 
 !PaperMorph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 10:00:17'!
 drawOn: canvas
@@ -2936,20 +2932,22 @@ pageNumber: integer
 defaultExtent
 	^ self form extent! !
 
-!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 11/24/2024 17:36:49'!
+!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 1/4/2025 11:02:33'!
 drawOn: canvas
+  "   Display reverse: canvas clipRect."
 	canvas image: self form at: 0@0! !
 
 !PageModelPdf methodsFor: 'testing' stamp: 'hlsf 11/16/2024 12:37:49'!
 is: aSymbol
 	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/30/2024 13:07:51'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 1/3/2025 14:32:54'!
 resampleFrom: oldScale to: newScale in: documentPath
 	" Do I need to be resampled "
 	| newDpi |
 	newDpi := dpi.
-	(newScale > 1.5 and: [oldScale < 1.5]) 		ifTrue: [newDpi := 300					].
+	(newScale > 1.5 and: [oldScale < 1.5]) 
+		ifTrue: [newDpi := 300].
 	((newScale between: 1 and: 1.5) and: [(oldScale between: 1 and: 1.5) not])
 		ifTrue: [newDpi := 200].
 	((newScale between: 0.6 and: 0.99) and: [(oldScale between: 0.6 and: 0.99) not])
@@ -2961,9 +2959,7 @@ resampleFrom: oldScale to: newScale in: documentPath
 	newDpi ~= dpi ifTrue: [
 		self sampleAt: newDpi in: documentPath .
 		self scaleBy: (self dpi / newDpi) asFloat.
-		dpi := newDpi 		]
-		
-		! !
+		dpi := newDpi ]! !
 
 !PageModelPdf methodsFor: 'updating' stamp: 'hlsf 11/30/2024 13:07:48'!
 sampleAt: newDpi in: documentPath
@@ -2978,6 +2974,18 @@ sampleAt: newDpi in: documentPath
 !PageModelPdf methodsFor: 'object serialization' stamp: 'hlsf 11/24/2024 19:09:38'!
 prepareToBeSaved
 	form := nil! !
+
+!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 1/3/2025 14:46:25'!
+knowsOwnLocalBounds
+	^ true! !
+
+!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 1/3/2025 14:47:10'!
+requiresVectorCanvas
+	^ false! !
+
+!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 1/3/2025 14:47:55'!
+wantsContour
+	^ false! !
 
 !PageModelPdf class methodsFor: 'instance creation' stamp: 'hlsf 11/16/2024 11:15:42'!
 new
@@ -3314,19 +3322,19 @@ statusBarInScroller
 		color: Color transparent;
 		yourself! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 12/24/2024 15:21:20'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 1/4/2025 11:15:36'!
 toolbarWith: aSpec
 	| toolbar buttonWidth |
-	toolbar := LayoutMorph newRow 		separation: 2.
+	toolbar := LayoutMorph newRow separation: 2.
 	buttonWidth := DySystem miniToolbarSize.
 	aSpec do: [:aTool | 
 		aTool 
 			caseOf: {
 				[ #spacer ] -> [ toolbar addMorphUseAll: DyControlsManager spacer ] .
-				[ #blank ] -> [ toolbar addMorph: (DyControlsManager spacer: buttonWidth) ] 			}
+				[ #blank ] -> [ toolbar addMorph: (DyControlsManager spacer: buttonWidth) ] }
 			otherwise: [		
 				toolbar addMorph: (				
-					self 	button: aTool 			state: #isTool: 				size: buttonWidth )] 				].
+					self 	button: aTool  state: #isTool: 	size: buttonWidth )] ].
 	^ toolbar! !
 
 !DocumentView methodsFor: 'widget' stamp: 'hlsf 12/24/2024 14:10:09'!

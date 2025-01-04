@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6962] on 3 January 2025 at 10:23:25 am'!
+'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 10:31:47 am'!
 'Description '!
-!provides: 'Dynabook' 1 135!
+!provides: 'Dynabook' 1 136!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -2031,11 +2031,15 @@ activeView
  "
 	^ activeView! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/31/2024 11:10:02'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 1/4/2025 10:30:30'!
 plugBinder
 	self plugInDyboView: (DyBinderView presenter: self dyboPresenter).
-	self activeView updateDocumentPreviews .
-	self dyboPresenter currentTopic ifNotNil: [:aTopic | activeView topic: aTopic].
+	self dyboPresenter currentTopic "Any previously selected topic? "
+		ifNotNil: [:aTopic | activeView topic: aTopic]
+		ifNil: [" Set a default topic for the presenter, if any "
+			activeView topic ifNotNil: [:aTopic |
+				self dyboPresenter currentTopic: aTopic.
+				self activeView updateDocumentPreviews]	].
 	self runningWorld doOneCycleNow.! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/31/2024 11:08:55'!
@@ -3034,7 +3038,7 @@ topic: aTopic
 topicIndex
 	^ topicIndex! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 12:34:04'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 1/4/2025 10:30:51'!
 topicIndex: anIndex
 	topicIndex := anIndex.
 	self changed: #topicIndex:.
@@ -3140,7 +3144,7 @@ initialize
 	self addMorphUseAll: self documentsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 12/31/2024 11:12:59'!
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 1/4/2025 10:22:04'!
 updateDocumentPreviews
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
@@ -3149,14 +3153,14 @@ updateDocumentPreviews
 	previewsPerLine := self owner morphWidth - 50 // 
 		(DocumentView previewExtent x + DocumentView previewGap).
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
-		previewPanel addMorph: (			documentsRow 
+		previewPanel addMorph: (	documentsRow 
 			inject: self previewRow 
-			into: [:row :document |	 				row addMorph: (self previewFor: document)		]) ].
+			into: [:row :document | row addMorph: (self previewFor: document) ]) ].
 	documents size \\ previewsPerLine ifNotZero: [ "There is an incomplete row to add "
 		previewPanel addMorph: (
 			(documents allButFirst: (documents size // previewsPerLine * previewsPerLine))
 				inject: self previewRow 
-				into: [:row :document |			row addMorph: (self previewFor: document)		]) 		].
+				into: [:row :document | row addMorph: (self previewFor: document) ]) ].
 	^ previewPanel ! !
 
 !DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
