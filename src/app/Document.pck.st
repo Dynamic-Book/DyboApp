@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 11:26:23 am'!
+'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 3:51:01 pm'!
 'Description '!
-!provides: 'Document' 1 108!
+!provides: 'Document' 1 109!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -410,7 +410,7 @@ PageMorph class
 
 !classDefinition: #PaperMorph category: #'Document-View'!
 BoxMorph subclass: #PaperMorph
-	instanceVariableNames: 'stroker samples sampleIndex lineMorphs lastMousePosition presenter selectionMorph currentStrokeGroup'
+	instanceVariableNames: 'stroker samples sampleIndex lineMorphs lastMousePosition presenter selectionMorph currentStrokeGroup distanceThreshold'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -838,7 +838,7 @@ maxDistance: samples
 		dist at: i put: ( (samples at: i) dist: (samples at: i + 1) )].
 	^ dist max! !
 
-!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 8/18/2024 21:57:02'!
+!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 1/4/2025 15:31:52'!
 widthFor: samples prev: lastStroke
 	| penWidth prevWidth strokeDist min max f a b  | 
 	penWidth := self penWidth.
@@ -2198,12 +2198,10 @@ drawOn: canvas
 	self showPoints ifTrue: [self drawPointsOn: canvas]
 	! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:58:42'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 4/1/2023 15:57:18'!
 drawPointsOn: canvas
-	canvas fillColor: `Color blue` do: [
-		canvas 
-			circleCenter: p1 radius: 1.5;
-			circleCenter: p2 radius: 1.5]! !
+	canvas fillColor: Color blue do: [canvas circleCenter: p1 radius: 1.5].
+	canvas fillColor: Color blue do: [canvas circleCenter: p2 radius: 1.5]! !
 
 !Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 09:58:04'!
 drawTangentsOn: canvas
@@ -2698,16 +2696,18 @@ endWritingAt: localPosition
 	^ currentStrokeGroup 
 ! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 1/4/2025 10:48:22'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 1/4/2025 15:44:43'!
 startWritingAt: localPosition
 " Initilize the user writing "
 	self resetSamplingTo: localPosition.
-	self addMorph: (currentStrokeGroup := StrokeGroupMorph new).! !
+	self addMorph: (currentStrokeGroup := StrokeGroupMorph new).
+	"Minium squared distance to accept a new sample "
+	distanceThreshold := 16.0 / owner scale! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 1/4/2025 11:06:10'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 1/4/2025 14:55:34'!
 writingAt: localPosition
 " the user is still writing "
-	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > 9 ifTrue: [	
+	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > distanceThreshold ifTrue: [	
 		lastMousePosition := localPosition.
 		samples at: sampleIndex put: localPosition.
 		sampleIndex := sampleIndex + 1.
