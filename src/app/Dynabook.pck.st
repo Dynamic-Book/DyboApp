@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 10:31:47 am'!
+'From Cuis7.3 [latest update: #6971] on 9 January 2025 at 8:42:25 pm'!
 'Description '!
-!provides: 'Dynabook' 1 136!
+!provides: 'Dynabook' 1 137!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -2784,6 +2784,10 @@ presenter: aPresenter
 	^ self basicNew 
 		presenter: aPresenter ;
 		initialize ! !
+
+!DyView class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:35:32'!
+includeInNewMorphMenu
+	^ false! !
 
 !DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 15:45:39'!
 courseHourDateListMorph

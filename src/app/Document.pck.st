@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6968] on 4 January 2025 at 7:52:55 pm'!
+'From Cuis7.3 [latest update: #6971] on 9 January 2025 at 8:42:23 pm'!
 'Description '!
-!provides: 'Document' 1 111!
+!provides: 'Document' 1 112!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2224,6 +2224,10 @@ showPoints
 showTangents
 	^ [owner showTangents] on: MessageNotUnderstood do: [false]! !
 
+!Bezier2Morph class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:33:33'!
+includeInNewMorphMenu
+	^ false! !
+
 !Bezier3Morph methodsFor: 'accessing' stamp: 'hlsf 4/2/2023 14:35:57'!
 control2
 	^ c2! !
@@ -2283,6 +2287,10 @@ drawOn: canvas
 			owner lastMousePosition ifNotNil: [:postiion | canvas lineTo: postiion ]
 		]
 	]! !
+
+!LineStrokeMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:33:58'!
+includeInNewMorphMenu
+	^ false! !
 
 !StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 12/29/2024 10:36:25'!
 drawOn: canvas
@@ -2365,6 +2373,10 @@ isCloserThan: distance toPixel: positionInWorld
 !StrokeGroupMorph methodsFor: 'clean up' stamp: 'hlsf 9/8/2024 19:03:55'!
 deleteBitMasks
 	submorphs do: [:each| each removeProperty: #bitMask]! !
+
+!StrokeGroupMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:34:47'!
+includeInNewMorphMenu
+	^ false! !
 
 !PageMorph methodsFor: 'geometry' stamp: 'hlsf 12/18/2024 15:33:55'!
 scale: newScale
@@ -2462,6 +2474,10 @@ newOn: documentPresenter model: aPageModel
 		presenter: documentPresenter ;
 		initialize;
 		yourself! !
+
+!PageMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:34:29'!
+includeInNewMorphMenu
+	^ false! !
 
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 8/18/2024 16:43:08'!
 lastMousePosition
@@ -2771,6 +2787,10 @@ newOn: documentPresenter
 		presenter: documentPresenter;
 		yourself! !
 
+!PaperMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:34:39'!
+includeInNewMorphMenu
+	^ false! !
+
 !AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 23:58:22'!
 canResizeAnnoted
 " can the the annotated morph be resized ? only kind of BoxMorph can"
@@ -2869,6 +2889,10 @@ defaultExtent
 !PageModel methodsFor: 'as yet unclassified' stamp: 'hlsf 11/15/2024 22:33:03'!
 documentModel
 	^ owner documentModel ! !
+
+!PageModel class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:34:58'!
+includeInNewMorphMenu
+	^ false! !
 
 !PageModelHL methodsFor: 'initialization' stamp: 'hlsf 9/12/2024 12:04:49'!
 defaultColor
@@ -3009,10 +3033,14 @@ center
 	bounds := self fullBoundsInOwner.
 	^ bounds origin + bounds corner // 2! !
 
-!PageContainer class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/8/2024 18:24:18'!
+!PageContainer class methodsFor: 'instance creation' stamp: 'hlsf 9/8/2024 18:24:18'!
 for: aPage
 	^ self new
 		addMorphFront: aPage position: 0@0! !
+
+!PageContainer class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:34:09'!
+includeInNewMorphMenu
+	^ false! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 09:52:14'!
 adoptWidgetsColor: aColor 
@@ -3499,6 +3527,10 @@ presenter: aPresenter
 		presenter: aPresenter;
 		initialize;
 		yourself! !
+
+!DocumentView class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:32:52'!
+includeInNewMorphMenu
+	^ false! !
 
 !Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:22:27'!
 covariance: y
