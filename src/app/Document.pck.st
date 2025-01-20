@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6971] on 9 January 2025 at 8:42:23 pm'!
+'From Cuis7.3 [latest update: #6992] on 20 January 2025 at 9:06:28 pm'!
 'Description '!
-!provides: 'Document' 1 112!
+!provides: 'Document' 1 113!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2852,18 +2852,18 @@ bottomRightCorner
 	^ corner 
 	! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 10/19/2024 12:40:03'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/20/2025 20:32:37'!
 topLeftCorner
 " 
 	the top left corner of the rectangle surrounding all my submorphs
 "
 	| corner |
 	corner := extent.
-	self submorphsDo: [:each | corner := corner min: each topLeftInOwner].
-	^ corner 
+	self submorphsDo: [:each | corner := corner min: each  fullBoundsInOwner origin].
+	^ corner - 1
 	! !
 
-!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 10/23/2024 19:03:41'!
+!AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/23/2024 19:03:41'!
 handlesMouseDown: event
 " We do not interact directly with annotator when pointer tool. 
   We interect through the tool "
