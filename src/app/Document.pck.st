@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6992] on 20 January 2025 at 9:06:28 pm'!
+'From Cuis7.3 [latest update: #6992] on 22 January 2025 at 11:23:16 pm'!
 'Description '!
-!provides: 'Document' 1 113!
+!provides: 'Document' 1 115!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2374,6 +2374,10 @@ isCloserThan: distance toPixel: positionInWorld
 deleteBitMasks
 	submorphs do: [:each| each removeProperty: #bitMask]! !
 
+!StrokeGroupMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 1/21/2025 22:17:21'!
+haloShowsCoordinateSystem
+	^ false! !
+
 !StrokeGroupMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:34:47'!
 includeInNewMorphMenu
 	^ false! !
@@ -2781,6 +2785,10 @@ selectionArea: rect
 selectionMorph
 	^ selectionMorph ! !
 
+!PaperMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 1/21/2025 22:17:02'!
+haloShowsCoordinateSystem
+	^ false! !
+
 !PaperMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/5/2024 15:58:40'!
 newOn: documentPresenter
 	^ self new
@@ -2812,6 +2820,10 @@ annotate: aPlacedMorph
 	self morphExtent: annotedExtent.
 	self addMorph: aPlacedMorph position: (self morphExtent // 2)
 	! !
+
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/22/2025 22:59:41'!
+annoted
+	^ annotedMorph ! !
 
 !AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 9/28/2024 16:10:48'!
 endWritingAt: localPosition
@@ -2852,7 +2864,7 @@ bottomRightCorner
 	^ corner 
 	! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/20/2025 20:32:37'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/22/2025 23:14:25'!
 topLeftCorner
 " 
 	the top left corner of the rectangle surrounding all my submorphs
@@ -2860,7 +2872,7 @@ topLeftCorner
 	| corner |
 	corner := extent.
 	self submorphsDo: [:each | corner := corner min: each  fullBoundsInOwner origin].
-	^ corner - 1
+	^ corner 
 	! !
 
 !AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/23/2024 19:03:41'!
@@ -2869,6 +2881,21 @@ handlesMouseDown: event
   We interect through the tool "
 	^ (presenter isTool: #pointer) not
 	! !
+
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/22/2025 23:22:29'!
+haloSpecifications
+	^ {	"selector 				horiz 			vert 			color info 			icon key	"
+		{#addMenuHandle:. 	#leftCenter. 	#top.			#(blue lighter).		#haloMenuIcon.	'Menu' translated}.
+		{#addDragHandle:.	#rightCenter.	#top.			#(brown).			#haloDragIcon. 	'Move' translated}.
+		{#addInspectHandle:.	#right.			#topCenter.	#(orange).			#haloDebugIcon. 	'Debug' translated}.
+		{#addRotateHandle:.	#left.			#bottom.		#(blue).			#haloRotateIcon.	'Rotate' translated}.		
+		{#addResizeHandle:.	#right.			#bottom.		#(yellow).			#haloResizeIcon. 	'Change size' translated}.
+		{#addHelpHandle:.		#center.		#bottom.		#(lightBlue).		#haloHelpIcon. 	'Help' translated}
+	} collect: [:anArray | HaloSpec from: anArray]! !
+
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/22/2025 22:47:46'!
+inspectAnnoted
+	^ annotedMorph inspect! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/26/2024 11:33:10'!
 newOn: aPresenter
@@ -3575,3 +3602,78 @@ filenamePrintOn: aStream
 		nextPut: $m;
 		nextPutAll: (self second printString padded: #left to: 2 with: $0);
 		nextPut: $s! !
+
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 22:42:00'!
+addInspectHandle: handleSpec
+	(self addHandle: handleSpec)
+		mouseDownSelector: #doInspect
+! !
+
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 23:08:31'!
+addResizeAnnotedHandle: haloSpec
+
+	target annoted okayToResizeEasily ifTrue: [
+		^(self addHandle: haloSpec)
+			mouseDownSelector: #startResizeAnnoted:with:;
+			mouseMoveSelector: #doResizeAnnoted:with: ].
+
+	target annoted okayToScaleEasily ifTrue: [
+		^(self addHandle: haloSpec)
+			mouseDownSelector: #startScaleAnnoted:with:;
+			mouseMoveSelector: #doScaleAnnoted:with: ].! !
+
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 22:48:01'!
+doInspect
+	^ target inspectAnnoted ! !
+
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 23:12:41'!
+doResizeAnnoted: evt with: resizeHandle
+	"Called while the mouse is down in the grow handle"
+
+	| newExtent |
+	evt hand obtainHalo: self.
+	newExtent := (evt eventPosition - target annoted positionInWorld) - positionOffset.
+	(newExtent x = 0 or: [newExtent y = 0]) ifTrue: [^ self].
+	target annoted extentInWorld: newExtent.
+	resizeHandle positionInWorld: evt eventPosition - (resizeHandle morphExtent // 2).
+	target adjustBounds.
+	self redrawNeeded.! !
+
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 23:22:14'!
+doScaleAnnoted: evt with: scaleHandle
+	"Update the scale of my target if it is scalable."
+
+	| scale |
+	'toto' print.
+	evt hand obtainHalo: self.
+	scale := (evt eventPosition - target annoted positionInWorld) rho * scaleOffset.
+	scale = 1.0
+		ifTrue: [scaleHandle color: `Color lightBlue`]
+		ifFalse: [scaleHandle color: `Color blue`].
+	scaleHandle submorphsDo:
+		[:m | m color: scaleHandle color makeForegroundColor].
+	target annoted scale: scale.
+	scaleHandle positionInWorld: evt eventPosition - (scaleHandle morphExtent // 2).
+	target adjustBounds.
+	self redrawNeeded.! !
+
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 23:00:34'!
+startResizeAnnoted: evt with: resizeHandle
+	"Initialize resizing of my target."
+
+	| botRt |
+	evt hand obtainHalo: self.	"Make sure the event's hand correlates with the receiver"
+	self removeAllHandlesBut: resizeHandle.  "remove all other handles"
+	botRt := target annoted positionInWorld + target annoted extentInWorld.
+	positionOffset := (self world viewBox containsPoint: botRt)
+		ifTrue: [evt eventPosition - botRt]
+		ifFalse: [`0@0`]! !
+
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 23:01:13'!
+startScaleAnnoted: evt with: scaleHandle
+	"Initialize scale of my target if it is scalable."
+
+	evt hand obtainHalo: self.						"Make sure the event's hand correlates with the receiver"
+
+	self removeAllHandlesBut: scaleHandle.  "remove all other handles"
+	scaleOffset := target annoted scale / (evt eventPosition - target annoted positionInWorld) rho.! !
