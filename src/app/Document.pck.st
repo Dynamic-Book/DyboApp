@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6992] on 23 January 2025 at 8:03:21 pm'!
+'From Cuis7.3 [latest update: #6992] on 24 January 2025 at 8:03:04 pm'!
 'Description '!
-!provides: 'Document' 1 116!
+!provides: 'Document' 1 117!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1710,10 +1710,11 @@ presenter: aPresenter
 deleteBitsMasks
 	presenter view deleteBitMasks ! !
 
-!EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/29/2024 22:25:15'!
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 1/24/2025 19:46:50'!
 initialize
 	super initialize.
 	self deleteBitsMasks. "Need by annotated morph"
+	self currentPage lockAnnoted.
 	self switchState: EraserToolStateNeutral ! !
 
 !EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 19:04:26'!
@@ -1775,9 +1776,10 @@ clearSelection
 	paper := nil.
 	selection := #()! !
 
-!GroupTool methodsFor: 'initialization' stamp: 'hlsf 10/23/2024 10:30:27'!
+!GroupTool methodsFor: 'initialization' stamp: 'hlsf 1/24/2025 19:47:04'!
 initialize
 	super initialize.
+	self currentPage lockAnnoted.
 	self switchState: GroupToolStateNeutral.
 	self clearSelection ! !
 
@@ -1802,9 +1804,10 @@ iconName
 title
 	^ 'Group' translated! !
 
-!HighlighterTool methodsFor: 'initialization' stamp: 'hlsf 9/7/2024 12:13:56'!
+!HighlighterTool methodsFor: 'initialization' stamp: 'hlsf 1/24/2025 19:47:18'!
 initialize
 	super initialize.
+	self currentPage lockAnnoted.
 	self switchState: HighligtherToolStateNeutral ! !
 
 !HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:48:04'!
@@ -1823,9 +1826,10 @@ iconName
 title
 	^ 'Highlighter' translated! !
 
-!PenTool methodsFor: 'initialization' stamp: 'hlsf 9/5/2024 15:14:29'!
+!PenTool methodsFor: 'initialization' stamp: 'hlsf 1/24/2025 19:47:24'!
 initialize
 	super initialize.
+	self currentPage lockAnnoted.
 	self switchState: PenToolStateNeutral ! !
 
 !PenTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:48:37'!
@@ -1844,9 +1848,10 @@ iconName
 title
 	^ 'Pencil' translated! !
 
-!PointerTool methodsFor: 'initialization' stamp: 'hlsf 10/23/2024 11:10:55'!
+!PointerTool methodsFor: 'initialization' stamp: 'hlsf 1/24/2025 19:47:32'!
 initialize
 	super initialize.
+	self currentPage unlockAnnoted.	
 	self switchState: PointerToolStateNeutral ! !
 
 !PointerTool methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 19:04:56'!
@@ -2403,6 +2408,10 @@ grabAnnotatorsAt: localPosition
 	
 	! !
 
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:49:55'!
+lockAnnoted
+	self annotators do: #lockAnnoted ! !
+
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 11/16/2024 11:03:58'!
 model: aPageModel
 	pageModel := aPageModel ! !
@@ -2418,6 +2427,10 @@ paper
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 16:00:16'!
 presenter: documentPresenter
 	presenter := documentPresenter ! !
+
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:49:49'!
+unlockAnnoted
+	self annotators do: #unlockAnnoted ! !
 
 !PageMorph methodsFor: 'initialization' stamp: 'hlsf 1/23/2025 19:42:43'!
 initialize
@@ -2808,22 +2821,39 @@ canResizeAnnoted
 is: aSymbol
 	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/29/2024 09:58:45'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:23:03'!
 annotate: aPlacedMorph
 | annotedExtent |
 	annotedMorph ifNotNil: [self removeMorph: annotedMorph].
 	annotedMorph := aPlacedMorph.
 	annotedExtent := annotedMorph displayBounds 
-		ifNil:[	annotedMorph bitMask extent]
+		ifNil:[annotedMorph bitMask extent]
 		ifNotNil: [annotedMorph displayBounds extent].		
 	annotedMorph removeProperty: #bitMask.
-	self morphExtent: annotedExtent.
-	self addMorph: aPlacedMorph position: (self morphExtent // 2)
+	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
+	self addMorph: annotedMorph position: self frameWidth asPoint
 	! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/22/2025 22:59:41'!
 annoted
 	^ annotedMorph ! !
+
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:40:45'!
+frameWidth
+	^ 8! !
+
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 20:00:46'!
+lockAnnoted
+	annotedMorph 
+		lock;
+		keyboardFocusChange: false.
+	" Ensure the keyboard focus is really lost "
+	annotedMorph submorphsDo: [:each | each keyboardFocusChange: false]! !
+
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:58:10'!
+unlockAnnoted
+	annotedMorph 
+		unlock! !
 
 !AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 9/28/2024 16:10:48'!
 endWritingAt: localPosition
@@ -2832,9 +2862,9 @@ endWritingAt: localPosition
 	
 	^ strokeGroup ! !
 
-!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 1/3/2025 10:00:06'!
+!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 1/24/2025 19:21:22'!
 drawOn: aCanvas 
-	aCanvas frameRectangle: self localBounds borderWidth: 1 color: `Color gray alpha: 0.2`! !
+	aCanvas frameRectangle: self localBounds borderWidth: self frameWidth color: `Color gray alpha: 0.2`! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 11/16/2024 17:19:51'!
 adjustBounds
@@ -2844,16 +2874,16 @@ adjustBounds
 	self adjustBoundsTo: (self externalizeBoundingRectOf: (self topLeftCorner corner: self bottomRightCorner))
 	! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 11/16/2024 17:32:17'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/24/2025 19:37:14'!
 adjustBoundsTo: newBoundsInOwner
 " adjust my bounds and translate my submoprhs accordingly
  " 
 	| translate |
 	translate := (newBoundsInOwner origin - self fullBoundsInOwner origin) asIntegerPoint.
 	self fitInto: (newBoundsInOwner origin asIntegerPoint corner: newBoundsInOwner corner asIntegerPoint). 
-	self submorphsDo: [:each | 						each morphPosition: each morphPosition - translate 		]! !
+	self submorphsDo: [:each | each morphPosition: each morphPosition - translate ]! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 10/19/2024 12:40:10'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/24/2025 19:39:03'!
 bottomRightCorner
 " 
 	the bottom right corner of the rectangle surrounding all my submorphs
@@ -2861,7 +2891,7 @@ bottomRightCorner
 	| corner |
 	corner := 0@0.
 	self submorphsDo: [:each | corner := corner max: each fullBoundsInOwner corner].
-	^ corner 
+	^ corner + self frameWidth
 	! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/23/2025 19:17:47'!
@@ -2872,7 +2902,7 @@ morphCenter
 morphCenter: newCenter
 	^ self morphPosition: self  morphPosition + (newCenter - self morphCenter)! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/23/2025 19:51:55'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/24/2025 19:38:30'!
 topLeftCorner
 " 
 	the top left corner of the rectangle surrounding all my submorphs
@@ -2880,7 +2910,7 @@ topLeftCorner
 	| corner |
 	corner := extent.
 	self submorphsDo: [:each | corner := corner min: each  fullBoundsInOwner origin].
-	^ corner - 1
+	^ corner - 1 - self frameWidth asPoint
 	! !
 
 !AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/23/2024 19:03:41'!
