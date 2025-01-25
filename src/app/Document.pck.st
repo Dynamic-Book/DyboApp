@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6992] on 25 January 2025 at 7:19:37 pm'!
+'From Cuis7.3 [latest update: #6992] on 25 January 2025 at 8:11:50 pm'!
 'Description '!
-!provides: 'Document' 1 118!
+!provides: 'Document' 1 120!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2861,13 +2861,13 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 1/25/2025 18:59:01'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 1/25/2025 19:50:16'!
 mouseEnter: evt
+	self removeAlarm: #removeHalo.
 	self comeToFrontAndAddHalo ! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 1/25/2025 19:15:56'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 1/25/2025 19:50:44'!
 mouseLeave: evt
-	'leave !!' print.
 	self addAlarm: #removeHalo after: 1000! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 11/16/2024 17:19:51'!
