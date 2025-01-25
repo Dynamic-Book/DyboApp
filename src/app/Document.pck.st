@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6992] on 24 January 2025 at 8:03:04 pm'!
+'From Cuis7.3 [latest update: #6992] on 25 January 2025 at 7:19:37 pm'!
 'Description '!
-!provides: 'Document' 1 117!
+!provides: 'Document' 1 118!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2812,15 +2812,6 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 23:58:22'!
-canResizeAnnoted
-" can the the annotated morph be resized ? only kind of BoxMorph can"
-	^ annotedMorph is: #BoxMorph! !
-
-!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 11:15:37'!
-is: aSymbol
-	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
-
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:23:03'!
 annotate: aPlacedMorph
 | annotedExtent |
@@ -2855,16 +2846,29 @@ unlockAnnoted
 	annotedMorph 
 		unlock! !
 
-!AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 9/28/2024 16:10:48'!
-endWritingAt: localPosition
-	| strokeGroup |
-	strokeGroup := super endWritingAt: localPosition.
-	
-	^ strokeGroup ! !
-
 !AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 1/24/2025 19:21:22'!
 drawOn: aCanvas 
 	aCanvas frameRectangle: self localBounds borderWidth: self frameWidth color: `Color gray alpha: 0.2`! !
+
+!AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/23/2024 19:03:41'!
+handlesMouseDown: event
+" We do not interact directly with annotator when pointer tool. 
+  We interect through the tool "
+	^ (presenter isTool: #pointer) not
+	! !
+
+!AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 1/25/2025 19:12:57'!
+handlesMouseOver: event
+	^ presenter isTool: #pointer! !
+
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 1/25/2025 18:59:01'!
+mouseEnter: evt
+	self comeToFrontAndAddHalo ! !
+
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 1/25/2025 19:15:56'!
+mouseLeave: evt
+	'leave !!' print.
+	self addAlarm: #removeHalo after: 1000! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 11/16/2024 17:19:51'!
 adjustBounds
@@ -2913,13 +2917,6 @@ topLeftCorner
 	^ corner - 1 - self frameWidth asPoint
 	! !
 
-!AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/23/2024 19:03:41'!
-handlesMouseDown: event
-" We do not interact directly with annotator when pointer tool. 
-  We interect through the tool "
-	^ (presenter isTool: #pointer) not
-	! !
-
 !AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/23/2025 19:11:21'!
 haloSpecifications
 	^ {	"selector 				horiz 			vert 			color info 			icon key	"
@@ -2934,6 +2931,22 @@ haloSpecifications
 !AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/22/2025 22:47:46'!
 inspectAnnoted
 	^ annotedMorph inspect! !
+
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 23:58:22'!
+canResizeAnnoted
+" can the the annotated morph be resized ? only kind of BoxMorph can"
+	^ annotedMorph is: #BoxMorph! !
+
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 11:15:37'!
+is: aSymbol
+	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
+
+!AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 9/28/2024 16:10:48'!
+endWritingAt: localPosition
+	| strokeGroup |
+	strokeGroup := super endWritingAt: localPosition.
+	
+	^ strokeGroup ! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/26/2024 11:33:10'!
 newOn: aPresenter
@@ -3705,3 +3718,11 @@ startScaleAnnoted: evt with: scaleHandle
 
 	self removeAllHandlesBut: scaleHandle.  "remove all other handles"
 	scaleOffset := target scale / (evt eventPosition - target annoted positionInWorld) rho.! !
+
+!HaloHandleMorph methodsFor: '*Document' stamp: 'hlsf 1/25/2025 19:07:05'!
+handlesMouseOver: evt
+	^ true! !
+
+!HaloHandleMorph methodsFor: '*Document' stamp: 'hlsf 1/25/2025 19:14:00'!
+mouseEnter: evt
+	owner target removeAlarm: #removeHalo! !
