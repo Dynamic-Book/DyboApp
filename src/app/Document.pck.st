@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6992] on 25 January 2025 at 8:11:50 pm'!
+'From Cuis7.3 [latest update: #7036] on 30 January 2025 at 12:31:32 pm'!
 'Description '!
-!provides: 'Document' 1 120!
+!provides: 'Document' 1 121!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2917,15 +2917,16 @@ topLeftCorner
 	^ corner - 1 - self frameWidth asPoint
 	! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/23/2025 19:11:21'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/30/2025 12:29:40'!
 haloSpecifications
-	^ {	"selector 				horiz 			vert 			color info 			icon key	"
-		{#addMenuHandle:. 	#leftCenter. 	#top.			#(blue lighter).		#haloMenuIcon.	'Menu' translated}.
-		{#addDragHandle:.	#rightCenter.	#top.			#(brown).			#haloDragIcon. 	'Move' translated}.
-		{#addInspectHandle:.	#right.			#topCenter.	#(orange).			#haloDebugIcon. 	'Debug' translated}.
-		{#addRotateHandle:.	#left.			#bottom.		#(blue).			#haloRotateIcon.	'Rotate' translated}.		
+	^ {	"selector 						horiz 			vert 			color info 			icon key	"
+		{#addMenuHandle:. 			#left.		 	#top.			#(blue darker).		#haloMenuIcon.	'Menu' translated}.
+		{#addEditAnnotedHandle:.		#leftCenter. 	#top.			#(red).				#haloAnnEditIcon.	'Edit' translated}.
+		{#addDragHandle:.			#center.	#top.			#(brown).			#haloDragIcon. 	'Move' translated}.
+		{#addInspectHandle:.			#right.			#topCenter.	#(orange).			#haloDebugIcon. 	'Inspect' translated}.
+		{#addRotateHandle:.			#left.			#bottom.		#(blue).			#haloRotateIcon.	'Rotate' translated}.		
 		{#addResizeAnnotedHandle:.	#right.			#bottom.		#(yellow).			#haloResizeIcon. 	'Change size' translated}.
-		{#addHelpHandle:.		#center.		#bottom.		#(lightBlue).		#haloHelpIcon. 	'Help' translated}
+		{#addHelpHandle:.				#center.		#bottom.		#(lightBlue).		#haloHelpIcon. 	'Help' translated}
 	} collect: [:anArray | HaloSpec from: anArray]! !
 
 !AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/22/2025 22:47:46'!
@@ -3654,6 +3655,12 @@ filenamePrintOn: aStream
 		nextPutAll: (self second printString padded: #left to: 2 with: $0);
 		nextPut: $s! !
 
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/30/2025 12:30:29'!
+addEditAnnotedHandle: aHaloSpec 
+		(self addHandle: aHaloSpec )
+		mouseDownSelector: #doInspect
+! !
+
 !HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 22:42:00'!
 addInspectHandle: handleSpec
 	(self addHandle: handleSpec)
@@ -3718,6 +3725,13 @@ startScaleAnnoted: evt with: scaleHandle
 
 	self removeAllHandlesBut: scaleHandle.  "remove all other handles"
 	scaleOffset := target scale / (evt eventPosition - target annoted positionInWorld) rho.! !
+
+!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 1/30/2025 12:18:47'!
+haloAnnEditIcon
+"Edit annoted document "
+	^ self icons
+		at: #haloEditAnnIcon
+		ifAbsentPut: [ Theme current clockIcon ]! !
 
 !HaloHandleMorph methodsFor: '*Document' stamp: 'hlsf 1/25/2025 19:07:05'!
 handlesMouseOver: evt
