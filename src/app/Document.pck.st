@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7036] on 30 January 2025 at 12:31:32 pm'!
+'From Cuis7.3 [latest update: #7044] on 2 February 2025 at 6:18:39 pm'!
 'Description '!
-!provides: 'Document' 1 121!
+!provides: 'Document' 1 122!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2917,16 +2917,17 @@ topLeftCorner
 	^ corner - 1 - self frameWidth asPoint
 	! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/30/2025 12:29:40'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 2/2/2025 18:02:59'!
 haloSpecifications
 	^ {	"selector 						horiz 			vert 			color info 			icon key	"
-		{#addMenuHandle:. 			#left.		 	#top.			#(blue darker).		#haloMenuIcon.	'Menu' translated}.
-		{#addEditAnnotedHandle:.		#leftCenter. 	#top.			#(red).				#haloAnnEditIcon.	'Edit' translated}.
-		{#addDragHandle:.			#center.	#top.			#(brown).			#haloDragIcon. 	'Move' translated}.
-		{#addInspectHandle:.			#right.			#topCenter.	#(orange).			#haloDebugIcon. 	'Inspect' translated}.
-		{#addRotateHandle:.			#left.			#bottom.		#(blue).			#haloRotateIcon.	'Rotate' translated}.		
-		{#addResizeAnnotedHandle:.	#right.			#bottom.		#(yellow).			#haloResizeIcon. 	'Change size' translated}.
-		{#addHelpHandle:.				#center.		#bottom.		#(lightBlue).		#haloHelpIcon. 	'Help' translated}
+		{#addDismissHandle:.			#left.			#top.			#(red).				#haloAnnDismissIcon. 		'Remove' translated}.
+		{#addMenuHandle:. 			#leftCenter.	#top.			#(blue darker).		#haloMenuIcon.		'Menu' translated}.
+		{#addEditAnnotedHandle:.		#right.		 	#topCenter.	#(orange darker).	#haloAnnEditIcon.		'Edit' translated}.
+		{#addDragHandle:.			#center.		#top.			#(brown).			#haloAnnDragIcon. 	'Move' translated}.
+		{#addInspectHandle:.			#right.			#center.		#(orange lighter).			#haloAnnInspectIcon. 	'Inspect' translated}.
+		{#addRotateHandle:.			#left.			#bottom.		#(blue).			#haloAnnRotateIcon.	'Rotate' translated}.		
+		{#addResizeAnnotedHandle:.	#right.			#bottom.		#(yellow).			#haloAnnResizeIcon. 	'Change size' translated}.
+		{#addHelpHandle:.				#center.		#bottom.		#(lightBlue).		#haloAnnHelpIcon. 	'Help' translated}
 	} collect: [:anArray | HaloSpec from: anArray]! !
 
 !AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/22/2025 22:47:46'!
@@ -3726,12 +3727,69 @@ startScaleAnnoted: evt with: scaleHandle
 	self removeAllHandlesBut: scaleHandle.  "remove all other handles"
 	scaleOffset := target scale / (evt eventPosition - target annoted positionInWorld) rho.! !
 
-!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 1/30/2025 12:18:47'!
+!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:57:36'!
+haloAnnDismissIcon
+	^ self icons
+		at: #haloDismissAnnIcon
+		ifAbsentPut: [ (
+			DySystem icons 
+				getForm: #discard
+				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
+
+!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 16:47:50'!
+haloAnnDragIcon
+	^ self icons
+		at: #haloAnnDragIcon
+		ifAbsentPut: [ (
+			DySystem icons 
+				getForm: #drag
+				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
+
+!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:52:21'!
 haloAnnEditIcon
 "Edit annoted document "
 	^ self icons
 		at: #haloEditAnnIcon
-		ifAbsentPut: [ Theme current clockIcon ]! !
+		ifAbsentPut: [ (
+			DySystem icons 
+				getForm: #edit
+				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
+
+!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:42:16'!
+haloAnnHelpIcon
+	^ self icons
+		at: #haloAnnHelpIcon
+		ifAbsentPut: [ (
+			DySystem icons 
+				getForm: #help
+				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
+
+!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:32:32'!
+haloAnnInspectIcon
+	^ self icons
+		at: #haloAnnInspectIcon
+		ifAbsentPut: [ (
+			DySystem icons 
+				getForm: #inspect
+				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
+
+!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:17:32'!
+haloAnnResizeIcon
+	^ self icons
+		at: #haloAnnResizeIcon
+		ifAbsentPut: [ (
+			DySystem icons 
+				getForm: #resize
+				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
+
+!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:36:42'!
+haloAnnRotateIcon
+	^ self icons
+		at: #haloAnnRotateIcon
+		ifAbsentPut: [ (
+			DySystem icons 
+				getForm: #rotate
+				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
 !HaloHandleMorph methodsFor: '*Document' stamp: 'hlsf 1/25/2025 19:07:05'!
 handlesMouseOver: evt
