@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 2 February 2025 at 6:18:39 pm'!
+'From Cuis7.3 [latest update: #7044] on 7 February 2025 at 7:09:58 pm'!
 'Description '!
-!provides: 'Document' 1 122!
+!provides: 'Document' 1 123!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2556,9 +2556,9 @@ mouseButton1Up: event localPosition: localPosition
 mouseButton2Up: evt localPosition: localPosition
 	presenter view  openCircularToolbar! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:38:29'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 2/7/2025 17:08:55'!
 mouseMove: event localPosition: localPosition
-	event mouseButton1Pressed not ifTrue: [		^ self ].
+	event mouseButton1Pressed not ifTrue: [^ self ].
 	self tool handleMouseAt: localPosition in: self! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 1/4/2025 10:48:42'!

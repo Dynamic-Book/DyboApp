@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #6971] on 9 January 2025 at 8:42:25 pm'!
+'From Cuis7.3 [latest update: #7044] on 6 February 2025 at 12:24:11 pm'!
 'Description '!
-!provides: 'Dynabook' 1 137!
+!provides: 'Dynabook' 1 138!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -3109,12 +3109,11 @@ previewFor: aDocument
 		borderWidth: 2;
 		borderColor: (aDocument isSaved ifTrue: [Color black] ifFalse: [Color red])! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/12/2024 19:02:18'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 2/6/2025 11:18:18'!
 previewRow
-	^ ​ LayoutMorph newRow 	:: 
+	^ ​ LayoutMorph newRow :: 
 		separation: DocumentView previewGap ; 
-		adoptWidgetsColor: 
-		self defaultColor
+		adoptWidgetsColor: self defaultColor
 	! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 5/26/2024 15:45:41'!
