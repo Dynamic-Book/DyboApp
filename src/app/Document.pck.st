@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 7 February 2025 at 7:09:58 pm'!
+'From Cuis7.3 [latest update: #7044] on 9 February 2025 at 6:20:44 pm'!
 'Description '!
-!provides: 'Document' 1 123!
+!provides: 'Document' 1 124!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2445,9 +2445,9 @@ initialize
 		addMorphFront: (AnnotatorMorph newOn: presenter annotate: (TextModelMorph withText: 'Edit me')) 
 		position: self morphExtent // 2.! !
 
-!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/5/2024 10:19:33'!
+!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 2/9/2025 17:14:50'!
 clipsSubmorphs
-	^ true! !
+	^ false! !
 
 !PageMorph methodsFor: 'drawing' stamp: 'hlsf 12/8/2024 18:57:15'!
 drawOn: canvas! !
@@ -2483,6 +2483,23 @@ mouseScroll: evt localPosition: localEventPosition
 	evt direction == #up
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
+
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:19:26'!
+acceptDroppingMorph: flapItem event: dropEvent
+	| annotator |
+	annotator := AnnotatorMorph newOn: presenter annotate: flapItem object.
+	self 
+		addMorphFront: annotator 
+		position: ( dropEvent eventPosition).
+	annotator adjustBounds! !
+
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:15:45'!
+allowsMorphDrop
+	^ true! !
+
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:16:25'!
+wantsDroppedMorph: aMorph event: evt
+	^ aMorph is: #FlapItem! !
 
 !PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 11/16/2024 11:00:10'!
 newOn: documentPresenter model: aPageModel
@@ -3099,7 +3116,7 @@ newOn: aForm
 		form: aForm;
 		initialize! !
 
-!PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/8/2024 18:41:55'!
+!PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 2/9/2025 17:27:48'!
 clipsSubmorphs
 	^ true! !
 
@@ -3107,11 +3124,20 @@ clipsSubmorphs
 defaultColor
 	^ Color lightGray muchLighter! !
 
+!PageContainer methodsFor: 'accessing' stamp: 'hlsf 2/9/2025 17:41:40'!
+flaps
+	^ submorphs select: [:aMorph | aMorph is: #Flap]! !
+
 !PageContainer methodsFor: 'as yet unclassified' stamp: 'hlsf 10/20/2024 17:48:20'!
 center
 	| bounds |
 	bounds := self fullBoundsInOwner.
 	^ bounds origin + bounds corner // 2! !
+
+!PageContainer methodsFor: 'as yet unclassified' stamp: 'hlsf 2/9/2025 17:43:06'!
+extentChanged: oldExtent
+	super extentChanged: oldExtent.
+	self flaps do: #fold! !
 
 !PageContainer class methodsFor: 'instance creation' stamp: 'hlsf 9/8/2024 18:24:18'!
 for: aPage
@@ -3189,13 +3215,14 @@ deleteBitMasks
 	pages do: [:aPage |
 		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:08:32'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/9/2025 18:03:46'!
 initialize
 	super initialize.
 	self beColumn.
 	pages := OrderedCollection new.
 	currentPage := PageMorph newOn: presenter model: self model newPageModel .
 	container := PageContainer for: currentPage.
+	container addMorph: (Flap example2 :: target: PageMorph).
 	pages add: currentPage! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:30:29'!
