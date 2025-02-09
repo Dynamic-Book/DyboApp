@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 9 February 2025 at 6:20:44 pm'!
+'From Cuis7.3 [latest update: #7044] on 9 February 2025 at 8:39:16 pm'!
 'Description '!
-!provides: 'Document' 1 124!
+!provides: 'Document' 1 125!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2484,13 +2484,13 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:19:26'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 19:38:33'!
 acceptDroppingMorph: flapItem event: dropEvent
 	| annotator |
-	annotator := AnnotatorMorph newOn: presenter annotate: flapItem object.
+	annotator := AnnotatorMorph newOn: presenter annotate: flapItem object class new.
 	self 
 		addMorphFront: annotator 
-		position: ( dropEvent eventPosition).
+		position: (self internalizeFromWorld: dropEvent eventPosition).
 	annotator adjustBounds! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:15:45'!
@@ -2863,9 +2863,13 @@ unlockAnnoted
 	annotedMorph 
 		unlock! !
 
-!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 1/24/2025 19:21:22'!
+!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 2/9/2025 19:46:35'!
 drawOn: aCanvas 
-	aCanvas frameRectangle: self localBounds borderWidth: self frameWidth color: `Color gray alpha: 0.2`! !
+	self halo ifNotNil: [
+		aCanvas 
+			frameRectangle: self localBounds 
+			borderWidth: self frameWidth 
+			color: `Color gray alpha: 0.2`]! !
 
 !AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 10/23/2024 19:03:41'!
 handlesMouseDown: event
@@ -2883,7 +2887,7 @@ mouseEnter: evt
 	self removeAlarm: #removeHalo.
 	self comeToFrontAndAddHalo ! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 1/25/2025 19:50:44'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 2/9/2025 19:48:26'!
 mouseLeave: evt
 	self addAlarm: #removeHalo after: 1000! !
 
@@ -2966,6 +2970,10 @@ endWritingAt: localPosition
 	strokeGroup := super endWritingAt: localPosition.
 	
 	^ strokeGroup ! !
+
+!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 2/9/2025 20:22:20'!
+shortPrintString
+	^ annotedMorph shortPrintString ! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/26/2024 11:33:10'!
 newOn: aPresenter
