@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 9 February 2025 at 8:39:16 pm'!
+'From Cuis7.3 [latest update: #7044] on 13 February 2025 at 11:46:04 am'!
 'Description '!
-!provides: 'Document' 1 125!
+!provides: 'Document' 1 126!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1062,9 +1062,9 @@ pageFitScreen
 previousPage
 	self view previousPage! !
 
-!Document methodsFor: 'callback pages' stamp: 'hlsf 12/24/2024 14:39:35'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 2/13/2025 10:30:00'!
 zoomAction: increment	
-	self zoomAction: increment at: view container center "container center"! !
+	self zoomAction: increment at: view container morphCenter! !
 
 !Document methodsFor: 'callback pages' stamp: 'hlsf 1/3/2025 14:57:51'!
 zoomAction: increment	 at: referencePoint
@@ -2484,14 +2484,15 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 19:38:33'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/13/2025 10:36:41'!
 acceptDroppingMorph: flapItem event: dropEvent
 	| annotator |
 	annotator := AnnotatorMorph newOn: presenter annotate: flapItem object class new.
 	self 
 		addMorphFront: annotator 
 		position: (self internalizeFromWorld: dropEvent eventPosition).
-	annotator adjustBounds! !
+	annotator adjustBounds.
+	flapItem flap fold! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:15:45'!
 allowsMorphDrop
@@ -2846,9 +2847,9 @@ annotate: aPlacedMorph
 annoted
 	^ annotedMorph ! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:40:45'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 2/13/2025 11:28:36'!
 frameWidth
-	^ 8! !
+	^ 8  / ((self scale max: 0.8) * (owner ifNotNil: [ owner scale max: 0.8] ifNil: [1]))! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 20:00:46'!
 lockAnnoted
@@ -3136,16 +3137,14 @@ defaultColor
 flaps
 	^ submorphs select: [:aMorph | aMorph is: #Flap]! !
 
-!PageContainer methodsFor: 'as yet unclassified' stamp: 'hlsf 10/20/2024 17:48:20'!
-center
-	| bounds |
-	bounds := self fullBoundsInOwner.
-	^ bounds origin + bounds corner // 2! !
-
 !PageContainer methodsFor: 'as yet unclassified' stamp: 'hlsf 2/9/2025 17:43:06'!
 extentChanged: oldExtent
 	super extentChanged: oldExtent.
 	self flaps do: #fold! !
+
+!PageContainer methodsFor: 'geometry' stamp: 'hlsf 2/13/2025 10:29:51'!
+morphCenter
+	^ self fullBoundsInOwner center! !
 
 !PageContainer class methodsFor: 'instance creation' stamp: 'hlsf 9/8/2024 18:24:18'!
 for: aPage
@@ -3703,7 +3702,7 @@ addInspectHandle: handleSpec
 		mouseDownSelector: #doInspect
 ! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/23/2025 19:31:31'!
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 2/13/2025 11:36:41'!
 addResizeAnnotedHandle: haloSpec
 
 	target annoted okayToResizeEasily ifTrue: [
@@ -3735,7 +3734,7 @@ doResizeAnnoted: evt with: resizeHandle
 	resizeHandle positionInWorld: evt eventPosition - (resizeHandle morphExtent // 2).
 	self redrawNeeded.! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/23/2025 19:33:54'!
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 2/13/2025 11:43:41'!
 doScaleAnnoted: evt with: scaleHandle
 	"Update the scale of my target if it is scalable."
 	| scale center |
@@ -3744,11 +3743,11 @@ doScaleAnnoted: evt with: scaleHandle
 	scale = 1.0
 		ifTrue: [scaleHandle color: `Color lightBlue`]
 		ifFalse: [scaleHandle color: `Color blue`].
-	scaleHandle submorphsDo:
-		[:m | m color: scaleHandle color makeForegroundColor].
-	center := target morphCenter.
+	scaleHandle submorphsDo: [:m | m color: scaleHandle color makeForegroundColor].
+	
+	" We want repositionning at this center before scaling "
+	center := target morphCenter. 
 	target scale: scale;
-		adjustBounds;
 		morphCenter: center.
 	scaleHandle positionInWorld: evt eventPosition - (scaleHandle morphExtent // 2).
 	self redrawNeeded.! !
