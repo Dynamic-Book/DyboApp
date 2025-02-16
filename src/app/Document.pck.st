@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 16 February 2025 at 11:32:30 pm'!
+'From Cuis7.3 [latest update: #7044] on 16 February 2025 at 11:44:33 pm'!
 'Description '!
-!provides: 'Document' 1 128!
+!provides: 'Document' 1 129!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -3297,10 +3297,15 @@ initialize
 	self installFlap.
 	pages add: currentPage! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/16/2025 23:23:57'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/16/2025 23:41:58'!
 installFlap
 	| flap items |
-	items := Array with: (DyboScript new code: 'TextModelMorph withText: ''A script test''').
+	items := Array 
+		with: (DyboScript new :: title: 'Text' ; code: 'TextModelMorph withText: ''A script test''')
+		with: (DyboScript new :: title: 'Workspace' ;code: '| ws | 
+ws := Workspace open.
+ws delete.
+ws layoutMorph').
 	flap := Flap label: ' Test scripts ' scripts: items.
 	container addMorph: flap.
 	flap fold;
