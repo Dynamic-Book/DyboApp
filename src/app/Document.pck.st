@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 16 February 2025 at 4:33:28 pm'!
+'From Cuis7.3 [latest update: #7044] on 16 February 2025 at 11:32:30 pm'!
 'Description '!
-!provides: 'Document' 1 127!
+!provides: 'Document' 1 128!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -351,7 +351,7 @@ PointerToolStateNeutral class
 
 !classDefinition: #DyboScript category: #'Document-Script'!
 Object subclass: #DyboScript
-	instanceVariableNames: 'code'
+	instanceVariableNames: 'code title description icon'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Script'!
@@ -2100,17 +2100,49 @@ handlePress: localPosition in: paper
 		handlePress: localPosition in: paper
 	! !
 
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:04:47'!
+code: aString
+	code := aString ! !
+
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:04:02'!
+description
+	^ description ifNil: [self class description]! !
+
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:04:19'!
+description: aString
+	description := aString ! !
+
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 21:55:42'!
+icon
+	^ icon ifNil: [self class icon]! !
+
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:03:30'!
+title
+	^ title ifNil: [self class title]! !
+
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:04:26'!
+title: aString
+	title := aString ! !
+
+!DyboScript methodsFor: 'updating' stamp: 'hlsf 2/16/2025 23:30:16'!
+execute
+	^ Compiler evaluate: code! !
+
 !DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 16:30:08'!
 dependency
 	^ nil! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 16:30:16'!
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 17:02:56'!
 description
-	self subclassResponsibility ! !
+	^ 'I''am a generic script with no specific dependency.' translated! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 16:31:05'!
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 21:54:57'!
+icon
+	^ Theme current fetch: #('16x16' 'places' 'start-here')  ! !
+
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 17:03:01'!
 title
-	^ self subclassResponsibility ! !
+	^ 'A generic script' translated! !
 
 !DocumentModel methodsFor: 'initialization' stamp: 'hlsf 11/16/2024 11:05:18'!
 initialize
@@ -2517,10 +2549,10 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/13/2025 10:36:41'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/16/2025 23:24:21'!
 acceptDroppingMorph: flapItem event: dropEvent
 	| annotator |
-	annotator := AnnotatorMorph newOn: presenter annotate: flapItem object class new.
+	annotator := AnnotatorMorph newOn: presenter annotate: flapItem object execute.
 	self 
 		addMorphFront: annotator 
 		position: (self internalizeFromWorld: dropEvent eventPosition).
@@ -3255,15 +3287,25 @@ deleteBitMasks
 	pages do: [:aPage |
 		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/9/2025 18:03:46'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/16/2025 23:23:03'!
 initialize
 	super initialize.
 	self beColumn.
 	pages := OrderedCollection new.
 	currentPage := PageMorph newOn: presenter model: self model newPageModel .
 	container := PageContainer for: currentPage.
-	container addMorph: (Flap example2 :: target: PageMorph).
+	self installFlap.
 	pages add: currentPage! !
+
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/16/2025 23:23:57'!
+installFlap
+	| flap items |
+	items := Array with: (DyboScript new code: 'TextModelMorph withText: ''A script test''').
+	flap := Flap label: ' Test scripts ' scripts: items.
+	container addMorph: flap.
+	flap fold;
+		target: PageMorph.
+	^ flap! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:30:29'!
 installMiniView
@@ -3865,3 +3907,30 @@ handlesMouseOver: evt
 !HaloHandleMorph methodsFor: '*Document' stamp: 'hlsf 1/25/2025 19:14:00'!
 mouseEnter: evt
 	owner target removeAlarm: #removeHalo! !
+
+!Flap methodsFor: '*Document' stamp: 'hlsf 2/16/2025 23:10:10'!
+scripts: dyboScripts
+	objects := dyboScripts collect: [:each |
+		FlapItem 
+			object: each 
+			image: each icon
+			buttons: nil 
+			label: each title ::
+			flap: self;
+			setProperty: #allowsItemDrag toValue: true;
+			adoptWidgetsColor: borderColor;
+			borderWidth: 1]! !
+
+!Flap class methodsFor: '*Document' stamp: 'hlsf 2/16/2025 23:02:55'!
+label: aString emphasis: emphasis scripts: dyboScripts
+	| flap |
+	flap := self contents: aString font: nil emphasis: emphasis.
+	flap scripts: dyboScripts.
+	^ flap
+	
+! !
+
+!Flap class methodsFor: '*Document' stamp: 'hlsf 2/16/2025 23:06:03'!
+label: aString scripts: dyboScripts
+	^ self label: aString emphasis: 0 scripts: dyboScripts 
+! !
