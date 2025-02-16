@@ -1,11 +1,12 @@
-'From Cuis7.3 [latest update: #7044] on 13 February 2025 at 11:46:04 am'!
+'From Cuis7.3 [latest update: #7044] on 16 February 2025 at 4:33:28 pm'!
 'Description '!
-!provides: 'Document' 1 126!
+!provides: 'Document' 1 127!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
 SystemOrganization addCategory: #'Document-Presenter-Tool'!
 SystemOrganization addCategory: #'Document-Presenter-Command'!
+SystemOrganization addCategory: #'Document-Script'!
 
 
 !classDefinition: #CommandStack category: #'Document-Presenter-Command'!
@@ -348,6 +349,16 @@ PageToolState subclass: #PointerToolStateNeutral
 PointerToolStateNeutral class
 	instanceVariableNames: ''!
 
+!classDefinition: #DyboScript category: #'Document-Script'!
+Object subclass: #DyboScript
+	instanceVariableNames: 'code'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Script'!
+!classDefinition: 'DyboScript class' category: #'Document-Script'!
+DyboScript class
+	instanceVariableNames: ''!
+
 !classDefinition: #DocumentModel category: #'Document-Model'!
 ActiveModel subclass: #DocumentModel
 	instanceVariableNames: 'timeStamp pageModel ownerPath'
@@ -420,7 +431,7 @@ PaperMorph class
 
 !classDefinition: #AnnotatorMorph category: #'Document-View'!
 PaperMorph subclass: #AnnotatorMorph
-	instanceVariableNames: 'annotedMorph'
+	instanceVariableNames: 'annotedMorph script'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-View'!
@@ -608,6 +619,14 @@ to grab the morphs to select.!
 We arrive at this state once the user press the pointer.
 We are either dragging the whole page or a grabbed annotator!
 
+!DyboScript commentStamp: '<historical>' prior: 0!
+My subclasses are interfaces to specific Dynamic Knowledge Models (DKM).
+My class side expose the dependency and the description to a specific DKM.
+My instances are particular use cases of the described DKM, it is done through a script (code variable).
+Therefore each instance of the same DyboScript subclass uses the same DKM but with a different 
+code to produce a different view. The code us a DSL specific to the DKM.
+Each script returns a View inserted in an Annotator itself added to a Document.!
+
 !DocumentModel commentStamp: '<historical>' prior: 0!
 - timeStamp : creation time of a Document. An unique identifier. It is used to create a dedicated directory on disk in the tasks or topic directory
 - relPath, the path my folder is saved in with my associate data, relatively to userDataPath. Those my fullPath is userDataPath / relPath / dirName
@@ -656,7 +675,9 @@ I always contain these two morphs of the same extent as me:
 !AnnotatorMorph commentStamp: '<historical>' prior: 0!
 My goal is to annotate with handwriting a placed morph (annotatedMorph). 
 My extent is adjusted to cover my annotated object and also the user handwriting. 
-My extent expands to enclosed new handwritings. It shrinks when handwritings are deleted.!
+My extent expands to enclosed new handwritings. It shrinks when handwritings are deleted.
+- script: instance of a DyboScript. An executed script return a view referenced by the annotedMorph
+- annotedMorph:  the view returned by the script when executed, it is then inserted in me!
 
 !PageModel commentStamp: '<historical>' prior: 0!
 An abstract model for a page.
@@ -2078,6 +2099,18 @@ handlePress: localPosition in: paper
 		switchState: PointerToolStateDragging;
 		handlePress: localPosition in: paper
 	! !
+
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 16:30:08'!
+dependency
+	^ nil! !
+
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 16:30:16'!
+description
+	self subclassResponsibility ! !
+
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 16:31:05'!
+title
+	^ self subclassResponsibility ! !
 
 !DocumentModel methodsFor: 'initialization' stamp: 'hlsf 11/16/2024 11:05:18'!
 initialize
