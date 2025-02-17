@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 16 February 2025 at 11:44:33 pm'!
+'From Cuis7.3 [latest update: #7044] on 17 February 2025 at 11:39:03 pm'!
 'Description '!
-!provides: 'Document' 1 129!
+!provides: 'Document' 1 130!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -1727,22 +1727,22 @@ presenter: aPresenter
 		initialize;
 		yourself! !
 
-!EraserTool methodsFor: 'initialization' stamp: 'hlsf 10/26/2024 14:42:42'!
-deleteBitsMasks
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 2/17/2025 22:40:57'!
+deleteBitMasks
 	presenter view deleteBitMasks ! !
 
-!EraserTool methodsFor: 'initialization' stamp: 'hlsf 1/24/2025 19:46:50'!
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 2/17/2025 22:41:08'!
 initialize
 	super initialize.
-	self deleteBitsMasks. "Need by annotated morph"
+	self deleteBitMasks. "Need by annotated morph"
 	self currentPage lockAnnoted.
 	self switchState: EraserToolStateNeutral ! !
 
-!EraserTool methodsFor: 'initialization' stamp: 'hlsf 9/8/2024 19:04:26'!
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 2/17/2025 22:41:12'!
 release
 	super release.
 	" We need to remove the Morph bitMask used to detect the individual strokes "
-	self deleteBitsMasks ! !
+	self deleteBitMasks ! !
 
 !EraserTool class methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 12:47:25'!
 action
@@ -1930,8 +1930,10 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 10/17/2024 11:34:05'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 2/17/2025 23:16:51'!
 handleMouseAt: localPosition in: paper
+" From time to time, strokeGroups are not detected. Activating their halo makes it work again...
+"
 	| worldCoordinate |
 	worldCoordinate := paper externalizeToWorld: localPosition.
 	(paper strokeGroupsAt: worldCoordinate) do: [:aGroup | 
@@ -1944,10 +1946,10 @@ handleMouseAt: localPosition in: paper
 			"... then we don't need the individual strokes, we remember of the whole group "
 			deletedStrokes at: aGroup put: aGroup] 	]! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 12/8/2024 19:58:51'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 2/17/2025 22:41:16'!
 handleRelease: localPosition in: paper
 	paper redrawNeeded.
-	context deleteBitsMasks.
+	context deleteBitMasks.
 	deletedStrokes ifNotEmpty: [	
 		 (deletedStrokes values first isCollection 
 			and: [deletedStrokes values first isEmpty]) ifTrue: [self halt: 'Should have strokes but is empty'].
@@ -1960,24 +1962,24 @@ initialize
 	super initialize.
 	deletedStrokes := Dictionary new.! !
 
-!EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 9/29/2024 18:17:43'!
+!EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 2/17/2025 22:42:30'!
 handlePress: localPosition in: paper
 	context 
 		switchState: EraserToolStateErasing; 	" Prepare to erase... "
 		handleMouseAt: localPosition in: paper "...then start erasing "! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/19/2024 16:16:05'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 2/17/2025 22:23:23'!
 handleMouseAt: localPosition in: paper
 	| delta pickupSelectionMorph worldPosition |
 	worldPosition := paper externalizeToWorld: localPosition.
 	prevPosition ~= worldPosition ifTrue: [
 		delta := (worldPosition - prevPosition) / context currentPage scale.
 		pickupSelectionMorph := paper selectionMorph ifNil: [context paper selectionMorph]. 
-		context selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition + delta		 ].
+		context selection do: [:aMorph | aMorph morphPosition: aMorph morphPosition + delta ].
 		pickupSelectionMorph morphPosition: pickupSelectionMorph morphPosition + delta.
 		prevPosition := worldPosition ]! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/23/2024 10:30:27'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 2/17/2025 22:23:45'!
 handlePress: localPosition in: paper
 	| pickUpSelectionMorph |
 	" problem when selecting an annotator: selectionMorph is in Paper, 
@@ -1986,12 +1988,12 @@ handlePress: localPosition in: paper
 	pickUpSelectionMorph := paper selectionMorph ifNil: [context paper selectionMorph]. 
 	(pickUpSelectionMorph displayFullBounds containsPoint: initialPosition ) ifFalse: [
 			context switchState: GroupToolStateNeutral.
-			^ context handlePress: localPosition in: paper			]! !
+			^ context handlePress: localPosition in: paper ]! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 12/8/2024 19:58:51'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 2/17/2025 22:24:09'!
 handleRelease: locaPosition in: paper
 	self commandsManager 
-		moveGroup: context 		selection 
+		moveGroup: context selection 
 		to: ((paper externalizeToWorld: locaPosition) - initialPosition) / context currentPage scale
 		in: context paper.
 	context presenter modified.! !
@@ -2136,9 +2138,9 @@ dependency
 description
 	^ 'I''am a generic script with no specific dependency.' translated! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 21:54:57'!
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/17/2025 21:43:23'!
 icon
-	^ Theme current fetch: #('16x16' 'places' 'start-here')  ! !
+	^ (Theme current fetch: #('16x16' 'places' 'start-here')) magnifyBy: 4! !
 
 !DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 17:03:01'!
 title
@@ -2787,11 +2789,11 @@ resetSamplingTo: aPoint
 strokeGroups
 	^ submorphs select: [:each | each is: #StrokeGroupMorph ]! !
 
-!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 9/30/2024 19:30:14'!
+!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 2/17/2025 22:31:04'!
 strokeGroupsAt: worldPosition
 	^ submorphs select: [:each |
 		(each is: #StrokeGroupMorph) 
-		and: [	each isCloserThan: self writingTool width toPixel: worldPosition ] 	]! !
+		and: [each isCloserThan: self writingTool width toPixel: worldPosition ] ]! !
 
 !PaperMorph methodsFor: 'writing' stamp: 'hlsf 1/4/2025 10:51:12'!
 endWritingAt: localPosition
@@ -3297,7 +3299,7 @@ initialize
 	self installFlap.
 	pages add: currentPage! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/16/2025 23:41:58'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/17/2025 21:44:53'!
 installFlap
 	| flap items |
 	items := Array 
@@ -3305,7 +3307,7 @@ installFlap
 		with: (DyboScript new :: title: 'Workspace' ;code: '| ws | 
 ws := Workspace open.
 ws delete.
-ws layoutMorph').
+ws layoutMorph morphExtent: 300@200').
 	flap := Flap label: ' Test scripts ' scripts: items.
 	container addMorph: flap.
 	flap fold;
