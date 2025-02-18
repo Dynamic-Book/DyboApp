@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 17 February 2025 at 11:39:03 pm'!
+'From Cuis7.3 [latest update: #7044] on 18 February 2025 at 11:08:50 pm'!
 'Description '!
-!provides: 'Document' 1 130!
+!provides: 'Document' 1 131!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2950,10 +2950,12 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 1/25/2025 19:50:16'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 2/18/2025 23:06:21'!
 mouseEnter: evt
 	self removeAlarm: #removeHalo.
-	self comeToFrontAndAddHalo ! !
+	self show.
+"	self comeToFront."
+	self addHalo! !
 
 !AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 2/9/2025 19:48:26'!
 mouseLeave: evt
@@ -3039,7 +3041,31 @@ endWritingAt: localPosition
 	
 	^ strokeGroup ! !
 
-!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 2/9/2025 20:22:20'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/18/2025 22:46:31'!
+addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
+	"Add standard halo items to the menu"
+	self isWorldMorph ifTrue:
+		[^ self addWorldHaloMenuItemsTo: aMenu hand: aHandMorph].
+
+	aMenu add: 'send to back' translated action: #goBehind.
+	aMenu add: 'bring to front' translated action: #comeToFront.
+	(aMenu 
+		addUpdating: #lockedString 
+		action: #lockUnlockMorph) setBalloonText: 'when "locked", I am inert to all user interactions' translated! !
+
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/18/2025 23:02:58'!
+goBehind
+	presenter currentPage addMorph: self inFrontOf: presenter currentPage paper! !
+
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/18/2025 22:40:34'!
+lockedString
+	"Answer the string to be shown in a menu to represent the 
+	'locked' status"
+	^ (self isLocked
+		ifTrue: ['<on>']
+		ifFalse: ['<off>']), 'be locked' translated! !
+
+!AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 2/9/2025 20:22:20'!
 shortPrintString
 	^ annotedMorph shortPrintString ! !
 
