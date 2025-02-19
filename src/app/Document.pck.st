@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 18 February 2025 at 11:08:50 pm'!
+'From Cuis7.3 [latest update: #7044] on 19 February 2025 at 7:34:56 pm'!
 'Description '!
-!provides: 'Document' 1 131!
+!provides: 'Document' 1 132!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2495,9 +2495,10 @@ paper
 presenter: documentPresenter
 	presenter := documentPresenter ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:49:49'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 2/19/2025 19:23:00'!
 unlockAnnoted
-	self annotators do: #unlockAnnoted ! !
+" See if annotator may unlock their annoted object "
+	self annotators do: #reconcileToFrozeenState ! !
 
 !PageMorph methodsFor: 'initialization' stamp: 'hlsf 1/23/2025 19:42:43'!
 initialize
@@ -2926,11 +2927,6 @@ lockAnnoted
 	" Ensure the keyboard focus is really lost "
 	annotedMorph submorphsDo: [:each | each keyboardFocusChange: false]! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:58:10'!
-unlockAnnoted
-	annotedMorph 
-		unlock! !
-
 !AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 2/9/2025 19:46:35'!
 drawOn: aCanvas 
 	self halo ifNotNil: [
@@ -3041,7 +3037,7 @@ endWritingAt: localPosition
 	
 	^ strokeGroup ! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/18/2025 22:46:31'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:04:14'!
 addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 	"Add standard halo items to the menu"
 	self isWorldMorph ifTrue:
@@ -3050,20 +3046,41 @@ addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 	aMenu add: 'send to back' translated action: #goBehind.
 	aMenu add: 'bring to front' translated action: #comeToFront.
 	(aMenu 
-		addUpdating: #lockedString 
-		action: #lockUnlockMorph) setBalloonText: 'when "locked", I am inert to all user interactions' translated! !
+		addUpdating: #frozenString 
+		action: #freezeUnfreezeMorph) setBalloonText: 'when "frozen", I am inert to all user interactions' translated! !
+
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:26:03'!
+freeze: aBoolean
+	self setProperty: #frozen toValue: aBoolean.
+	aBoolean 
+		ifTrue: [self lockAnnoted]
+		ifFalse: [ annotedMorph unlock]! !
+
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:14:24'!
+freezeUnfreezeMorph
+	self freeze: self isFrozen not! !
+
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:05:00'!
+frozenString
+	"Answer the string to be shown in a menu to represent the frozen status"
+	^ (self isFrozen
+		ifTrue: ['<on>']
+		ifFalse: ['<off>']), 'be frozen' translated! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/18/2025 23:02:58'!
 goBehind
 	presenter currentPage addMorph: self inFrontOf: presenter currentPage paper! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/18/2025 22:40:34'!
-lockedString
-	"Answer the string to be shown in a menu to represent the 
-	'locked' status"
-	^ (self isLocked
-		ifTrue: ['<on>']
-		ifFalse: ['<off>']), 'be locked' translated! !
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:13:20'!
+isFrozen
+	^ self valueOfProperty: #frozen ifAbsent: [ false ]! !
+
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:22:10'!
+reconcileToFrozeenState
+" 	Annotator may freeze the annoted object. 
+	Frozen state is necessary additional state to distingish from the low lover lock property 
+"
+	annotedMorph lock: self isFrozen! !
 
 !AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 2/9/2025 20:22:20'!
 shortPrintString
