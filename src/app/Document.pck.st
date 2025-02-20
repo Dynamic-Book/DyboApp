@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 19 February 2025 at 7:34:56 pm'!
+'From Cuis7.3 [latest update: #7044] on 20 February 2025 at 10:51:13 am'!
 'Description '!
-!provides: 'Document' 1 132!
+!provides: 'Document' 1 133!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -357,6 +357,16 @@ Object subclass: #DyboScript
 	category: 'Document-Script'!
 !classDefinition: 'DyboScript class' category: #'Document-Script'!
 DyboScript class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyboTextScript category: #'Document-Script'!
+DyboScript subclass: #DyboTextScript
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Script'!
+!classDefinition: 'DyboTextScript class' category: #'Document-Script'!
+DyboTextScript class
 	instanceVariableNames: ''!
 
 !classDefinition: #DocumentModel category: #'Document-Model'!
@@ -2114,9 +2124,15 @@ description
 description: aString
 	description := aString ! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 21:55:42'!
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/20/2025 10:30:32'!
 icon
-	^ icon ifNil: [self class icon]! !
+	| svg |
+	^ icon ifNil: [
+		svg := [SVGMainMorph fromStream: (ReadStream on: self class icon)] 
+			on: SVGWarning 
+			do: [:warning | warning resume].
+		icon := svg imageForm: (svg morphExtent normalized * 128) rounded depth: 32]
+		! !
 
 !DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:03:30'!
 title
@@ -2134,17 +2150,26 @@ execute
 dependency
 	^ nil! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 17:02:56'!
-description
-	^ 'I''am a generic script with no specific dependency.' translated! !
-
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/17/2025 21:43:23'!
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:34:33'!
 icon
-	^ (Theme current fetch: #('16x16' 'places' 'start-here')) magnifyBy: 4! !
+	^ '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m502.285 159.704-234-156c-7.987-4.915-16.511-4.96-24.571 0l-234 156c-6 3.999-9.714 11.143-9.714 18.285v155.999c0 7.143 3.714 14.286 9.715 18.286l234 156.022c7.987 4.915 16.511 4.96 24.571 0l234-156.022c6-3.999 9.715-11.143 9.715-18.286v-155.999c-.001-7.142-3.715-14.286-9.716-18.285zm-224.285-96.573 172.286 114.858-76.857 51.429-95.429-63.715zm-44 0v102.572l-95.429 63.715-76.857-51.429zm-190 156.001 55.143 36.857-55.143 36.857zm190 229.715-172.286-114.858 76.857-51.429 95.429 63.715zm22-140.858-77.715-52 77.715-52 77.715 52zm22 140.858v-102.572l95.429-63.715 76.857 51.429zm190-156.001-55.143-36.857 55.143-36.857z"/></svg>'! !
 
 !DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 17:03:01'!
 title
 	^ 'A generic script' translated! !
+
+!DyboTextScript methodsFor: 'initialization' stamp: 'hlsf 2/20/2025 10:50:31'!
+initialize
+	super initialize.
+	code := 'TextModelMorph withText: ''Write your text here.'''! !
+
+!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:38:52'!
+icon
+	^ '<svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="m432 416h-23.41l-130.71-362.31a32 32 0 0 0 -30.3-21.69h-47.16a32 32 0 0 0 -30.3 21.69l-130.71 362.31h-23.41a16 16 0 0 0 -16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0 -16-16h-19.58l23.3-64h152.56l23.3 64h-19.58a16 16 0 0 0 -16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0 -16-16zm-255.15-144 47.15-129.49 47.15 129.49z"/></svg>'! !
+
+!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:42:23'!
+title
+	^ 'Text frame with style edition' translated! !
 
 !DocumentModel methodsFor: 'initialization' stamp: 'hlsf 11/16/2024 11:05:18'!
 initialize
@@ -3342,11 +3367,11 @@ initialize
 	self installFlap.
 	pages add: currentPage! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/17/2025 21:44:53'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/20/2025 10:50:38'!
 installFlap
 	| flap items |
 	items := Array 
-		with: (DyboScript new :: title: 'Text' ; code: 'TextModelMorph withText: ''A script test''')
+		with: DyboTextScript new 
 		with: (DyboScript new :: title: 'Workspace' ;code: '| ws | 
 ws := Workspace open.
 ws delete.
