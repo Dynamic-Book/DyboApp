@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 20 February 2025 at 10:51:13 am'!
+'From Cuis7.3 [latest update: #7044] on 22 February 2025 at 11:31:38 pm'!
 'Description '!
-!provides: 'Document' 1 133!
+!provides: 'Document' 1 134!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2146,6 +2146,10 @@ title: aString
 execute
 	^ Compiler evaluate: code! !
 
+!DyboScript methodsFor: 'menu' stamp: 'hlsf 2/22/2025 23:22:15'!
+addCustomMenuItems: menu annoted: view
+	! !
+
 !DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 16:30:08'!
 dependency
 	^ nil! !
@@ -2162,6 +2166,14 @@ title
 initialize
 	super initialize.
 	code := 'TextModelMorph withText: ''Write your text here.'''! !
+
+!DyboTextScript methodsFor: 'menu' stamp: 'hlsf 2/22/2025 23:23:37'!
+addCustomMenuItems: menu annoted: view
+	| editor |
+	editor := view editor.
+	menu defaultTarget: view editor.
+	menu addLine.
+	menu add: 'Set Font' translated target: editor action: #offerFontMenu icon: Theme current preferencesDesktopFontIcon! !
 
 !DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:38:52'!
 icon
@@ -2525,7 +2537,7 @@ unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 1/23/2025 19:42:43'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 2/22/2025 23:16:32'!
 initialize
 	super initialize.
 	paper := PaperMorph newOn: presenter.
@@ -2533,10 +2545,7 @@ initialize
 	self addMorphBack: pageModel position: 0@0;
 		addMorphFront: paper position: 0@0.
 	self morphExtent: pageModel morphExtent.
-	paper morphExtent: pageModel morphExtent.
-	self 
-		addMorphFront: (AnnotatorMorph newOn: presenter annotate: (TextModelMorph withText: 'Edit me')) 
-		position: self morphExtent // 2.! !
+	paper morphExtent: pageModel morphExtent! !
 
 !PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 2/9/2025 17:14:50'!
 clipsSubmorphs
@@ -2577,10 +2586,10 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/16/2025 23:24:21'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/22/2025 23:16:06'!
 acceptDroppingMorph: flapItem event: dropEvent
 	| annotator |
-	annotator := AnnotatorMorph newOn: presenter annotate: flapItem object execute.
+	annotator := AnnotatorMorph newOn: presenter for: flapItem object.
 	self 
 		addMorphFront: annotator 
 		position: (self internalizeFromWorld: dropEvent eventPosition).
@@ -2952,6 +2961,10 @@ lockAnnoted
 	" Ensure the keyboard focus is really lost "
 	annotedMorph submorphsDo: [:each | each keyboardFocusChange: false]! !
 
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 2/22/2025 23:14:52'!
+script: aDyboScript
+	script := aDyboScript ! !
+
 !AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 2/9/2025 19:46:35'!
 drawOn: aCanvas 
 	self halo ifNotNil: [
@@ -3074,6 +3087,19 @@ addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 		addUpdating: #frozenString 
 		action: #freezeUnfreezeMorph) setBalloonText: 'when "frozen", I am inert to all user interactions' translated! !
 
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/22/2025 23:29:15'!
+buildHandleMenu: aHand
+	"Build the morph menu for the given morph's halo's menu handle. This menu has two sections. The first section contains commands that are interpreted by the hand; the second contains commands provided by the target morph. This method allows the morph to decide which items should be included in the hand's section of the menu."
+
+	| menu |
+	menu := MenuMorph new defaultTarget: self.
+	menu addStayUpIcons.
+	menu addLine.
+	self addStandardHaloMenuItemsTo: menu hand: aHand.
+	menu defaultTarget: annotedMorph .
+	script addCustomMenuItems: menu annoted: annotedMorph.
+	^ menu! !
+
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:26:03'!
 freeze: aBoolean
 	self setProperty: #frozen toValue: aBoolean.
@@ -3107,9 +3133,14 @@ reconcileToFrozeenState
 "
 	annotedMorph lock: self isFrozen! !
 
-!AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 2/9/2025 20:22:20'!
+!AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 2/22/2025 23:30:37'!
 shortPrintString
-	^ annotedMorph shortPrintString ! !
+	^script title translated contractTo: 20! !
+
+!AnnotatorMorph methodsFor: 'initialization' stamp: 'hlsf 2/22/2025 23:15:33'!
+initialize
+	super initialize.
+	self annotate: script execute! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/26/2024 11:33:10'!
 newOn: aPresenter
@@ -3121,6 +3152,14 @@ newOn: documentPresenter annotate: aPlacedMorph
 	^ self new
 		presenter: documentPresenter;
 		annotate: aPlacedMorph;
+		yourself! !
+
+!AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 2/22/2025 23:19:56'!
+newOn: documentPresenter for: aDyboScript
+	^ self basicNew
+		presenter: documentPresenter;
+		script: aDyboScript ;
+		initialize;
 		yourself! !
 
 !PageModel methodsFor: 'initialization' stamp: 'hlsf 11/15/2024 22:10:49'!
