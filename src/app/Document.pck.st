@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 22 February 2025 at 11:31:38 pm'!
+'From Cuis7.3 [latest update: #7044] on 1 March 2025 at 11:55:04 am'!
 'Description '!
-!provides: 'Document' 1 134!
+!provides: 'Document' 1 135!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2167,13 +2167,9 @@ initialize
 	super initialize.
 	code := 'TextModelMorph withText: ''Write your text here.'''! !
 
-!DyboTextScript methodsFor: 'menu' stamp: 'hlsf 2/22/2025 23:23:37'!
+!DyboTextScript methodsFor: 'menu' stamp: 'hlsf 3/1/2025 11:48:06'!
 addCustomMenuItems: menu annoted: view
-	| editor |
-	editor := view editor.
-	menu defaultTarget: view editor.
-	menu addLine.
-	menu add: 'Set Font' translated target: editor action: #offerFontMenu icon: Theme current preferencesDesktopFontIcon! !
+	(CommandBuilder on: #dyboTextScriptMenu with: view editor) addToMenu: menu! !
 
 !DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:38:52'!
 icon
@@ -2182,6 +2178,27 @@ icon
 !DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:42:23'!
 title
 	^ 'Text frame with style edition' translated! !
+
+!DyboTextScript class methodsFor: 'menu' stamp: 'hlsf 3/1/2025 11:53:25'!
+menuStyle: menuBuilder
+	<dyboTextScriptMenu>
+	menuBuilder newEntry: #font ::
+		label: 'Set font' translated;
+		icon: Theme current preferencesDesktopFontIcon;
+		selector: #offerFontMenu;
+		order: 10.
+	menuBuilder newEntry: #size ::
+		label: 'Set font size' translated;
+		selector: #offerFontSizeMenu;
+		order: 20.
+	menuBuilder newEntry: #style ::
+		label: 'Set style' translated;
+		selector: #offerFontStyleMenu;
+		order: 30.
+	menuBuilder newEntry: #color ::
+		label: 'Set text color' translated;
+		selector: #offerColorMenu;
+		order: 40.! !
 
 !DocumentModel methodsFor: 'initialization' stamp: 'hlsf 11/16/2024 11:05:18'!
 initialize
