@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 2 March 2025 at 11:42:44 am'!
+'From Cuis7.3 [latest update: #7044] on 2 March 2025 at 10:38:44 pm'!
 'Description '!
-!provides: 'Document' 1 137!
+!provides: 'Document' 1 138!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -509,6 +509,16 @@ LayoutMorph subclass: #DocumentView
 DocumentView class
 	instanceVariableNames: ''!
 
+!classDefinition: #DyboScriptEditor category: #'Document-Script'!
+DialogPanel subclass: #DyboScriptEditor
+	instanceVariableNames: 'file drgeoView codeView pane sketchProcess playButton codeAndViewPanel debugger docView'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Script'!
+!classDefinition: 'DyboScriptEditor class' category: #'Document-Script'!
+DyboScriptEditor class
+	instanceVariableNames: ''!
+
 
 !CommandStack commentStamp: '<historical>' prior: 0!
 I am stack of command to execute or to unexecute user action in a Document!
@@ -714,6 +724,20 @@ A document view comes with:
 - at the right/left (should depends on user preference)  and at the bottom, wheels to move the page and zoom in/out
 - at the bottom, a status bar
 - at the center, the page cover all the remaining area!
+
+!DyboScriptEditor commentStamp: '<historical>' prior: 0!
+An editor to edit Dybo script. 
+- At the left, the view to edit the Smalltalk code of the script and at the right the view where is rendered the view resulting of the compilation and execution of the Smalltalk code.
+- There is a tool bar to load, save and execute the code.
+- model : source code of the edited Smalltalk sketch
+- file : file entry of the Smalltalk sketch
+- drgeoView : a morph where to plug the view of the compiled model
+- codeView : editor of the model
+- docView : view of the Erudite DrGeo tutorial
+- sketchProcess: the Smalltalk sketch is executed in its own thread
+- playButton: the button to play and pause the Smalltalk sketch execution
+- debugger: a debugger window whose content is plug in the editor when appropriate
+!
 
 !CommandStack methodsFor: 'private' stamp: 'hlsf 9/10/2024 21:00:31'!
 truncate
@@ -3859,6 +3883,426 @@ presenter: aPresenter
 !DocumentView class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:32:52'!
 includeInNewMorphMenu
 	^ false! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 7/21/2024 23:00:38'!
+buildMorphicWindow
+	super buildMorphicWindow.
+	titleMorph showButtonsNamed: #(close collapse expand).
+	self toggleHelp.
+	self activeHand newKeyboardFocus: codeView scroller.
+	layoutMorph adoptWidgetsColor: self widgetsColor! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/30/2024 08:48:53'!
+button: iconSymbol action: actionSelector help: helpString
+	^ (ButtonMorph model: self action: actionSelector)
+			icon: (DrGIcons for: iconSymbol );
+			setBalloonText: helpString ;
+			color: Theme current drgeoButtonColor;
+			selectedColor: Theme current drgeoButtonSelectedColor;
+			borderColor: Theme current drgeoButtonColor muchDarker;
+			borderWidth: 2;
+			morphExtent: (Theme current toolbarIconSize + 4) asPoint;
+			yourself! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/30/2024 08:49:06'!
+button: iconSymbol action: actionSelector state: getStateSel help: helpString
+	^ (ButtonMorph model: self stateGetter: getStateSel action: actionSelector)
+			icon: (DrGIcons for: iconSymbol );
+			setBalloonText: helpString ;
+			color: Theme current drgeoButtonColor;
+			selectedColor: Theme current drgeoButtonSelectedColor;
+			borderColor: Theme current drgeoButtonColor muchDarker;
+			borderWidth: 2;
+			morphExtent: (Theme current toolbarIconSize + 4) asPoint;
+			yourself! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/14/2022 16:43:31'!
+newButtonArea
+	buttonArea := LayoutMorph newRow 
+		axisEdgeWeight: #rowRight;
+		addMorph: (PluggableButtonMorph
+			model: self
+			action: #delete
+			label: 'Cancel' translated).
+	^ buttonArea! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 11/2/2022 19:39:02'!
+newCodeAndView
+	^ LayoutMorph newRow
+		separation: self defaultSeparation;
+		addMorph: (codeAndViewPanel := LayoutMorph newColumn
+			addMorph: codeView proportionalHeight: 0.7;
+			addAdjusterMorph;
+			addMorph: docView proportionalHeight: 0.3) 
+		proportionalWidth: 0.5;
+		addAdjusterMorph ;
+		addMorph: drgeoView proportionalWidth: 0.5;
+		yourself! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 10/19/2022 21:31:20'!
+newPane
+	^ LayoutMorph newColumn
+		separation: self defaultSeparation ;
+		addMorphKeepMorphHeight: self newToolbar;
+		addMorphUseAll: self newCodeAndView;
+		yourself! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 10/28/2022 11:15:20'!
+newToolbar
+	^ LayoutMorph newRow
+		separation: 5@0 ;
+		addMorph: (self button: #open action: #browseSketches help: 'Edit a Smalltalk sketch.' translated);
+		addMorph: (self button: #keep action: #keepSketch help: 'Save this Smalltalk sketch.' translated);
+		addMorph: (playButton := self button: #play action: #executeSketch help: 'Play the Smalltalk sketch.' translated);
+		addMorph: (self button: #debug action: #debugSketch help: 'Debug the Smalltalk sketch.' translated);
+		addMorph: (self button: #stop action: #stopSketch help: 'Stop the execution of the Smalltalk sketch.' translated);
+		addMorph: self transparentMorph layoutSpec: (LayoutSpec proportionalWidth: 1.0);
+		addMorph: (self button: #doc action: #toggleHelp state: #isDocVisible help: 'Dr. Geo tutorial' translated)
+		yourself! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 5/1/2024 11:08:16'!
+plugDebugger
+" Install the debugger window at the place of the code viewer "
+	debugger layoutMorph borderWidth: 1.
+	codeAndViewPanel replaceSubmorph: codeView by: debugger layoutMorph.			
+	debugger model when: #closeViews send: #stopDebbuger to: self.! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 5/9/2024 11:20:31'!
+plugDebugger: aDebugger
+	self stopDebbuger.
+	debugger := aDebugger.
+	self plugDebugger ! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 10/6/2022 12:44:50'!
+switchToPauseButton
+" 
+Switch to pause sketch action 
+"
+	playButton 
+		icon: (DrGIcons for: #pause);
+		action: #pauseSketch;
+		setBalloonText: 'Pause the Smalltalk sketch.' translated;
+		redrawNeeded ! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/20/2024 16:20:14'!
+switchToPlayButton
+" 
+Switch to play sketch action 
+"
+	playButton 
+		icon: (DrGIcons for: #play);
+		action: #executeSketch;
+		setBalloonText: 'Play the Smalltalk sketch.' translated;
+		redrawNeeded.! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 10/6/2022 12:44:44'!
+switchToResumeButton
+" 
+Switch to resume sketch action
+"
+	playButton 
+		icon: (DrGIcons for: #resume);
+		action: #resumeSketch;
+		setBalloonText: 'Resume the Smalltalk sketch.' translated;
+		redrawNeeded ! !
+
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 9/18/2024 21:03:16'!
+transparentMorph
+	^ ColoredBoxMorph new 
+		color: Color transparent; 
+		yourself! !
+
+!DyboScriptEditor methodsFor: 'initialization' stamp: 'hlsf 7/28/2024 10:25:47'!
+defaultColor
+	^ Theme current workspace ! !
+
+!DyboScriptEditor methodsFor: 'initialization' stamp: 'hlsf 8/10/2024 15:53:38'!
+initialize
+	| book |
+	super initialize.
+	book := EruditeBookReaderMorph new.
+	docView := book
+		model: DrGeoTutorial new; 
+		buildMorphicWindow;
+		layoutMorph.
+	book when: #askToCopyCode send: #sourceCode: to: self.
+	
+	codeView := (TextModelMorph textProvider: self textGetter: #sourceCode textSetter: #sourceCode:)
+		askBeforeDiscardingEdits: false;
+		yourself.
+	drgeoView :=  LayoutMorph newRow
+		color: self color;
+		borderWidth: 1;
+		layoutSpec: LayoutSpec useAll! !
+
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 10/30/2022 20:39:21'!
+isDocVisible
+	^ docView visible! !
+
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 4/14/2022 16:35:00'!
+model: sourceCode
+"Set an initial source code (string)"
+	model := sourceCode
+! !
+
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 10/30/2022 20:45:35'!
+separator
+"The adjuster/separator between the codeView and docView"
+	^ codeView owner submorphs second
+! !
+
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 4/15/2022 21:09:07'!
+sketchName
+	^ file 	ifNil: [''] ifNotNil: [file baseName]! !
+
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 4/14/2022 16:36:21'!
+sourceCode
+	^ model 
+		ifNotNil: [model]
+		ifNil: ['']! !
+
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 5/25/2023 15:31:43'!
+sourceCode: aText
+	self model: aText asString.
+	self changed: #clearUserEdits.
+	self changed: #acceptedContents.
+	self releaseMiniView.
+	drgeoView removeAllMorphs
+! !
+
+!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 4/15/2022 15:12:50'!
+autoCompleterClassFor: textGetter
+	^SmalltalkCompleter! !
+
+!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 12/22/2022 21:45:04'!
+computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofBlockArgNamed: aString 
+	aDynamicTypingSmalltalkCompleter 
+		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
+
+!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 12/22/2022 21:45:36'!
+computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofBlockTempVarNamed: aString 
+	aDynamicTypingSmalltalkCompleter 
+		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
+
+!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 12/22/2022 21:45:25'!
+computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofInstVarNamed: aString 
+	aDynamicTypingSmalltalkCompleter 
+		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
+
+!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 12/22/2022 21:40:20'!
+computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofTempVarNamed: aString 
+	aDynamicTypingSmalltalkCompleter 
+		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
+
+!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 4/15/2022 15:10:56'!
+editorClassFor: textGetter
+    ^SmalltalkEditor! !
+
+!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 4/14/2022 16:40:23'!
+shouldStyle: aText with: aSHTextStylerST80 
+	
+	^true! !
+
+!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 11/23/2023 17:27:30'!
+styleByParagraphs
+	^ false! !
+
+!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 4/14/2022 16:40:27'!
+textStylerClassFor: object
+	^ SHTextStylerST80 ! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 5/18/2023 17:35:00'!
+browseSketches
+| browser |
+	self stopSketch.
+	browser := DrGSmalltalkSketchBrowser 
+		open: DrGeoSystem smalltalkSketchesPath 
+		label: 'Select a Smalltalk sketch' translated.
+	browser when: #editSmalltalkSketch send: #loadSketch: to: self.! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/20/2024 17:07:38'!
+compiledSketch: aSketch
+	self releaseMiniView.
+	drgeoView 
+		removeAllMorphs;
+		addMorph: aSketch view.! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 1/12/2025 13:08:18'!
+debugSketch
+" Execute the sketch step by step in a debugger "
+	model ifEmpty: [^ self].
+	self stopSketch.
+	self isDocVisible ifTrue: [self toggleHelp].
+	codeView scroller acceptContents.
+	DrGeoSketch when: #newSmalltalkSketch send: #compiledSketch: to: self.
+	codeView editor 
+		afterCompiling: model 
+		do:  [ :compiler :method :receiver :context | 
+			(method notNil and: [method isQuick not]) ifTrue: [
+				debugger := Debugger 
+					openMinimalDebugging: [
+						method
+							valueWithReceiver: receiver 
+							arguments: (context ifNil: [ #() ] ifNotNil: [ { context } ])]
+					to: method.
+				self plugDebugger ]]
+		ifFail: []! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 5/9/2024 12:21:15'!
+executeSketch
+	self stopSketch.
+	codeView scroller acceptContents.
+	self switchToPauseButton.
+	DrGeoSketch when: #newSmalltalkSketch send: #compiledSketch: to: self.
+	sketchProcess := [ | t |
+		t := DateAndTime now.
+		(DrGeoSystem preferences at: #advancedDebugger) 
+			ifTrue: [Compiler evaluate: model]
+			ifFalse: [
+				[Compiler evaluate: model] 
+					on: Error, Halt
+					do: [:ex | 
+						self setLabel: ex description.
+						debugger ifNil: [" We can't help if debugger already active "
+							Debugger 		
+								openMinimalIn: self
+								debuggingProcess: sketchProcess 			
+								context: ex signalerContext.
+							ex resume ]
+							ifNotNil: [ 
+								self inform: 'Too many errors. Fix it!!
+Sketch stopped' translated.
+								self stopSketch ]							
+						 ] ].
+		" When we get there, sketch has been entirely executed, switch back to play button "
+		self switchToPlayButton.
+		Transcript show: DateAndTime now - t ;cr] newProcess.
+	sketchProcess 
+		priority: Processor userBackgroundPriority ;
+		name: '[DrGeo] Smalltalk Sketch execution';
+		resume.! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 4/15/2022 21:31:52'!
+keepSketch
+| modelName |
+	DrGeoSystem showVirtualKeyboard: true.
+	codeView scroller acceptContents.
+	modelName := (ValueHolder with: self sketchName)
+	action: [:aString | 
+		self setLabel: aString.
+		file := DrGeoSystem mySmalltalkSketchesPath // (aString, '.st').
+		file < model].
+	(StringEntryPanel openWide: modelName label: 'Name the sketch to keep.' translated)
+		morphCenter: self fullBoundsInOwner center;
+		setProperty: #layerNumber toValue: 20! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 2/22/2023 11:31:05'!
+loadSketch: afileEntry
+" we are informed by the browser we want a file "
+	file := afileEntry.
+	self setLabel: self sketchName.
+	self sourceCode: file fileContents! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'Install-DrGeoFrench 12/7/2022 16:12:01'!
+pauseSketch
+    sketchProcess isTerminated ifTrue: [
+        self stopSketch.
+        ^self ].
+    sketchProcess suspend.
+    self switchToResumeButton.! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 10/6/2022 12:28:58'!
+resumeSketch
+	sketchProcess resume.
+	self switchToPauseButton! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 5/9/2024 11:26:05'!
+stopDebbuger
+	debugger ifNotNil: [
+		codeAndViewPanel replaceSubmorph: debugger layoutMorph by: codeView.
+		debugger closeView.
+		debugger := nil.
+		self restoreLabel ]
+		
+		! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 6/8/2024 16:21:22'!
+stopSketch
+	ActiveModel flushEventSystem.
+	DrGeoSketch removeActionsForEvent: #newSmalltalkSketch.
+	sketchProcess 	ifNotNil: [
+		sketchProcess terminate.
+		sketchProcess := nil	].
+	self switchToPlayButton .
+	self stopDebbuger 
+	! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 11/2/2022 19:48:07'!
+toggleHelp
+"Show/unshow the doc pane"
+	debugger ifNotNil: [^ self]. "No doc while debugging, the pane does not like it"
+	self isDocVisible 		ifTrue: [
+		docView hide.
+		codeView layoutSpec proportionalHeight: 1.0.
+		docView layoutSpec proportionalHeight: 0.
+		self separator hide			]
+	ifFalse: [
+		docView show.
+		docView layoutSpec proportionalHeight: 0.3.
+		codeView layoutSpec proportionalHeight: 0.7.
+		self separator show		].
+	self changed: #isDocVisible
+! !
+
+!DyboScriptEditor methodsFor: 'geometry' stamp: 'hlsf 4/23/2022 14:19:25'!
+expand
+	super expand.
+	self fullScreen! !
+
+!DyboScriptEditor methodsFor: 'geometry' stamp: 'hlsf 4/2/2024 18:58:11'!
+minimumExtent
+	^ Theme current scale: 800@600! !
+
+!DyboScriptEditor methodsFor: 'testing' stamp: 'hlsf 5/18/2023 17:07:27'!
+shouldAutoHighlight
+	^ false! !
+
+!DyboScriptEditor methodsFor: 'testing' stamp: 'hlsf 5/18/2023 17:09:35'!
+shoutMustKeepContentsSize
+	^ true! !
+
+!DyboScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 5/25/2023 18:03:51'!
+delete
+	self stopSketch .
+	super delete.
+	self releaseMiniView ! !
+
+!DyboScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 6/6/2024 17:34:07'!
+releaseMiniView
+	drgeoView submorphCount = 1 ifTrue: [
+		drgeoView firstSubmorph ifNotNil: [:miniView| 	miniView release]]! !
+
+!DyboScriptEditor methodsFor: 'label' stamp: 'hlsf 5/1/2024 11:36:19'!
+restoreLabel
+	| defaultLabel |
+	defaultLabel := self sketchName ifEmpty: ['Edit Smalltalk Sketch' translated].
+	self label == defaultLabel 		ifFalse: [self setLabel: defaultLabel]! !
+
+!DyboScriptEditor methodsFor: 'shout' stamp: 'hlsf 9/8/2024 19:55:01'!
+aboutToStyleWith: aSHTextStylerST80 
+	! !
+
+!DyboScriptEditor methodsFor: 'shout' stamp: 'hlsf 9/8/2024 19:54:15'!
+allowsStylingFor: aSymbol isTextDirty: aFalse 
+	^ true! !
+
+!DyboScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 1/12/2025 13:10:44'!
+doItContext
+	^ nil! !
+
+!DyboScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 1/12/2025 13:09:57'!
+doItReceiver
+	^ nil! !
 
 !Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:22:27'!
 covariance: y
