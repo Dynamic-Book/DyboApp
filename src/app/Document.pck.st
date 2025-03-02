@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 1 March 2025 at 11:55:04 am'!
+'From Cuis7.3 [latest update: #7044] on 2 March 2025 at 11:42:44 am'!
 'Description '!
-!provides: 'Document' 1 135!
+!provides: 'Document' 1 137!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
 SystemOrganization addCategory: #'Document-Presenter'!
@@ -2154,9 +2154,9 @@ addCustomMenuItems: menu annoted: view
 dependency
 	^ nil! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:34:33'!
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 3/2/2025 11:06:25'!
 icon
-	^ '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m502.285 159.704-234-156c-7.987-4.915-16.511-4.96-24.571 0l-234 156c-6 3.999-9.714 11.143-9.714 18.285v155.999c0 7.143 3.714 14.286 9.715 18.286l234 156.022c7.987 4.915 16.511 4.96 24.571 0l234-156.022c6-3.999 9.715-11.143 9.715-18.286v-155.999c-.001-7.142-3.715-14.286-9.716-18.285zm-224.285-96.573 172.286 114.858-76.857 51.429-95.429-63.715zm-44 0v102.572l-95.429 63.715-76.857-51.429zm-190 156.001 55.143 36.857-55.143 36.857zm190 229.715-172.286-114.858 76.857-51.429 95.429 63.715zm22-140.858-77.715-52 77.715-52 77.715 52zm22 140.858v-102.572l95.429-63.715 76.857 51.429zm190-156.001-55.143-36.857 55.143-36.857z"/></svg>'! !
+	^ '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m255.9 120.9 9.1-15.7c5.6-9.8 18.1-13.1 27.9-7.5s13.1 18.1 7.5 27.9l-87.5 151.5h63.3c20.5 0 32 24.1 23.1 40.8h-185.5c-11.3 0-20.4-9.1-20.4-20.4s9.1-20.4 20.4-20.4h52l66.6-115.4-20.8-36.1c-5.6-9.8-2.3-22.2 7.5-27.9 9.8-5.6 22.2-2.3 27.9 7.5l8.9 15.7zm-78.7 218-19.6 34c-5.6 9.8-18.1 13.1-27.9 7.5s-13.1-18.1-7.5-27.9l14.6-25.2c16.4-5.1 29.8-1.2 40.4 11.6zm168.9-61.7h53.1c11.3 0 20.4 9.1 20.4 20.4s-9.1 20.4-20.4 20.4h-29.5l19.9 34.5c5.6 9.8 2.3 22.2-7.5 27.9-9.8 5.6-22.2 2.3-27.9-7.5-33.5-58.1-58.7-101.6-75.4-130.6-17.1-29.5-4.9-59.1 7.2-69.1 13.4 23 33.4 57.7 60.1 104zm-90.1-269.2c-137 0-248 111-248 248s111 248 248 248 248-111 248-248-111-248-248-248zm216 248c0 118.7-96.1 216-216 216-118.7 0-216-96.1-216-216 0-118.7 96.1-216 216-216 118.7 0 216 96.1 216 216z"/></svg>'! !
 
 !DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 17:03:01'!
 title
@@ -2179,7 +2179,7 @@ icon
 title
 	^ 'Text frame with style edition' translated! !
 
-!DyboTextScript class methodsFor: 'menu' stamp: 'hlsf 3/1/2025 11:53:25'!
+!DyboTextScript class methodsFor: 'menu' stamp: 'hlsf 3/1/2025 15:04:59'!
 menuStyle: menuBuilder
 	<dyboTextScriptMenu>
 	menuBuilder newEntry: #font ::
@@ -2194,9 +2194,11 @@ menuStyle: menuBuilder
 	menuBuilder newEntry: #style ::
 		label: 'Set style' translated;
 		selector: #offerFontStyleMenu;
+		icon: (Theme current fetch: #('16x16' 'actions' 'format-text-italic'));
 		order: 30.
 	menuBuilder newEntry: #color ::
 		label: 'Set text color' translated;
+		icon: Theme current graphicsIcon ;
 		selector: #offerColorMenu;
 		order: 40.! !
 
@@ -2603,7 +2605,7 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/22/2025 23:16:06'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 3/2/2025 11:39:02'!
 acceptDroppingMorph: flapItem event: dropEvent
 	| annotator |
 	annotator := AnnotatorMorph newOn: presenter for: flapItem object.
@@ -2611,7 +2613,8 @@ acceptDroppingMorph: flapItem event: dropEvent
 		addMorphFront: annotator 
 		position: (self internalizeFromWorld: dropEvent eventPosition).
 	annotator adjustBounds.
-	flapItem flap fold! !
+	flapItem flap fold.
+	presenter pointerTool! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:15:45'!
 allowsMorphDrop
@@ -3092,17 +3095,22 @@ endWritingAt: localPosition
 	
 	^ strokeGroup ! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:04:14'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 3/1/2025 15:13:21'!
 addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 	"Add standard halo items to the menu"
 	self isWorldMorph ifTrue:
 		[^ self addWorldHaloMenuItemsTo: aMenu hand: aHandMorph].
-
-	aMenu add: 'send to back' translated action: #goBehind.
-	aMenu add: 'bring to front' translated action: #comeToFront.
+	aMenu 
+		add: 'Bring to front' translated 
+		action: #comeToFront
+		icon: (Theme current fetch: #('16x16' 'actions' 'go-top'));
+		add: 'Send to back' translated 
+		action: #goBehind
+		icon: (Theme current fetch: #('16x16' 'actions' 'go-bottom')).
+	
 	(aMenu 
 		addUpdating: #frozenString 
-		action: #freezeUnfreezeMorph) setBalloonText: 'when "frozen", I am inert to all user interactions' translated! !
+		action: #freezeUnfreezeMorph) setBalloonText: 'When "frozen", I am inert to all user interactions.' translated! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/22/2025 23:29:15'!
 buildHandleMenu: aHand
@@ -3128,12 +3136,12 @@ freeze: aBoolean
 freezeUnfreezeMorph
 	self freeze: self isFrozen not! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:05:00'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 3/1/2025 15:10:49'!
 frozenString
 	"Answer the string to be shown in a menu to represent the frozen status"
 	^ (self isFrozen
 		ifTrue: ['<on>']
-		ifFalse: ['<off>']), 'be frozen' translated! !
+		ifFalse: ['<off>']), 'Be frozen' translated! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/18/2025 23:02:58'!
 goBehind
@@ -4039,7 +4047,7 @@ handlesMouseOver: evt
 mouseEnter: evt
 	owner target removeAlarm: #removeHalo! !
 
-!Flap methodsFor: '*Document' stamp: 'hlsf 2/16/2025 23:10:10'!
+!Flap methodsFor: '*Document' stamp: 'hlsf 3/2/2025 10:56:40'!
 scripts: dyboScripts
 	objects := dyboScripts collect: [:each |
 		FlapItem 
@@ -4050,7 +4058,7 @@ scripts: dyboScripts
 			flap: self;
 			setProperty: #allowsItemDrag toValue: true;
 			adoptWidgetsColor: borderColor;
-			borderWidth: 1]! !
+			borderWidth: 2]! !
 
 !Flap class methodsFor: '*Document' stamp: 'hlsf 2/16/2025 23:02:55'!
 label: aString emphasis: emphasis scripts: dyboScripts
