@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7044] on 6 February 2025 at 12:24:11 pm'!
+'From Cuis7.3 [latest update: #7062] on 4 March 2025 at 8:18:02 pm'!
 'Description '!
-!provides: 'Dynabook' 1 138!
+!provides: 'Dynabook' 1 139!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -2068,19 +2068,19 @@ plugStart
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/12/2024 21:05:08'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 3/4/2025 20:17:50'!
 dyboToolbar
 	| toolbar buttonWidth|
-	toolbar := LayoutMorph newRow 		separation: 5.
+	toolbar := LayoutMorph newRow separation: 5.
 	buttonWidth := DySystem iconToolbarSize.
 	self dyboToolbarSpec do: [:aTool | 
 		aTool 
 			caseOf: {
 				[ #spacer ] -> [ toolbar addMorphUseAll: self class spacer ] .
-				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 			}
+				[ #blank ] -> [ toolbar addMorph: (self class spacer: buttonWidth) ] 	}
 			otherwise: [	
 				toolbar addMorph: (
-					self on: self dyboPresenter 					button: aTool state: #isView: size: buttonWidth )] ].
+					self on: self dyboPresenter  button: aTool state: #isView: size: buttonWidth )] ].
 	^ toolbar! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/1/2024 17:01:30'!
