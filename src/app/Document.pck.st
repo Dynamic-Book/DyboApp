@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7062] on 4 March 2025 at 8:17:30 pm'!
+'From Cuis7.3 [latest update: #7062] on 6 March 2025 at 11:10:16 pm'!
 'Description '!
-!provides: 'Document' 1 139!
+!provides: 'Document' 1 140!
 !requires: 'Commander' 1 7 nil!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
@@ -512,7 +512,7 @@ DocumentView class
 
 !classDefinition: #DyboScriptEditor category: #'Document-Script'!
 DialogPanel subclass: #DyboScriptEditor
-	instanceVariableNames: 'file plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView'
+	instanceVariableNames: 'plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Script'!
@@ -731,7 +731,6 @@ An editor to edit Dybo script.
 - At the left, the view to edit the Smalltalk script and at the right a receptacle to plug the view resulting of the compilation and execution of the script.
 - There is a toolbar to keep and execute the code.
 - model : a DyboScript instance 
-- file : file entry of the Smalltalk script
 - plugView : a morph where to plug the view of the compiled model
 - codeView : editor of the model
 - docView : view of the Erudite DrGeo tutorial
@@ -3091,14 +3090,18 @@ topLeftCorner
 	^ corner - 1 - self frameWidth asPoint
 	! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 2/2/2025 18:02:59'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 3/6/2025 20:16:30'!
+editAnnoted
+	^ DyboScriptEditor open: script label: script title! !
+
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 3/6/2025 20:11:56'!
 haloSpecifications
 	^ {	"selector 						horiz 			vert 			color info 			icon key	"
 		{#addDismissHandle:.			#left.			#top.			#(red).				#haloAnnDismissIcon. 		'Remove' translated}.
 		{#addMenuHandle:. 			#leftCenter.	#top.			#(blue darker).		#haloMenuIcon.		'Menu' translated}.
 		{#addEditAnnotedHandle:.		#right.		 	#topCenter.	#(orange darker).	#haloAnnEditIcon.		'Edit' translated}.
 		{#addDragHandle:.			#center.		#top.			#(brown).			#haloAnnDragIcon. 	'Move' translated}.
-		{#addInspectHandle:.			#right.			#center.		#(orange lighter).			#haloAnnInspectIcon. 	'Inspect' translated}.
+		{#addInspectHandle:.			#right.			#center.		#(orange lighter).	#haloAnnInspectIcon. 	'Inspect' translated}.
 		{#addRotateHandle:.			#left.			#bottom.		#(blue).			#haloAnnRotateIcon.	'Rotate' translated}.		
 		{#addResizeAnnotedHandle:.	#right.			#bottom.		#(yellow).			#haloAnnResizeIcon. 	'Change size' translated}.
 		{#addHelpHandle:.				#center.		#bottom.		#(lightBlue).		#haloAnnHelpIcon. 	'Help' translated}
@@ -3977,35 +3980,35 @@ plugDebugger: aDebugger
 	debugger := aDebugger.
 	self plugDebugger ! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/4/2025 19:54:20'!
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/6/2025 20:28:07'!
 switchToPauseButton
 " 
 Switch to pause sketch action 
 "
 	playButton 
-		icon: (DrGIcons for: #pause);
+		icon: (DySystem icons getForm: #pause ofSize: DySystem iconToolbarSize);
 		action: #pauseScript;
 		setBalloonText: 'Pause the Smalltalk sketch.' translated;
 		redrawNeeded ! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/4/2025 19:53:35'!
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/6/2025 20:27:45'!
 switchToPlayButton
 " 
 Switch to play sketch action 
 "
 	playButton 
-		icon: (DrGIcons for: #play);
+		icon: (DySystem icons getForm: #play ofSize: DySystem iconToolbarSize);
 		action: #executeScript;
 		setBalloonText: 'Play the Smalltalk sketch.' translated;
 		redrawNeeded.! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/4/2025 19:54:33'!
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/6/2025 20:28:34'!
 switchToResumeButton
 " 
 Switch to resume sketch action
 "
 	playButton 
-		icon: (DrGIcons for: #resume);
+		icon: (DySystem icons getForm: #resume ofSize: DySystem iconToolbarSize);
 		action: #resumeScript;
 		setBalloonText: 'Resume the Smalltalk sketch.' translated;
 		redrawNeeded ! !
@@ -4028,7 +4031,7 @@ defaultBorderColor
 defaultColor
 	^ Theme current workspace ! !
 
-!DyboScriptEditor methodsFor: 'initialization' stamp: 'hlsf 3/4/2025 19:46:36'!
+!DyboScriptEditor methodsFor: 'initialization' stamp: 'hlsf 3/6/2025 20:21:50'!
 initialize
 	| book |
 	super initialize.
@@ -4037,8 +4040,8 @@ initialize
 		model: DrGeoTutorial new; 
 		buildMorphicWindow;
 		layoutMorph."
-	book when: #askToCopyCode send: #sourceCode: to: self.
-	
+	"book when: #askToCopyCode send: #sourceCode: to: self."
+	docView := PlacedMorph new.
 	codeView := (TextModelMorph textProvider: self textGetter: #sourceCode textSetter: #sourceCode:)
 		askBeforeDiscardingEdits: false;
 		yourself.
@@ -4057,9 +4060,9 @@ model: aDyboScript
 	model := aDyboScript 
 ! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/4/2025 19:56:17'!
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/6/2025 20:10:13'!
 scriptName
-	^ file 	ifNil: [''] ifNotNil: [file baseName]! !
+	^ model ifNil: [''] ifNotNil: [model title]! !
 
 !DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 10/30/2022 20:45:35'!
 separator
@@ -4199,13 +4202,6 @@ keepScript
 		morphCenter: self fullBoundsInOwner center;
 		setProperty: #layerNumber toValue: 20! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/4/2025 19:56:17'!
-loadScript: afileEntry
-" we are informed by the browser we want a file "
-	file := afileEntry.
-	self setLabel: self scriptName.
-	self sourceCode: file fileContents! !
-
 !DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/4/2025 19:54:47'!
 pauseScript
     scriptProcess isTerminated ifTrue: [
@@ -4262,9 +4258,9 @@ expand
 	super expand.
 	self fullScreen! !
 
-!DyboScriptEditor methodsFor: 'geometry' stamp: 'hlsf 4/2/2024 18:58:11'!
+!DyboScriptEditor methodsFor: 'geometry' stamp: 'hlsf 3/6/2025 20:22:56'!
 minimumExtent
-	^ Theme current scale: 800@600! !
+	^ 800@600! !
 
 !DyboScriptEditor methodsFor: 'testing' stamp: 'hlsf 5/18/2023 17:07:27'!
 shouldAutoHighlight
@@ -4351,10 +4347,10 @@ filenamePrintOn: aStream
 		nextPutAll: (self second printString padded: #left to: 2 with: $0);
 		nextPut: $s! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/30/2025 12:30:29'!
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 3/6/2025 20:13:01'!
 addEditAnnotedHandle: aHaloSpec 
 		(self addHandle: aHaloSpec )
-		mouseDownSelector: #doInspect
+		mouseDownSelector: #doEdit
 ! !
 
 !HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 22:42:00'!
@@ -4375,6 +4371,10 @@ addResizeAnnotedHandle: haloSpec
 		^(self addHandle: haloSpec)
 			mouseDownSelector: #startScaleAnnoted:with:;
 			mouseMoveSelector: #doScaleAnnoted:with: ].! !
+
+!HaloMorph methodsFor: '*Document' stamp: 'hlsf 3/6/2025 20:14:59'!
+doEdit
+	^ target editAnnoted ! !
 
 !HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 22:48:01'!
 doInspect
