@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7062] on 6 March 2025 at 11:10:16 pm'!
+'From Cuis7.3 [latest update: #7062] on 8 March 2025 at 6:34:06 pm'!
 'Description '!
-!provides: 'Document' 1 140!
+!provides: 'Document' 1 143!
 !requires: 'Commander' 1 7 nil!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
@@ -512,7 +512,7 @@ DocumentView class
 
 !classDefinition: #DyboScriptEditor category: #'Document-Script'!
 DialogPanel subclass: #DyboScriptEditor
-	instanceVariableNames: 'plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView'
+	instanceVariableNames: 'annotator plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Document-Script'!
@@ -731,6 +731,7 @@ An editor to edit Dybo script.
 - At the left, the view to edit the Smalltalk script and at the right a receptacle to plug the view resulting of the compilation and execution of the script.
 - There is a toolbar to keep and execute the code.
 - model : a DyboScript instance 
+- annotator : the AnnotatorMorph instance the script is attached to
 - plugView : a morph where to plug the view of the compiled model
 - codeView : editor of the model
 - docView : view of the Erudite DrGeo tutorial
@@ -2152,11 +2153,11 @@ description
 description: aString
 	description := aString ! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/20/2025 10:30:32'!
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:12:53'!
 icon
 	| svg |
 	^ icon ifNil: [
-		svg := [SVGMainMorph fromStream: (ReadStream on: self class icon)] 
+		svg := [SVGMainMorph fromStream: (ReadStream on: self class svgIcon)] 
 			on: SVGWarning 
 			do: [:warning | warning resume].
 		icon := svg imageForm: (svg morphExtent normalized * 128) rounded depth: 32]
@@ -2170,9 +2171,12 @@ title
 title: aString
 	title := aString ! !
 
-!DyboScript methodsFor: 'updating' stamp: 'hlsf 2/16/2025 23:30:16'!
+!DyboScript methodsFor: 'updating' stamp: 'hlsf 3/8/2025 18:11:18'!
 execute
-	^ Compiler evaluate: code! !
+	| scriptView |
+	scriptView :=  Compiler evaluate: code.
+	DyboScript triggerEvent: #compiledDyboScript with: scriptView.
+	^ scriptView! !
 
 !DyboScript methodsFor: 'menu' stamp: 'hlsf 2/22/2025 23:22:15'!
 addCustomMenuItems: menu annoted: view
@@ -2182,8 +2186,8 @@ addCustomMenuItems: menu annoted: view
 dependency
 	^ nil! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 3/2/2025 11:06:25'!
-icon
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 3/8/2025 11:12:19'!
+svgIcon
 	^ '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m255.9 120.9 9.1-15.7c5.6-9.8 18.1-13.1 27.9-7.5s13.1 18.1 7.5 27.9l-87.5 151.5h63.3c20.5 0 32 24.1 23.1 40.8h-185.5c-11.3 0-20.4-9.1-20.4-20.4s9.1-20.4 20.4-20.4h52l66.6-115.4-20.8-36.1c-5.6-9.8-2.3-22.2 7.5-27.9 9.8-5.6 22.2-2.3 27.9 7.5l8.9 15.7zm-78.7 218-19.6 34c-5.6 9.8-18.1 13.1-27.9 7.5s-13.1-18.1-7.5-27.9l14.6-25.2c16.4-5.1 29.8-1.2 40.4 11.6zm168.9-61.7h53.1c11.3 0 20.4 9.1 20.4 20.4s-9.1 20.4-20.4 20.4h-29.5l19.9 34.5c5.6 9.8 2.3 22.2-7.5 27.9-9.8 5.6-22.2 2.3-27.9-7.5-33.5-58.1-58.7-101.6-75.4-130.6-17.1-29.5-4.9-59.1 7.2-69.1 13.4 23 33.4 57.7 60.1 104zm-90.1-269.2c-137 0-248 111-248 248s111 248 248 248 248-111 248-248-111-248-248-248zm216 248c0 118.7-96.1 216-216 216-118.7 0-216-96.1-216-216 0-118.7 96.1-216 216-216 118.7 0 216 96.1 216 216z"/></svg>'! !
 
 !DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 17:03:01'!
@@ -2199,8 +2203,8 @@ initialize
 addCustomMenuItems: menu annoted: view
 	(CommandBuilder on: #dyboTextScriptMenu with: view editor) addToMenu: menu! !
 
-!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:38:52'!
-icon
+!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 3/8/2025 11:12:19'!
+svgIcon
 	^ '<svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="m432 416h-23.41l-130.71-362.31a32 32 0 0 0 -30.3-21.69h-47.16a32 32 0 0 0 -30.3 21.69l-130.71 362.31h-23.41a16 16 0 0 0 -16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0 -16-16h-19.58l23.3-64h152.56l23.3 64h-19.58a16 16 0 0 0 -16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0 -16-16zm-255.15-144 47.15-129.49 47.15 129.49z"/></svg>'! !
 
 !DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:42:23'!
@@ -2633,10 +2637,10 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 3/2/2025 11:39:02'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 3/8/2025 11:14:05'!
 acceptDroppingMorph: flapItem event: dropEvent
 	| annotator |
-	annotator := AnnotatorMorph newOn: presenter for: flapItem object.
+	annotator := AnnotatorMorph newOn: presenter for: flapItem object copy.
 	self 
 		addMorphFront: annotator 
 		position: (self internalizeFromWorld: dropEvent eventPosition).
@@ -2980,7 +2984,7 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 19:23:03'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:39:03'!
 annotate: aPlacedMorph
 | annotedExtent |
 	annotedMorph ifNotNil: [self removeMorph: annotedMorph].
@@ -2990,7 +2994,7 @@ annotate: aPlacedMorph
 		ifNotNil: [annotedMorph displayBounds extent].		
 	annotedMorph removeProperty: #bitMask.
 	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
-	self addMorph: annotedMorph position: self frameWidth asPoint
+	self addMorphBack: annotedMorph position: self frameWidth asPoint
 	! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/22/2025 22:59:41'!
@@ -3008,6 +3012,10 @@ lockAnnoted
 		keyboardFocusChange: false.
 	" Ensure the keyboard focus is really lost "
 	annotedMorph submorphsDo: [:each | each keyboardFocusChange: false]! !
+
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:18:23'!
+script
+	^ script! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 2/22/2025 23:14:52'!
 script: aDyboScript
@@ -3090,9 +3098,10 @@ topLeftCorner
 	^ corner - 1 - self frameWidth asPoint
 	! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 3/6/2025 20:16:30'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 3/8/2025 11:23:44'!
 editAnnoted
-	^ DyboScriptEditor open: script label: script title! !
+	^ DyboScriptEditor open: script label: script title ::
+		annotator: self! !
 
 !AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 3/6/2025 20:11:56'!
 haloSpecifications
@@ -3924,10 +3933,14 @@ button: iconSymbol action: actionSelector state: getStateSel help: helpString
 			morphExtent: (DySystem iconToolbarSize * 1.3) rounded asPoint;
 			yourself! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/14/2022 16:43:31'!
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/8/2025 18:18:06'!
 newButtonArea
 	buttonArea := LayoutMorph newRow 
 		axisEdgeWeight: #rowRight;
+		addMorph: (PluggableButtonMorph
+			model: self
+			action: #keepScript
+			label: 'Keep it' translated :: setBalloonText: 'Keep this modified script and update its view.' translated);
 		addMorph: (PluggableButtonMorph
 			model: self
 			action: #delete
@@ -3955,11 +3968,10 @@ newPane
 		addMorphUseAll: self newCodeAndView;
 		yourself! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/4/2025 19:54:47'!
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 3/8/2025 18:18:12'!
 newToolbar
 	^ LayoutMorph newRow
 		separation: 5@0 ;
-		addMorph: (self button: #keep action: #keepScript help: 'Keep this modified script.' translated);
 		addMorph: (playButton := self button: #play action: #executeScript help: 'Play the script.' translated);
 		addMorph: (self button: #debug action: #debugScript help: 'Debug the Smalltalk sketch.' translated);
 		addMorph: (self button: #stop action: #stopScript help: 'Stop the execution of the Script.' translated);
@@ -4050,6 +4062,10 @@ initialize
 		borderWidth: 1;
 		layoutSpec: LayoutSpec useAll! !
 
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:23:24'!
+annotator: anAnnotatorMorph
+	annotator := anAnnotatorMorph ! !
+
 !DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 10/30/2022 20:39:21'!
 isDocVisible
 	^ docView visible! !
@@ -4060,9 +4076,13 @@ model: aDyboScript
 	model := aDyboScript 
 ! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/6/2025 20:10:13'!
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:24:24'!
+script
+	^ model! !
+
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:20:08'!
 scriptName
-	^ model ifNil: [''] ifNotNil: [model title]! !
+	^ self script title! !
 
 !DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 10/30/2022 20:45:35'!
 separator
@@ -4070,15 +4090,13 @@ separator
 	^ codeView owner submorphs second
 ! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/4/2025 19:58:57'!
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:19:39'!
 sourceCode
-	^ model 
-		ifNotNil: [model code]
-		ifNil: ['']! !
+	^ self script code! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/4/2025 19:59:14'!
+!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:19:57'!
 sourceCode: aText
-	self model code: aText asString.
+	self script code: aText asString.
 	self changed: #clearUserEdits.
 	self changed: #acceptedContents.
 	self releaseMiniView.
@@ -4126,17 +4144,10 @@ styleByParagraphs
 textStylerClassFor: object
 	^ SHTextStylerST80 ! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/4/2025 19:53:07'!
-compiledScript: aSketch
-	self releaseMiniView.
-	plugView 
-		removeAllMorphs;
-		addMorph: aSketch view.! !
-
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/4/2025 20:14:49'!
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/8/2025 18:24:45'!
 debugScript
 " Execute the sketch step by step in a debugger "
-	model ifEmpty: [^ self].
+	model ifNil: [^ self].
 	self stopScript.
 	self isDocVisible ifTrue: [self toggleHelp].
 	codeView scroller acceptContents.
@@ -4154,18 +4165,18 @@ debugScript
 				self plugDebugger ]]
 		ifFail: []! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/4/2025 20:16:35'!
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/8/2025 18:10:06'!
 executeScript
 	self stopScript.
 	codeView scroller acceptContents.
 	self switchToPauseButton.
-	"DrGeoSketch when: #newSmalltalkSketch send: #compiledScript: to: self."
+	DyboScript when: #compiledDyboScript send: #scriptView: to: self.
 	scriptProcess := [ | t |
 		t := DateAndTime now.
 		false "(DrGeoSystem preferences at: #advancedDebugger) "
-			ifTrue: [Compiler evaluate: self sourceCode ]
+			ifTrue: [self script execute]
 			ifFalse: [
-				[Compiler evaluate: self sourceCode] 
+				[self script execute] 
 					on: Error, Halt
 					do: [:ex | 
 						self setLabel: ex description.
@@ -4188,19 +4199,13 @@ Script stopped' translated.
 		name: '[Dybo] Smalltalk Script execution';
 		resume.! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/4/2025 19:56:17'!
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/8/2025 11:34:53'!
 keepScript
-| modelName |
-	DrGeoSystem showVirtualKeyboard: true.
+	| scriptView |
 	codeView scroller acceptContents.
-	modelName := (ValueHolder with: self scriptName)
-	action: [:aString | 
-		self setLabel: aString.
-		file := DrGeoSystem mySmalltalkSketchesPath // (aString, '.st').
-		file < model].
-	(StringEntryPanel openWide: modelName label: 'Name the sketch to keep.' translated)
-		morphCenter: self fullBoundsInOwner center;
-		setProperty: #layerNumber toValue: 20! !
+	scriptView := self script execute.
+	annotator annotate: scriptView.
+	self delete! !
 
 !DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/4/2025 19:54:47'!
 pauseScript
@@ -4214,6 +4219,13 @@ pauseScript
 resumeScript
 	scriptProcess resume.
 	self switchToPauseButton! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/8/2025 12:14:23'!
+scriptView: aView
+	self releaseMiniView.
+	plugView 
+		removeAllMorphs;
+		addMorph: aView ! !
 
 !DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 5/9/2024 11:26:05'!
 stopDebbuger
@@ -4276,10 +4288,10 @@ delete
 	super delete.
 	self releaseMiniView ! !
 
-!DyboScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 3/4/2025 19:46:36'!
+!DyboScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 3/8/2025 18:12:05'!
 releaseMiniView
 	plugView submorphCount = 1 ifTrue: [
-		plugView firstSubmorph ifNotNil: [:miniView| 	miniView release]]! !
+		plugView firstSubmorph ifNotNil: [:miniView| miniView delete]]! !
 
 !DyboScriptEditor methodsFor: 'label' stamp: 'hlsf 3/4/2025 19:56:17'!
 restoreLabel
