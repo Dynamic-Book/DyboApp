@@ -1,8 +1,9 @@
-'From Cuis7.3 [latest update: #7066] on 8 March 2025 at 7:20:11 pm'!
+'From Cuis7.3 [latest update: #7066] on 13 March 2025 at 12:30:28 pm'!
 'Description '!
-!provides: 'Document' 1 145!
+!provides: 'Document' 1 146!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
+!requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'Commander' 1 7 nil!
 SystemOrganization addCategory: #'Document-Model'!
 SystemOrganization addCategory: #'Document-View'!
