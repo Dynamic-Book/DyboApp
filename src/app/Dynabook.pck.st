@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7062] on 4 March 2025 at 8:18:02 pm'!
+'From Cuis7.3 [latest update: #7066] on 15 March 2025 at 6:54:12 pm'!
 'Description '!
-!provides: 'Dynabook' 1 139!
+!provides: 'Dynabook' 1 140!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -2235,7 +2235,7 @@ visitUserData: userData
 editorsFor: aCollection ofType: classModel 
 	^ self editorsFor: aCollection ofType: classModel in: nil! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 5/26/2024 15:40:34'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 3/15/2025 17:50:23'!
 editorsFor: aCollection ofType: classModel in: anOwner
 " A decorated editor to edit a collection of models "
 	| listMorph quickButtons decoratedPanel |
@@ -2244,40 +2244,30 @@ editorsFor: aCollection ofType: classModel in: anOwner
 		listGetter: #list 		indexGetter: #listIndex indexSetter: #listIndex:.
 	decoratedPanel := DecoratedPane open: listMorph label: classModel pluralLabel .
 	quickButtons := OrderedCollection new.
-	quickButtons add: (PluggableButtonMorph 
-		model: self 		stateGetter: nil stateArgument: nil 	action: #quickAdd: 
-		actionArgument: (Array with: classModel with: decoratedPanel with: listMorph with: anOwner)
-		label: nil ::
+	quickButtons add: (PluggableButtonMorph model: self action: #quickAdd: 
+			actionArgument: (Array with: classModel with: decoratedPanel with: listMorph with: anOwner) ::
 		icon: Theme current listAddIcon;
 		setBalloonText: ('Add a new {1}' translated format: {classModel label});
 		yourself).
-	quickButtons add: (PluggableButtonMorph 
-		model: self 		stateGetter: nil stateArgument: nil 	action: #quickEdit: 
-		actionArgument: (Array with: decoratedPanel with: listMorph)
-		label: nil ::
+	quickButtons add: (PluggableButtonMorph model: self action: #quickEdit: 
+			actionArgument: (Array with: decoratedPanel with: listMorph)::
 		icon: Theme current textEditorIcon;
 		setBalloonText: ('Edit the selected {1}' translated format: {classModel label});
 		yourself).
-	quickButtons add: (PluggableButtonMorph 
-		model: self 		stateGetter: nil stateArgument: nil 	action: #quickDelete: 
-		actionArgument: (Array with: decoratedPanel with: listMorph)
-		label: nil ::
+	quickButtons add: (PluggableButtonMorph model: self action: #quickDelete: 
+			actionArgument: (Array with: decoratedPanel with: listMorph) ::
 		icon: Theme current deleteIcon ;
 		setBalloonText: ('Delete the selected {1}' translated format: {classModel label });
 		yourself).	
 	(classModel respondsTo: #importFrom:) ifTrue: [
-		quickButtons add: (PluggableButtonMorph 
-			model: self 		stateGetter: nil stateArgument: nil 	action: #quickImport: 
-			actionArgument: (Array with: classModel with: aCollection with: listMorph)
-			label: nil ::
+		quickButtons add: (PluggableButtonMorph model: self action: #quickImport: 
+				actionArgument: (Array with: classModel with: aCollection with: listMorph) ::
 			icon: Theme current openIcon ;
 			setBalloonText: 'Import from a file' translated;
 			yourself) ]. 	
 	(classModel respondsTo: #export:to:) ifTrue: [
-		quickButtons add: (PluggableButtonMorph 
-			model: self 		stateGetter: nil stateArgument: nil 	action: #quickExport: 
-			actionArgument: (Array with: classModel with: aCollection )
-			label: nil ::
+		quickButtons add: (PluggableButtonMorph model: self action: #quickExport: 
+				actionArgument: (Array with: classModel with: aCollection ) ::
 			icon: Theme current saveIcon ;
 			setBalloonText: 'Export to a file' translated;
 			yourself) ].	
