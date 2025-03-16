@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7066] on 13 March 2025 at 12:30:28 pm'!
+'From Cuis7.3 [latest update: #7066] on 16 March 2025 at 5:31:46 pm'!
 'Description '!
-!provides: 'Document' 1 146!
+!provides: 'Document' 1 147!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -3501,7 +3501,7 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:30:46'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 3/16/2025 17:08:42'!
 installView
 	| row col |
 	viewType := #full.
@@ -3523,8 +3523,8 @@ installView
 	row := LayoutMorph newRow name: #wheelX.
 	row addMorph: self pageCounter layoutSpec: 	(LayoutSpec fixedWidth: 12) ;
 		addMorphUseAll: self statusBarInScroller;
-		addMorph:self horizontalWheel 		layoutSpec: 		(LayoutSpec 	fixedExtent: 120 @ 24);
-		addMorph: DyControlsManager spacer layoutSpec: 			(LayoutSpec 		fixedExtent: 24 asPoint).
+		addMorph:self horizontalWheel layoutSpec: (LayoutSpec fixedExtent: 120 @ 24);
+		addMorph: DyControlsManager spacer layoutSpec: (LayoutSpec fixedExtent: 24 asPoint).
 	self addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool.
