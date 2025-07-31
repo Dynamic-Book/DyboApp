@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7387] on 30 July 2025 at 11:49:55 am'!
+'From Cuis7.5 [latest update: #7387] on 31 July 2025 at 8:28:56 pm'!
 'Description '!
-!provides: 'Morphic-DrawingTools' 1 24!
+!provides: 'Morphic-DrawingTools' 1 25!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'Morphic-DrawingTools'!
 
@@ -17,7 +17,7 @@ CompassMorph class
 
 !classDefinition: #ProtractorMorph category: #'Morphic-DrawingTools'!
 PlacedMorph subclass: #ProtractorMorph
-	instanceVariableNames: 'previousHandPosition font zeroAtRight'
+	instanceVariableNames: 'lastHandPosition font zeroAtRight'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Morphic-DrawingTools'!
@@ -137,7 +137,7 @@ reverseGraduations
 	zeroAtRight _ zeroAtRight not.
 	self updateGraduations ! !
 
-!ProtractorMorph methodsFor: 'action' stamp: 'hlsf 1/7/2022 14:56:19'!
+!ProtractorMorph methodsFor: 'action' stamp: 'hlsf 7/31/2025 16:00:20'!
 rotateProtractor
 	| event p1 v1 v2|
 	"any thing new to do?"
@@ -145,15 +145,15 @@ rotateProtractor
 	event isMove 
 		ifTrue: [
 			p1 _ location transform: 0@0.
-			v1 _ previousHandPosition - p1.
-			previousHandPosition _ event eventPosition.
-			v2 _ 	previousHandPosition - p1.
+			v1 _ lastHandPosition - p1.
+			lastHandPosition _ event eventPosition.
+			v2 _ 	lastHandPosition - p1.
 			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin	] 
 		ifFalse: [
-			previousHandPosition _ event eventPosition].! !
+			lastHandPosition _ event eventPosition].! !
 
-!ProtractorMorph methodsFor: 'action' stamp: 'hlsf 1/7/2022 14:56:00'!
+!ProtractorMorph methodsFor: 'action' stamp: 'hlsf 7/31/2025 16:00:20'!
 scaleProtractor
 	| event p1 v1 v2|
 	"any thing new to do?"
@@ -161,13 +161,13 @@ scaleProtractor
 	event isMove 
 		ifTrue: [
 			p1 _ location transform: 0@0.
-			v1 _ previousHandPosition - p1.
-			previousHandPosition _ event eventPosition.
-			v2 _ 	previousHandPosition - p1.
+			v1 _ lastHandPosition - p1.
+			lastHandPosition _ event eventPosition.
+			v2 _ 	lastHandPosition - p1.
 			v1 = v2 ifTrue: [^self].
 			self scaleBy:  v2 r / v1 r	] 
 		ifFalse: [
-			previousHandPosition _ event eventPosition].! !
+			lastHandPosition _ event eventPosition].! !
 
 !ProtractorMorph methodsFor: 'accessing' stamp: 'hlsf 1/14/2021 20:59:29'!
 addLabel: string font: aFont centeredAt: position rotationDegrees: angle
