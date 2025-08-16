@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7066] on 16 March 2025 at 5:31:46 pm'!
+'From Cuis7.5 [latest update: #7416] on 16 August 2025 at 7:56:25 pm'!
 'Description '!
-!provides: 'Document' 1 147!
+!provides: 'Document' 1 148!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -12,16 +12,6 @@ SystemOrganization addCategory: #'Document-Presenter-Tool'!
 SystemOrganization addCategory: #'Document-Presenter-Command'!
 SystemOrganization addCategory: #'Document-Script'!
 
-
-!classDefinition: #CommandStack category: #'Document-Presenter-Command'!
-ReadWriteStream subclass: #CommandStack
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'CommandStack class' category: #'Document-Presenter-Command'!
-CommandStack class
-	instanceVariableNames: ''!
 
 !classDefinition: #Pen category: #'Document-Model'!
 Object subclass: #Pen
@@ -383,6 +373,16 @@ ActiveModel subclass: #DocumentModel
 DocumentModel class
 	instanceVariableNames: ''!
 
+!classDefinition: #CommandStack category: #'Document-Presenter-Command'!
+ReadWriteStream subclass: #CommandStack
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Document-Presenter-Command'!
+!classDefinition: 'CommandStack class' category: #'Document-Presenter-Command'!
+CommandStack class
+	instanceVariableNames: ''!
+
 !classDefinition: #Bezier2Morph category: #'Document-View'!
 Morph subclass: #Bezier2Morph
 	instanceVariableNames: 'color width p1 p2 c1'
@@ -504,7 +504,7 @@ PageContainer class
 	instanceVariableNames: ''!
 
 !classDefinition: #DocumentView category: #'Document-View'!
-LayoutMorph subclass: #DocumentView
+LinearLayoutMorph subclass: #DocumentView
 	instanceVariableNames: 'presenter pages currentPage container statusBar pageCount preview viewType'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -523,9 +523,6 @@ DialogPanel subclass: #DyboScriptEditor
 DyboScriptEditor class
 	instanceVariableNames: ''!
 
-
-!CommandStack commentStamp: '<historical>' prior: 0!
-I am stack of command to execute or to unexecute user action in a Document!
 
 !Pen commentStamp: '<historical>' prior: 0!
 Depending on the use of the pen, we have different threshold
@@ -659,6 +656,9 @@ Each script returns a View inserted in an Annotator itself added to a Document.!
  2. a class in the  PageModel hierachy, the default model for each page of the Document
 !
 
+!CommandStack commentStamp: '<historical>' prior: 0!
+I am stack of command to execute or to unexecute user action in a Document!
+
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
 A quadratic Bézier stroke!
 
@@ -742,36 +742,6 @@ An editor to edit Dybo script.
 - playButton: the button to play and pause the Smalltalk sketch execution
 - debugger: a debugger window whose content is plug in the editor when appropriate
 !
-
-!CommandStack methodsFor: 'private' stamp: 'hlsf 9/10/2024 21:00:31'!
-truncate
-	|oldReadLimit|
-	oldReadLimit := readLimit.
-	readLimit := position.
-	oldReadLimit > readLimit ifTrue:
-			[readLimit to: oldReadLimit do:
-				[:index| collection at: index + 1 put: nil]]! !
-
-!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:20'!
-nextPut: aCommand
-	super nextPut: aCommand.
-	self truncate.
-	^ aCommand ! !
-
-!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:26'!
-previous
-	self position = 0 ifTrue: [^nil].
-	self position: self position - 1.
-	^self peek.! !
-
-!CommandStack methodsFor: 'as yet unclassified' stamp: 'hlsf 10/26/2024 14:58:31'!
-reset
-	super reset.
-	self truncate! !
-
-!CommandStack class methodsFor: 'instance creation' stamp: 'hlsf 9/10/2024 21:01:01'!
-new
-	^self on: Array new! !
 
 !Pen methodsFor: 'accessing' stamp: 'hlsf 4/11/2023 09:04:47'!
 adjustWidth
@@ -2284,6 +2254,36 @@ path
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:41:08'!
 relPath
 	^ ownerPath, '/', self dirName! !
+
+!CommandStack methodsFor: 'private' stamp: 'hlsf 9/10/2024 21:00:31'!
+truncate
+	|oldReadLimit|
+	oldReadLimit := readLimit.
+	readLimit := position.
+	oldReadLimit > readLimit ifTrue:
+			[readLimit to: oldReadLimit do:
+				[:index| collection at: index + 1 put: nil]]! !
+
+!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:20'!
+nextPut: aCommand
+	super nextPut: aCommand.
+	self truncate.
+	^ aCommand ! !
+
+!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:26'!
+previous
+	self position = 0 ifTrue: [^nil].
+	self position: self position - 1.
+	^self peek.! !
+
+!CommandStack methodsFor: 'as yet unclassified' stamp: 'hlsf 10/26/2024 14:58:31'!
+reset
+	super reset.
+	self truncate! !
+
+!CommandStack class methodsFor: 'instance creation' stamp: 'hlsf 9/10/2024 21:01:01'!
+new
+	^self on: Array new! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color

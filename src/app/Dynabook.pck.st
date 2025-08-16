@@ -1,6 +1,6 @@
-'From Cuis7.3 [latest update: #7066] on 15 March 2025 at 6:54:12 pm'!
+'From Cuis7.5 [latest update: #7416] on 16 August 2025 at 7:56:27 pm'!
 'Description '!
-!provides: 'Dynabook' 1 140!
+!provides: 'Dynabook' 1 141!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -250,7 +250,7 @@ DyTimeSlot class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyView category: #'Dynabook-View'!
-LayoutMorph subclass: #DyView
+LinearLayoutMorph subclass: #DyView
 	instanceVariableNames: 'presenter classGroupIndex courseIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -552,11 +552,11 @@ current
 current: aDyUserData
 	Current := aDyUserData ! !
 
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 7/13/2023 09:44:29'!
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 8/16/2025 15:55:56'!
 schoolOf: anObject
 "Search the school tree this object belongs to"
 	self current  schools do: [:school |			
-		(school treePointsTo: anObject			) ifTrue: [^ school] ].
+		(school treePointsTo: anObject) ifTrue: [^ school] ].
 	^ nil! !
 
 !DyUserData class methodsFor: 'initialization' stamp: 'hlsf 9/12/2023 21:54:25'!
@@ -1502,10 +1502,10 @@ goBinder
 	controlsManager plugBinder.
 	self changed: #isView:	! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/24/2024 15:33:45'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 8/16/2025 16:21:10'!
 goDocument
 " Plug a new document "
-	^ self goDocument:  (DocumentView presenter: Document new :: 		installView)
+	^ self goDocument:  (DocumentView presenter: Document new :: installView)
 ! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 12/14/2024 14:55:15'!
@@ -2490,12 +2490,12 @@ viewsFor: aCollection browse: canBeBrowsed
 	column morphExtent: column minimumExtent.
 	^ column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 7/29/2023 16:34:57'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 8/16/2025 16:09:01'!
 visitAgenda: agenda
 	| column |
 	visitedModel := agenda .
 	column := LayoutMorph newColumn.
-	column 	addMorph: (self paneFor: agenda			label: 'School year period' translated browse: false);	
+	column 	addMorph: (self paneFor: agenda label: 'School year period' translated browse: false);	
 		addMorph: (self paneFor: agenda daysOff label: 'Days off' translated browse: false).
 	^ self plugView: column! !
 
@@ -3596,6 +3596,14 @@ unsavedAttributes
 "In the context for save in a DataStream, return a symbol collection of unsaved attributes"
 	^ #()! !
 
+!Date methodsFor: '*Dynabook-printing' stamp: 'hlsf 7/29/2023 15:51:19'!
+ddmmyy
+	^ self printFormat: #(1 2 3 $/ 1 2 1)! !
+
+!Date methodsFor: '*Dynabook-printing' stamp: 'hlsf 7/29/2023 15:48:49'!
+ddmmyyyy
+	^ self printFormat: #(1 2 3 $/ 1 1 1)! !
+
 !String methodsFor: '*Dynabook' stamp: 'hlsf 9/13/2023 23:17:33'!
 asCourseHourIn: aCourse
 " room day timeSlotName1 timeSlotName2 ... "
@@ -3616,11 +3624,3 @@ asTimeSlot
 		slotName: elements first;
 		start: (Time fromString: elements second);
 		end: (Time fromString: elements third)! !
-
-!Date methodsFor: '*Dynabook-printing' stamp: 'hlsf 7/29/2023 15:51:19'!
-ddmmyy
-	^ self printFormat: #(1 2 3 $/ 1 2 1)! !
-
-!Date methodsFor: '*Dynabook-printing' stamp: 'hlsf 7/29/2023 15:48:49'!
-ddmmyyyy
-	^ self printFormat: #(1 2 3 $/ 1 1 1)! !
