@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7416] on 16 August 2025 at 7:56:25 pm'!
+'From Cuis7.5 [latest update: #7416] on 17 August 2025 at 6:56:25 pm'!
 'Description '!
-!provides: 'Document' 1 148!
+!provides: 'Document' 1 149!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -706,7 +706,7 @@ My extent expands to enclosed new handwritings. It shrinks when handwritings are
 !PageModel commentStamp: '<historical>' prior: 0!
 An abstract model for a page.
 In essence a Page model provides the extent and the background of a PageMorph.
-It is a Morph too so it draws the background and it is own by a PageMorph
+It is a Morph too so it draws the background and it is owned by a PageMorph
 IT IS NOT a model as understood in MVC!
 
 !PageModelHL commentStamp: '<historical>' prior: 0!

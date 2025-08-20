@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7416] on 16 August 2025 at 7:56:27 pm'!
+'From Cuis7.5 [latest update: #7416] on 20 August 2025 at 5:58:46 pm'!
 'Description '!
-!provides: 'Dynabook' 1 141!
+!provides: 'Dynabook' 1 142!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -2204,7 +2204,7 @@ visitCourseHour: courseHour
 	^ self newColumnWith: {
 		self decoratedPaneFor: mold labeled: 'Information' translated }! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 11:01:56'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 8/20/2025 17:19:26'!
 visitSchool: school 
 | mold |
 	mold := school mold.
@@ -2212,7 +2212,7 @@ visitSchool: school
 	^ self newColumnWith: { 
 		self decoratedPaneFor: mold labeled: 'Information' translated.
 		self editorsFor: school classGroups ofType: DyClassGroup in: school.
-		self 	editorsFor: school timeSlots 			ofType: DyTimeSlot. }! !
+		self 	editorsFor: school timeSlots ofType: DyTimeSlot. }! !
 
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 11:02:13'!
 visitTeacher: teacher
@@ -2235,52 +2235,57 @@ visitUserData: userData
 editorsFor: aCollection ofType: classModel 
 	^ self editorsFor: aCollection ofType: classModel in: nil! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 3/15/2025 17:50:23'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/20/2025 17:29:08'!
 editorsFor: aCollection ofType: classModel in: anOwner
 " A decorated editor to edit a collection of models "
 	| listMorph quickButtons decoratedPanel |
 	listMorph := PluggableListMorph 
 		withModel: (ListModel with: aCollection )		
-		listGetter: #list 		indexGetter: #listIndex indexSetter: #listIndex:.
+		listGetter: #list indexGetter: #listIndex indexSetter: #listIndex:.
 	decoratedPanel := DecoratedPane open: listMorph label: classModel pluralLabel .
 	quickButtons := OrderedCollection new.
 	quickButtons add: (PluggableButtonMorph model: self action: #quickAdd: 
 			actionArgument: (Array with: classModel with: decoratedPanel with: listMorph with: anOwner) ::
 		icon: Theme current listAddIcon;
+		buttonStyle: #none;
 		setBalloonText: ('Add a new {1}' translated format: {classModel label});
 		yourself).
 	quickButtons add: (PluggableButtonMorph model: self action: #quickEdit: 
 			actionArgument: (Array with: decoratedPanel with: listMorph)::
 		icon: Theme current textEditorIcon;
+		buttonStyle: #none;
 		setBalloonText: ('Edit the selected {1}' translated format: {classModel label});
 		yourself).
 	quickButtons add: (PluggableButtonMorph model: self action: #quickDelete: 
 			actionArgument: (Array with: decoratedPanel with: listMorph) ::
 		icon: Theme current deleteIcon ;
+		buttonStyle: #none;
 		setBalloonText: ('Delete the selected {1}' translated format: {classModel label });
 		yourself).	
 	(classModel respondsTo: #importFrom:) ifTrue: [
 		quickButtons add: (PluggableButtonMorph model: self action: #quickImport: 
 				actionArgument: (Array with: classModel with: aCollection with: listMorph) ::
 			icon: Theme current openIcon ;
+			buttonStyle: #none;
 			setBalloonText: 'Import from a file' translated;
 			yourself) ]. 	
 	(classModel respondsTo: #export:to:) ifTrue: [
 		quickButtons add: (PluggableButtonMorph model: self action: #quickExport: 
 				actionArgument: (Array with: classModel with: aCollection ) ::
 			icon: Theme current saveIcon ;
+			buttonStyle: #none;
 			setBalloonText: 'Export to a file' translated;
 			yourself) ].	
 	decoratedPanel quickButtons: quickButtons.
 	^ decoratedPanel! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 5/11/2024 17:45:10'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/20/2025 17:20:48'!
 newColumnWith: morphs
 | column |
 	column := LayoutMorph newColumn.
 	morphs 
 		do: [: aMorph | column addMorph: aMorph]
-		separatedBy: 	[column addAdjusterMorph ].
+		separatedBy: [column addAdjusterMorph ].
 	column morphExtent: column minimumExtent.
 	^ column ! !
 
@@ -2326,7 +2331,7 @@ quickAdd: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/27/2023 15:37:31'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/20/2025 17:18:53'!
 quickDelete: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
@@ -2338,7 +2343,8 @@ quickDelete: args
 	listModel := listMorph model.
 	listModel listIndex isZero ifTrue: [^ self]. "no selected item"
 	quickButtons := decorator quickButtons.
-	text := TextParagraphMorph contents: ('Are you sure to delete 	"{1}" ?' format: {listModel selectedItem}) :: borderWidth: 0; color: Color transparent.
+	text := TextParagraphMorph contents: ('Are you sure to delete "{1}" ?' format: {listModel selectedItem}) :: 
+		borderWidth: 0; color: Color transparent.
 	objectPane := nil.
 	objectPane := PluggablePane open: [text] view: #value action:[
 		listModel removeSelectedItem.
@@ -3056,16 +3062,18 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/26/2024 11:26:40'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 8/20/2025 17:29:31'!
 documentsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
 	| quickButtons scroller |
 	quickButtons := Array 
 		with: (PluggableButtonMorph model: presenter action: #newDocument ::
 			icon: Theme current listAddIcon;
+			buttonStyle: #none;
 			setBalloonText: 'Create a new document in the selected topic.' translated)
 		with: (PluggableButtonMorph model: presenter action: #importPDF ::
 			icon: Theme current openIcon;
+			buttonStyle: #none;
 			setBalloonText: 'Import a PDF document in the selected topic.' translated).
 	scroller := PluggableScrollPane new ::
 		layoutSpec: LayoutSpec useAll;
