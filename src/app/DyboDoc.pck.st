@@ -1,525 +1,526 @@
-'From Cuis7.5 [latest update: #7416] on 17 August 2025 at 6:56:25 pm'!
+'From Cuis7.5 [latest update: #7452] on 28 August 2025 at 10:35:48 am'!
 'Description '!
-!provides: 'Document' 1 149!
+!provides: 'DyboDoc' 1 150!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'Commander' 1 7 nil!
-SystemOrganization addCategory: #'Document-Model'!
-SystemOrganization addCategory: #'Document-View'!
-SystemOrganization addCategory: #'Document-Presenter'!
-SystemOrganization addCategory: #'Document-Presenter-Tool'!
-SystemOrganization addCategory: #'Document-Presenter-Command'!
-SystemOrganization addCategory: #'Document-Script'!
+SystemOrganization addCategory: #'DyboDoc-Model'!
+SystemOrganization addCategory: #'DyboDoc-View'!
+SystemOrganization addCategory: #'DyboDoc-Presenter'!
+SystemOrganization addCategory: #'DyboDoc-Presenter-Tool'!
+SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
+SystemOrganization addCategory: #'DyboDoc-Script'!
 
 
-!classDefinition: #Pen category: #'Document-Model'!
+!classDefinition: #Pen category: #'DyboDoc-Model'!
 Object subclass: #Pen
 	instanceVariableNames: 'color width adjustWidth threshold'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'Pen class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'Pen class' category: #'DyboDoc-Model'!
 Pen class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier2 category: #'Document-Model'!
+!classDefinition: #StrokerBezier2 category: #'DyboDoc-Model'!
 Object subclass: #StrokerBezier2
 	instanceVariableNames: 'paper strokes'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'StrokerBezier2 class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'StrokerBezier2 class' category: #'DyboDoc-Model'!
 StrokerBezier2 class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier2XP category: #'Document-Model'!
+!classDefinition: #StrokerBezier2XP category: #'DyboDoc-Model'!
 StrokerBezier2 subclass: #StrokerBezier2XP
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'StrokerBezier2XP class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'StrokerBezier2XP class' category: #'DyboDoc-Model'!
 StrokerBezier2XP class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier3 category: #'Document-Model'!
+!classDefinition: #StrokerBezier3 category: #'DyboDoc-Model'!
 StrokerBezier2 subclass: #StrokerBezier3
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'StrokerBezier3 class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'StrokerBezier3 class' category: #'DyboDoc-Model'!
 StrokerBezier3 class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier3XP category: #'Document-Model'!
+!classDefinition: #StrokerBezier3XP category: #'DyboDoc-Model'!
 StrokerBezier3 subclass: #StrokerBezier3XP
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'StrokerBezier3XP class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'StrokerBezier3XP class' category: #'DyboDoc-Model'!
 StrokerBezier3XP class
 	instanceVariableNames: ''!
 
-!classDefinition: #Document category: #'Document-Presenter'!
+!classDefinition: #Document category: #'DyboDoc-Presenter'!
 Object subclass: #Document
 	instanceVariableNames: 'tool pen highlighter eraser commandsManager model view savesReal isSaved controlsManager'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter'!
-!classDefinition: 'Document class' category: #'Document-Presenter'!
+	category: 'DyboDoc-Presenter'!
+!classDefinition: 'Document class' category: #'DyboDoc-Presenter'!
 Document class
 	instanceVariableNames: ''!
 
-!classDefinition: #Command category: #'Document-Presenter-Command'!
+!classDefinition: #Command category: #'DyboDoc-Presenter-Command'!
 Object subclass: #Command
 	instanceVariableNames: 'domain'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'Command class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'Command class' category: #'DyboDoc-Presenter-Command'!
 Command class
 	instanceVariableNames: ''!
 
-!classDefinition: #ErasingCommand category: #'Document-Presenter-Command'!
+!classDefinition: #ErasingCommand category: #'DyboDoc-Presenter-Command'!
 Command subclass: #ErasingCommand
 	instanceVariableNames: 'deletedStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'ErasingCommand class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'ErasingCommand class' category: #'DyboDoc-Presenter-Command'!
 ErasingCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #ErasingAnnotatorCommand category: #'Document-Presenter-Command'!
+!classDefinition: #ErasingAnnotatorCommand category: #'DyboDoc-Presenter-Command'!
 ErasingCommand subclass: #ErasingAnnotatorCommand
 	instanceVariableNames: 'bounds'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'ErasingAnnotatorCommand class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'ErasingAnnotatorCommand class' category: #'DyboDoc-Presenter-Command'!
 ErasingAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #MoveAnnotatorCommand category: #'Document-Presenter-Command'!
+!classDefinition: #MoveAnnotatorCommand category: #'DyboDoc-Presenter-Command'!
 Command subclass: #MoveAnnotatorCommand
 	instanceVariableNames: 'annotator delta'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'MoveAnnotatorCommand class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'MoveAnnotatorCommand class' category: #'DyboDoc-Presenter-Command'!
 MoveAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #MoveGroupCommand category: #'Document-Presenter-Command'!
+!classDefinition: #MoveGroupCommand category: #'DyboDoc-Presenter-Command'!
 Command subclass: #MoveGroupCommand
 	instanceVariableNames: 'selection delta'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'MoveGroupCommand class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'MoveGroupCommand class' category: #'DyboDoc-Presenter-Command'!
 MoveGroupCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #MoveGroupInAnnotatorCommand category: #'Document-Presenter-Command'!
+!classDefinition: #MoveGroupInAnnotatorCommand category: #'DyboDoc-Presenter-Command'!
 MoveGroupCommand subclass: #MoveGroupInAnnotatorCommand
 	instanceVariableNames: 'bounds'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'MoveGroupInAnnotatorCommand class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'MoveGroupInAnnotatorCommand class' category: #'DyboDoc-Presenter-Command'!
 MoveGroupInAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #WritingCommand category: #'Document-Presenter-Command'!
+!classDefinition: #WritingCommand category: #'DyboDoc-Presenter-Command'!
 Command subclass: #WritingCommand
 	instanceVariableNames: 'strokeGroup'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'WritingCommand class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'WritingCommand class' category: #'DyboDoc-Presenter-Command'!
 WritingCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #WritingAnnotatorCommand category: #'Document-Presenter-Command'!
+!classDefinition: #WritingAnnotatorCommand category: #'DyboDoc-Presenter-Command'!
 WritingCommand subclass: #WritingAnnotatorCommand
 	instanceVariableNames: 'bounds'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'WritingAnnotatorCommand class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'WritingAnnotatorCommand class' category: #'DyboDoc-Presenter-Command'!
 WritingAnnotatorCommand class
 	instanceVariableNames: ''!
 
-!classDefinition: #CommandManager category: #'Document-Presenter-Command'!
+!classDefinition: #CommandManager category: #'DyboDoc-Presenter-Command'!
 Object subclass: #CommandManager
 	instanceVariableNames: 'stack'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'CommandManager class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'CommandManager class' category: #'DyboDoc-Presenter-Command'!
 CommandManager class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageTool category: #'Document-Presenter-Tool'!
+!classDefinition: #PageTool category: #'DyboDoc-Presenter-Tool'!
 Object subclass: #PageTool
 	instanceVariableNames: 'state presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PageTool class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'PageTool class' category: #'DyboDoc-Presenter-Tool'!
 PageTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #EraserTool category: #'Document-Presenter-Tool'!
+!classDefinition: #EraserTool category: #'DyboDoc-Presenter-Tool'!
 PageTool subclass: #EraserTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'EraserTool class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'EraserTool class' category: #'DyboDoc-Presenter-Tool'!
 EraserTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #GroupTool category: #'Document-Presenter-Tool'!
+!classDefinition: #GroupTool category: #'DyboDoc-Presenter-Tool'!
 PageTool subclass: #GroupTool
 	instanceVariableNames: 'corner selection paper'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'GroupTool class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'GroupTool class' category: #'DyboDoc-Presenter-Tool'!
 GroupTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #HighlighterTool category: #'Document-Presenter-Tool'!
+!classDefinition: #HighlighterTool category: #'DyboDoc-Presenter-Tool'!
 PageTool subclass: #HighlighterTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'HighlighterTool class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'HighlighterTool class' category: #'DyboDoc-Presenter-Tool'!
 HighlighterTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #PenTool category: #'Document-Presenter-Tool'!
+!classDefinition: #PenTool category: #'DyboDoc-Presenter-Tool'!
 PageTool subclass: #PenTool
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PenTool class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'PenTool class' category: #'DyboDoc-Presenter-Tool'!
 PenTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #PointerTool category: #'Document-Presenter-Tool'!
+!classDefinition: #PointerTool category: #'DyboDoc-Presenter-Tool'!
 PageTool subclass: #PointerTool
 	instanceVariableNames: 'grabbed'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PointerTool class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'PointerTool class' category: #'DyboDoc-Presenter-Tool'!
 PointerTool class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageToolState category: #'Document-Presenter-Tool'!
+!classDefinition: #PageToolState category: #'DyboDoc-Presenter-Tool'!
 Object subclass: #PageToolState
 	instanceVariableNames: 'context'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PageToolState class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'PageToolState class' category: #'DyboDoc-Presenter-Tool'!
 PageToolState class
 	instanceVariableNames: ''!
 
-!classDefinition: #EraserToolStateErasing category: #'Document-Presenter-Tool'!
+!classDefinition: #EraserToolStateErasing category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #EraserToolStateErasing
 	instanceVariableNames: 'deletedStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'EraserToolStateErasing class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'EraserToolStateErasing class' category: #'DyboDoc-Presenter-Tool'!
 EraserToolStateErasing class
 	instanceVariableNames: ''!
 
-!classDefinition: #EraserToolStateNeutral category: #'Document-Presenter-Tool'!
+!classDefinition: #EraserToolStateNeutral category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #EraserToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'EraserToolStateNeutral class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'EraserToolStateNeutral class' category: #'DyboDoc-Presenter-Tool'!
 EraserToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #GroupToolStateDragging category: #'Document-Presenter-Tool'!
+!classDefinition: #GroupToolStateDragging category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #GroupToolStateDragging
 	instanceVariableNames: 'prevPosition initialPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'GroupToolStateDragging class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'GroupToolStateDragging class' category: #'DyboDoc-Presenter-Tool'!
 GroupToolStateDragging class
 	instanceVariableNames: ''!
 
-!classDefinition: #GroupToolStateGrabbing category: #'Document-Presenter-Tool'!
+!classDefinition: #GroupToolStateGrabbing category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #GroupToolStateGrabbing
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'GroupToolStateGrabbing class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'GroupToolStateGrabbing class' category: #'DyboDoc-Presenter-Tool'!
 GroupToolStateGrabbing class
 	instanceVariableNames: ''!
 
-!classDefinition: #GroupToolStateNeutral category: #'Document-Presenter-Tool'!
+!classDefinition: #GroupToolStateNeutral category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #GroupToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'GroupToolStateNeutral class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'GroupToolStateNeutral class' category: #'DyboDoc-Presenter-Tool'!
 GroupToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #HighligtherToolStateNeutral category: #'Document-Presenter-Tool'!
+!classDefinition: #HighligtherToolStateNeutral category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #HighligtherToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'HighligtherToolStateNeutral class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'HighligtherToolStateNeutral class' category: #'DyboDoc-Presenter-Tool'!
 HighligtherToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #PenToolStateNeutral category: #'Document-Presenter-Tool'!
+!classDefinition: #PenToolStateNeutral category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #PenToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PenToolStateNeutral class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'PenToolStateNeutral class' category: #'DyboDoc-Presenter-Tool'!
 PenToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #PenToolStateWriting category: #'Document-Presenter-Tool'!
+!classDefinition: #PenToolStateWriting category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #PenToolStateWriting
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PenToolStateWriting class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'PenToolStateWriting class' category: #'DyboDoc-Presenter-Tool'!
 PenToolStateWriting class
 	instanceVariableNames: ''!
 
-!classDefinition: #HighligtherToolStateWriting category: #'Document-Presenter-Tool'!
+!classDefinition: #HighligtherToolStateWriting category: #'DyboDoc-Presenter-Tool'!
 PenToolStateWriting subclass: #HighligtherToolStateWriting
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'HighligtherToolStateWriting class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'HighligtherToolStateWriting class' category: #'DyboDoc-Presenter-Tool'!
 HighligtherToolStateWriting class
 	instanceVariableNames: ''!
 
-!classDefinition: #PointerToolStateDragging category: #'Document-Presenter-Tool'!
+!classDefinition: #PointerToolStateDragging category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #PointerToolStateDragging
 	instanceVariableNames: 'initialPosition prevPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PointerToolStateDragging class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'PointerToolStateDragging class' category: #'DyboDoc-Presenter-Tool'!
 PointerToolStateDragging class
 	instanceVariableNames: ''!
 
-!classDefinition: #PointerToolStateNeutral category: #'Document-Presenter-Tool'!
+!classDefinition: #PointerToolStateNeutral category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #PointerToolStateNeutral
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Tool'!
-!classDefinition: 'PointerToolStateNeutral class' category: #'Document-Presenter-Tool'!
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'PointerToolStateNeutral class' category: #'DyboDoc-Presenter-Tool'!
 PointerToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyboScript category: #'Document-Script'!
+!classDefinition: #DyboScript category: #'DyboDoc-Script'!
 Object subclass: #DyboScript
 	instanceVariableNames: 'code title description icon'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Script'!
-!classDefinition: 'DyboScript class' category: #'Document-Script'!
+	category: 'DyboDoc-Script'!
+!classDefinition: 'DyboScript class' category: #'DyboDoc-Script'!
 DyboScript class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyboTextScript category: #'Document-Script'!
+!classDefinition: #DyboTextScript category: #'DyboDoc-Script'!
 DyboScript subclass: #DyboTextScript
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Script'!
-!classDefinition: 'DyboTextScript class' category: #'Document-Script'!
+	category: 'DyboDoc-Script'!
+!classDefinition: 'DyboTextScript class' category: #'DyboDoc-Script'!
 DyboTextScript class
 	instanceVariableNames: ''!
 
-!classDefinition: #DocumentModel category: #'Document-Model'!
+!classDefinition: #DocumentModel category: #'DyboDoc-Model'!
 ActiveModel subclass: #DocumentModel
 	instanceVariableNames: 'timeStamp pageModel ownerPath'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'DocumentModel class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'DocumentModel class' category: #'DyboDoc-Model'!
 DocumentModel class
 	instanceVariableNames: ''!
 
-!classDefinition: #CommandStack category: #'Document-Presenter-Command'!
+!classDefinition: #CommandStack category: #'DyboDoc-Presenter-Command'!
 ReadWriteStream subclass: #CommandStack
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Presenter-Command'!
-!classDefinition: 'CommandStack class' category: #'Document-Presenter-Command'!
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'CommandStack class' category: #'DyboDoc-Presenter-Command'!
 CommandStack class
 	instanceVariableNames: ''!
 
-!classDefinition: #Bezier2Morph category: #'Document-View'!
+!classDefinition: #Bezier2Morph category: #'DyboDoc-View'!
 Morph subclass: #Bezier2Morph
 	instanceVariableNames: 'color width p1 p2 c1'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'Bezier2Morph class' category: #'Document-View'!
+	category: 'DyboDoc-View'!
+!classDefinition: 'Bezier2Morph class' category: #'DyboDoc-View'!
 Bezier2Morph class
 	instanceVariableNames: ''!
 
-!classDefinition: #Bezier3Morph category: #'Document-View'!
+!classDefinition: #Bezier3Morph category: #'DyboDoc-View'!
 Bezier2Morph subclass: #Bezier3Morph
 	instanceVariableNames: 'c2'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'Bezier3Morph class' category: #'Document-View'!
+	category: 'DyboDoc-View'!
+!classDefinition: 'Bezier3Morph class' category: #'DyboDoc-View'!
 Bezier3Morph class
 	instanceVariableNames: ''!
 
-!classDefinition: #LineStrokeMorph category: #'Document-View'!
+!classDefinition: #LineStrokeMorph category: #'DyboDoc-View'!
 Morph subclass: #LineStrokeMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'LineStrokeMorph class' category: #'Document-View'!
+	category: 'DyboDoc-View'!
+!classDefinition: 'LineStrokeMorph class' category: #'DyboDoc-View'!
 LineStrokeMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokeGroupMorph category: #'Document-View'!
+!classDefinition: #StrokeGroupMorph category: #'DyboDoc-View'!
 PlacedMorph subclass: #StrokeGroupMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'StrokeGroupMorph class' category: #'Document-View'!
+	category: 'DyboDoc-View'!
+!classDefinition: 'StrokeGroupMorph class' category: #'DyboDoc-View'!
 StrokeGroupMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageMorph category: #'Document-View'!
+!classDefinition: #PageMorph category: #'DyboDoc-View'!
 BoxMorph subclass: #PageMorph
 	instanceVariableNames: 'pageModel paper presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'PageMorph class' category: #'Document-View'!
+	category: 'DyboDoc-View'!
+!classDefinition: 'PageMorph class' category: #'DyboDoc-View'!
 PageMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #PaperMorph category: #'Document-View'!
+!classDefinition: #PaperMorph category: #'DyboDoc-View'!
 BoxMorph subclass: #PaperMorph
 	instanceVariableNames: 'stroker samples sampleIndex lineMorphs lastMousePosition presenter selectionMorph currentStrokeGroup distanceThreshold'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'PaperMorph class' category: #'Document-View'!
+	category: 'DyboDoc-View'!
+!classDefinition: 'PaperMorph class' category: #'DyboDoc-View'!
 PaperMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #AnnotatorMorph category: #'Document-View'!
+!classDefinition: #AnnotatorMorph category: #'DyboDoc-View'!
 PaperMorph subclass: #AnnotatorMorph
 	instanceVariableNames: 'annotedMorph script'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'AnnotatorMorph class' category: #'Document-View'!
+	category: 'DyboDoc-View'!
+!classDefinition: 'AnnotatorMorph class' category: #'DyboDoc-View'!
 AnnotatorMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageModel category: #'Document-Model'!
+!classDefinition: #PageModel category: #'DyboDoc-Model'!
 ColoredBoxMorph subclass: #PageModel
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'PageModel class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'PageModel class' category: #'DyboDoc-Model'!
 PageModel class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageModelHL category: #'Document-Model'!
+!classDefinition: #PageModelHL category: #'DyboDoc-Model'!
 PageModel subclass: #PageModelHL
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'PageModelHL class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'PageModelHL class' category: #'DyboDoc-Model'!
 PageModelHL class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageModelGrid category: #'Document-Model'!
+!classDefinition: #PageModelGrid category: #'DyboDoc-Model'!
 PageModelHL subclass: #PageModelGrid
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'PageModelGrid class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'PageModelGrid class' category: #'DyboDoc-Model'!
 PageModelGrid class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageModelPdf category: #'Document-Model'!
+!classDefinition: #PageModelPdf category: #'DyboDoc-Model'!
 PageModel subclass: #PageModelPdf
 	instanceVariableNames: 'form pageNumber dpi'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Model'!
-!classDefinition: 'PageModelPdf class' category: #'Document-Model'!
+	category: 'DyboDoc-Model'!
+!classDefinition: 'PageModelPdf class' category: #'DyboDoc-Model'!
 PageModelPdf class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageContainer category: #'Document-View'!
+!classDefinition: #PageContainer category: #'DyboDoc-View'!
 ColoredBoxMorph subclass: #PageContainer
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'PageContainer class' category: #'Document-View'!
+	category: 'DyboDoc-View'!
+!classDefinition: 'PageContainer class' category: #'DyboDoc-View'!
 PageContainer class
 	instanceVariableNames: ''!
 
-!classDefinition: #DocumentView category: #'Document-View'!
+!classDefinition: #DocumentView category: #'DyboDoc-View'!
 LinearLayoutMorph subclass: #DocumentView
 	instanceVariableNames: 'presenter pages currentPage container statusBar pageCount preview viewType'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-View'!
-!classDefinition: 'DocumentView class' category: #'Document-View'!
+	category: 'DyboDoc-View'!
+!classDefinition: 'DocumentView class' category: #'DyboDoc-View'!
 DocumentView class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyboScriptEditor category: #'Document-Script'!
+!classDefinition: #DyboScriptEditor category: #'DyboDoc-Script'!
 DialogPanel subclass: #DyboScriptEditor
 	instanceVariableNames: 'annotator plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Document-Script'!
-!classDefinition: 'DyboScriptEditor class' category: #'Document-Script'!
+	category: 'DyboDoc-Script'!
+!classDefinition: 'DyboScriptEditor class' category: #'DyboDoc-Script'!
 DyboScriptEditor class
 	instanceVariableNames: ''!
 
@@ -3475,7 +3476,7 @@ initialize
 	self installFlap.
 	pages add: currentPage! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/20/2025 10:50:38'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 8/28/2025 10:32:55'!
 installFlap
 	| flap items |
 	items := Array 
@@ -3483,7 +3484,10 @@ installFlap
 		with: (DyboScript new :: title: 'Workspace' ;code: '| ws | 
 ws := Workspace open.
 ws delete.
-ws layoutMorph morphExtent: 300@200').
+ws layoutMorph morphExtent: 300@200')
+		with: (DyboScript new :: 
+			title: 'Ruler';
+			code: 'Ruler new').
 	flap := Flap label: ' Test scripts ' scripts: items.
 	container addMorph: flap.
 	flap fold;
@@ -4318,11 +4322,11 @@ doItContext
 doItReceiver
 	^ nil! !
 
-!Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:22:27'!
+!Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 3/31/2023 22:22:27'!
 covariance: y
 	^ (self * y) sum / self size - (self mean * y mean)! !
 
-!Collection methodsFor: '*Document-View' stamp: 'hlsf 4/1/2023 15:28:39'!
+!Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 4/1/2023 15:28:39'!
 regression: y
 "Linear regression (least-squares), return a, b of y=ax+b"
 	| a b v |
@@ -4332,11 +4336,11 @@ regression: y
 	b := y mean - (a * self mean).
 	^ Array with: a with: b! !
 
-!Collection methodsFor: '*Document-View' stamp: 'hlsf 3/31/2023 22:01:21'!
+!Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 3/31/2023 22:01:21'!
 variance
 	^ self squared sum / self size - self mean squared! !
 
-!DateAndTime methodsFor: '*Document' stamp: 'hlsf 11/14/2024 23:24:31'!
+!DateAndTime methodsFor: '*DyboDoc' stamp: 'hlsf 11/14/2024 23:24:31'!
 filenamePrintOn: aStream
 	"
 	As filename that can be sorted, with an accuraccy  of 1 second
@@ -4362,19 +4366,19 @@ filenamePrintOn: aStream
 		nextPutAll: (self second printString padded: #left to: 2 with: $0);
 		nextPut: $s! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 3/6/2025 20:13:01'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 3/6/2025 20:13:01'!
 addEditAnnotedHandle: aHaloSpec 
 		(self addHandle: aHaloSpec )
 		mouseDownSelector: #doEdit
 ! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 22:42:00'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 1/22/2025 22:42:00'!
 addInspectHandle: handleSpec
 	(self addHandle: handleSpec)
 		mouseDownSelector: #doInspect
 ! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 2/13/2025 11:36:41'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 2/13/2025 11:36:41'!
 addResizeAnnotedHandle: haloSpec
 
 	target annoted okayToResizeEasily ifTrue: [
@@ -4387,15 +4391,15 @@ addResizeAnnotedHandle: haloSpec
 			mouseDownSelector: #startScaleAnnoted:with:;
 			mouseMoveSelector: #doScaleAnnoted:with: ].! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 3/6/2025 20:14:59'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 3/6/2025 20:14:59'!
 doEdit
 	^ target editAnnoted ! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/22/2025 22:48:01'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 1/22/2025 22:48:01'!
 doInspect
 	^ target inspectAnnoted ! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/23/2025 19:34:51'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 1/23/2025 19:34:51'!
 doResizeAnnoted: evt with: resizeHandle
 	"Called while the mouse is down in the grow handle"
 
@@ -4410,7 +4414,7 @@ doResizeAnnoted: evt with: resizeHandle
 	resizeHandle positionInWorld: evt eventPosition - (resizeHandle morphExtent // 2).
 	self redrawNeeded.! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 2/13/2025 11:43:41'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 2/13/2025 11:43:41'!
 doScaleAnnoted: evt with: scaleHandle
 	"Update the scale of my target if it is scalable."
 	| scale center |
@@ -4428,7 +4432,7 @@ doScaleAnnoted: evt with: scaleHandle
 	scaleHandle positionInWorld: evt eventPosition - (scaleHandle morphExtent // 2).
 	self redrawNeeded.! !
 
-!HaloMorph methodsFor: '*Document' stamp: 'hlsf 1/23/2025 19:25:08'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 1/23/2025 19:25:08'!
 startScaleAnnoted: evt with: scaleHandle
 	"Initialize scale of my target if it is scalable."
 
@@ -4437,7 +4441,7 @@ startScaleAnnoted: evt with: scaleHandle
 	self removeAllHandlesBut: scaleHandle.  "remove all other handles"
 	scaleOffset := target scale / (evt eventPosition - target annoted positionInWorld) rho.! !
 
-!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:57:36'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/2/2025 17:57:36'!
 haloAnnDismissIcon
 	^ self icons
 		at: #haloDismissAnnIcon
@@ -4446,7 +4450,7 @@ haloAnnDismissIcon
 				getForm: #discard
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 16:47:50'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/2/2025 16:47:50'!
 haloAnnDragIcon
 	^ self icons
 		at: #haloAnnDragIcon
@@ -4455,7 +4459,7 @@ haloAnnDragIcon
 				getForm: #drag
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:52:21'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/2/2025 17:52:21'!
 haloAnnEditIcon
 "Edit annoted document "
 	^ self icons
@@ -4465,7 +4469,7 @@ haloAnnEditIcon
 				getForm: #edit
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:42:16'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/2/2025 17:42:16'!
 haloAnnHelpIcon
 	^ self icons
 		at: #haloAnnHelpIcon
@@ -4474,7 +4478,7 @@ haloAnnHelpIcon
 				getForm: #help
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:32:32'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/2/2025 17:32:32'!
 haloAnnInspectIcon
 	^ self icons
 		at: #haloAnnInspectIcon
@@ -4483,7 +4487,7 @@ haloAnnInspectIcon
 				getForm: #inspect
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:17:32'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/2/2025 17:17:32'!
 haloAnnResizeIcon
 	^ self icons
 		at: #haloAnnResizeIcon
@@ -4492,7 +4496,7 @@ haloAnnResizeIcon
 				getForm: #resize
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*Document' stamp: 'hlsf 2/2/2025 17:36:42'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/2/2025 17:36:42'!
 haloAnnRotateIcon
 	^ self icons
 		at: #haloAnnRotateIcon
@@ -4501,15 +4505,15 @@ haloAnnRotateIcon
 				getForm: #rotate
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloHandleMorph methodsFor: '*Document' stamp: 'hlsf 1/25/2025 19:07:05'!
+!HaloHandleMorph methodsFor: '*DyboDoc' stamp: 'hlsf 1/25/2025 19:07:05'!
 handlesMouseOver: evt
 	^ true! !
 
-!HaloHandleMorph methodsFor: '*Document' stamp: 'hlsf 1/25/2025 19:14:00'!
+!HaloHandleMorph methodsFor: '*DyboDoc' stamp: 'hlsf 1/25/2025 19:14:00'!
 mouseEnter: evt
 	owner target removeAlarm: #removeHalo! !
 
-!Flap methodsFor: '*Document' stamp: 'hlsf 3/2/2025 10:56:40'!
+!Flap methodsFor: '*DyboDoc' stamp: 'hlsf 3/2/2025 10:56:40'!
 scripts: dyboScripts
 	objects := dyboScripts collect: [:each |
 		FlapItem 
@@ -4522,7 +4526,7 @@ scripts: dyboScripts
 			adoptWidgetsColor: borderColor;
 			borderWidth: 2]! !
 
-!Flap class methodsFor: '*Document' stamp: 'hlsf 2/16/2025 23:02:55'!
+!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 2/16/2025 23:02:55'!
 label: aString emphasis: emphasis scripts: dyboScripts
 	| flap |
 	flap := self contents: aString font: nil emphasis: emphasis.
@@ -4531,7 +4535,7 @@ label: aString emphasis: emphasis scripts: dyboScripts
 	
 ! !
 
-!Flap class methodsFor: '*Document' stamp: 'hlsf 2/16/2025 23:06:03'!
+!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 2/16/2025 23:06:03'!
 label: aString scripts: dyboScripts
 	^ self label: aString emphasis: 0 scripts: dyboScripts 
 ! !

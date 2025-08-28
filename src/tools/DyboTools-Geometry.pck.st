@@ -1,63 +1,50 @@
-'From Cuis7.5 [latest update: #7387] on 31 July 2025 at 8:28:56 pm'!
+'From Cuis7.5 [latest update: #7452] on 28 August 2025 at 10:35:51 am'!
 'Description '!
-!provides: 'Morphic-DrawingTools' 1 25!
+!provides: 'DyboTools-Geometry' 1 26!
 !requires: 'VectorGraphics' 1 185 nil!
-SystemOrganization addCategory: #'Morphic-DrawingTools'!
+SystemOrganization addCategory: #'DyboTools-Geometry'!
 
 
-!classDefinition: #CompassMorph category: #'Morphic-DrawingTools'!
+!classDefinition: #CompassMorph category: #'DyboTools-Geometry'!
 PlacedMorph subclass: #CompassMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Morphic-DrawingTools'!
-!classDefinition: 'CompassMorph class' category: #'Morphic-DrawingTools'!
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'CompassMorph class' category: #'DyboTools-Geometry'!
 CompassMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #ProtractorMorph category: #'Morphic-DrawingTools'!
+!classDefinition: #ProtractorMorph category: #'DyboTools-Geometry'!
 PlacedMorph subclass: #ProtractorMorph
 	instanceVariableNames: 'lastHandPosition font zeroAtRight'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Morphic-DrawingTools'!
-!classDefinition: 'ProtractorMorph class' category: #'Morphic-DrawingTools'!
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'ProtractorMorph class' category: #'DyboTools-Geometry'!
 ProtractorMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #RulerMorph category: #'Morphic-DrawingTools'!
-PlacedMorph subclass: #RulerMorph
-	instanceVariableNames: 'width'
+!classDefinition: #Ruler category: #'DyboTools-Geometry'!
+PlacedMorph subclass: #Ruler
+	instanceVariableNames: 'length lastHandPosition font'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Morphic-DrawingTools'!
-!classDefinition: 'RulerMorph class' category: #'Morphic-DrawingTools'!
-RulerMorph class
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'Ruler class' category: #'DyboTools-Geometry'!
+Ruler class
 	instanceVariableNames: ''!
 
-!classDefinition: #SetSquareMorph category: #'Morphic-DrawingTools'!
+!classDefinition: #SetSquareMorph category: #'DyboTools-Geometry'!
 PlacedMorph subclass: #SetSquareMorph
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Morphic-DrawingTools'!
-!classDefinition: 'SetSquareMorph class' category: #'Morphic-DrawingTools'!
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'SetSquareMorph class' category: #'DyboTools-Geometry'!
 SetSquareMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #ToolButtonMorph category: #'Morphic-DrawingTools'!
-PluggableButtonMorph subclass: #ToolButtonMorph
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Morphic-DrawingTools'!
-!classDefinition: 'ToolButtonMorph class' category: #'Morphic-DrawingTools'!
-ToolButtonMorph class
-	instanceVariableNames: ''!
-
-
-!ToolButtonMorph commentStamp: '<historical>' prior: 0!
-A button with icon or text to plug on a drawing tool!
 
 !ProtractorMorph methodsFor: 'drawing' stamp: 'hlsf 1/7/2022 14:48:52'!
 drawOn: canvas
@@ -217,20 +204,20 @@ helpRotate
 helpScale
 	^ 'Change the scale of the protractor'! !
 
-!RulerMorph methodsFor: 'drawing' stamp: 'hlsf 7/30/2025 11:26:14'!
+!Ruler methodsFor: 'drawing' stamp: 'hlsf 7/31/2025 23:59:02'!
 drawOn: canvas
-	| font grad posX extent step |
-	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
-	extent := width * self ppcm + (self ppcm / 2) @ 60.
+	| grad posX extent step roundedLength |
+	roundedLength := length rounded.
+	extent := roundedLength * self ppcm + (self ppcm / 2) @ 60.
 	
-	canvas fillRectangle: (-5@0 corner: extent x @ 25) color: (Color yellow alpha: 0.8).
-	canvas fillRectangle: (-5@25 corner: extent ) color: (Color yellow alpha: 0.4).
+	canvas fillRectangle: (-5@0 corner: extent x @ 25) color: Color yellow.
+	canvas fillRectangle: (-5@25 corner: extent ) color: (Color yellow alpha: 0.5).
 	canvas frameRectangle: (-5@0 corner: extent) borderWidth: 0.5 color: Color yellow muchDarker .
 
-	step := self ppcm / 2. " half centimeter step "
+	step :=  self ppcm / 2. " half centimeter step "
 	canvas strokeWidth: 0.8 color: Color black do: [
 		posX := 0.
-		width + 1 timesRepeat: [
+		roundedLength + 1 timesRepeat: [
 			canvas moveTo: posX @ 0.5; lineToY: 10.
 			canvas moveTo: (posX  + step) @ 0.5 ; lineToY: 6.
 			posX := posX + self ppcm] ].
@@ -238,31 +225,97 @@ drawOn: canvas
 	step := self ppcm / 10. "millimeter step "
 	canvas strokeWidth: 0.3 color: Color black do: [
 		posX := step.
-		width * 2 + 1 timesRepeat: [
+		roundedLength * 2 + 1 timesRepeat: [
 			4 timesRepeat: [
 				canvas moveTo: posX @ 0.2; lineToY: 4.
 				posX := posX + step].
 			posX := posX + step] ].
-	
+
 	grad := posX := 0.
-	width + 1 timesRepeat: [
+	roundedLength + 1 timesRepeat: [
 		canvas drawString: grad asString atCenterX: posX @12 font: font color: Color black.
 		grad := grad + 1.
 		posX := posX + self ppcm].! !
 
-!RulerMorph methodsFor: 'accessing' stamp: 'hlsf 7/30/2025 10:25:02'!
+!Ruler methodsFor: 'accessing' stamp: 'hlsf 7/31/2025 23:53:55'!
+length: newLength
+	length := newLength max: 1.
+	self positioningButtons.
+	self redrawNeeded ! !
+
+!Ruler methodsFor: 'accessing' stamp: 'hlsf 8/5/2025 11:05:48'!
 ppcm
 " pixels per cm "
 	^ 50.0! !
 
-!RulerMorph methodsFor: 'initialization' stamp: 'hlsf 7/30/2025 11:36:54'!
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 7/31/2025 23:57:21'!
 initialize
 	super initialize.
-	width := 10 "cm"! !
+	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
+	length := 10 "cm".
+	self insertButtons ! !
 
-!RulerMorph methodsFor: 'geometry' stamp: 'hlsf 7/30/2025 09:14:26'!
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 7/31/2025 20:28:28'!
+insertButtons
+| btn buttonExtent |
+	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	btn := ButtonMorph model: self action: #rotateRuler ::
+		actWhen: #buttonStillDown;
+		icon: Theme current refreshIcon;
+		color: Color transparent;
+		selectedColor: Color yellow darker;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	btn := ButtonMorph model: self action: #resizeRuler ::
+		actWhen: #buttonStillDown;
+		icon: (Theme current fetch: #( '16x16' 'actions' 'go-last' ));
+		color: Color transparent;
+		selectedColor: Color yellow darker;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	self positioningButtons 
+	! !
+
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 7/31/2025 20:28:28'!
+positioningButtons
+| buttonWidth position |
+	buttonWidth := submorphs first morphWidth.
+	position := length rounded * self ppcm -4 @ 30.
+	submorphs do: [:btn |
+		btn morphPosition: position.
+		position :=  position translatedBy:  - 4 - buttonWidth @ 0 ]
+		! !
+
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 7/31/2025 14:36:31'!
 rotationCenter
 	^ `0@0`! !
+
+!Ruler methodsFor: 'as yet unclassified' stamp: 'hlsf 8/1/2025 00:04:38'!
+resizeRuler
+	| event prev |
+	"any thing new to do?"
+	event := self activeHand lastMouseEvent.
+	event isMove 
+		ifTrue: [
+			prev := lastHandPosition.
+			lastHandPosition := self internalizeFromWorld: event eventPosition.
+			self length: length + (lastHandPosition x - prev x / self ppcm)] 
+		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
+
+!Ruler methodsFor: 'as yet unclassified' stamp: 'hlsf 8/1/2025 10:35:11'!
+rotateRuler
+	| event p1 v1 v2|
+	"any thing new to do?"
+	event := self activeHand lastMouseEvent.
+	event isMove 
+		ifTrue: [
+			p1 := self externalizeToWorld: self rotationCenter.
+			v1 := lastHandPosition - p1.
+			lastHandPosition := event eventPosition.
+			v2 := lastHandPosition - p1.
+			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
+			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
+		ifFalse: [lastHandPosition := event eventPosition].! !
 
 !SetSquareMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 1/7/2022 14:59:16'!
 drawOn: canvas
@@ -275,8 +328,3 @@ drawOn: canvas
 	
 	
 	! !
-
-!ToolButtonMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 1/7/2022 14:42:31'!
-drawOn: canvas
-	canvas ellipseCenter: 0 radius:  icon extent // 2 borderWidth: 1 borderColor: Color black fillColor: color.
-	canvas image: icon at: 0@0! !

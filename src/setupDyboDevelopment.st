@@ -12,7 +12,7 @@ Utilities setAuthorName: 'Hilaire Fernandes' initials: 'hlsf'.
 Preferences at: #logDebuggerStackToFile put: true.
 Preferences at: #autoNumberUserChanges put: false.
 "Install Dybo code"
-Feature require: #'Dynabook'.
+Feature require: #'Dybo'.
 world := UISupervisor ui.
 [
 	Display fullScreenMode: true.
