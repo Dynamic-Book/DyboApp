@@ -1,17 +1,17 @@
-'From Cuis7.5 [latest update: #7452] on 28 August 2025 at 10:35:48 am'!
+'From Cuis7.5 [latest update: #7471] on 31 August 2025 at 11:40:30 am'!
 'Description '!
-!provides: 'DyboDoc' 1 150!
+!provides: 'DyboDoc' 1 151!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'Commander' 1 7 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
-SystemOrganization addCategory: #'DyboDoc-View'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
-SystemOrganization addCategory: #'DyboDoc-Presenter-Tool'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
+SystemOrganization addCategory: #'DyboDoc-Presenter-Tool'!
 SystemOrganization addCategory: #'DyboDoc-Script'!
+SystemOrganization addCategory: #'DyboDoc-View'!
 
 
 !classDefinition: #Pen category: #'DyboDoc-Model'!
@@ -364,16 +364,6 @@ DyboScript subclass: #DyboTextScript
 DyboTextScript class
 	instanceVariableNames: ''!
 
-!classDefinition: #DocumentModel category: #'DyboDoc-Model'!
-ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'timeStamp pageModel ownerPath'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'DyboDoc-Model'!
-!classDefinition: 'DocumentModel class' category: #'DyboDoc-Model'!
-DocumentModel class
-	instanceVariableNames: ''!
-
 !classDefinition: #CommandStack category: #'DyboDoc-Presenter-Command'!
 ReadWriteStream subclass: #CommandStack
 	instanceVariableNames: ''
@@ -382,6 +372,16 @@ ReadWriteStream subclass: #CommandStack
 	category: 'DyboDoc-Presenter-Command'!
 !classDefinition: 'CommandStack class' category: #'DyboDoc-Presenter-Command'!
 CommandStack class
+	instanceVariableNames: ''!
+
+!classDefinition: #DocumentModel category: #'DyboDoc-Model'!
+ActiveModel subclass: #DocumentModel
+	instanceVariableNames: 'timeStamp pageModel ownerPath'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Model'!
+!classDefinition: 'DocumentModel class' category: #'DyboDoc-Model'!
+DocumentModel class
 	instanceVariableNames: ''!
 
 !classDefinition: #Bezier2Morph category: #'DyboDoc-View'!
@@ -446,7 +446,7 @@ PaperMorph class
 
 !classDefinition: #AnnotatorMorph category: #'DyboDoc-View'!
 PaperMorph subclass: #AnnotatorMorph
-	instanceVariableNames: 'annotedMorph script'
+	instanceVariableNames: 'annotatedMorph script'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-View'!
@@ -649,6 +649,9 @@ Therefore each instance of the same DyboScript subclass uses the same DKM but wi
 code to produce a different view. The code us a DSL specific to the DKM.
 Each script returns a View inserted in an Annotator itself added to a Document.!
 
+!CommandStack commentStamp: '<historical>' prior: 0!
+I am stack of command to execute or to unexecute user action in a Document!
+
 !DocumentModel commentStamp: '<historical>' prior: 0!
 - timeStamp : creation time of a Document. An unique identifier. It is used to create a dedicated directory on disk in the tasks or topic directory
 - relPath, the path my folder is saved in with my associate data, relatively to userDataPath. Those my fullPath is userDataPath / relPath / dirName
@@ -656,9 +659,6 @@ Each script returns a View inserted in an Annotator itself added to a Document.!
  1. a path to a pdf document used as a model for PageModelPdf. Each page of the Document use a PDF page as its model
  2. a class in the  PageModel hierachy, the default model for each page of the Document
 !
-
-!CommandStack commentStamp: '<historical>' prior: 0!
-I am stack of command to execute or to unexecute user action in a Document!
 
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
 A quadratic Bézier stroke!
@@ -2208,6 +2208,36 @@ menuStyle: menuBuilder
 		selector: #offerColorMenu;
 		order: 40.! !
 
+!CommandStack methodsFor: 'private' stamp: 'hlsf 9/10/2024 21:00:31'!
+truncate
+	|oldReadLimit|
+	oldReadLimit := readLimit.
+	readLimit := position.
+	oldReadLimit > readLimit ifTrue:
+			[readLimit to: oldReadLimit do:
+				[:index| collection at: index + 1 put: nil]]! !
+
+!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:20'!
+nextPut: aCommand
+	super nextPut: aCommand.
+	self truncate.
+	^ aCommand ! !
+
+!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:26'!
+previous
+	self position = 0 ifTrue: [^nil].
+	self position: self position - 1.
+	^self peek.! !
+
+!CommandStack methodsFor: 'as yet unclassified' stamp: 'hlsf 10/26/2024 14:58:31'!
+reset
+	super reset.
+	self truncate! !
+
+!CommandStack class methodsFor: 'instance creation' stamp: 'hlsf 9/10/2024 21:01:01'!
+new
+	^self on: Array new! !
+
 !DocumentModel methodsFor: 'initialization' stamp: 'hlsf 11/16/2024 11:05:18'!
 initialize
 	super initialize.
@@ -2255,36 +2285,6 @@ path
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 12/22/2024 11:41:08'!
 relPath
 	^ ownerPath, '/', self dirName! !
-
-!CommandStack methodsFor: 'private' stamp: 'hlsf 9/10/2024 21:00:31'!
-truncate
-	|oldReadLimit|
-	oldReadLimit := readLimit.
-	readLimit := position.
-	oldReadLimit > readLimit ifTrue:
-			[readLimit to: oldReadLimit do:
-				[:index| collection at: index + 1 put: nil]]! !
-
-!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:20'!
-nextPut: aCommand
-	super nextPut: aCommand.
-	self truncate.
-	^ aCommand ! !
-
-!CommandStack methodsFor: 'accessing' stamp: 'hlsf 9/10/2024 21:00:26'!
-previous
-	self position = 0 ifTrue: [^nil].
-	self position: self position - 1.
-	^self peek.! !
-
-!CommandStack methodsFor: 'as yet unclassified' stamp: 'hlsf 10/26/2024 14:58:31'!
-reset
-	super reset.
-	self truncate! !
-
-!CommandStack class methodsFor: 'instance creation' stamp: 'hlsf 9/10/2024 21:01:01'!
-new
-	^self on: Array new! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 3/23/2023 14:51:46'!
 color
@@ -2988,34 +2988,34 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:39:03'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 8/31/2025 11:25:11'!
 annotate: aPlacedMorph
 | annotedExtent |
-	annotedMorph ifNotNil: [self removeMorph: annotedMorph].
-	annotedMorph := aPlacedMorph.
-	annotedExtent := annotedMorph displayBounds 
-		ifNil:[annotedMorph bitMask extent]
-		ifNotNil: [annotedMorph displayBounds extent].		
-	annotedMorph removeProperty: #bitMask.
+	annotatedMorph ifNotNil: [self removeMorph: annotatedMorph].
+	annotatedMorph := aPlacedMorph.
+	annotedExtent := annotatedMorph displayBounds 
+		ifNil:[annotatedMorph bitMask extent]
+		ifNotNil: [annotatedMorph displayBounds extent].		
+	annotatedMorph removeProperty: #bitMask.
 	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
-	self addMorphBack: annotedMorph position: self frameWidth asPoint
+	self addMorphBack: annotatedMorph position: self frameWidth asPoint
 	! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/22/2025 22:59:41'!
-annoted
-	^ annotedMorph ! !
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 8/31/2025 11:26:04'!
+annotated
+	^ annotatedMorph ! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 2/13/2025 11:28:36'!
 frameWidth
 	^ 8  / ((self scale max: 0.8) * (owner ifNotNil: [ owner scale max: 0.8] ifNil: [1]))! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 1/24/2025 20:00:46'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 8/31/2025 11:25:11'!
 lockAnnoted
-	annotedMorph 
+	annotatedMorph 
 		lock;
 		keyboardFocusChange: false.
 	" Ensure the keyboard focus is really lost "
-	annotedMorph submorphsDo: [:each | each keyboardFocusChange: false]! !
+	annotatedMorph submorphsDo: [:each | each keyboardFocusChange: false]! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:18:23'!
 script
@@ -3055,13 +3055,17 @@ mouseEnter: evt
 mouseLeave: evt
 	self addAlarm: #removeHalo after: 1000! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 11/16/2024 17:19:51'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 8/31/2025 11:25:31'!
 adjustBounds
 " Adjust my extent and position so that all my submoprhs are whithin my bounds.
-  There should be no visual differences
+  We ensure the annotated position is not shifted in the page!!
  " 
-	self adjustBoundsTo: (self externalizeBoundingRectOf: (self topLeftCorner corner: self bottomRightCorner))
-	! !
+	| annotatedPosition deltaPosition |
+	annotatedPosition := self externalize: annotatedMorph morphPosition.
+	self adjustBoundsTo: (self externalizeBoundingRectOf: (self topLeftCorner corner: self bottomRightCorner)).
+	deltaPosition := annotatedPosition - (self externalize: annotatedMorph morphPosition).
+	self morphPosition: self morphPosition + deltaPosition
+		! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/24/2025 19:37:14'!
 adjustBoundsTo: newBoundsInOwner
@@ -3091,7 +3095,7 @@ morphCenter
 morphCenter: newCenter
 	^ self morphPosition: self  morphPosition + (newCenter - self morphCenter)! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 1/24/2025 19:38:30'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 8/31/2025 11:06:32'!
 topLeftCorner
 " 
 	the top left corner of the rectangle surrounding all my submorphs
@@ -3099,7 +3103,7 @@ topLeftCorner
 	| corner |
 	corner := extent.
 	self submorphsDo: [:each | corner := corner min: each  fullBoundsInOwner origin].
-	^ corner - 1 - self frameWidth asPoint
+	^ corner - self frameWidth
 	! !
 
 !AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 3/8/2025 11:23:44'!
@@ -3107,27 +3111,27 @@ editAnnoted
 	^ DyboScriptEditor open: script label: script title ::
 		annotator: self! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 3/6/2025 20:11:56'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 8/31/2025 11:27:08'!
 haloSpecifications
 	^ {	"selector 						horiz 			vert 			color info 			icon key	"
 		{#addDismissHandle:.			#left.			#top.			#(red).				#haloAnnDismissIcon. 		'Remove' translated}.
 		{#addMenuHandle:. 			#leftCenter.	#top.			#(blue darker).		#haloMenuIcon.		'Menu' translated}.
-		{#addEditAnnotedHandle:.		#right.		 	#topCenter.	#(orange darker).	#haloAnnEditIcon.		'Edit' translated}.
+		{#addEditAnnotatedHandle:.		#right.		 	#topCenter.	#(orange darker).	#haloAnnEditIcon.		'Edit' translated}.
 		{#addDragHandle:.			#center.		#top.			#(brown).			#haloAnnDragIcon. 	'Move' translated}.
 		{#addInspectHandle:.			#right.			#center.		#(orange lighter).	#haloAnnInspectIcon. 	'Inspect' translated}.
 		{#addRotateHandle:.			#left.			#bottom.		#(blue).			#haloAnnRotateIcon.	'Rotate' translated}.		
-		{#addResizeAnnotedHandle:.	#right.			#bottom.		#(yellow).			#haloAnnResizeIcon. 	'Change size' translated}.
+		{#addResizeAnnotatedHandle:.	#right.			#bottom.		#(yellow).			#haloAnnResizeIcon. 	'Change size' translated}.
 		{#addHelpHandle:.				#center.		#bottom.		#(lightBlue).		#haloAnnHelpIcon. 	'Help' translated}
 	} collect: [:anArray | HaloSpec from: anArray]! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 1/22/2025 22:47:46'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 8/31/2025 11:25:11'!
 inspectAnnoted
-	^ annotedMorph inspect! !
+	^ annotatedMorph inspect! !
 
-!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 23:58:22'!
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 8/31/2025 11:25:11'!
 canResizeAnnoted
 " can the the annotated morph be resized ? only kind of BoxMorph can"
-	^ annotedMorph is: #BoxMorph! !
+	^ annotatedMorph is: #BoxMorph! !
 
 !AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 9/26/2024 11:15:37'!
 is: aSymbol
@@ -3157,7 +3161,7 @@ addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 		addUpdating: #frozenString 
 		action: #freezeUnfreezeMorph) setBalloonText: 'When "frozen", I am inert to all user interactions.' translated! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/22/2025 23:29:15'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 8/31/2025 11:25:11'!
 buildHandleMenu: aHand
 	"Build the morph menu for the given morph's halo's menu handle. This menu has two sections. The first section contains commands that are interpreted by the hand; the second contains commands provided by the target morph. This method allows the morph to decide which items should be included in the hand's section of the menu."
 
@@ -3166,16 +3170,16 @@ buildHandleMenu: aHand
 	menu addStayUpIcons.
 	menu addLine.
 	self addStandardHaloMenuItemsTo: menu hand: aHand.
-	menu defaultTarget: annotedMorph .
-	script addCustomMenuItems: menu annoted: annotedMorph.
+	menu defaultTarget: annotatedMorph .
+	script addCustomMenuItems: menu annoted: annotatedMorph.
 	^ menu! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:26:03'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 8/31/2025 11:25:11'!
 freeze: aBoolean
 	self setProperty: #frozen toValue: aBoolean.
 	aBoolean 
 		ifTrue: [self lockAnnoted]
-		ifFalse: [ annotedMorph unlock]! !
+		ifFalse: [ annotatedMorph unlock]! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:14:24'!
 freezeUnfreezeMorph
@@ -3196,12 +3200,12 @@ goBehind
 isFrozen
 	^ self valueOfProperty: #frozen ifAbsent: [ false ]! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 2/19/2025 19:22:10'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 8/31/2025 11:25:11'!
 reconcileToFrozeenState
 " 	Annotator may freeze the annoted object. 
 	Frozen state is necessary additional state to distingish from the low lover lock property 
 "
-	annotedMorph lock: self isFrozen! !
+	annotatedMorph lock: self isFrozen! !
 
 !AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 2/22/2025 23:30:37'!
 shortPrintString
@@ -4366,8 +4370,8 @@ filenamePrintOn: aStream
 		nextPutAll: (self second printString padded: #left to: 2 with: $0);
 		nextPut: $s! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 3/6/2025 20:13:01'!
-addEditAnnotedHandle: aHaloSpec 
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 8/31/2025 11:26:45'!
+addEditAnnotatedHandle: aHaloSpec 
 		(self addHandle: aHaloSpec )
 		mouseDownSelector: #doEdit
 ! !
@@ -4378,18 +4382,18 @@ addInspectHandle: handleSpec
 		mouseDownSelector: #doInspect
 ! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 2/13/2025 11:36:41'!
-addResizeAnnotedHandle: haloSpec
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 8/31/2025 11:27:47'!
+addResizeAnnotatedHandle: haloSpec
 
-	target annoted okayToResizeEasily ifTrue: [
+	target annotated okayToResizeEasily ifTrue: [
 		^(self addHandle: haloSpec)
 			mouseDownSelector: #startResize:with:;
-			mouseMoveSelector: #doResizeAnnoted:with: ].
+			mouseMoveSelector: #doResizeAnnotated:with: ].
 
-	target annoted okayToScaleEasily ifTrue: [
+	target annotated okayToScaleEasily ifTrue: [
 		^(self addHandle: haloSpec)
-			mouseDownSelector: #startScaleAnnoted:with:;
-			mouseMoveSelector: #doScaleAnnoted:with: ].! !
+			mouseDownSelector: #startScaleAnnotated:with:;
+			mouseMoveSelector: #doScaleAnnotated:with: ].! !
 
 !HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 3/6/2025 20:14:59'!
 doEdit
@@ -4399,27 +4403,27 @@ doEdit
 doInspect
 	^ target inspectAnnoted ! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 1/23/2025 19:34:51'!
-doResizeAnnoted: evt with: resizeHandle
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 8/31/2025 11:27:22'!
+doResizeAnnotated: evt with: resizeHandle
 	"Called while the mouse is down in the grow handle"
 
 	| newExtent center |
 	evt hand obtainHalo: self.
 	center := target morphCenter.
-	newExtent := (evt eventPosition - target annoted positionInWorld) - positionOffset.
+	newExtent := (evt eventPosition - target annotated positionInWorld) - positionOffset.
 	(newExtent x = 0 or: [newExtent y = 0]) ifTrue: [^ self].
-	target annoted extentInWorld: newExtent.
+	target annotated extentInWorld: newExtent.
 	target adjustBounds; 
 		morphCenter: center.
 	resizeHandle positionInWorld: evt eventPosition - (resizeHandle morphExtent // 2).
 	self redrawNeeded.! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 2/13/2025 11:43:41'!
-doScaleAnnoted: evt with: scaleHandle
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 8/31/2025 11:27:32'!
+doScaleAnnotated: evt with: scaleHandle
 	"Update the scale of my target if it is scalable."
 	| scale center |
 	evt hand obtainHalo: self.
-	scale := (evt eventPosition - target annoted positionInWorld) rho * scaleOffset.
+	scale := (evt eventPosition - target annotated positionInWorld) rho * scaleOffset.
 	scale = 1.0
 		ifTrue: [scaleHandle color: `Color lightBlue`]
 		ifFalse: [scaleHandle color: `Color blue`].
@@ -4432,14 +4436,14 @@ doScaleAnnoted: evt with: scaleHandle
 	scaleHandle positionInWorld: evt eventPosition - (scaleHandle morphExtent // 2).
 	self redrawNeeded.! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 1/23/2025 19:25:08'!
-startScaleAnnoted: evt with: scaleHandle
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 8/31/2025 11:27:47'!
+startScaleAnnotated: evt with: scaleHandle
 	"Initialize scale of my target if it is scalable."
 
 	evt hand obtainHalo: self.						"Make sure the event's hand correlates with the receiver"
 
 	self removeAllHandlesBut: scaleHandle.  "remove all other handles"
-	scaleOffset := target scale / (evt eventPosition - target annoted positionInWorld) rho.! !
+	scaleOffset := target scale / (evt eventPosition - target annotated positionInWorld) rho.! !
 
 !HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/2/2025 17:57:36'!
 haloAnnDismissIcon
