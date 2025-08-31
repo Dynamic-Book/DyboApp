@@ -13,6 +13,7 @@ Preferences at: #logDebuggerStackToFile put: true.
 Preferences at: #autoNumberUserChanges put: false.
 "Install Dybo code"
 Feature require: #'Dybo'.
+Feature require: #'DyboTools-Geometry'.
 world := UISupervisor ui.
 [
 	Display fullScreenMode: true.
@@ -48,6 +49,7 @@ world := UISupervisor ui.
 DySystem beDevelopment. 
 DySystem beApplication.
 Dybo new.
+Dybo load.
 DyboTestResource new data.
 DyUserData reset.'.
 		morph 
