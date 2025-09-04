@@ -1,6 +1,7 @@
-'From Cuis7.5 [latest update: #7416] on 20 August 2025 at 5:58:46 pm'!
+'From Cuis7.5 [latest update: #7474] on 4 September 2025 at 10:56:08 am'!
 'Description '!
-!provides: 'Dybo' 1 142!
+!provides: 'Dybo' 1 143!
+!requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'UI-Graphic-Import' 1 0 nil!
@@ -8,15 +9,14 @@
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
-!requires: 'DyboDoc' 1 5 nil!
+SystemOrganization addCategory: #Dybo!
 SystemOrganization addCategory: #'Dybo-Model'!
 SystemOrganization addCategory: #'Dybo-Model-Business'!
+SystemOrganization addCategory: #'Dybo-Presenter'!
+SystemOrganization addCategory: #'Dybo-System'!
+SystemOrganization addCategory: #'Dybo-Test'!
 SystemOrganization addCategory: #'Dybo-View'!
 SystemOrganization addCategory: #'Dybo-View-Business'!
-SystemOrganization addCategory: #'Dybo-Presenter'!
-SystemOrganization addCategory: #'Dybo-Test'!
-SystemOrganization addCategory: #Dybo!
-SystemOrganization addCategory: #'Dybo-System'!
 
 
 !classDefinition: #DyDomain category: #'Dybo-Model'!
@@ -1742,7 +1742,7 @@ removeUserData
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 1/3/2025 10:16:53'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 9/4/2025 10:55:39'!
 convert: destEntry pages: interval dpi: integer
 " 
 	In destEntry, convert the doc.pdf interval pages at interger resolution	   
@@ -1750,11 +1750,11 @@ convert: destEntry pages: interval dpi: integer
 	| converstionCommand resolution |
 	resolution := integer min: 300 max: 75.
 	converstionCommand := interval 
-		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 {2}/doc.pdf {2}/doc' 				format: {
-			resolution . destEntry pathName			 }] 
+		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 {2}/doc.pdf {2}/doc' format: {
+			resolution . destEntry pathName }] 
 		ifNotNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 -f {2} -l {3} {4}/doc.pdf {4}/doc' format: {
-			resolution . 		
-			interval first . 			interval last .
+			resolution. 
+			interval first. interval last.
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
@@ -1764,7 +1764,7 @@ defaultPaperSize
 	
 	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 1/3/2025 10:17:24'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 9/4/2025 10:55:03'!
 import: pdfEntry to: destEntry pages: interval
 "
 	In our destEntry, generate a doc.pdf document with the selected pages interval, if fany ;
@@ -1773,12 +1773,11 @@ import: pdfEntry to: destEntry pages: interval
 	| importCommand process |
 	destEntry assureExistence.
 	importCommand := interval 
-		ifNil:  ['pdftocairo -pdf ''{1}'' ''{2}/doc.pdf''' format: { pdfEntry pathName . destEntry pathName } 		]
+		ifNil:  ['pdftocairo -pdf ''{1}'' ''{2}/doc.pdf''' format: { pdfEntry pathName . destEntry pathName } ]
 		ifNotNil: ['pdftocairo -pdf ''{1}'' -f {2} -l {3} ''{4}/doc.pdf''' format: {
-			pdfEntry pathName .
-			interval first.
-			interval last.
-			destEntry pathName 		}].
+			pdfEntry pathName.
+			interval first. interval last.
+			destEntry pathName}].
 	process := OSProcess command: importCommand.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
 	^ self convert: destEntry pages: interval dpi: 150.! !
