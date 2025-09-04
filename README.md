@@ -26,11 +26,12 @@ mkdir Cuis
 cd Cuis
 # Install Cuis image and packages
 git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-Dev
-git clone https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-UI
-git clone https://github.com/Dynamic-Book/NeoCSV
+git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-UI
+git clone --depth 1 https://github.com/Dynamic-Book/NeoCSV
 
 cd Cuis-Smalltalk-Dev
-git clone https://github.com/Dynamic-Book/DyboApp
+git clone --depth 1 https://github.com/Dynamic-Book/DyboLib
+git clone --depth 1 https://github.com/Dynamic-Book/DyboApp
 ```
 
 2. Start the DyboApp IDE
@@ -38,12 +39,18 @@ git clone https://github.com/Dynamic-Book/DyboApp
 cd Cuis/Cuis-Smalltalk-Dev
 ./DyboApp/startIDE.sh
 ```
-A new image dyboIDE.image is built. In the image execute
-`DySystem beDevelopment`, execute `Dynabook new` (to come) to start the
-application.
+
+A new image dyboIDE.image is built. This is the development
+environment for the DyboApp.
+
+In the Workspace window, execute the statement `DySystem
+beDevelopment`, it will set up the paths to the resources to test
+appropriately the application.
+
+Then, execute `Dybo new` to start the application.
 
 Have an interesting exploration!
 
 ## License
 
-Copyright Hilaire Fernandes 2023, 2024
+Copyright Hilaire Fernandes 2023, 2024, 2025
