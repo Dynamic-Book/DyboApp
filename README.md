@@ -53,4 +53,4 @@ Have an interesting exploration!
 
 ## License
 
-Copyright Hilaire Fernandes 2023, 2024, 2025
+Copyright 2023--2025 Hilaire Fernandes 
