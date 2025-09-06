@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7471] on 31 August 2025 at 11:40:30 am'!
+'From Cuis7.5 [latest update: #7526] on 6 September 2025 at 4:42:11 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 151!
+!provides: 'DyboDoc' 1 152!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -3470,33 +3470,17 @@ deleteBitMasks
 	pages do: [:aPage |
 		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 2/16/2025 23:23:03'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/6/2025 16:34:19'!
 initialize
 	super initialize.
 	self beColumn.
 	pages := OrderedCollection new.
 	currentPage := PageMorph newOn: presenter model: self model newPageModel .
 	container := PageContainer for: currentPage.
-	self installFlap.
-	pages add: currentPage! !
-
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 8/28/2025 10:32:55'!
-installFlap
-	| flap items |
-	items := Array 
-		with: DyboTextScript new 
-		with: (DyboScript new :: title: 'Workspace' ;code: '| ws | 
-ws := Workspace open.
-ws delete.
-ws layoutMorph morphExtent: 300@200')
-		with: (DyboScript new :: 
-			title: 'Ruler';
-			code: 'Ruler new').
-	flap := Flap label: ' Test scripts ' scripts: items.
-	container addMorph: flap.
-	flap fold;
-		target: PageMorph.
-	^ flap! !
+	self installScriptsFlap;
+		installToolsFlap.
+	pages add: currentPage.
+! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 16:30:29'!
 installMiniView
@@ -3508,6 +3492,33 @@ installMiniView
 	self	addMorphUseAll: container.
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
+
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/6/2025 16:12:17'!
+installScriptsFlap
+	| flap items |
+	items := Array 
+		with: DyboTextScript new 
+		with: (DyboScript new :: title: 'Workspace' ;code: '| ws | 
+ws := Workspace open.
+ws delete.
+ws layoutMorph morphExtent: 300@200').
+	flap := Flap label: ' Test Scripts ' scripts: items.
+	container addMorph: flap.
+	flap fold;
+		target: PageMorph.
+	^ flap! !
+
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/6/2025 16:20:13'!
+installToolsFlap
+	| flap tools |
+	tools := Array 
+		with: (Ruler new length: 5 :: name: 'A ruler to measure and to draw straight lines.').
+	flap := Flap label: ' Geometry Tools ' objects: tools.
+	container addMorph: flap.
+	flap fold;
+		borderColor: Color blue;
+		target: PageMorph.
+	^ flap! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 3/16/2025 17:08:42'!
 installView

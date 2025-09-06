@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7452] on 28 August 2025 at 10:35:51 am'!
+'From Cuis7.5 [latest update: #7526] on 6 September 2025 at 4:42:13 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 26!
+!provides: 'DyboTools-Geometry' 1 27!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -290,24 +290,24 @@ positioningButtons
 rotationCenter
 	^ `0@0`! !
 
-!Ruler methodsFor: 'as yet unclassified' stamp: 'hlsf 8/1/2025 00:04:38'!
+!Ruler methodsFor: 'actions' stamp: 'hlsf 9/6/2025 15:56:45'!
 resizeRuler
 	| event prev |
 	"any thing new to do?"
 	event := self activeHand lastMouseEvent.
-	event isMove 
+	event isMouseMove 
 		ifTrue: [
 			prev := lastHandPosition.
 			lastHandPosition := self internalizeFromWorld: event eventPosition.
 			self length: length + (lastHandPosition x - prev x / self ppcm)] 
 		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
 
-!Ruler methodsFor: 'as yet unclassified' stamp: 'hlsf 8/1/2025 10:35:11'!
+!Ruler methodsFor: 'actions' stamp: 'hlsf 9/6/2025 15:56:53'!
 rotateRuler
 	| event p1 v1 v2|
 	"any thing new to do?"
 	event := self activeHand lastMouseEvent.
-	event isMove 
+	event isMouseMove 
 		ifTrue: [
 			p1 := self externalizeToWorld: self rotationCenter.
 			v1 := lastHandPosition - p1.
