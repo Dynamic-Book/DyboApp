@@ -13,7 +13,20 @@ version=`ls $imagePath/Cuis$release-????.image | cut -d - -f 2 | cut -d . -f 1`
 cuis=Cuis$release-$version
 
 ide=dyboIDE
-VM=CuisVM.app/Contents/Linux-x86_64/squeak
+VMx86=CuisVM.app/Contents/Linux-x86_64/squeak
+VMarm=CuisVM.app/Contents/Linux-arm64/squeak
+VMalpine=`which spur64`
+case $(uname -m) in
+    x86_64) VM=$VMx86 ;;
+    aarch64)
+	case `cat /etc/os-release | awk -F '=' '/^NAME/ {print $2}'` in
+	    "\"Alpine Linux\"") VM=$VMalpine ;;
+	    *) VM=$VMarm ;;
+	esac
+esac
+
+# echo $VM
+# exit 0
 
 # install image for Dybo IDE
 cd $imagePath
