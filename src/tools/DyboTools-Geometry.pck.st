@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 12:22:24 pm'!
+'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 5:57:00 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 28!
+!provides: 'DyboTools-Geometry' 1 29!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -248,6 +248,11 @@ length: newLength
 	self positioningButtons.
 	self redrawNeeded ! !
 
+!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:36:02'!
+paper
+	" The paper I may hand stroke into "
+	^ owner paper! !
+
 !Ruler methodsFor: 'accessing' stamp: 'hlsf 8/5/2025 11:05:48'!
 ppcm
 " pixels per cm "
@@ -328,13 +333,35 @@ rotateRuler
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
 
-!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 11:30:20'!
+!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 16:05:16'!
 handlesMouseDown: event
 	^ true! !
 
-!Ruler methodsFor: 'copying' stamp: 'hlsf 9/7/2025 12:19:12'!
+!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 17:53:15'!
+mouseButton1Down: event localPosition: localPosition
+	(self paper writingTool notNil and: [self strokeZone containsPoint: localPosition])
+		ifTrue: [" initiate stroke along the ruler "
+			lastHandPosition := nil.
+			self paper startWritingAt: (self externalize: localPosition x @ 0)]
+		ifFalse: ["Iniitate a drag of the ruler " 
+			lastHandPosition := self externalize: localPosition ]! !
+
+!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 17:36:23'!
+mouseButton1Up: event localPosition: localPosition
+	lastHandPosition ifNil: [self paper endWritingAt: (self externalize: localPosition x @ 0)]! !
+
+!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 17:36:33'!
+mouseMove: evnt localPosition: localPosition 
+	| externalposition |
+	lastHandPosition 
+		ifNil: [self paper writingAt: (self externalize: localPosition x @ 0)]
+		ifNotNil: [
+			externalposition := self externalize: localPosition.
+			self morphPosition: self morphPosition  + externalposition - lastHandPosition.
+			lastHandPosition := externalposition ]! !
+
+!Ruler methodsFor: 'copying' stamp: 'hlsf 9/7/2025 13:37:58'!
 postCopy
-	self halt.
 	self length: length! !
 
 !SetSquareMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 1/7/2022 14:59:16'!

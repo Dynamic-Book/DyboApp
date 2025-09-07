@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 12:22:22 pm'!
+'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 5:56:58 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 153!
+!provides: 'DyboDoc' 1 154!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -813,25 +813,25 @@ newStroke
 	
 	! !
 
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 9/7/2024 12:02:54'!
+!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:52:33'!
 adjustWidth
-	^ paper writingTool adjustWidth ! !
+	^ paper strokeTool adjustWidth ! !
 
 !StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 4/1/2023 12:32:38'!
 paper: aPaperMorph
 	paper := aPaperMorph ! !
 
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 9/7/2024 12:02:40'!
+!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:52:33'!
 penColor
-	^ paper writingTool color! !
+	^ paper strokeTool color! !
 
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 9/7/2024 13:12:07'!
+!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:52:33'!
 penThreshold
-	^ paper writingTool threshold ! !
+	^ paper strokeTool threshold ! !
 
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 9/7/2024 12:02:47'!
+!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:52:33'!
 penWidth
-	^ paper writingTool width! !
+	^ paper strokeTool width! !
 
 !StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 4/1/2023 12:53:07'!
 samples
@@ -892,12 +892,12 @@ isLocalC1at: m between: c1 and: c2
 "
 	^ true! !
 
-!StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 9/26/2024 09:47:26'!
+!StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 9/7/2025 17:52:33'!
 isSamplesValid
 " 
 Do we consider valid the current samples, Subclasses may implement differently to discard
 "
-	^ (self samples first squaredDistanceTo: self samples second) > paper writingTool threshold! !
+	^ (self samples first squaredDistanceTo: self samples second) > paper strokeTool threshold! !
 
 !StrokerBezier2 class methodsFor: 'instance creation' stamp: 'hlsf 4/1/2023 14:29:08'!
 on: aPaperMorph
@@ -1281,6 +1281,17 @@ model
 selectedTool
 	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
 
+!Document methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:52:33'!
+strokeTool
+	" Depends on the selected tool "
+	^  self selectedTool 
+		caseOf:  {
+			[PenTool toolName] -> [pen] .
+			[HighlighterTool toolName] -> [highlighter ] .
+			[EraserTool toolName] -> [eraser ]
+		}
+		otherwise: [nil]! !
+
 !Document methodsFor: 'accessing' stamp: 'hlsf 11/24/2024 19:36:54'!
 view
 	^ view! !
@@ -1289,14 +1300,13 @@ view
 view: aMorph
 	view := aMorph ! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 9/7/2024 11:52:43'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:53:00'!
 writingTool
 	" Depends on the selected tool "
 	^  self selectedTool 
 		caseOf:  {
 			[PenTool toolName] -> [pen] .
-			[HighlighterTool toolName] -> [highlighter ] .
-			[EraserTool toolName] -> [eraser ]
+			[HighlighterTool toolName] -> [highlighter ]
 		}
 		otherwise: [nil]! !
 
@@ -1316,12 +1326,12 @@ highlighterTool
 isTool: aToolName
 	^ self selectedTool == aToolName ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 10/13/2024 17:22:30'!
+!Document methodsFor: 'tool' stamp: 'hlsf 9/7/2025 17:52:33'!
 isToolColor: toolName
 " Check if pen or hightlighter and which color - for the circular toolbar 
 toolName takes value penRed,  hightlighterYellow, etc.  "
 	^ (toolName includesSubString: self selectedTool) 
-	and: [toolName includesSubString: (self writingTool color alpha: 1) colorName capitalized ]! !
+	and: [toolName includesSubString: (self strokeTool color alpha: 1) colorName capitalized ]! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 9/5/2024 10:38:17'!
 penTool
@@ -1347,27 +1357,27 @@ tool: aToolClass
 	view statusBarMessage: aToolClass description.
 	self changed: #isTool:! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 1/4/2025 19:38:01'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 9/7/2025 17:51:46'!
 initialize
 	super initialize.
-	self initializeWritingTools .
+	self initializeStrokeTools .
 	model := DocumentModel new.
 	savesReal := false. "Read comment in objectForDataStream:"
 	isSaved := true! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 10/20/2024 16:03:09'!
-initializeWritingTools
+!Document methodsFor: 'initialization' stamp: 'hlsf 9/7/2025 17:51:46'!
+initializeStrokeTools
 	pen := Pen new threshold: 4.
 	highlighter := Pen new ::
 		color: (Color yellow alpha: 0.3);
 		width: 40;
 		threshold: 6 squared.
-	eraser := Pen new 	width: 2
+	eraser := Pen new width: 2
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 1/4/2025 19:39:22'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 9/7/2025 17:51:46'!
 comeFullyUpOnReload: smartRefStream
-	self initializeWritingTools.
+	self initializeStrokeTools.
 	savesReal := false.
 	isSaved := true.
 	'presenter came to life' print! !
@@ -2442,14 +2452,14 @@ drawTangentsOn: canvas
 					moveTo: p2;
 					lineTo: c2] ! !
 
-!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 1/4/2025 10:42:50'!
+!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 9/7/2025 17:52:33'!
 drawOn: canvas
 	| samples lastIndex |
 	owner class ~= PaperMorph ifTrue: [^ self].
 	samples := owner samples.
 	lastIndex := owner sampleIndex - 1.
 	lastIndex ifNotZero: [
-		canvas strokeWidth: owner writingTool width color: owner writingTool color do: [
+		canvas strokeWidth: owner strokeTool width color: owner strokeTool color do: [
 			canvas moveTo: samples first.
 			2 to: lastIndex do: [:i | canvas lineTo: ( samples at: i )].
 			owner lastMousePosition ifNotNil: [:postiion | canvas lineTo: postiion ]
@@ -2509,26 +2519,26 @@ color: aColor
 lastStroke
 	^ submorphs ifEmpty: [nil] ifNotEmpty: [self firstSubmorph]! !
 
+!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:52:33'!
+strokeTool
+	^ owner strokeTool ! !
+
 !StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 4/8/2023 15:56:04'!
 width: aNumber
 	submorphs do: [:each | each width: aNumber ].
 	self redrawNeeded ! !
-
-!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 9/7/2024 12:01:58'!
-writingTool
-	^ owner writingTool ! !
 
 !StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/8/2024 16:14:23'!
 addStroke: aStroke
 	self addMorph: aStroke.
 	aStroke visible: false! !
 
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/30/2024 18:50:45'!
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 9/7/2025 17:52:33'!
 removeStrokesAt: positionInWorld
 " Remove the strokes under this positionInWorld "
 	| toDelete |
 "	self halt."
-	toDelete := submorphs select: [:aBezier | aBezier isCloserThan: self writingTool width toPixel: positionInWorld].
+	toDelete := submorphs select: [:aBezier | aBezier isCloserThan: self strokeTool width toPixel: positionInWorld].
 	self removeAllMorphsIn: toDelete.
 	^ toDelete! !
 
@@ -2662,6 +2672,12 @@ acceptDroppingMorph: flapItem event: dropEvent
 allowsMorphDrop
 	^ true! !
 
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/7/2025 14:25:37'!
+dragEvent: aMouseEvent localPosition: aPoint
+
+	'there!!' print.
+	super dragEvent: aMouseEvent localPosition: aPoint ! !
+
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:16:25'!
 wantsDroppedMorph: aMorph event: evt
 	^ aMorph is: #FlapItem! !
@@ -2707,6 +2723,10 @@ samplesQty
 "Number of samples before instantiating a new hand stroke"
 	^ samples size! !
 
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:52:33'!
+strokeTool
+	^ presenter strokeTool ! !
+
 !PaperMorph methodsFor: 'accessing' stamp: 'hlsf 4/2/2023 14:28:07'!
 stroker: aStrokerClass
 	stroker := aStrokerClass on: self.
@@ -2717,7 +2737,7 @@ stroker: aStrokerClass
 tool
 	^ presenter tool! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 9/7/2024 12:00:44'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:54:29'!
 writingTool
 	^ presenter writingTool ! !
 
@@ -2743,7 +2763,7 @@ mouseMove: event localPosition: localPosition
 	event mouseButton1Pressed not ifTrue: [^ self ].
 	self tool handleMouseAt: localPosition in: self! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 1/4/2025 10:48:42'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/7/2025 17:52:33'!
 mouseMove2: event localPosition: endPosition
 " With mouse trail  enabled "
 	| needUpdate |
@@ -2751,7 +2771,7 @@ mouseMove2: event localPosition: endPosition
 	needUpdate := false.
 	event trail do: [:aPosition | | localPosition |
 		localPosition := self internalize: aPosition.
-		((samples at: sampleIndex -1) squaredDistanceTo: localPosition) >= self writingTool threshold 		ifTrue: [	
+		((samples at: sampleIndex -1) squaredDistanceTo: localPosition) >= self strokeTool threshold 		ifTrue: [	
 			samples at: sampleIndex put: localPosition.
 			sampleIndex := sampleIndex + 1.
 			sampleIndex > self samplesQty			ifTrue: [
@@ -2788,12 +2808,12 @@ showPoints
 showTangents
 	^ self valueOfProperty: #showTangents ifAbsent: [false]! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 9/7/2024 12:00:44'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 9/7/2025 17:52:33'!
 addStandardHaloMenuItemsTo: aCustomMenu hand: aHandMorph
 	aCustomMenu 
 		add: 'sampling threshold' action: #setThreshold;
 		add: 'width' action: #setWidth;
-		addUpdating: #adjustWidthString target: self writingTool action: #adjustWidthOnOff;
+		addUpdating: #adjustWidthString target: self strokeTool action: #adjustWidthOnOff;
 		add: 'color' action: #setColor;		
 		addUpdating: #pointsString action: #pointsOnOff;
 		addUpdating: #controlsString action: #controlsOnOff;
@@ -2828,38 +2848,38 @@ pointsString
 removeStrokes
 	self removeAllMorphsIn: (submorphs select: [:aMorph | aMorph is: #StrokeGroupMorph])! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 9/7/2024 12:00:44'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 9/7/2025 17:52:33'!
 setColor
 	self 
 		request: 'Color (i.e. ''Color red'')'
-		initialAnswer: self writingTool color asString
+		initialAnswer: self strokeTool color asString
 		verifying: [:aString | 		[Compiler evaluate: aString. true] on: Error do: [false] ]
 		do: [:aString | | aColor |
 			aColor := Compiler evaluate: aString.
-			(aColor isKindOf: Color) ifTrue: [self writingTool color: aColor ] ]! !
+			(aColor isKindOf: Color) ifTrue: [self strokeTool color: aColor ] ]! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 9/7/2024 12:00:44'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 9/7/2025 17:52:33'!
 setThreshold
 	self 
 		request: 'Minimum screen distance between two consecutive samples'
-		initialAnswer: self writingTool threshold sqrt asString
+		initialAnswer: self strokeTool threshold sqrt asString
 		verifying: [:aString | aString asNumber notNil ]
 		do: [:aString | | integer |
 			integer := aString asNumber.
 			(integer notNil and: [integer >=0]) ifTrue: [
-				self writingTool threshold: integer squared] 
+				self strokeTool threshold: integer squared] 
 			]! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 9/7/2024 12:00:44'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 9/7/2025 17:52:33'!
 setWidth
 	self 
 		request: 'Pen width in pixel, float in ]0 ; 20]'
-		initialAnswer: self writingTool width asString
+		initialAnswer: self strokeTool width asString
 		verifying: [:aString | aString asNumber notNil ]
 		do: [:aString | | theWidth |
 			theWidth := aString asNumber.
 			(theWidth notNil and: [theWidth >0 and: [theWidth <= 20] ]) 	ifTrue: [
-				self writingTool width: theWidth ] ]! !
+				self strokeTool width: theWidth ] ]! !
 
 !PaperMorph methodsFor: 'menus' stamp: 'hlsf 3/27/2023 21:52:18'!
 tangentsOnOff
@@ -2886,11 +2906,11 @@ resetSamplingTo: aPoint
 strokeGroups
 	^ submorphs select: [:each | each is: #StrokeGroupMorph ]! !
 
-!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 2/17/2025 22:31:04'!
+!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 9/7/2025 17:52:33'!
 strokeGroupsAt: worldPosition
 	^ submorphs select: [:each |
 		(each is: #StrokeGroupMorph) 
-		and: [each isCloserThan: self writingTool width toPixel: worldPosition ] ]! !
+		and: [each isCloserThan: self strokeTool width toPixel: worldPosition ] ]! !
 
 !PaperMorph methodsFor: 'writing' stamp: 'hlsf 1/4/2025 10:51:12'!
 endWritingAt: localPosition
