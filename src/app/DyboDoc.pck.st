@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7526] on 6 September 2025 at 4:42:11 pm'!
+'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 12:22:22 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 152!
+!provides: 'DyboDoc' 1 153!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -2156,6 +2156,10 @@ execute
 addCustomMenuItems: menu annoted: view
 	! !
 
+!DyboScript methodsFor: 'as yet unclassified' stamp: 'hlsf 9/7/2025 11:04:48'!
+is: aSymbol
+	^ aSymbol == #DyboScript or: [super is: aSymbol ]! !
+
 !DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 16:30:08'!
 dependency
 	^ nil! !
@@ -2641,14 +2645,16 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 3/8/2025 11:14:05'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/7/2025 11:08:18'!
 acceptDroppingMorph: flapItem event: dropEvent
-	| annotator |
-	annotator := AnnotatorMorph newOn: presenter for: flapItem object copy.
+	| dropMorph |
+	dropMorph := (flapItem object is: #DyboScript) 
+		ifTrue:  [AnnotatorMorph newOn: presenter for: flapItem object copy]
+		ifFalse: [flapItem object copy].
 	self 
-		addMorphFront: annotator 
+		addMorphFront: dropMorph 
 		position: (self internalizeFromWorld: dropEvent eventPosition).
-	annotator adjustBounds.
+	"dropMorph adjustBounds."
 	flapItem flap fold.
 	presenter pointerTool! !
 
@@ -3044,11 +3050,10 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 2/18/2025 23:06:21'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/7/2025 11:16:34'!
 mouseEnter: evt
 	self removeAlarm: #removeHalo.
 	self show.
-"	self comeToFront."
 	self addHalo! !
 
 !AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 2/9/2025 19:48:26'!
@@ -3215,6 +3220,10 @@ shortPrintString
 initialize
 	super initialize.
 	self annotate: script execute! !
+
+!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/7/2025 11:08:13'!
+noteNewOwner: newOwner
+	self adjustBounds ! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 9/26/2024 11:33:10'!
 newOn: aPresenter

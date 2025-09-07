@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7526] on 6 September 2025 at 4:42:13 pm'!
+'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 12:22:24 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 27!
+!provides: 'DyboTools-Geometry' 1 28!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -27,7 +27,7 @@ ProtractorMorph class
 
 !classDefinition: #Ruler category: #'DyboTools-Geometry'!
 PlacedMorph subclass: #Ruler
-	instanceVariableNames: 'length lastHandPosition font'
+	instanceVariableNames: 'length lastHandPosition font extent'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
@@ -204,14 +204,13 @@ helpRotate
 helpScale
 	^ 'Change the scale of the protractor'! !
 
-!Ruler methodsFor: 'drawing' stamp: 'hlsf 7/31/2025 23:59:02'!
+!Ruler methodsFor: 'drawing' stamp: 'hlsf 9/7/2025 12:09:52'!
 drawOn: canvas
-	| grad posX extent step roundedLength |
+	| grad posX step roundedLength |
 	roundedLength := length rounded.
-	extent := roundedLength * self ppcm + (self ppcm / 2) @ 60.
 	
-	canvas fillRectangle: (-5@0 corner: extent x @ 25) color: Color yellow.
-	canvas fillRectangle: (-5@25 corner: extent ) color: (Color yellow alpha: 0.5).
+	canvas fillRectangle: self strokeZone color: Color yellow.
+	canvas fillRectangle: self dragZone color: (Color yellow alpha: 0.5).
 	canvas frameRectangle: (-5@0 corner: extent) borderWidth: 0.5 color: Color yellow muchDarker .
 
 	step :=  self ppcm / 2. " half centimeter step "
@@ -237,9 +236,15 @@ drawOn: canvas
 		grad := grad + 1.
 		posX := posX + self ppcm].! !
 
-!Ruler methodsFor: 'accessing' stamp: 'hlsf 7/31/2025 23:53:55'!
+!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 12:09:35'!
+dragZone
+
+	^ -5@25 corner: extent! !
+
+!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 12:08:24'!
 length: newLength
 	length := newLength max: 1.
+	extent := length rounded * self ppcm + (self ppcm / 2) @ 60.
 	self positioningButtons.
 	self redrawNeeded ! !
 
@@ -248,11 +253,16 @@ ppcm
 " pixels per cm "
 	^ 50.0! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 7/31/2025 23:57:21'!
+!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 12:09:09'!
+strokeZone
+
+	^ -5@0 corner: extent x @ 25! !
+
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/7/2025 11:59:54'!
 initialize
 	super initialize.
 	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
-	length := 10 "cm".
+	self length: 10.
 	self insertButtons ! !
 
 !Ruler methodsFor: 'initialization' stamp: 'hlsf 7/31/2025 20:28:28'!
@@ -276,9 +286,10 @@ insertButtons
 	self positioningButtons 
 	! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 7/31/2025 20:28:28'!
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/7/2025 12:22:02'!
 positioningButtons
 | buttonWidth position |
+	submorphs ifEmpty: [^ self].
 	buttonWidth := submorphs first morphWidth.
 	position := length rounded * self ppcm -4 @ 30.
 	submorphs do: [:btn |
@@ -316,6 +327,15 @@ rotateRuler
 			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
+
+!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 11:30:20'!
+handlesMouseDown: event
+	^ true! !
+
+!Ruler methodsFor: 'copying' stamp: 'hlsf 9/7/2025 12:19:12'!
+postCopy
+	self halt.
+	self length: length! !
 
 !SetSquareMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 1/7/2022 14:59:16'!
 drawOn: canvas
