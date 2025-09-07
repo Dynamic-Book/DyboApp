@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 5:57:00 pm'!
+'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 6:47:42 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 29!
+!provides: 'DyboTools-Geometry' 1 30!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -337,24 +337,26 @@ rotateRuler
 handlesMouseDown: event
 	^ true! !
 
-!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 17:53:15'!
+!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 18:13:55'!
 mouseButton1Down: event localPosition: localPosition
 	(self paper writingTool notNil and: [self strokeZone containsPoint: localPosition])
 		ifTrue: [" initiate stroke along the ruler "
 			lastHandPosition := nil.
-			self paper startWritingAt: (self externalize: localPosition x @ 0)]
-		ifFalse: ["Iniitate a drag of the ruler " 
+			" Let the paper to handle the hand stroke, we only restrict the position to be aligned with the ruler!! "
+			self paper mouseButton1Down: event  localPosition: (self externalize: localPosition x @ 0)]
+		ifFalse: ["Initate a drag of the ruler " 
 			lastHandPosition := self externalize: localPosition ]! !
 
-!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 17:36:23'!
+!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 18:08:55'!
 mouseButton1Up: event localPosition: localPosition
-	lastHandPosition ifNil: [self paper endWritingAt: (self externalize: localPosition x @ 0)]! !
+	lastHandPosition ifNil: [
+		self paper mouseButton1Up: event localPosition: (self externalize: localPosition x @ 0)]! !
 
-!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 17:36:33'!
-mouseMove: evnt localPosition: localPosition 
+!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 18:09:31'!
+mouseMove: event localPosition: localPosition 
 	| externalposition |
 	lastHandPosition 
-		ifNil: [self paper writingAt: (self externalize: localPosition x @ 0)]
+		ifNil: [self paper mouseMove: event localPosition: (self externalize: localPosition x @ 0)]
 		ifNotNil: [
 			externalposition := self externalize: localPosition.
 			self morphPosition: self morphPosition  + externalposition - lastHandPosition.
