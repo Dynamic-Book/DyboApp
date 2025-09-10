@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 5:56:58 pm'!
+'From Cuis7.5 [latest update: #7538] on 10 September 2025 at 4:49:56 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 154!
+!provides: 'DyboDoc' 1 155!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -3522,7 +3522,7 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/6/2025 16:12:17'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/10/2025 16:18:16'!
 installScriptsFlap
 	| flap items |
 	items := Array 
@@ -3533,19 +3533,17 @@ ws delete.
 ws layoutMorph morphExtent: 300@200').
 	flap := Flap label: ' Test Scripts ' scripts: items.
 	container addMorph: flap.
-	flap fold;
-		target: PageMorph.
+	flap target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/6/2025 16:20:13'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/10/2025 16:18:22'!
 installToolsFlap
 	| flap tools |
 	tools := Array 
 		with: (Ruler new length: 5 :: name: 'A ruler to measure and to draw straight lines.').
 	flap := Flap label: ' Geometry Tools ' objects: tools.
 	container addMorph: flap.
-	flap fold;
-		borderColor: Color blue;
+	flap borderColor: Color blue;
 		target: PageMorph.
 	^ flap! !
 
