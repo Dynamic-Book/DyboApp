@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 11 September 2025 at 4:03:45 pm'!
+'From Cuis7.5 [latest update: #7538] on 11 September 2025 at 10:38:17 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 32!
+!provides: 'DyboTools-Geometry' 1 35!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -295,6 +295,10 @@ mouseMove: event localPosition: localPosition
 inStrokeZone: localPosition
 	self subclassResponsibility ! !
 
+!StraightTool methodsFor: 'testing' stamp: 'hlsf 9/11/2025 22:05:31'!
+is: aSymbol
+	^ aSymbol == #Ruler or: [super is: aSymbol]! !
+
 !StraightTool methodsFor: 'actions' stamp: 'hlsf 9/11/2025 13:25:56'!
 rotateMe
 	| event p1 v1 v2|
@@ -310,9 +314,9 @@ rotateMe
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
 
-!Ruler methodsFor: 'drawing' stamp: 'hlsf 9/11/2025 13:20:35'!
+!Ruler methodsFor: 'drawing' stamp: 'hlsf 9/11/2025 21:40:29'!
 drawOn: canvas
-	| grad posX step roundedLength |
+	| posX step roundedLength |
 	roundedLength := length rounded.
 	
 	canvas fillRectangle: self strokeZone color: `Color yellow`.
@@ -336,10 +340,10 @@ drawOn: canvas
 				posX := posX + step].
 			posX := posX + step] ].
 
-	grad := posX := 0.
+	step := posX := 0.
 	roundedLength + 1 timesRepeat: [
-		canvas drawString: grad asString atCenterX: posX @12 font: font color: `Color black`.
-		grad := grad + 1.
+		canvas drawString: step asString atCenterX: posX @12 font: font color: `Color black`.
+		step := step + 1.
 		posX := posX + self ppcm].! !
 
 !Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 12:08:24'!
@@ -423,9 +427,9 @@ strokeZone
 
 	^ -5@0 corner: extent x @ 25! !
 
-!SetSquare methodsFor: 'drawing' stamp: 'hlsf 9/11/2025 13:20:21'!
+!SetSquare methodsFor: 'drawing' stamp: 'hlsf 9/11/2025 21:49:52'!
 drawOn: canvas
-	| roundedLength  |
+	| roundedLength  step pos |
 	roundedLength := length rounded.
 	canvas fillColor: `Color yellow` do: [canvas polyLine: self strokeZone].
 	canvas fillColor: `Color yellow alpha: 0.5` do: [	canvas polyLine: self dragZone].
@@ -433,9 +437,54 @@ drawOn: canvas
 		canvas moveTo: 0@0;
 			lineTo: extent x @ 0;
 			lineTo: 0 @ extent y;
-			lineTo: 0@0]
+			lineTo: 0@0].
+		
+	" ox graduation "
+	pos := step :=  self ppcm / 2. " half centimeter step "
+	canvas strokeWidth: 0.8 color: `Color black` do: [
+		roundedLength x timesRepeat: [
+			canvas moveTo: pos @ 0.5; lineToY: 6.
+			canvas moveTo: (pos + step) @ 0.5 ; lineToY: 10.
+			pos := pos + self ppcm] ].
+
+	step := self ppcm / 10. "millimeter step "
+	canvas strokeWidth: 0.3 color: `Color black` do: [
+		pos := step.
+		roundedLength x * 2 + 1 timesRepeat: [
+			4 timesRepeat: [
+				canvas moveTo: pos @ 0.2; lineToY: 4.
+				pos := pos + step].
+			pos := pos + step] ].
 	
-	! !
+	" oy graduation "
+	pos := step :=  self ppcm / 2. " half centimeter step "
+	canvas strokeWidth: 0.8 color: `Color black` do: [
+		roundedLength y timesRepeat: [
+			canvas moveTo: 0.5 @ pos; lineToX: 6.
+			canvas moveTo: 0.5 @ (pos + step) ; lineToX: 10.
+			pos := pos + self ppcm] ].
+
+	step := self ppcm / 10. "millimeter step "
+	canvas strokeWidth: 0.3 color: `Color black` do: [
+		pos := step.
+		roundedLength y * 2 + 1 timesRepeat: [
+			4 timesRepeat: [
+				canvas moveTo: 0.2 @ pos; lineToX: 4.
+				pos := pos + step].
+			pos := pos + step] ].
+
+	step := 1.
+	pos := self ppcm.
+	roundedLength x -1 timesRepeat: [
+		canvas drawString: step asString atCenterX: pos @12 font: font color: `Color black`.
+		step := step + 1.
+		pos := pos + self ppcm].
+	step := 1.
+	pos := self ppcm.
+	roundedLength y - 1 timesRepeat: [
+		canvas drawString: step asString atWaistCenter: 15 @ pos font: font color: `Color black`.
+		step := step + 1.
+		pos := pos + self ppcm].! !
 
 !SetSquare methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 13:49:03'!
 constrainToBorder: localHandPosition
@@ -472,10 +521,11 @@ strokeZoneY
 " The stroke zone along the y-axis "
 	^ Rectangle origin: 0@0 corner: 25 @ extent y! !
 
-!SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 13:29:28'!
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 21:48:39'!
 length: newLength
 	length := newLength max: 1@1.
 	extent := length rounded * self ppcm + (self ppcm / 2).
+	strokeZone := nil.
 	self positioningButtons.
 	self redrawNeeded ! !
 
@@ -516,3 +566,21 @@ inStrokeZone: localPosition
 		^ true].
 	strokeSide := nil.
 	^ false! !
+
+!SetSquare methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 22:38:12'!
+mouseButton1Up: event localPosition: localPosition
+	super mouseButton1Up: event localPosition: localPosition.
+	lastHandPosition ifNotNil: [ " We were moved, see if we can get aligned and stuck with a nearby ruler "
+		| anyRuler myBounds |
+		myBounds := self fullBoundsInOwner.
+		anyRuler := self paper owner submorphs 
+			detect: [:aMorph | (aMorph is: #Ruler) and: [myBounds intersects: aMorph fullBoundsInOwner]]
+			ifNone: [^ self].
+		" Align my ox and ruler's ox "				
+		(anyRuler rotationDegrees - self rotationDegrees ) abs < 10 "Same orientation - likely not usefull "
+			ifTrue: [^self rotation: anyRuler rotation].
+		((anyRuler rotationDegrees - self rotationDegrees) abs - 180) abs < 10  "180 degree flipped "
+			ifTrue: [^ self rotationDegrees: anyRuler rotationDegrees - 180].
+		((anyRuler rotationDegrees - self rotationDegrees ) abs - 90) abs < 10 
+			ifTrue: [^self rotationDegrees: anyRuler rotationDegrees - 90].
+		]! !
