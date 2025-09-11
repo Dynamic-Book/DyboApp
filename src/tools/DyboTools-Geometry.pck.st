@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7526] on 7 September 2025 at 6:47:42 pm'!
+'From Cuis7.5 [latest update: #7538] on 11 September 2025 at 4:03:45 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 30!
+!provides: 'DyboTools-Geometry' 1 32!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -25,9 +25,19 @@ PlacedMorph subclass: #ProtractorMorph
 ProtractorMorph class
 	instanceVariableNames: ''!
 
+!classDefinition: #StraightTool category: #'DyboTools-Geometry'!
+PlacedMorph subclass: #StraightTool
+	instanceVariableNames: 'font extent lastHandPosition length'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'StraightTool class' category: #'DyboTools-Geometry'!
+StraightTool class
+	instanceVariableNames: ''!
+
 !classDefinition: #Ruler category: #'DyboTools-Geometry'!
-PlacedMorph subclass: #Ruler
-	instanceVariableNames: 'length lastHandPosition font extent'
+StraightTool subclass: #Ruler
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
@@ -35,16 +45,29 @@ PlacedMorph subclass: #Ruler
 Ruler class
 	instanceVariableNames: ''!
 
-!classDefinition: #SetSquareMorph category: #'DyboTools-Geometry'!
-PlacedMorph subclass: #SetSquareMorph
-	instanceVariableNames: ''
+!classDefinition: #SetSquare category: #'DyboTools-Geometry'!
+StraightTool subclass: #SetSquare
+	instanceVariableNames: 'strokeZone strokeSide'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
-!classDefinition: 'SetSquareMorph class' category: #'DyboTools-Geometry'!
-SetSquareMorph class
+!classDefinition: 'SetSquare class' category: #'DyboTools-Geometry'!
+SetSquare class
 	instanceVariableNames: ''!
 
+
+!StraightTool commentStamp: '<historical>' prior: 0!
+Abstract class for tools with straight linear metric graduation. 
+Those tools can be dragged, rotated and resized.
+A straight line can be drawn when a mouse stroke occures in its strokeZone(s)
+
+- font : used font to draw the graduation
+- extent: tool extent in its own coordinates system, rounded to the nearest 0.5 cm
+- length: length in ox and oy directions, expressed in pixels
+- lastHandPosition: used when rotating or changing the extent!
+
+!SetSquare commentStamp: '<historical>' prior: 0!
+A set square with two sensible zones to draw straight lines!
 
 !ProtractorMorph methodsFor: 'drawing' stamp: 'hlsf 1/7/2022 14:48:52'!
 drawOn: canvas
@@ -204,122 +227,76 @@ helpRotate
 helpScale
 	^ 'Change the scale of the protractor'! !
 
-!Ruler methodsFor: 'drawing' stamp: 'hlsf 9/7/2025 12:09:52'!
-drawOn: canvas
-	| grad posX step roundedLength |
-	roundedLength := length rounded.
-	
-	canvas fillRectangle: self strokeZone color: Color yellow.
-	canvas fillRectangle: self dragZone color: (Color yellow alpha: 0.5).
-	canvas frameRectangle: (-5@0 corner: extent) borderWidth: 0.5 color: Color yellow muchDarker .
+!StraightTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 11:05:02'!
+length: aNumberOrPoint
+	self subclassResponsibility ! !
 
-	step :=  self ppcm / 2. " half centimeter step "
-	canvas strokeWidth: 0.8 color: Color black do: [
-		posX := 0.
-		roundedLength + 1 timesRepeat: [
-			canvas moveTo: posX @ 0.5; lineToY: 10.
-			canvas moveTo: (posX  + step) @ 0.5 ; lineToY: 6.
-			posX := posX + self ppcm] ].
-
-	step := self ppcm / 10. "millimeter step "
-	canvas strokeWidth: 0.3 color: Color black do: [
-		posX := step.
-		roundedLength * 2 + 1 timesRepeat: [
-			4 timesRepeat: [
-				canvas moveTo: posX @ 0.2; lineToY: 4.
-				posX := posX + step].
-			posX := posX + step] ].
-
-	grad := posX := 0.
-	roundedLength + 1 timesRepeat: [
-		canvas drawString: grad asString atCenterX: posX @12 font: font color: Color black.
-		grad := grad + 1.
-		posX := posX + self ppcm].! !
-
-!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 12:09:35'!
-dragZone
-
-	^ -5@25 corner: extent! !
-
-!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 12:08:24'!
-length: newLength
-	length := newLength max: 1.
-	extent := length rounded * self ppcm + (self ppcm / 2) @ 60.
-	self positioningButtons.
-	self redrawNeeded ! !
-
-!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:36:02'!
+!StraightTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 09:10:52'!
 paper
 	" The paper I may hand stroke into "
 	^ owner paper! !
 
-!Ruler methodsFor: 'accessing' stamp: 'hlsf 8/5/2025 11:05:48'!
+!StraightTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 09:11:02'!
 ppcm
 " pixels per cm "
 	^ 50.0! !
 
-!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 12:09:09'!
-strokeZone
-
-	^ -5@0 corner: extent x @ 25! !
-
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/7/2025 11:59:54'!
+!StraightTool methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:10:00'!
 initialize
 	super initialize.
 	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
-	self length: 10.
-	self insertButtons ! !
+! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 7/31/2025 20:28:28'!
+!StraightTool methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 09:11:59'!
 insertButtons
-| btn buttonExtent |
-	buttonExtent := Theme current refreshIcon extent * 1.5. 
-	btn := ButtonMorph model: self action: #rotateRuler ::
-		actWhen: #buttonStillDown;
-		icon: Theme current refreshIcon;
-		color: Color transparent;
-		selectedColor: Color yellow darker;
-		morphExtent: buttonExtent.
-	self addMorph: btn.
-	btn := ButtonMorph model: self action: #resizeRuler ::
-		actWhen: #buttonStillDown;
-		icon: (Theme current fetch: #( '16x16' 'actions' 'go-last' ));
-		color: Color transparent;
-		selectedColor: Color yellow darker;
-		morphExtent: buttonExtent.
-	self addMorph: btn.
-	self positioningButtons 
-	! !
+	self subclassResponsibility ! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/7/2025 12:22:02'!
-positioningButtons
-| buttonWidth position |
-	submorphs ifEmpty: [^ self].
-	buttonWidth := submorphs first morphWidth.
-	position := length rounded * self ppcm -4 @ 30.
-	submorphs do: [:btn |
-		btn morphPosition: position.
-		position :=  position translatedBy:  - 4 - buttonWidth @ 0 ]
-		! !
+!StraightTool methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 09:47:18'!
+constrainToBorder: localHandPosition
+"
+ When drawing in the sketch zone, the handPosition is constrained to follow a straight line, 
+ by following the closest border of the tool. Return this constrained position "
+	self subclassResponsibility ! !
 
-!Ruler methodsFor: 'geometry' stamp: 'hlsf 7/31/2025 14:36:31'!
+!StraightTool methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 09:13:42'!
 rotationCenter
 	^ `0@0`! !
 
-!Ruler methodsFor: 'actions' stamp: 'hlsf 9/6/2025 15:56:45'!
-resizeRuler
-	| event prev |
-	"any thing new to do?"
-	event := self activeHand lastMouseEvent.
-	event isMouseMove 
-		ifTrue: [
-			prev := lastHandPosition.
-			lastHandPosition := self internalizeFromWorld: event eventPosition.
-			self length: length + (lastHandPosition x - prev x / self ppcm)] 
-		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
+!StraightTool methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 09:13:57'!
+handlesMouseDown: event
+	^ true! !
 
-!Ruler methodsFor: 'actions' stamp: 'hlsf 9/6/2025 15:56:53'!
-rotateRuler
+!StraightTool methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 09:47:18'!
+mouseButton1Down: event localPosition: localPosition
+	(self paper writingTool notNil and: [self inStrokeZone: localPosition])
+		ifTrue: [" initiate stroke along the tool "
+			lastHandPosition := nil.
+			" Let the paper to handle the hand stroke, constraint the hand position to be aligned with a tool border !! "
+			self paper mouseButton1Down: event  localPosition: (self externalize: (self constrainToBorder: localPosition))]
+		ifFalse: ["Initate a drag of the tool " 
+			lastHandPosition := self externalize: localPosition ]! !
+
+!StraightTool methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 09:47:18'!
+mouseButton1Up: event localPosition: localPosition
+	lastHandPosition ifNil: [
+		self paper mouseButton1Up: event localPosition: (self externalize: (self constrainToBorder: localPosition))]! !
+
+!StraightTool methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 09:47:18'!
+mouseMove: event localPosition: localPosition 
+	| externalposition |
+	lastHandPosition 
+		ifNil: [self paper mouseMove: event localPosition: (self externalize: (self constrainToBorder: localPosition))]
+		ifNotNil: [
+			externalposition := self externalize: localPosition.
+			self morphPosition: self morphPosition  + externalposition - lastHandPosition.
+			lastHandPosition := externalposition ]! !
+
+!StraightTool methodsFor: 'testing' stamp: 'hlsf 9/11/2025 09:32:22'!
+inStrokeZone: localPosition
+	self subclassResponsibility ! !
+
+!StraightTool methodsFor: 'actions' stamp: 'hlsf 9/11/2025 13:25:56'!
+rotateMe
 	| event p1 v1 v2|
 	"any thing new to do?"
 	event := self activeHand lastMouseEvent.
@@ -333,47 +310,209 @@ rotateRuler
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
 
-!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 16:05:16'!
-handlesMouseDown: event
-	^ true! !
+!Ruler methodsFor: 'drawing' stamp: 'hlsf 9/11/2025 13:20:35'!
+drawOn: canvas
+	| grad posX step roundedLength |
+	roundedLength := length rounded.
+	
+	canvas fillRectangle: self strokeZone color: `Color yellow`.
+	canvas fillRectangle: self dragZone color: `Color yellow alpha: 0.5`.
+	canvas frameRectangle: (-5@0 corner: extent) borderWidth: 0.5 color: `Color yellow darker` .
 
-!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 18:13:55'!
-mouseButton1Down: event localPosition: localPosition
-	(self paper writingTool notNil and: [self strokeZone containsPoint: localPosition])
-		ifTrue: [" initiate stroke along the ruler "
-			lastHandPosition := nil.
-			" Let the paper to handle the hand stroke, we only restrict the position to be aligned with the ruler!! "
-			self paper mouseButton1Down: event  localPosition: (self externalize: localPosition x @ 0)]
-		ifFalse: ["Initate a drag of the ruler " 
-			lastHandPosition := self externalize: localPosition ]! !
+	step :=  self ppcm / 2. " half centimeter step "
+	canvas strokeWidth: 0.8 color: `Color black` do: [
+		posX := 0.
+		roundedLength + 1 timesRepeat: [
+			canvas moveTo: posX @ 0.5; lineToY: 10.
+			canvas moveTo: (posX  + step) @ 0.5 ; lineToY: 6.
+			posX := posX + self ppcm] ].
 
-!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 18:08:55'!
-mouseButton1Up: event localPosition: localPosition
-	lastHandPosition ifNil: [
-		self paper mouseButton1Up: event localPosition: (self externalize: localPosition x @ 0)]! !
+	step := self ppcm / 10. "millimeter step "
+	canvas strokeWidth: 0.3 color: `Color black` do: [
+		posX := step.
+		roundedLength * 2 + 1 timesRepeat: [
+			4 timesRepeat: [
+				canvas moveTo: posX @ 0.2; lineToY: 4.
+				posX := posX + step].
+			posX := posX + step] ].
 
-!Ruler methodsFor: 'event handling' stamp: 'hlsf 9/7/2025 18:09:31'!
-mouseMove: event localPosition: localPosition 
-	| externalposition |
-	lastHandPosition 
-		ifNil: [self paper mouseMove: event localPosition: (self externalize: localPosition x @ 0)]
-		ifNotNil: [
-			externalposition := self externalize: localPosition.
-			self morphPosition: self morphPosition  + externalposition - lastHandPosition.
-			lastHandPosition := externalposition ]! !
+	grad := posX := 0.
+	roundedLength + 1 timesRepeat: [
+		canvas drawString: grad asString atCenterX: posX @12 font: font color: `Color black`.
+		grad := grad + 1.
+		posX := posX + self ppcm].! !
+
+!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 12:08:24'!
+length: newLength
+	length := newLength max: 1.
+	extent := length rounded * self ppcm + (self ppcm / 2) @ 60.
+	self positioningButtons.
+	self redrawNeeded ! !
+
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:11:15'!
+initialize
+	super initialize.
+	self length: 10.
+	self insertButtons 
+	! !
+
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:25:26'!
+insertButtons
+| btn buttonExtent |
+	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	btn := ButtonMorph model: self action: #rotateMe ::
+		actWhen: #buttonStillDown;
+		icon: Theme current refreshIcon;
+		color: Color transparent;
+		selectedColor: Color yellow darker;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	btn := ButtonMorph model: self action: #resizeMe ::
+		actWhen: #buttonStillDown;
+		icon: (Theme current fetch: #( '16x16' 'actions' 'go-last' ));
+		color: Color transparent;
+		selectedColor: Color yellow darker;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	self positioningButtons 
+	! !
+
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 11:30:46'!
+positioningButtons
+| buttonWidth position |
+	submorphs isEmptyOrNil ifTrue: [^ self].
+	buttonWidth := submorphs first morphWidth.
+	position := length rounded * self ppcm -4 @ 30.
+	submorphs do: [:btn |
+		btn morphPosition: position.
+		position :=  position translatedBy:  - 4 - buttonWidth @ 0 ]
+		! !
+
+!Ruler methodsFor: 'actions' stamp: 'hlsf 9/11/2025 13:25:26'!
+resizeMe
+	| event prev |
+	"any thing new to do?"
+	event := self activeHand lastMouseEvent.
+	event isMouseMove 
+		ifTrue: [
+			prev := lastHandPosition.
+			lastHandPosition := self internalizeFromWorld: event eventPosition.
+			self length: length + (lastHandPosition x - prev x / self ppcm)] 
+		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
 
 !Ruler methodsFor: 'copying' stamp: 'hlsf 9/7/2025 13:37:58'!
 postCopy
 	self length: length! !
 
-!SetSquareMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 1/7/2022 14:59:16'!
+!Ruler methodsFor: 'testing' stamp: 'hlsf 9/11/2025 09:32:55'!
+inStrokeZone: localPosition
+
+	^ self strokeZone containsPoint: localPosition! !
+
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 09:47:18'!
+constrainToBorder: localHandPosition
+	^ localHandPosition x @ 0! !
+
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 9/7/2025 12:09:35'!
+dragZone
+
+	^ -5@25 corner: extent! !
+
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 9/7/2025 12:09:09'!
+strokeZone
+
+	^ -5@0 corner: extent x @ 25! !
+
+!SetSquare methodsFor: 'drawing' stamp: 'hlsf 9/11/2025 13:20:21'!
 drawOn: canvas
-	| length  |
-	length _ 205.
-	canvas strokeWidth: 1 color: Color black fillColor: (Color yellow alpha: 0.8) do: [
-		canvas moveTo: 0 @ 0 ; lineTo: length / 2.0 @ 0; lineTo: 0 @ length negated].
-	canvas strokeWidth: 1 color: Color black fillColor: (Color white alpha: 1 ) do: [
-		canvas moveTo: 20 @ 20 negated; lineTo: length / 2.0 -30 @ -20; lineTo: 20 @ (length negated + 80)]
-	
+	| roundedLength  |
+	roundedLength := length rounded.
+	canvas fillColor: `Color yellow` do: [canvas polyLine: self strokeZone].
+	canvas fillColor: `Color yellow alpha: 0.5` do: [	canvas polyLine: self dragZone].
+	canvas 	strokeWidth: 0.5 color:  `Color yellow darker` do: [
+		canvas moveTo: 0@0;
+			lineTo: extent x @ 0;
+			lineTo: 0 @ extent y;
+			lineTo: 0@0]
 	
 	! !
+
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 13:49:03'!
+constrainToBorder: localHandPosition
+	^ strokeSide == #ox
+		ifTrue: [localHandPosition x @ 0]
+		ifFalse: [ 0 @ localHandPosition y]! !
+
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 11:11:19'!
+dragZone
+	^ Array 
+		with: 25@25
+		with: (self strokeZone at: 3)
+		with: (strokeZone at: 6)
+! !
+
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 10:44:55'!
+strokeZone
+	^ strokeZone ifNil: [ 
+		strokeZone := Array 
+			with: 0 @ 0
+			with: extent x @ 0
+			with: ( extent x - (25 * extent x / extent y) ) @ 25
+			with: 25 @ 25
+			with: 25 @ ( extent y - (25 * extent y / extent x) )
+			with: 0 @ extent y]! !
+
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 15:51:59'!
+strokeZoneX
+" The stroke zone along the x-axis "
+	^ Rectangle origin: 0@0 corner: extent x @ 25! !
+
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 15:52:16'!
+strokeZoneY
+" The stroke zone along the y-axis "
+	^ Rectangle origin: 0@0 corner: 25 @ extent y! !
+
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 13:29:28'!
+length: newLength
+	length := newLength max: 1@1.
+	extent := length rounded * self ppcm + (self ppcm / 2).
+	self positioningButtons.
+	self redrawNeeded ! !
+
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:29:16'!
+initialize
+	super initialize.
+	self length: 5@10.
+	self insertButtons 
+	! !
+
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:25:38'!
+insertButtons
+| btn buttonExtent |
+	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	btn := ButtonMorph model: self action: #rotateMe ::
+		actWhen: #buttonStillDown;
+		icon: Theme current refreshIcon;
+		color: Color transparent;
+		selectedColor: Color yellow darker;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	self positioningButtons ! !
+
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:31:18'!
+positioningButtons
+| rotateBtn |
+	submorphs isEmptyOrNil ifTrue: [^ self].
+	rotateBtn := submorphs first.
+	rotateBtn morphPosition: (extent // 3) - (rotateBtn morphWidth asPoint // 2 )! !
+
+!SetSquare methodsFor: 'testing' stamp: 'hlsf 9/11/2025 15:50:55'!
+inStrokeZone: localPosition
+	(self strokeZoneX containsPoint: localPosition) ifTrue: [
+		strokeSide := #ox.
+		^ true].
+	(self strokeZoneY containsPoint: localPosition) ifTrue: [
+		strokeSide := #oy.
+		^ true].
+	strokeSide := nil.
+	^ false! !

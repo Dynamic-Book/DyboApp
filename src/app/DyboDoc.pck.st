@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 10 September 2025 at 4:49:56 pm'!
+'From Cuis7.5 [latest update: #7538] on 11 September 2025 at 4:03:42 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 155!
+!provides: 'DyboDoc' 1 157!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -3536,11 +3536,12 @@ ws layoutMorph morphExtent: 300@200').
 	flap target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/10/2025 16:18:22'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:12:48'!
 installToolsFlap
 	| flap tools |
 	tools := Array 
-		with: (Ruler new length: 5 :: name: 'A ruler to measure and to draw straight lines.').
+		with: (Ruler new length: 5 :: name: 'A ruler to measure and to draw straight lines.')
+		with: (SetSquare new length: 3@5 :: name: 'A set square to construct right angles.').
 	flap := Flap label: ' Geometry Tools ' objects: tools.
 	container addMorph: flap.
 	flap borderColor: Color blue;
