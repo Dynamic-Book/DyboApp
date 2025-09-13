@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 11 September 2025 at 10:38:17 pm'!
+'From Cuis7.5 [latest update: #7538] on 13 September 2025 at 4:57:39 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 35!
+!provides: 'DyboTools-Geometry' 1 37!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -15,28 +15,28 @@ PlacedMorph subclass: #CompassMorph
 CompassMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #ProtractorMorph category: #'DyboTools-Geometry'!
-PlacedMorph subclass: #ProtractorMorph
-	instanceVariableNames: 'lastHandPosition font zeroAtRight'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'DyboTools-Geometry'!
-!classDefinition: 'ProtractorMorph class' category: #'DyboTools-Geometry'!
-ProtractorMorph class
-	instanceVariableNames: ''!
-
-!classDefinition: #StraightTool category: #'DyboTools-Geometry'!
-PlacedMorph subclass: #StraightTool
+!classDefinition: #GeometryTool category: #'DyboTools-Geometry'!
+PlacedMorph subclass: #GeometryTool
 	instanceVariableNames: 'font extent lastHandPosition length'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
-!classDefinition: 'StraightTool class' category: #'DyboTools-Geometry'!
-StraightTool class
+!classDefinition: 'GeometryTool class' category: #'DyboTools-Geometry'!
+GeometryTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #Protractor category: #'DyboTools-Geometry'!
+GeometryTool subclass: #Protractor
+	instanceVariableNames: 'zeroAtRight strokeAngle'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'Protractor class' category: #'DyboTools-Geometry'!
+Protractor class
 	instanceVariableNames: ''!
 
 !classDefinition: #Ruler category: #'DyboTools-Geometry'!
-StraightTool subclass: #Ruler
+GeometryTool subclass: #Ruler
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -46,7 +46,7 @@ Ruler class
 	instanceVariableNames: ''!
 
 !classDefinition: #SetSquare category: #'DyboTools-Geometry'!
-StraightTool subclass: #SetSquare
+GeometryTool subclass: #SetSquare
 	instanceVariableNames: 'strokeZone strokeSide'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -56,250 +56,93 @@ SetSquare class
 	instanceVariableNames: ''!
 
 
-!StraightTool commentStamp: '<historical>' prior: 0!
+!GeometryTool commentStamp: '<historical>' prior: 0!
 Abstract class for tools with straight linear metric graduation. 
 Those tools can be dragged, rotated and resized.
-A straight line can be drawn when a mouse stroke occures in its strokeZone(s)
+These tools representation is divided in two zones: 
+- a dragZone, sensible to drag the tool around, it is painted with a sem-transparent color 
+- a strokeZone, sensible to pen strokes.  The stroke zone has generally a width of 25 pixels and 
+it is painted with a plain color (non transparent) and the graduations.
+
+Various kind of straight line can be drawn when a mouse stroke occures in its strokeZone(s)
 
 - font : used font to draw the graduation
-- extent: tool extent in its own coordinates system, rounded to the nearest 0.5 cm
-- length: length in ox and oy directions, expressed in pixels
+- extent: a point, tool extent in its own coordinates system, rounded to the nearest 0.5 cm
+- length: a number or point, length in ox and/or oy directions, expressed in pixels
 - lastHandPosition: used when rotating or changing the extent!
 
 !SetSquare commentStamp: '<historical>' prior: 0!
 A set square with two sensible zones to draw straight lines!
 
-!ProtractorMorph methodsFor: 'drawing' stamp: 'hlsf 1/7/2022 14:48:52'!
-drawOn: canvas
-|  p1 p2 |
-	canvas strokeWidth: 0.2 color: Color black fillColor: (Color yellow alpha: 0.6) do: [: engine |
-		engine moveTo: 100 negated @ 0.
-		engine arcTo: 100 @ 0 radius: 100 @ 100 angleOfXAxis: 0 largeFlag: true sweepFlag: true.
-		engine lineTo: -100 @ 		0		].
-	canvas strokeWidth: 1 color: Color black do: [
-		canvas moveTo: 0 @ -0.5; lineTo: 0 @ -8].
-	-180 to: 0 do: [:degree |
-		canvas strokeWidth: 0.5 color: Color black do: [:engine |
-			p1 _ Point r: 100 degrees: degree.
-			p2 _ Point r: 95 degrees: degree.
-			engine moveTo: p1 ; lineTo: p2]]		.
-	-170 to: -10 by: 10 do: [:degree |
-		canvas strokeWidth: 1 color: Color black do: [:engine |
-			p1 _ Point r: 100 degrees: degree.
-			p2 _ Point r: 90 degrees: degree.
-			engine moveTo: p1; lineTo: p2 ]].
-	-175 to: -5 by: 10 do: [:degree |
-		canvas strokeWidth: 0.6 color: Color black do: [:engine |
-			p1 _ Point r: 100 degrees: degree.
-			p2 _ Point r: 92 degrees: degree.
-			engine moveTo: p1; lineTo: p2 ]]! !
-
-!ProtractorMorph methodsFor: 'initialization' stamp: 'hlsf 1/16/2021 11:32:15'!
-initialize
-	super initialize .
-	self setProperty: #'handlesMouseOver:'  toValue: true.
-	font _ FontFamily familyName: FontFamily defaultFamilyName pointSize: 4.
-	zeroAtRight _ true.
-	self updateGraduations.
-	self insertButtons ! !
-
-!ProtractorMorph methodsFor: 'initialization' stamp: 'hlsf 1/16/2021 11:41:00'!
-insertButtons
-| btn |
-	btn _ PluggableButtonMorph new label: 'O' font: font.
-	"icon: Theme current haloRotateIcon."
-	btn model: self; actWhen: #buttonStillDown; action: #rotateProtractor.
-	btn setProperty: #balloonText toValue: #helpRotate.
-	self addMorph: btn.
-	btn morphPosition: 65 @ -8.
-	btn _ PluggableButtonMorph new label: '[]' font: font.
-	"icon: Theme current haloScaleIcon."
-	btn model: self; actWhen: #buttonStillDown; action: #scaleProtractor.
-	btn setProperty: #balloonText toValue: #helpScale.
-	self addMorph: btn.
-	btn morphPosition: 45 @ -8.
-	btn _ PluggableButtonMorph new label: '<>' font: font.
-	"icon: Theme current undoIcon".
-	btn model: self; action: #reverseGraduations.
-	btn setProperty: #balloonText toValue: #helpReverse.
-	self addMorph: btn.
-	btn morphPosition: -80 @ -8.
-	btn _ PluggableButtonMorph new label: 'X' font: font.
-	"icon: Theme current undoIcon".
-	btn model: self; action: #delete.
-	btn setProperty: #balloonText toValue: #helpDelete.
-	self addMorph: btn.
-	btn morphPosition: -60 @ -8! !
-
-!ProtractorMorph methodsFor: 'initialization' stamp: 'hlsf 1/14/2021 21:09:45'!
-updateGraduations
-	self graduations do: [:each | each delete].
-	10 to: 170 by: 10 do: [:angle | 
-		self 
-			addLabel: (zeroAtRight ifTrue: [angle] ifFalse: [180 - angle]) asString 
-			font: font 
-			centeredAt: (Point r: 88 degrees: angle negated)
-			rotationDegrees: angle].
-! !
-
-!ProtractorMorph methodsFor: 'action' stamp: 'hlsf 1/14/2021 21:10:10'!
-reverseGraduations
-	zeroAtRight _ zeroAtRight not.
-	self updateGraduations ! !
-
-!ProtractorMorph methodsFor: 'action' stamp: 'hlsf 7/31/2025 16:00:20'!
-rotateProtractor
-	| event p1 v1 v2|
-	"any thing new to do?"
-	event _ self activeHand lastMouseEvent.
-	event isMove 
-		ifTrue: [
-			p1 _ location transform: 0@0.
-			v1 _ lastHandPosition - p1.
-			lastHandPosition _ event eventPosition.
-			v2 _ 	lastHandPosition - p1.
-			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
-			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin	] 
-		ifFalse: [
-			lastHandPosition _ event eventPosition].! !
-
-!ProtractorMorph methodsFor: 'action' stamp: 'hlsf 7/31/2025 16:00:20'!
-scaleProtractor
-	| event p1 v1 v2|
-	"any thing new to do?"
-	event _ self activeHand lastMouseEvent.
-	event isMove 
-		ifTrue: [
-			p1 _ location transform: 0@0.
-			v1 _ lastHandPosition - p1.
-			lastHandPosition _ event eventPosition.
-			v2 _ 	lastHandPosition - p1.
-			v1 = v2 ifTrue: [^self].
-			self scaleBy:  v2 r / v1 r	] 
-		ifFalse: [
-			lastHandPosition _ event eventPosition].! !
-
-!ProtractorMorph methodsFor: 'accessing' stamp: 'hlsf 1/14/2021 20:59:29'!
-addLabel: string font: aFont centeredAt: position rotationDegrees: angle
-"Add a label top-centered at position and rotated of angle degrees"
-	| p label |
-	p _ position - (position normal * (aFont widthOfString: string asString) / 2). 
-	label _ LabelMorph contents: string font: aFont.
-	label rotation: (90 - angle) degreesToRadians.
-	self addMorph: label.
-	label morphPosition: p.
-	^ label! !
-
-!ProtractorMorph methodsFor: 'accessing' stamp: 'hlsf 1/15/2021 10:10:30'!
-buttons
-	^ self submorphsSatisfying: [:each | each is: #PluggableButtonMorph ]! !
-
-!ProtractorMorph methodsFor: 'accessing' stamp: 'hlsf 1/14/2021 20:52:10'!
-graduations
-	^ self submorphsSatisfying: [:each | each class == LabelMorph]! !
-
-!ProtractorMorph methodsFor: 'events' stamp: 'hlsf 1/15/2021 10:10:59'!
-mouseEnter: event
-	self buttons do: [:each | each show]! !
-
-!ProtractorMorph methodsFor: 'events' stamp: 'hlsf 1/16/2021 09:43:50'!
-mouseLeave: event
-	self buttons do: [:each | each hide]
-"	| btns | 
-	btns _ 	self buttons.
-	btns 
-		detect: [:btn | btn mouseIsOver] 
-		ifNone: [btns do: [:each | each hide]]"! !
-
-!ProtractorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:41:19'!
-helpDelete
-	^ 'Close the protractor'! !
-
-!ProtractorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:37:31'!
-helpReverse
-	^ 'Change the graduation direction'! !
-
-!ProtractorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:36:42'!
-helpRotate
-	^ 'Rotate the protractor'! !
-
-!ProtractorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:37:07'!
-helpScale
-	^ 'Change the scale of the protractor'! !
-
-!StraightTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 11:05:02'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 11:05:02'!
 length: aNumberOrPoint
 	self subclassResponsibility ! !
 
-!StraightTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 09:10:52'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 09:10:52'!
 paper
 	" The paper I may hand stroke into "
 	^ owner paper! !
 
-!StraightTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 09:11:02'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 09:11:02'!
 ppcm
 " pixels per cm "
 	^ 50.0! !
 
-!StraightTool methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:10:00'!
+!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:10:00'!
 initialize
 	super initialize.
 	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
 ! !
 
-!StraightTool methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 09:11:59'!
+!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 09:11:59'!
 insertButtons
 	self subclassResponsibility ! !
 
-!StraightTool methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 09:47:18'!
-constrainToBorder: localHandPosition
+!GeometryTool methodsFor: 'geometry' stamp: 'hlsf 9/13/2025 16:37:42'!
+constrainToDirection: localHandPosition
 "
  When drawing in the sketch zone, the handPosition is constrained to follow a straight line, 
  by following the closest border of the tool. Return this constrained position "
 	self subclassResponsibility ! !
 
-!StraightTool methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 09:13:42'!
+!GeometryTool methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 09:13:42'!
 rotationCenter
 	^ `0@0`! !
 
-!StraightTool methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 09:13:57'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 09:13:57'!
 handlesMouseDown: event
 	^ true! !
 
-!StraightTool methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 09:47:18'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/13/2025 16:37:42'!
 mouseButton1Down: event localPosition: localPosition
 	(self paper writingTool notNil and: [self inStrokeZone: localPosition])
 		ifTrue: [" initiate stroke along the tool "
 			lastHandPosition := nil.
 			" Let the paper to handle the hand stroke, constraint the hand position to be aligned with a tool border !! "
-			self paper mouseButton1Down: event  localPosition: (self externalize: (self constrainToBorder: localPosition))]
+			self paper mouseButton1Down: event  localPosition: (self externalize: (self constrainToDirection: localPosition))]
 		ifFalse: ["Initate a drag of the tool " 
 			lastHandPosition := self externalize: localPosition ]! !
 
-!StraightTool methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 09:47:18'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/13/2025 16:37:42'!
 mouseButton1Up: event localPosition: localPosition
 	lastHandPosition ifNil: [
-		self paper mouseButton1Up: event localPosition: (self externalize: (self constrainToBorder: localPosition))]! !
+		self paper mouseButton1Up: event localPosition: (self externalize: (self constrainToDirection: localPosition))]! !
 
-!StraightTool methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 09:47:18'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/13/2025 16:37:42'!
 mouseMove: event localPosition: localPosition 
 	| externalposition |
 	lastHandPosition 
-		ifNil: [self paper mouseMove: event localPosition: (self externalize: (self constrainToBorder: localPosition))]
+		ifNil: [self paper mouseMove: event localPosition: (self externalize: (self constrainToDirection: localPosition))]
 		ifNotNil: [
 			externalposition := self externalize: localPosition.
 			self morphPosition: self morphPosition  + externalposition - lastHandPosition.
 			lastHandPosition := externalposition ]! !
 
-!StraightTool methodsFor: 'testing' stamp: 'hlsf 9/11/2025 09:32:22'!
+!GeometryTool methodsFor: 'testing' stamp: 'hlsf 9/11/2025 09:32:22'!
 inStrokeZone: localPosition
 	self subclassResponsibility ! !
 
-!StraightTool methodsFor: 'testing' stamp: 'hlsf 9/11/2025 22:05:31'!
-is: aSymbol
-	^ aSymbol == #Ruler or: [super is: aSymbol]! !
-
-!StraightTool methodsFor: 'actions' stamp: 'hlsf 9/11/2025 13:25:56'!
+!GeometryTool methodsFor: 'actions' stamp: 'hlsf 9/11/2025 13:25:56'!
 rotateMe
 	| event p1 v1 v2|
 	"any thing new to do?"
@@ -313,6 +156,182 @@ rotateMe
 			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
+
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 9/13/2025 16:17:43'!
+drawOn: canvas
+|  p1 p2 innerR outerR|
+	innerR := extent x.
+	outerR := extent y.
+	canvas "strokeWidth: 0.2 color: `Color black`" fillColor: `Color yellow alpha: 0.5` do: [
+		canvas moveTo: innerR negated @ 0.
+		canvas arcTo: innerR @ 0 radius: innerR @ innerR angleOfXAxis: 0 largeFlag: true sweepFlag: true.
+		canvas lineTo: innerR negated @ 0].
+
+	canvas fillColor: `Color yellow` do: [		
+		canvas moveTo: innerR negated@ 0.
+		canvas arcTo: innerR @ 0 radius: innerR @ innerR angleOfXAxis: 0 largeFlag: true sweepFlag: true.
+		canvas lineTo: outerR @0.
+		canvas arcTo: outerR negated @ 0 radius: outerR @ outerR angleOfXAxis: 0 largeFlag: true sweepFlag: false.
+		canvas lineTo: innerR negated @ 0].
+	
+	
+	" graduation Unmatched comment quote ->"
+	canvas strokeWidth: 1 color: Color black do: [
+		canvas moveTo: 0 @ -0.5; lineTo: 0 @ -8].
+	-180 to: 0 do: [:degree |
+		canvas strokeWidth: 0.5 color: Color black do: [:engine |
+			p1 := Point r: outerR degrees: degree.
+			p2 := Point r: outerR -5 degrees: degree.
+			engine moveTo: p1 ; lineTo: p2]]		.
+	-170 to: -10 by: 10 do: [:degree |
+		canvas strokeWidth: 1 color: Color black do: [:engine |
+			p1 := Point r: outerR degrees: degree.
+			p2 := Point r: outerR -10 degrees: degree.
+			engine moveTo: p1; lineTo: p2 ]].
+	-175 to: -5 by: 10 do: [:degree |
+		canvas strokeWidth: 0.6 color: Color black do: [:engine |
+			p1 := Point r: outerR degrees: degree.
+			p2 := Point r: outerR - 8 degrees: degree.
+			engine moveTo: p1; lineTo: p2 ]]! !
+
+!Protractor methodsFor: 'initialization' stamp: 'hlsf 9/13/2025 16:22:38'!
+initialize
+	super initialize .
+	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 7.
+	extent := 130 @160.
+	zeroAtRight := true.
+	self updateGraduations.
+	self insertButtons ! !
+
+!Protractor methodsFor: 'initialization' stamp: 'hlsf 9/13/2025 16:28:26'!
+insertButtons
+| btn buttonExtent pos |
+	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	btn := ButtonMorph model: self action: #rotateMe ::
+		actWhen: #buttonStillDown;
+		icon: Theme current refreshIcon;
+		color: Color transparent;
+		selectedColor: Color yellow darker;
+		setProperty: #balloonText toValue: #helpRotate;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	pos := extent x - buttonExtent x.
+	btn morphPosition: pos @ buttonExtent y negated.
+
+	btn := ButtonMorph model: self action: #scaleMe ::
+		actWhen: #buttonStillDown; action: #scaleMe;
+		icon: (Theme current fetch: #('16x16' 'resize' 'resize3'));
+		color: Color transparent;
+		selectedColor: Color yellow darker;		
+		setProperty: #balloonText toValue: #helpScale;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	pos := pos - buttonExtent x.
+	btn morphPosition: pos @ buttonExtent y negated.
+
+	btn := ButtonMorph model: self action: #reverseGraduations ::
+		icon: (Theme current fetch: #('16x16' 'actions' 'go-jump'));
+		setProperty: #balloonText toValue: #helpReverse;
+		color: Color transparent;
+		selectedColor: Color yellow darker;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	pos := extent x negated + 5.
+	btn morphPosition: pos @ buttonExtent y negated.
+
+	btn := ButtonMorph model: self action: #delete ::
+		icon: Theme current deleteIcon;
+		color: Color transparent;
+		selectedColor: Color yellow darker;		
+		setProperty: #balloonText toValue: #helpDelete;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	pos := pos + buttonExtent x.
+	btn morphPosition: pos @ buttonExtent y negated! !
+
+!Protractor methodsFor: 'initialization' stamp: 'hlsf 9/13/2025 16:19:12'!
+updateGraduations
+	self graduations do: [:each | each delete].
+	10 to: 170 by: 10 do: [:angle | 
+		self 
+			addLabel: (zeroAtRight ifTrue: [angle] ifFalse: [180 - angle]) asString 
+			font: font 
+			centeredAt: (Point r: extent y - 12 degrees: angle negated)
+			rotationDegrees: angle].
+! !
+
+!Protractor methodsFor: 'action' stamp: 'hlsf 1/14/2021 21:10:10'!
+reverseGraduations
+	zeroAtRight _ zeroAtRight not.
+	self updateGraduations ! !
+
+!Protractor methodsFor: 'action' stamp: 'hlsf 9/13/2025 16:51:38'!
+scaleMe
+	| event p1 v1 v2|
+	"any thing new to do?"
+	event := self activeHand lastMouseEvent.
+	event isMouseMove 
+		ifTrue: [
+			p1 := self externalizeToWorld: self rotationCenter.
+			v1 := self internalizeDistance: lastHandPosition - p1.
+			lastHandPosition := event eventPosition.
+			v2 := self internalizeDistance: lastHandPosition - p1.
+			v1 = v2 ifTrue: [^self].
+			self scaleBy:  v2 r /  v1 r ] 
+		ifFalse: [
+			lastHandPosition := event eventPosition].! !
+
+!Protractor methodsFor: 'accessing' stamp: 'hlsf 9/13/2025 16:54:47'!
+addLabel: string font: aFont centeredAt: position rotationDegrees: angle
+"Add a label top-centered at position and rotated of angle degrees"
+	| p label |
+	p := position - (position normal * (aFont widthOfString: string asString) / 2). 
+	label := LabelMorph contents: string font: aFont.
+	label rotationDegrees: 90 - angle.
+	self addMorph: label.
+	label morphPosition: p.
+	label lock.
+	^ label! !
+
+!Protractor methodsFor: 'accessing' stamp: 'hlsf 1/15/2021 10:10:30'!
+buttons
+	^ self submorphsSatisfying: [:each | each is: #PluggableButtonMorph ]! !
+
+!Protractor methodsFor: 'accessing' stamp: 'hlsf 1/14/2021 20:52:10'!
+graduations
+	^ self submorphsSatisfying: [:each | each class == LabelMorph]! !
+
+!Protractor methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:41:19'!
+helpDelete
+	^ 'Close the protractor'! !
+
+!Protractor methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:37:31'!
+helpReverse
+	^ 'Change the graduation direction'! !
+
+!Protractor methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:36:42'!
+helpRotate
+	^ 'Rotate the protractor'! !
+
+!Protractor methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:37:07'!
+helpScale
+	^ 'Change the scale of the protractor'! !
+
+!Protractor methodsFor: 'testing' stamp: 'hlsf 9/13/2025 16:41:34'!
+inStrokeZone: localPosition
+	localPosition r > extent x	ifTrue: [
+		strokeAngle := localPosition theta.
+		^ true].
+	strokeAngle := nil.
+	^ false! !
+
+!Protractor methodsFor: 'testing' stamp: 'hlsf 9/13/2025 16:33:56'!
+is: aSymbol
+	^ aSymbol == #Protractor or: [super is: aSymbol]! !
+
+!Protractor methodsFor: 'geometry' stamp: 'hlsf 9/13/2025 16:43:31'!
+constrainToDirection: localHandPosition
+	^ Point rho: localHandPosition rho theta: strokeAngle ! !
 
 !Ruler methodsFor: 'drawing' stamp: 'hlsf 9/11/2025 21:40:29'!
 drawOn: canvas
@@ -413,8 +432,12 @@ inStrokeZone: localPosition
 
 	^ self strokeZone containsPoint: localPosition! !
 
-!Ruler methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 09:47:18'!
-constrainToBorder: localHandPosition
+!Ruler methodsFor: 'testing' stamp: 'hlsf 9/13/2025 16:33:42'!
+is: aSymbol
+	^ aSymbol == #Ruler or: [super is: aSymbol]! !
+
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 9/13/2025 16:37:42'!
+constrainToDirection: localHandPosition
 	^ localHandPosition x @ 0! !
 
 !Ruler methodsFor: 'geometry' stamp: 'hlsf 9/7/2025 12:09:35'!
@@ -486,8 +509,8 @@ drawOn: canvas
 		step := step + 1.
 		pos := pos + self ppcm].! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 9/11/2025 13:49:03'!
-constrainToBorder: localHandPosition
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 9/13/2025 16:37:42'!
+constrainToDirection: localHandPosition
 	^ strokeSide == #ox
 		ifTrue: [localHandPosition x @ 0]
 		ifFalse: [ 0 @ localHandPosition y]! !
@@ -566,6 +589,10 @@ inStrokeZone: localPosition
 		^ true].
 	strokeSide := nil.
 	^ false! !
+
+!SetSquare methodsFor: 'testing' stamp: 'hlsf 9/13/2025 16:34:05'!
+is: aSymbol
+	^ aSymbol == #SetSquare or: [super is: aSymbol]! !
 
 !SetSquare methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 22:38:12'!
 mouseButton1Up: event localPosition: localPosition
