@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 13 September 2025 at 4:57:39 pm'!
+'From Cuis7.5 [latest update: #7538] on 13 September 2025 at 10:26:04 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 37!
+!provides: 'DyboTools-Geometry' 1 38!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -157,7 +157,7 @@ rotateMe
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
 
-!Protractor methodsFor: 'drawing' stamp: 'hlsf 9/13/2025 16:17:43'!
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 9/13/2025 22:25:00'!
 drawOn: canvas
 |  p1 p2 innerR outerR|
 	innerR := extent x.
@@ -178,12 +178,12 @@ drawOn: canvas
 	" graduation Unmatched comment quote ->"
 	canvas strokeWidth: 1 color: Color black do: [
 		canvas moveTo: 0 @ -0.5; lineTo: 0 @ -8].
-	-180 to: 0 do: [:degree |
+	-179 to: -1 do: [:degree |
 		canvas strokeWidth: 0.5 color: Color black do: [:engine |
 			p1 := Point r: outerR degrees: degree.
 			p2 := Point r: outerR -5 degrees: degree.
 			engine moveTo: p1 ; lineTo: p2]]		.
-	-170 to: -10 by: 10 do: [:degree |
+	-180 to: 0 by: 10 do: [:degree |
 		canvas strokeWidth: 1 color: Color black do: [:engine |
 			p1 := Point r: outerR degrees: degree.
 			p2 := Point r: outerR -10 degrees: degree.
