@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 13 September 2025 at 10:26:04 pm'!
+'From Cuis7.5 [latest update: #7538] on 14 September 2025 at 11:15:30 am'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 38!
+!provides: 'DyboTools-Geometry' 1 39!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -317,10 +317,10 @@ helpRotate
 helpScale
 	^ 'Change the scale of the protractor'! !
 
-!Protractor methodsFor: 'testing' stamp: 'hlsf 9/13/2025 16:41:34'!
+!Protractor methodsFor: 'testing' stamp: 'hlsf 9/14/2025 11:11:26'!
 inStrokeZone: localPosition
 	localPosition r > extent x	ifTrue: [
-		strokeAngle := localPosition theta.
+		strokeAngle := localPosition degrees rounded degreesToRadians .
 		^ true].
 	strokeAngle := nil.
 	^ false! !
