@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 14 September 2025 at 11:15:30 am'!
+'From Cuis7.5 [latest update: #7538] on 14 September 2025 at 7:39:03 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 39!
+!provides: 'DyboTools-Geometry' 1 40!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -203,7 +203,7 @@ initialize
 	self updateGraduations.
 	self insertButtons ! !
 
-!Protractor methodsFor: 'initialization' stamp: 'hlsf 9/13/2025 16:28:26'!
+!Protractor methodsFor: 'initialization' stamp: 'hlsf 9/14/2025 19:18:13'!
 insertButtons
 | btn buttonExtent pos |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
@@ -212,7 +212,6 @@ insertButtons
 		icon: Theme current refreshIcon;
 		color: Color transparent;
 		selectedColor: Color yellow darker;
-		setProperty: #balloonText toValue: #helpRotate;
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	pos := extent x - buttonExtent x.
@@ -220,34 +219,33 @@ insertButtons
 
 	btn := ButtonMorph model: self action: #scaleMe ::
 		actWhen: #buttonStillDown; action: #scaleMe;
-		icon: (Theme current fetch: #('16x16' 'resize' 'resize3'));
+		icon: (Theme current fetch: #('16x16' 'mimetypes' 'video-x-generic'));
 		color: Color transparent;
 		selectedColor: Color yellow darker;		
-		setProperty: #balloonText toValue: #helpScale;
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	pos := pos - buttonExtent x.
 	btn morphPosition: pos @ buttonExtent y negated.
 
-	btn := ButtonMorph model: self action: #reverseGraduations ::
-		icon: (Theme current fetch: #('16x16' 'actions' 'go-jump'));
-		setProperty: #balloonText toValue: #helpReverse;
+
+	btn := ButtonMorph model: self action: #delete ::
+		icon: Theme current closeIcon ;
 		color: Color transparent;
-		selectedColor: Color yellow darker;
+		selectedColor: Color yellow darker;		
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	pos := extent x negated + 5.
 	btn morphPosition: pos @ buttonExtent y negated.
 
-	btn := ButtonMorph model: self action: #delete ::
-		icon: Theme current deleteIcon;
+	btn := ButtonMorph model: self action: #reverseGraduations ::
+		icon: (Theme current fetch: #('16x16' 'actions' 'go-jump'));
 		color: Color transparent;
-		selectedColor: Color yellow darker;		
-		setProperty: #balloonText toValue: #helpDelete;
+		selectedColor: Color yellow darker;
 		morphExtent: buttonExtent.
 	self addMorph: btn.
-	pos := pos + buttonExtent x.
-	btn morphPosition: pos @ buttonExtent y negated! !
+	btn morphPosition: pos + buttonExtent x @ buttonExtent y negated
+
+! !
 
 !Protractor methodsFor: 'initialization' stamp: 'hlsf 9/13/2025 16:19:12'!
 updateGraduations
@@ -300,22 +298,6 @@ buttons
 !Protractor methodsFor: 'accessing' stamp: 'hlsf 1/14/2021 20:52:10'!
 graduations
 	^ self submorphsSatisfying: [:each | each class == LabelMorph]! !
-
-!Protractor methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:41:19'!
-helpDelete
-	^ 'Close the protractor'! !
-
-!Protractor methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:37:31'!
-helpReverse
-	^ 'Change the graduation direction'! !
-
-!Protractor methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:36:42'!
-helpRotate
-	^ 'Rotate the protractor'! !
-
-!Protractor methodsFor: 'halos and balloon help' stamp: 'hlsf 1/16/2021 11:37:07'!
-helpScale
-	^ 'Change the scale of the protractor'! !
 
 !Protractor methodsFor: 'testing' stamp: 'hlsf 9/14/2025 11:11:26'!
 inStrokeZone: localPosition
@@ -379,10 +361,19 @@ initialize
 	self insertButtons 
 	! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:25:26'!
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/14/2025 19:25:38'!
 insertButtons
 | btn buttonExtent |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	
+	btn := ButtonMorph model: self action: #delete ::
+		icon: Theme current closeIcon ;
+		color: Color transparent;
+		selectedColor: Color yellow darker;		
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	btn morphPosition: 0 @ 30.	
+	
 	btn := ButtonMorph model: self action: #rotateMe ::
 		actWhen: #buttonStillDown;
 		icon: Theme current refreshIcon;
@@ -400,13 +391,13 @@ insertButtons
 	self positioningButtons 
 	! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 11:30:46'!
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 9/14/2025 19:24:38'!
 positioningButtons
 | buttonWidth position |
 	submorphs isEmptyOrNil ifTrue: [^ self].
 	buttonWidth := submorphs first morphWidth.
 	position := length rounded * self ppcm -4 @ 30.
-	submorphs do: [:btn |
+	(submorphs first: 2) do: [:btn |
 		btn morphPosition: position.
 		position :=  position translatedBy:  - 4 - buttonWidth @ 0 ]
 		! !
@@ -559,7 +550,7 @@ initialize
 	self insertButtons 
 	! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:25:38'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/14/2025 19:38:06'!
 insertButtons
 | btn buttonExtent |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
@@ -570,13 +561,20 @@ insertButtons
 		selectedColor: Color yellow darker;
 		morphExtent: buttonExtent.
 	self addMorph: btn.
+	btn := ButtonMorph model: self action: #delete ::
+		icon: Theme current closeIcon ;
+		color: Color transparent;
+		selectedColor: Color yellow darker;		
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+	btn morphPosition: 25 @ 25.
 	self positioningButtons ! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:31:18'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/14/2025 19:38:31'!
 positioningButtons
 | rotateBtn |
 	submorphs isEmptyOrNil ifTrue: [^ self].
-	rotateBtn := submorphs first.
+	rotateBtn := submorphs last.
 	rotateBtn morphPosition: (extent // 3) - (rotateBtn morphWidth asPoint // 2 )! !
 
 !SetSquare methodsFor: 'testing' stamp: 'hlsf 9/11/2025 15:50:55'!
