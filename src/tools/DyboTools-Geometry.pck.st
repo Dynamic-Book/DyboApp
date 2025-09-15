@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 14 September 2025 at 7:39:03 pm'!
+'From Cuis7.5 [latest update: #7538] on 15 September 2025 at 10:35:51 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 40!
+!provides: 'DyboTools-Geometry' 1 41!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -47,7 +47,7 @@ Ruler class
 
 !classDefinition: #SetSquare category: #'DyboTools-Geometry'!
 GeometryTool subclass: #SetSquare
-	instanceVariableNames: 'strokeZone strokeSide'
+	instanceVariableNames: 'strokeZone strokeSide oxButton oyButton'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
@@ -543,6 +543,19 @@ length: newLength
 	self positioningButtons.
 	self redrawNeeded ! !
 
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/15/2025 22:32:42'!
+oxButtonIcon
+	| icon iconExtent canvas |
+	iconExtent := 25 @ (25 * extent y / extent x) rounded.
+	icon := Form extent: iconExtent depth: 32.
+	canvas := VectorCanvas onForm: icon.
+	canvas fillColor: `Color gray alpha: 0.2` do: [
+		canvas moveTo: 0@0;
+			lineTo: iconExtent x @0;
+			lineTo: 0 @ iconExtent y;
+			lineTo: 0@0].
+	^ icon! !
+
 !SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:29:16'!
 initialize
 	super initialize.
@@ -550,7 +563,7 @@ initialize
 	self insertButtons 
 	! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/14/2025 19:38:06'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/15/2025 22:35:44'!
 insertButtons
 | btn buttonExtent |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
@@ -568,6 +581,14 @@ insertButtons
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	btn morphPosition: 25 @ 25.
+	oxButton := ButtonMorph model: self action: #resizeOX ::
+		icon: self oxButtonIcon;
+		color: Color transparent;
+		borderWidth: 0;
+		selectedColor: Color transparent.
+	self addMorph: oxButton.
+	oxButton morphPosition: extent x - 27 @ -2.
+		
 	self positioningButtons ! !
 
 !SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/14/2025 19:38:31'!
