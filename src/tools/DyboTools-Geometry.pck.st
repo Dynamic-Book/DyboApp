@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 15 September 2025 at 10:35:51 pm'!
+'From Cuis7.5 [latest update: #7538] on 16 September 2025 at 7:23:43 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 41!
+!provides: 'DyboTools-Geometry' 1 42!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -535,21 +535,22 @@ strokeZoneY
 " The stroke zone along the y-axis "
 	^ Rectangle origin: 0@0 corner: 25 @ extent y! !
 
-!SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 21:48:39'!
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/16/2025 19:06:06'!
 length: newLength
-	length := newLength max: 1@1.
+	length := newLength max: 2@2.
 	extent := length rounded * self ppcm + (self ppcm / 2).
 	strokeZone := nil.
 	self positioningButtons.
 	self redrawNeeded ! !
 
-!SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/15/2025 22:32:42'!
-oxButtonIcon
-	| icon iconExtent canvas |
-	iconExtent := 25 @ (25 * extent y / extent x) rounded.
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/16/2025 19:22:01'!
+resizeIcon
+	| icon canvas iconExtent c |
+	c := 50 * (extent x / extent y) sqrt.
+	iconExtent := c @ (c * extent y / extent x) rounded.
 	icon := Form extent: iconExtent depth: 32.
 	canvas := VectorCanvas onForm: icon.
-	canvas fillColor: `Color gray alpha: 0.2` do: [
+	canvas fillColor: `Color white alpha: 0.5` do: [
 		canvas moveTo: 0@0;
 			lineTo: iconExtent x @0;
 			lineTo: 0 @ iconExtent y;
@@ -563,7 +564,7 @@ initialize
 	self insertButtons 
 	! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/15/2025 22:35:44'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/16/2025 19:00:10'!
 insertButtons
 | btn buttonExtent |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
@@ -581,22 +582,36 @@ insertButtons
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	btn morphPosition: 25 @ 25.
+	
 	oxButton := ButtonMorph model: self action: #resizeOX ::
-		icon: self oxButtonIcon;
+		actWhen: #buttonStillDown;
 		color: Color transparent;
 		borderWidth: 0;
 		selectedColor: Color transparent.
 	self addMorph: oxButton.
-	oxButton morphPosition: extent x - 27 @ -2.
+	
+	oyButton := ButtonMorph model: self action: #resizeOY ::
+		actWhen: #buttonStillDown;
+		color: Color transparent;
+		borderWidth: 0;
+		selectedColor: Color transparent.
+	self addMorph: oyButton.
 		
 	self positioningButtons ! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/14/2025 19:38:31'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 9/16/2025 19:00:27'!
 positioningButtons
-| rotateBtn |
+| rotateBtn icon |
 	submorphs isEmptyOrNil ifTrue: [^ self].
 	rotateBtn := submorphs last.
-	rotateBtn morphPosition: (extent // 3) - (rotateBtn morphWidth asPoint // 2 )! !
+	rotateBtn morphPosition: (extent // 3) - (rotateBtn morphWidth asPoint // 2 ).
+	icon := self resizeIcon.
+	oxButton 
+		icon: icon;
+		morphPosition: extent x - icon extent x - 2 @ -2.
+	oyButton 
+		icon: icon;
+		morphPosition: -2 @ (extent y - icon extent y - 2).! !
 
 !SetSquare methodsFor: 'testing' stamp: 'hlsf 9/11/2025 15:50:55'!
 inStrokeZone: localPosition
@@ -630,3 +645,25 @@ mouseButton1Up: event localPosition: localPosition
 		((anyRuler rotationDegrees - self rotationDegrees ) abs - 90) abs < 10 
 			ifTrue: [^self rotationDegrees: anyRuler rotationDegrees - 90].
 		]! !
+
+!SetSquare methodsFor: 'actions' stamp: 'hlsf 9/16/2025 19:03:21'!
+resizeOX
+	| event prev |
+	event := self activeHand lastMouseEvent.
+	event isMouseMove 
+		ifTrue: [
+			prev := lastHandPosition.
+			lastHandPosition := self internalizeFromWorld: event eventPosition.
+			self length: (length x + (lastHandPosition x - prev x / self ppcm)) @ length y] 
+		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
+
+!SetSquare methodsFor: 'actions' stamp: 'hlsf 9/16/2025 19:04:01'!
+resizeOY
+	| event prev |
+	event := self activeHand lastMouseEvent.
+	event isMouseMove 
+		ifTrue: [
+			prev := lastHandPosition.
+			lastHandPosition := self internalizeFromWorld: event eventPosition.
+			self length: (length x @ (length y + (lastHandPosition y - prev y / self ppcm)) )] 
+		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
