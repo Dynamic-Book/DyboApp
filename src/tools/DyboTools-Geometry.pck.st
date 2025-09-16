@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 16 September 2025 at 7:23:43 pm'!
+'From Cuis7.5 [latest update: #7538] on 16 September 2025 at 10:03:53 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 42!
+!provides: 'DyboTools-Geometry' 1 43!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -56,10 +56,10 @@ SetSquare class
 	instanceVariableNames: ''!
 
 
-!GeometryTool commentStamp: '<historical>' prior: 0!
+!GeometryTool commentStamp: 'hlsf 9/16/2025 21:21:36' prior: 0!
 Abstract class for tools with straight linear metric graduation. 
 Those tools can be dragged, rotated and resized.
-These tools representation is divided in two zones: 
+A tool view is divided in two zones: 
 - a dragZone, sensible to drag the tool around, it is painted with a sem-transparent color 
 - a strokeZone, sensible to pen strokes.  The stroke zone has generally a width of 25 pixels and 
 it is painted with a plain color (non transparent) and the graduations.
@@ -69,10 +69,18 @@ Various kind of straight line can be drawn when a mouse stroke occures in its st
 - font : used font to draw the graduation
 - extent: a point, tool extent in its own coordinates system, rounded to the nearest 0.5 cm
 - length: a number or point, length in ox and/or oy directions, expressed in pixels
-- lastHandPosition: used when rotating or changing the extent!
+- lastHandPosition: used when rotating, moving or changing the extent!
 
 !SetSquare commentStamp: '<historical>' prior: 0!
 A set square with two sensible zones to draw straight lines!
+
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 9/16/2025 22:00:16'!
+detectNearby: toolSymbol
+| myBounds |
+	myBounds := self fullBoundsInOwner.
+	^ self paper owner submorphs 
+		detect: [:aMorph | (aMorph is: toolSymbol) and: [myBounds intersects: aMorph fullBoundsInOwner]]
+		ifNone: [nil].! !
 
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 9/11/2025 11:05:02'!
 length: aNumberOrPoint
@@ -123,10 +131,12 @@ mouseButton1Down: event localPosition: localPosition
 		ifFalse: ["Initate a drag of the tool " 
 			lastHandPosition := self externalize: localPosition ]! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/13/2025 16:37:42'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/16/2025 21:21:08'!
 mouseButton1Up: event localPosition: localPosition
-	lastHandPosition ifNil: [
-		self paper mouseButton1Up: event localPosition: (self externalize: (self constrainToDirection: localPosition))]! !
+	lastHandPosition 
+		ifNil: [self paper mouseButton1Up: event localPosition: (self externalize: (self constrainToDirection: localPosition))]
+		ifNotNil: [self alignToNearbyTool]
+		! !
 
 !GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/13/2025 16:37:42'!
 mouseMove: event localPosition: localPosition 
@@ -141,6 +151,37 @@ mouseMove: event localPosition: localPosition
 !GeometryTool methodsFor: 'testing' stamp: 'hlsf 9/11/2025 09:32:22'!
 inStrokeZone: localPosition
 	self subclassResponsibility ! !
+
+!GeometryTool methodsFor: 'actions' stamp: 'hlsf 9/16/2025 21:20:09'!
+alignToNearbyTool
+	" Some tool may want to be aligned to each other "! !
+
+!GeometryTool methodsFor: 'actions' stamp: 'hlsf 9/16/2025 21:57:31'!
+alignToNearbyTool: aToolSymbol
+	(self detectNearby: aToolSymbol) ifNotNil: [:aTool |
+		" Align my ox and ruler's ox "				
+		(aTool rotationDegrees - self rotationDegrees ) abs < 10 "Same orientation - likely not usefull "
+			ifTrue: [
+				'cas 1' print.
+				^self rotation: aTool rotation].
+		((aTool rotationDegrees - self rotationDegrees) abs - 180) abs < 10  "180 degree flipped "
+			ifTrue: [
+				'cas 2' print.
+				^ self rotationDegrees: aTool rotationDegrees - 180].
+		((aTool rotationDegrees - self rotationDegrees ) abs - 90) abs < 10 
+			ifTrue: [
+				'cas 3' print.
+				^ (aTool rotationDegrees - self rotationDegrees) < 0
+					ifTrue: [self rotationDegrees: aTool rotationDegrees + 90]
+					ifFalse: [self rotationDegrees: aTool rotationDegrees - 90]].
+		((aTool rotationDegrees - self rotationDegrees ) abs - 270) abs < 10 
+			ifTrue: [
+				'cas 4' print.
+				^ self rotationDegrees: aTool rotationDegrees - 270].
+		]
+				
+				
+		 ! !
 
 !GeometryTool methodsFor: 'actions' stamp: 'hlsf 9/11/2025 13:25:56'!
 rotateMe
@@ -347,6 +388,10 @@ drawOn: canvas
 		step := step + 1.
 		posX := posX + self ppcm].! !
 
+!Ruler methodsFor: 'accessing' stamp: 'hlsf 9/16/2025 21:56:02'!
+alignToNearbyTool
+	^ self alignToNearbyTool: #SetSquare! !
+
 !Ruler methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 12:08:24'!
 length: newLength
 	length := newLength max: 1.
@@ -535,6 +580,10 @@ strokeZoneY
 " The stroke zone along the y-axis "
 	^ Rectangle origin: 0@0 corner: 25 @ extent y! !
 
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/16/2025 21:55:49'!
+alignToNearbyTool
+	^ self alignToNearbyTool: #Ruler! !
+
 !SetSquare methodsFor: 'accessing' stamp: 'hlsf 9/16/2025 19:06:06'!
 length: newLength
 	length := newLength max: 2@2.
@@ -627,24 +676,6 @@ inStrokeZone: localPosition
 !SetSquare methodsFor: 'testing' stamp: 'hlsf 9/13/2025 16:34:05'!
 is: aSymbol
 	^ aSymbol == #SetSquare or: [super is: aSymbol]! !
-
-!SetSquare methodsFor: 'event handling' stamp: 'hlsf 9/11/2025 22:38:12'!
-mouseButton1Up: event localPosition: localPosition
-	super mouseButton1Up: event localPosition: localPosition.
-	lastHandPosition ifNotNil: [ " We were moved, see if we can get aligned and stuck with a nearby ruler "
-		| anyRuler myBounds |
-		myBounds := self fullBoundsInOwner.
-		anyRuler := self paper owner submorphs 
-			detect: [:aMorph | (aMorph is: #Ruler) and: [myBounds intersects: aMorph fullBoundsInOwner]]
-			ifNone: [^ self].
-		" Align my ox and ruler's ox "				
-		(anyRuler rotationDegrees - self rotationDegrees ) abs < 10 "Same orientation - likely not usefull "
-			ifTrue: [^self rotation: anyRuler rotation].
-		((anyRuler rotationDegrees - self rotationDegrees) abs - 180) abs < 10  "180 degree flipped "
-			ifTrue: [^ self rotationDegrees: anyRuler rotationDegrees - 180].
-		((anyRuler rotationDegrees - self rotationDegrees ) abs - 90) abs < 10 
-			ifTrue: [^self rotationDegrees: anyRuler rotationDegrees - 90].
-		]! !
 
 !SetSquare methodsFor: 'actions' stamp: 'hlsf 9/16/2025 19:03:21'!
 resizeOX
