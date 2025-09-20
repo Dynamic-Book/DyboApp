@@ -1,19 +1,9 @@
-'From Cuis7.5 [latest update: #7538] on 16 September 2025 at 10:03:53 pm'!
+'From Cuis7.5 [latest update: #7538] on 20 September 2025 at 10:57:39 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 43!
+!provides: 'DyboTools-Geometry' 1 44!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
-
-!classDefinition: #CompassMorph category: #'DyboTools-Geometry'!
-PlacedMorph subclass: #CompassMorph
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'DyboTools-Geometry'!
-!classDefinition: 'CompassMorph class' category: #'DyboTools-Geometry'!
-CompassMorph class
-	instanceVariableNames: ''!
 
 !classDefinition: #GeometryTool category: #'DyboTools-Geometry'!
 PlacedMorph subclass: #GeometryTool
@@ -23,6 +13,16 @@ PlacedMorph subclass: #GeometryTool
 	category: 'DyboTools-Geometry'!
 !classDefinition: 'GeometryTool class' category: #'DyboTools-Geometry'!
 GeometryTool class
+	instanceVariableNames: ''!
+
+!classDefinition: #Compass category: #'DyboTools-Geometry'!
+GeometryTool subclass: #Compass
+	instanceVariableNames: 'width legVertices'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'Compass class' category: #'DyboTools-Geometry'!
+Compass class
 	instanceVariableNames: ''!
 
 !classDefinition: #Protractor category: #'DyboTools-Geometry'!
@@ -70,6 +70,16 @@ Various kind of straight line can be drawn when a mouse stroke occures in its st
 - extent: a point, tool extent in its own coordinates system, rounded to the nearest 0.5 cm
 - length: a number or point, length in ox and/or oy directions, expressed in pixels
 - lastHandPosition: used when rotating, moving or changing the extent!
+
+!Compass commentStamp: '<historical>' prior: 0!
+The two legs of the compass are symnetric to each other along the oy axis.
+A leg has a rectangular shape.
+
+- extent: a number, the distance between the compass legs extremities
+- length, width: numbers, length and width in cm of each compass legs (identical)
+- width: width in pixels of each legs
+- legVertices : vertices of the leg holding the pen
+!
 
 !SetSquare commentStamp: '<historical>' prior: 0!
 A set square with two sensible zones to draw straight lines!
@@ -198,12 +208,77 @@ rotateMe
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
 
-!Protractor methodsFor: 'drawing' stamp: 'hlsf 9/13/2025 22:25:00'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/20/2025 22:03:24'!
+extent: newExtent
+" The new extent can't excess the the two legs length "
+	extent := newExtent min: length * 2 max: 0.
+	legVertices := nil.
+	self redrawNeeded ! !
+
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/20/2025 22:42:03'!
+legVertices
+	^ legVertices ifNil: [ | u |
+		legVertices := Array new: 5.
+		 "pen extremity"
+		legVertices at: 5 put: (extent / 2.0 * self ppcm) @ 0.
+		"junction of the two legs"
+		legVertices at: 1 put: 0 @ ((length * self ppcm) squared - legVertices fifth x squared) sqrt.
+		u := (legVertices first - legVertices fifth) normalized.
+		legVertices at: 4 put: legVertices fifth + (u * 20).
+		u := (u y @ u x negated) * width.
+		legVertices at: 3 put: legVertices fourth + u.
+		legVertices at: 2 put: legVertices first + u]! !
+
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/20/2025 22:40:49'!
+length: newLength
+	length := newLength min: 10 max: 0.
+	legVertices := nil.
+	self redrawNeeded ! !
+
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/20/2025 21:19:02'!
+penColor
+	^ Color red! !
+
+!Compass methodsFor: 'initialization' stamp: 'hlsf 9/20/2025 22:47:33'!
+initialize
+	super initialize.
+	extent := 0.
+	length := 5.
+	width := 16! !
+
+!Compass methodsFor: 'geometry testing' stamp: 'hlsf 9/20/2025 21:44:20'!
+yAxisPointsUp
+	^ true ! !
+
+!Compass methodsFor: 'as yet unclassified' stamp: 'hlsf 9/20/2025 22:55:44'!
+drawOn: canvas
+	| symmetricLeg h |
+	self legVertices.
+	canvas strokeWidth: 1.5 color: Color black fillColor: Color yellow do: [canvas polyLine: (legVertices allButLast)].
+	canvas fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
+	symmetricLeg := legVertices * (-1 @ 1).
+	canvas strokeWidth: 1 color: Color black fillColor: Color yellow do: [canvas polyLine: symmetricLeg allButLast ].
+	canvas strokeWidth: 1 color: Color black fillColor: Color grey do: [canvas polyLine: (symmetricLeg last: 3)].
+		h := width * 3.
+	canvas fillColor: Color black do: [
+		canvas 
+			moveTo: legVertices first; 
+			lineTo: legVertices second;
+			rel_LineTo: 0@h;
+			lineToX: symmetricLeg second x;
+			rel_LineTo: 0@h negated;
+			closePath ]! !
+
+!Compass methodsFor: 'as yet unclassified' stamp: 'hlsf 9/20/2025 22:46:10'!
+rotationCenter
+	^ self legVertices fifth * (-1 @ 0)! !
+
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 9/20/2025 22:05:25'!
 drawOn: canvas
 |  p1 p2 innerR outerR|
 	innerR := extent x.
 	outerR := extent y.
-	canvas "strokeWidth: 0.2 color: `Color black`" fillColor: `Color yellow alpha: 0.5` do: [
+	canvas fillColor: `Color yellow alpha: 0.5` do: [
 		canvas moveTo: innerR negated @ 0.
 		canvas arcTo: innerR @ 0 radius: innerR @ innerR angleOfXAxis: 0 largeFlag: true sweepFlag: true.
 		canvas lineTo: innerR negated @ 0].
@@ -217,20 +292,20 @@ drawOn: canvas
 	
 	
 	" graduation Unmatched comment quote ->"
-	canvas strokeWidth: 1 color: Color black do: [
+	canvas strokeWidth: 1 color: `Color black` do: [
 		canvas moveTo: 0 @ -0.5; lineTo: 0 @ -8].
 	-179 to: -1 do: [:degree |
-		canvas strokeWidth: 0.5 color: Color black do: [:engine |
+		canvas strokeWidth: 0.5 color: `Color black` do: [:engine |
 			p1 := Point r: outerR degrees: degree.
 			p2 := Point r: outerR -5 degrees: degree.
-			engine moveTo: p1 ; lineTo: p2]]		.
+			engine moveTo: p1 ; lineTo: p2]].
 	-180 to: 0 by: 10 do: [:degree |
-		canvas strokeWidth: 1 color: Color black do: [:engine |
+		canvas strokeWidth: 1 color: `Color black` do: [:engine |
 			p1 := Point r: outerR degrees: degree.
 			p2 := Point r: outerR -10 degrees: degree.
 			engine moveTo: p1; lineTo: p2 ]].
 	-175 to: -5 by: 10 do: [:degree |
-		canvas strokeWidth: 0.6 color: Color black do: [:engine |
+		canvas strokeWidth: 0.6 color: `Color black` do: [:engine |
 			p1 := Point r: outerR degrees: degree.
 			p2 := Point r: outerR - 8 degrees: degree.
 			engine moveTo: p1; lineTo: p2 ]]! !
