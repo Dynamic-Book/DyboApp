@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 20 September 2025 at 10:57:39 pm'!
+'From Cuis7.5 [latest update: #7538] on 21 September 2025 at 12:10:35 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 44!
+!provides: 'DyboTools-Geometry' 1 45!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -106,6 +106,11 @@ ppcm
 " pixels per cm "
 	^ 50.0! !
 
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 09:53:57'!
+writingTool
+
+	^ self paper writingTool! !
+
 !GeometryTool methodsFor: 'initialization' stamp: 'hlsf 9/11/2025 13:10:00'!
 initialize
 	super initialize.
@@ -131,9 +136,9 @@ rotationCenter
 handlesMouseDown: event
 	^ true! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/13/2025 16:37:42'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/21/2025 09:53:57'!
 mouseButton1Down: event localPosition: localPosition
-	(self paper writingTool notNil and: [self inStrokeZone: localPosition])
+	(self writingTool notNil and: [self inStrokeZone: localPosition])
 		ifTrue: [" initiate stroke along the tool "
 			lastHandPosition := nil.
 			" Let the paper to handle the hand stroke, constraint the hand position to be aligned with a tool border !! "
@@ -141,11 +146,13 @@ mouseButton1Down: event localPosition: localPosition
 		ifFalse: ["Initate a drag of the tool " 
 			lastHandPosition := self externalize: localPosition ]! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/16/2025 21:21:08'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/21/2025 11:37:24'!
 mouseButton1Up: event localPosition: localPosition
 	lastHandPosition 
-		ifNil: [self paper mouseButton1Up: event localPosition: (self externalize: (self constrainToDirection: localPosition))]
-		ifNotNil: [self alignToNearbyTool]
+		ifNil: [^ self paper mouseButton1Up: event localPosition: (self externalize: (self constrainToDirection: localPosition))]
+		ifNotNil: [
+			self alignToNearbyTool.
+			lastHandPosition := nil]
 		! !
 
 !GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/13/2025 16:37:42'!
@@ -193,7 +200,7 @@ alignToNearbyTool: aToolSymbol
 				
 		 ! !
 
-!GeometryTool methodsFor: 'actions' stamp: 'hlsf 9/11/2025 13:25:56'!
+!GeometryTool methodsFor: 'actions' stamp: 'hlsf 9/21/2025 11:57:11'!
 rotateMe
 	| event p1 v1 v2|
 	"any thing new to do?"
@@ -206,16 +213,27 @@ rotateMe
 			v2 := lastHandPosition - p1.
 			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
-		ifFalse: [lastHandPosition := event eventPosition].! !
+		ifFalse: [lastHandPosition := event eventPosition]! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 9/20/2025 22:03:24'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 11:54:44'!
 extent: newExtent
 " The new extent can't excess the the two legs length "
 	extent := newExtent min: length * 2 max: 0.
 	legVertices := nil.
+	self positioningButtons.
 	self redrawNeeded ! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 9/20/2025 22:42:03'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 10:15:19'!
+handleZone
+	| pt |
+	^ Array 
+		with:  ( pt := self legVertices first - (0@10) )
+		with:  ( pt := pt + (width @ 10) )
+		with:  ( pt := pt + (0 @ (3 * width)) )
+		with:  ( pt := pt - (2 * width @ 0) )
+		with:  pt - (0 @ (3 * width))! !
+
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 10:59:10'!
 legVertices
 	^ legVertices ifNil: [ | u |
 		legVertices := Array new: 5.
@@ -227,51 +245,104 @@ legVertices
 		legVertices at: 4 put: legVertices fifth + (u * 20).
 		u := (u y @ u x negated) * width.
 		legVertices at: 3 put: legVertices fourth + u.
-		legVertices at: 2 put: legVertices first + u]! !
+		legVertices at: 2 put: legVertices first + u.
+		legVertices]! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 9/20/2025 22:40:49'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 11:55:08'!
 length: newLength
 	length := newLength min: 10 max: 0.
 	legVertices := nil.
+	self positioningButtons.
 	self redrawNeeded ! !
 
 !Compass methodsFor: 'accessing' stamp: 'hlsf 9/20/2025 21:19:02'!
 penColor
 	^ Color red! !
 
-!Compass methodsFor: 'initialization' stamp: 'hlsf 9/20/2025 22:47:33'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 09:54:17'!
+writingTool
+	^ nil! !
+
+!Compass methodsFor: 'initialization' stamp: 'hlsf 9/21/2025 10:42:32'!
 initialize
 	super initialize.
 	extent := 0.
 	length := 5.
-	width := 16! !
+	width := 16.
+	self insertButtons! !
+
+!Compass methodsFor: 'initialization' stamp: 'hlsf 9/21/2025 11:46:10'!
+insertButtons
+	| btn |
+	btn := ButtonMorph model: self action: #rotateMe ::
+		actWhen: #buttonStillDown;
+		color: Color yellow darker;
+		selectedColor: Color yellow;
+		morphExtent:  2 * width @ (3 * width) - (4@4).
+	self addMorph: btn.
+	btn := ButtonMorph model: self action: #adjustExtent ::
+		actWhen: #buttonStillDown;
+		color: Color yellow darker;
+		selectedColor: Color yellow;
+		morphExtent:  (width + 4) asPoint.
+	self addMorph: btn.
+	
+	self positioningButtons ! !
+
+!Compass methodsFor: 'initialization' stamp: 'hlsf 9/21/2025 11:50:50'!
+positioningButtons 
+	submorphs isEmptyOrNil ifTrue: [^ self].
+	" holder button: to rotate the compass"
+	submorphs last morphPosition: self legVertices first + (width negated @ (3 * width)) + (2 @ -2).
+	" positionning button: to adjust the compass extent "
+	submorphs first morphPosition: legVertices first + legVertices third // 2 + (-10 @ 10)! !
 
 !Compass methodsFor: 'geometry testing' stamp: 'hlsf 9/20/2025 21:44:20'!
 yAxisPointsUp
 	^ true ! !
 
-!Compass methodsFor: 'as yet unclassified' stamp: 'hlsf 9/20/2025 22:55:44'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 9/21/2025 11:01:31'!
 drawOn: canvas
-	| symmetricLeg h |
+	| symmetricLeg |
 	self legVertices.
 	canvas strokeWidth: 1.5 color: Color black fillColor: Color yellow do: [canvas polyLine: (legVertices allButLast)].
 	canvas fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
 	symmetricLeg := legVertices * (-1 @ 1).
-	canvas strokeWidth: 1 color: Color black fillColor: Color yellow do: [canvas polyLine: symmetricLeg allButLast ].
+	canvas strokeWidth: 1.5 color: Color black fillColor: Color yellow do: [canvas polyLine: symmetricLeg allButLast ].
 	canvas strokeWidth: 1 color: Color black fillColor: Color grey do: [canvas polyLine: (symmetricLeg last: 3)].
-		h := width * 3.
-	canvas fillColor: Color black do: [
-		canvas 
-			moveTo: legVertices first; 
-			lineTo: legVertices second;
-			rel_LineTo: 0@h;
-			lineToX: symmetricLeg second x;
-			rel_LineTo: 0@h negated;
-			closePath ]! !
+	canvas strokeWidth: 1.5 color: Color black fillColor: Color yellow do: [ canvas polyLine: self handleZone ]! !
 
-!Compass methodsFor: 'as yet unclassified' stamp: 'hlsf 9/20/2025 22:46:10'!
+!Compass methodsFor: 'geometry' stamp: 'hlsf 9/20/2025 22:46:10'!
 rotationCenter
 	^ self legVertices fifth * (-1 @ 0)! !
+
+!Compass methodsFor: 'testing' stamp: 'hlsf 9/21/2025 11:09:13'!
+inStrokeZone: localPosition
+	 ^ localPosition 
+		insideTriangle: self legVertices third 
+		with: legVertices fourth 
+		with: legVertices fifth ! !
+
+!Compass methodsFor: 'actions' stamp: 'hlsf 9/21/2025 12:00:11'!
+adjustExtent! !
+
+!Compass methodsFor: 'actions' stamp: 'hlsf 9/21/2025 11:25:26'!
+rotateMeSave
+	| event p1 v1 v2 angle |
+	"any thing new to do?"
+	event := self activeHand lastMouseEvent.
+	event isMouseMove 
+		ifTrue: [
+			p1 := self externalizeToWorld: self rotationCenter.
+			v1 := lastHandPosition - p1.
+			lastHandPosition := event eventPosition.
+			v2 := lastHandPosition - p1.
+			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
+			angle := ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin negated.
+			location := (location composedWith: (
+				AffineTransformation withRadians: angle around: self rotationCenter)).
+			self redrawNeeded ] 
+		ifFalse: [lastHandPosition := event eventPosition].! !
 
 !Protractor methodsFor: 'drawing' stamp: 'hlsf 9/20/2025 22:05:25'!
 drawOn: canvas
