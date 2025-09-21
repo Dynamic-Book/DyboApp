@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 21 September 2025 at 12:10:35 pm'!
+'From Cuis7.5 [latest update: #7538] on 21 September 2025 at 10:31:29 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 45!
+!provides: 'DyboTools-Geometry' 1 49!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -17,7 +17,7 @@ GeometryTool class
 
 !classDefinition: #Compass category: #'DyboTools-Geometry'!
 GeometryTool subclass: #Compass
-	instanceVariableNames: 'width legVertices'
+	instanceVariableNames: 'width legVertices lastHandPenPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
@@ -215,7 +215,7 @@ rotateMe
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition]! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 11:54:44'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 15:55:14'!
 extent: newExtent
 " The new extent can't excess the the two legs length "
 	extent := newExtent min: length * 2 max: 0.
@@ -255,13 +255,16 @@ length: newLength
 	self positioningButtons.
 	self redrawNeeded ! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 9/20/2025 21:19:02'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 21:42:03'!
 penColor
-	^ Color red! !
+	^ self writingTool 
+		ifNotNil: [:pen | pen color] ifNil: [Color white]! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 09:54:17'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 9/21/2025 21:49:56'!
 writingTool
-	^ nil! !
+	^ (owner is: #PageMorph) 	
+		ifTrue:  [self paper writingTool]
+		ifFalse: [nil]! !
 
 !Compass methodsFor: 'initialization' stamp: 'hlsf 9/21/2025 10:42:32'!
 initialize
@@ -289,28 +292,35 @@ insertButtons
 	
 	self positioningButtons ! !
 
-!Compass methodsFor: 'initialization' stamp: 'hlsf 9/21/2025 11:50:50'!
+!Compass methodsFor: 'initialization' stamp: 'hlsf 9/21/2025 15:12:50'!
 positioningButtons 
 	submorphs isEmptyOrNil ifTrue: [^ self].
 	" holder button: to rotate the compass"
 	submorphs last morphPosition: self legVertices first + (width negated @ (3 * width)) + (2 @ -2).
 	" positionning button: to adjust the compass extent "
-	submorphs first morphPosition: legVertices first + legVertices third // 2 + (-10 @ 10)! !
+	submorphs first morphPosition: 
+		legVertices third + legVertices fourth // 2 
+		+ ( (legVertices third - legVertices fourth) normalized normal * 15 )
+		- (10@-10)! !
 
 !Compass methodsFor: 'geometry testing' stamp: 'hlsf 9/20/2025 21:44:20'!
 yAxisPointsUp
 	^ true ! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 9/21/2025 11:01:31'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 9/21/2025 22:12:47'!
 drawOn: canvas
 	| symmetricLeg |
 	self legVertices.
-	canvas strokeWidth: 1.5 color: Color black fillColor: Color yellow do: [canvas polyLine: (legVertices allButLast)].
-	canvas fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
+	canvas strokeWidth: 1.5 color: `Color black` fillColor: `Color yellow` do: [canvas polyLine: (legVertices allButLast)].
+	canvas strokeWidth: 0.5 color: `Color black` fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
 	symmetricLeg := legVertices * (-1 @ 1).
-	canvas strokeWidth: 1.5 color: Color black fillColor: Color yellow do: [canvas polyLine: symmetricLeg allButLast ].
-	canvas strokeWidth: 1 color: Color black fillColor: Color grey do: [canvas polyLine: (symmetricLeg last: 3)].
-	canvas strokeWidth: 1.5 color: Color black fillColor: Color yellow do: [ canvas polyLine: self handleZone ]! !
+	canvas strokeWidth: 1.5 color: `Color black` fillColor:`Color yellow` do: [canvas polyLine: symmetricLeg allButLast ].
+	canvas strokeWidth: 1 color: `Color black` fillColor: `Color grey` do: [canvas polyLine: (symmetricLeg last: 3)].
+	canvas strokeWidth: 1.5 color: `Color black` fillColor: `Color yellow` do: [ canvas polyLine: self handleZone ]! !
+
+!Compass methodsFor: 'geometry' stamp: 'hlsf 9/21/2025 21:06:56'!
+constrainToDirection: localHandPosition
+	^ self legVertices fifth ! !
 
 !Compass methodsFor: 'geometry' stamp: 'hlsf 9/20/2025 22:46:10'!
 rotationCenter
@@ -323,8 +333,31 @@ inStrokeZone: localPosition
 		with: legVertices fourth 
 		with: legVertices fifth ! !
 
-!Compass methodsFor: 'actions' stamp: 'hlsf 9/21/2025 12:00:11'!
-adjustExtent! !
+!Compass methodsFor: 'actions' stamp: 'hlsf 9/21/2025 22:26:05'!
+adjustExtent
+	| event compassPoint pen newPen newExtent p1 v1 v2 |
+	"any thing new to do?"
+	event := self activeHand lastMouseEvent.
+	event isMouseMove 
+		ifTrue: [
+			pen := self externalizeToWorld: self legVertices fifth.
+			compassPoint := self externalizeToWorld: legVertices fifth * (-1 @ 0).
+			p1 := event eventPosition.
+			" New position of the pen "
+			newPen := pen + p1 - lastHandPosition.
+			lastHandPosition := p1.
+			newExtent := ( (self internalizeDistanceFromWorld: newPen) dist: (self internalizeDistanceFromWorld: compassPoint) ) rounded / self ppcm.
+			v1 := self internalizeDistanceFromWorld: pen - compassPoint.
+			v2 := self internalizeDistanceFromWorld: newPen - compassPoint.
+			self extent: newExtent .
+			(newExtent > 0.5 and: [v1 isZero not and: [v2 isZero not ]]) ifTrue: [
+				self rotateBy: ((v2 crossProduct: v1) / (v1 r * v2 r)) arcSin].
+			"new compass point"
+			compassPoint := self externalize: (self internalizeFromWorld: compassPoint).
+			p1 := self externalize: self legVertices fifth * (-1 @0).
+			self morphPosition: self morphPosition + compassPoint - p1.
+			] 
+		ifFalse: [lastHandPosition := event eventPosition]! !
 
 !Compass methodsFor: 'actions' stamp: 'hlsf 9/21/2025 11:25:26'!
 rotateMeSave
@@ -343,6 +376,39 @@ rotateMeSave
 				AffineTransformation withRadians: angle around: self rotationCenter)).
 			self redrawNeeded ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
+
+!Compass methodsFor: 'event handling' stamp: 'hlsf 9/21/2025 21:19:06'!
+mouseButton1Down: event localPosition: localPosition
+" See parent " 	
+	(self writingTool notNil and: [self inStrokeZone: localPosition])
+		ifTrue: [
+			lastHandPenPosition  := lastHandPosition := nil.
+			self paper mouseButton1Down: event  localPosition: (self externalize: (self constrainToDirection: localPosition))]
+		ifFalse: [	lastHandPosition := self externalize: localPosition ]! !
+
+!Compass methodsFor: 'event handling' stamp: 'hlsf 9/21/2025 21:20:19'!
+mouseButton1Up: event localPosition: localPosition 
+	super mouseButton1Up: event localPosition: localPosition.
+	lastHandPenPosition := nil! !
+
+!Compass methodsFor: 'event handling' stamp: 'hlsf 9/21/2025 22:09:52'!
+mouseMove: event localPosition: localPosition
+	| p1 v1 v2 externalposition |
+	lastHandPosition 	ifNil: [
+		self paper mouseMove: event localPosition: (self externalize: (self constrainToDirection: localPosition)).
+		" rotate the compass too, if we are handling the pen "
+		lastHandPenPosition ifNotNil: [
+			p1 := self externalizeToWorld: self rotationCenter.
+			v1 := lastHandPenPosition - p1.
+			lastHandPenPosition := event eventPosition.
+			v2 := lastHandPenPosition - p1.
+			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
+			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin]
+		ifNil: [lastHandPenPosition := event eventPosition]	]
+	ifNotNil: [
+		externalposition := self externalize: localPosition.
+		self morphPosition: self morphPosition  + externalposition - lastHandPosition.
+		lastHandPosition := externalposition]! !
 
 !Protractor methodsFor: 'drawing' stamp: 'hlsf 9/20/2025 22:05:25'!
 drawOn: canvas
