@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7605] on 23 September 2025 at 6:10:22 pm'!
+'From Cuis7.5 [latest update: #7605] on 23 September 2025 at 9:59:06 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 160!
+!provides: 'DyboDoc' 1 161!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -784,7 +784,7 @@ width: aNumber
 adjustWidthString
 	^ adjustWidth asMenuItemTextPrefix , 		'adjust width'! !
 
-!Pen methodsFor: 'as yet unclassified' stamp: 'hlsf 9/7/2024 11:48:27'!
+!Pen methodsFor: 'initialization' stamp: 'hlsf 9/7/2024 11:48:27'!
 initialize
 	color := Color black.
 	threshold := 4 squared.
@@ -2596,6 +2596,10 @@ pageContainer
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 16:13:35'!
 paper
 	^ paper ! !
+
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/23/2025 21:26:45'!
+presenter
+	^ presenter! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 16:00:16'!
 presenter: documentPresenter

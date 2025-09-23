@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7605] on 23 September 2025 at 6:10:27 pm'!
+'From Cuis7.5 [latest update: #7605] on 23 September 2025 at 9:59:10 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 50!
+!provides: 'DyboTools-Geometry' 1 51!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -308,6 +308,28 @@ positioningButtons
 yAxisPointsUp
 	^ true ! !
 
+!Compass methodsFor: 'drawing' stamp: 'hlsf 9/23/2025 21:58:14'!
+drawCompassPoint
+" the user should now where is the center of the sketched arc or circle "
+	| pen altPen event compassPoint |
+	pen := owner presenter writingTool ifNil: [^ self].
+	altPen := Pen new
+		color: (Color  r: pen color red g: pen color green b: pen color blue);
+		threshold: 4;
+		width: 0.5.
+	pen become: altPen.
+	event := self activeHand lastMouseEvent.
+	compassPoint := self legVertices fifth * (-1@1).
+	self paper 
+		mouseButton1Down: event  localPosition: (self externalize: compassPoint) - (5@0);
+		mouseMove: event localPosition: (self externalize: compassPoint) + (5@0);
+		mouseButton1Up: event localPosition: (self externalize: compassPoint) + (5@0);
+		mouseButton1Down: event  localPosition: (self externalize: compassPoint) - (0@5);
+		mouseMove: event localPosition: (self externalize: compassPoint) + (0@5);
+		mouseButton1Up: event localPosition: (self externalize: compassPoint) + (0@5).
+	pen become: altPen 
+	! !
+
 !Compass methodsFor: 'drawing' stamp: 'hlsf 9/21/2025 22:12:47'!
 drawOn: canvas
 	| symmetricLeg |
@@ -378,11 +400,12 @@ rotateMeSave
 			self redrawNeeded ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
 
-!Compass methodsFor: 'event handling' stamp: 'hlsf 9/21/2025 21:19:06'!
+!Compass methodsFor: 'event handling' stamp: 'hlsf 9/23/2025 21:23:23'!
 mouseButton1Down: event localPosition: localPosition
 " See parent " 	
 	(self writingTool notNil and: [self inStrokeZone: localPosition])
 		ifTrue: [
+			self drawCompassPoint.
 			lastHandPenPosition  := lastHandPosition := nil.
 			self paper mouseButton1Down: event  localPosition: (self externalize: (self constrainToDirection: localPosition))]
 		ifFalse: [	lastHandPosition := self externalize: localPosition ]! !
