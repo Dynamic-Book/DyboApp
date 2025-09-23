@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 21 September 2025 at 10:25:36 pm'!
+'From Cuis7.5 [latest update: #7605] on 23 September 2025 at 6:10:22 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 159!
+!provides: 'DyboDoc' 1 160!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -2758,9 +2758,9 @@ mouseButton1Up: event localPosition: localPosition
 mouseButton2Up: evt localPosition: localPosition
 	presenter view  openCircularToolbar! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 2/7/2025 17:08:55'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/23/2025 18:00:33'!
 mouseMove: event localPosition: localPosition
-	event mouseButton1Pressed not ifTrue: [^ self ].
+	event mouseButton1Pressed ifFalse: [^ self ].
 	self tool handleMouseAt: localPosition in: self! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 9/7/2025 17:52:33'!

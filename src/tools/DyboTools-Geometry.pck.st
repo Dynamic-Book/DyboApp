@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7538] on 21 September 2025 at 10:31:29 pm'!
+'From Cuis7.5 [latest update: #7605] on 23 September 2025 at 6:10:27 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 49!
+!provides: 'DyboTools-Geometry' 1 50!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -155,9 +155,10 @@ mouseButton1Up: event localPosition: localPosition
 			lastHandPosition := nil]
 		! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/13/2025 16:37:42'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 9/23/2025 17:59:59'!
 mouseMove: event localPosition: localPosition 
 	| externalposition |
+	event anyButtonPressed ifFalse: [ ^ self ].
 	lastHandPosition 
 		ifNil: [self paper mouseMove: event localPosition: (self externalize: (self constrainToDirection: localPosition))]
 		ifNotNil: [
@@ -391,9 +392,10 @@ mouseButton1Up: event localPosition: localPosition
 	super mouseButton1Up: event localPosition: localPosition.
 	lastHandPenPosition := nil! !
 
-!Compass methodsFor: 'event handling' stamp: 'hlsf 9/21/2025 22:09:52'!
+!Compass methodsFor: 'event handling' stamp: 'hlsf 9/23/2025 18:00:07'!
 mouseMove: event localPosition: localPosition
 	| p1 v1 v2 externalposition |
+	event anyButtonPressed ifFalse: [ ^ self ].
 	lastHandPosition 	ifNil: [
 		self paper mouseMove: event localPosition: (self externalize: (self constrainToDirection: localPosition)).
 		" rotate the compass too, if we are handling the pen "
