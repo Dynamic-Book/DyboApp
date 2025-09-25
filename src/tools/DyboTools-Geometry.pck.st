@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7605] on 23 September 2025 at 9:59:10 pm'!
+'From Cuis7.5 [latest update: #7610] on 25 September 2025 at 10:02:24 am'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 51!
+!provides: 'DyboTools-Geometry' 1 52!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -330,15 +330,20 @@ drawCompassPoint
 	pen become: altPen 
 	! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 9/21/2025 22:12:47'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 9/25/2025 10:01:56'!
 drawOn: canvas
 	| symmetricLeg |
 	self legVertices.
+	" Leg holding the pen "
 	canvas strokeWidth: 1.5 color: `Color black` fillColor: `Color yellow` do: [canvas polyLine: (legVertices allButLast)].
-	canvas strokeWidth: 0.5 color: `Color black` fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
+	" Pen "
+	canvas fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
 	symmetricLeg := legVertices * (-1 @ 1).
+	" Leg holding the compass point "
 	canvas strokeWidth: 1.5 color: `Color black` fillColor:`Color yellow` do: [canvas polyLine: symmetricLeg allButLast ].
-	canvas strokeWidth: 1 color: `Color black` fillColor: `Color grey` do: [canvas polyLine: (symmetricLeg last: 3)].
+	" Compass point "
+	canvas strokeWidth: 1 color: `Color white` fillColor: `Color grey` do: [canvas polyLine: (symmetricLeg last: 3)].
+	" Handle "
 	canvas strokeWidth: 1.5 color: `Color black` fillColor: `Color yellow` do: [ canvas polyLine: self handleZone ]! !
 
 !Compass methodsFor: 'geometry' stamp: 'hlsf 9/21/2025 21:06:56'!

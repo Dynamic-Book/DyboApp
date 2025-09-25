@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7605] on 23 September 2025 at 9:59:06 pm'!
+'From Cuis7.5 [latest update: #7610] on 25 September 2025 at 10:02:20 am'!
 'Description '!
-!provides: 'DyboDoc' 1 161!
+!provides: 'DyboDoc' 1 162!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -2659,7 +2659,7 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/7/2025 11:08:18'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/24/2025 14:14:55'!
 acceptDroppingMorph: flapItem event: dropEvent
 	| dropMorph |
 	dropMorph := (flapItem object is: #DyboScript) 
@@ -2667,20 +2667,13 @@ acceptDroppingMorph: flapItem event: dropEvent
 		ifFalse: [flapItem object copy].
 	self 
 		addMorphFront: dropMorph 
-		position: (self internalizeFromWorld: dropEvent eventPosition).
+		position: (self internalizeFromWorld: dropEvent eventPosition - dropMorph fullBoundsInOwner center).
 	"dropMorph adjustBounds."
-	flapItem flap fold.
-	presenter pointerTool! !
+	flapItem flap fold! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:15:45'!
 allowsMorphDrop
 	^ true! !
-
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/7/2025 14:25:37'!
-dragEvent: aMouseEvent localPosition: aPoint
-
-	'there!!' print.
-	super dragEvent: aMouseEvent localPosition: aPoint ! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 2/9/2025 18:16:25'!
 wantsDroppedMorph: aMorph event: evt
@@ -2762,9 +2755,9 @@ mouseButton1Up: event localPosition: localPosition
 mouseButton2Up: evt localPosition: localPosition
 	presenter view  openCircularToolbar! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/23/2025 18:00:33'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/24/2025 14:39:24'!
 mouseMove: event localPosition: localPosition
-	event mouseButton1Pressed ifFalse: [^ self ].
+	event mouseButton1Pressed not ifTrue: [^ self ].
 	self tool handleMouseAt: localPosition in: self! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 9/7/2025 17:52:33'!
@@ -3074,15 +3067,17 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/7/2025 11:16:34'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/24/2025 15:13:55'!
 mouseEnter: evt
+	'enter' print.
 	self removeAlarm: #removeHalo.
 	self show.
 	self addHalo! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 2/9/2025 19:48:26'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/24/2025 15:07:30'!
 mouseLeave: evt
-	self addAlarm: #removeHalo after: 1000! !
+	'leave' print.
+	self addAlarm: #removeHalo after: 2000! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 8/31/2025 11:25:31'!
 adjustBounds
