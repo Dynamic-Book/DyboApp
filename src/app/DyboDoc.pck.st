@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7610] on 25 September 2025 at 10:02:20 am'!
+'From Cuis7.5 [latest update: #7621] on 28 September 2025 at 12:07:34 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 162!
+!provides: 'DyboDoc' 1 163!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -3549,18 +3549,18 @@ installToolsFlap
 		target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 3/16/2025 17:08:42'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/27/2025 10:06:10'!
 installView
 	| row col |
 	viewType := #full.
 	presenter view: self.
 	self 	addMorph: (self toolbarWith: self toolbarSpec)
 		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
-	row := LayoutMorph newRow 					addMorphUseAll: container.
+	row := LayoutMorph newRow addMorphUseAll: container.
 	" vertical and zoom wheels at the right "
 	col := LayoutMorph newColumn name: #wheelsYZ.
-	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
-	#(zoom100 fitWidth fitScreen) do: [:aZoomTool | 		col addMorph: 
+	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@120).
+	#(zoom100 fitWidth fitScreen) do: [:aZoomTool | col addMorph: 
 		(self button: aZoomTool state: #isTool: size: DySystem miniToolbarSize)].	
 	col	addMorphUseAll: DyControlsManager spacer;
 		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
@@ -3569,7 +3569,7 @@ installView
 	
 	" status bar and horizontal wheel at the bottom "
 	row := LayoutMorph newRow name: #wheelX.
-	row addMorph: self pageCounter layoutSpec: 	(LayoutSpec fixedWidth: 12) ;
+	row addMorph: self pageCounter layoutSpec: (LayoutSpec fixedWidth: 12) ;
 		addMorphUseAll: self statusBarInScroller;
 		addMorph:self horizontalWheel layoutSpec: (LayoutSpec fixedExtent: 120 @ 24);
 		addMorph: DyControlsManager spacer layoutSpec: (LayoutSpec fixedExtent: 24 asPoint).
@@ -3719,12 +3719,12 @@ button: symbol state: stateGetter size: size
 		morphExtent: (size  * 1.3) rounded asPoint;
 		yourself	! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 12/24/2024 14:09:58'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 9/27/2025 13:02:15'!
 horizontalWheel 
 	^ (WheelMorph target: presenter actionSelector: #moveOXAction:)
 		beHorizontal; 
 		factor: 1; 
-		setBalloonText: 'Scroll the document to the left or right.' translated;
+		setBalloonText: 'Scroll the document to the left or the right.' translated;
 		borderWidth: 3;
 		color: Color orange;
 		borderColor: Color black;

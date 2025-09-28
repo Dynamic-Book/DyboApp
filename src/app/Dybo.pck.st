@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7474] on 4 September 2025 at 10:56:08 am'!
+'From Cuis7.5 [latest update: #7621] on 28 September 2025 at 12:07:50 pm'!
 'Description '!
-!provides: 'Dybo' 1 143!
+!provides: 'Dybo' 1 144!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -2959,10 +2959,10 @@ plugMiniDocument: aDocView
 	self controlsManager docView: aDocView.
 	miniDocView := aDocView ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/24/2024 15:18:34'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/27/2025 10:01:21'!
 plugNewMiniDocument
 " Insert a new empty mini document  "
-	self plugMiniDocument: (DocumentView presenter: Document new :: 		installMiniView)
+	self plugMiniDocument: (DocumentView presenter: Document new :: installMiniView)
 	
 	! !
 
