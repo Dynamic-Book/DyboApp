@@ -11,6 +11,7 @@ ChangeSet installNewUpdates.
 Utilities setAuthorName: 'Hilaire Fernandes' initials: 'hlsf'.
 Preferences at: #logDebuggerStackToFile put: true.
 Preferences at: #autoNumberUserChanges put: false.
+Preferences at: #focusFollowsMouse put: true.
 "Install Dybo code"
 Feature require: #'Dybo'.
 Feature require: #'DyboTools-Geometry'.
