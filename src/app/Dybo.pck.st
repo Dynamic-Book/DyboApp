@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 28 September 2025 at 12:07:50 pm'!
+'From Cuis7.5 [latest update: #7621] on 28 September 2025 at 4:46:42 pm'!
 'Description '!
-!provides: 'Dybo' 1 144!
+!provides: 'Dybo' 1 145!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -637,10 +637,10 @@ initialize
 isAt: aTimeSlot day: aDayNumber
 	^ dayOfWeek = aDayNumber 		and: [timeSlots includes: aTimeSlot ]! !
 
-!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 9/17/2023 21:32:38'!
+!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 9/28/2025 16:27:23'!
 isDuring: aDateAndTime
 	^ dayOfWeek = aDateAndTime dayOfWeek 
-		and: [	aDateAndTime time between: timeSlots first start and: timeSlots last end]! !
+		and: [aDateAndTime time between: timeSlots first start and: timeSlots last end]! !
 
 !DyCourseHour class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:35:55'!
 label
