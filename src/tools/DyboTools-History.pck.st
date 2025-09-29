@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 28 September 2025 at 11:31:38 pm'!
+'From Cuis7.5 [latest update: #7621] on 29 September 2025 at 10:12:11 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 4!
+!provides: 'DyboTools-History' 1 5!
 !requires: 'UI-Widgets' 1 61 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
@@ -45,9 +45,29 @@ ActiveModel subclass: #TimelineModel
 TimelineModel class
 	instanceVariableNames: ''!
 
+!classDefinition: #TimelineCanvas category: #'DyboTools-History'!
+BoxMorph subclass: #TimelineCanvas
+	instanceVariableNames: 'model'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-History'!
+!classDefinition: 'TimelineCanvas class' category: #'DyboTools-History'!
+TimelineCanvas class
+	instanceVariableNames: ''!
+
+!classDefinition: #TimelineContainer category: #'DyboTools-History'!
+ColoredBoxMorph subclass: #TimelineContainer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-History'!
+!classDefinition: 'TimelineContainer class' category: #'DyboTools-History'!
+TimelineContainer class
+	instanceVariableNames: ''!
+
 !classDefinition: #TimelineView category: #'DyboTools-History'!
 FormLayoutMorph subclass: #TimelineView
-	instanceVariableNames: 'presenter area'
+	instanceVariableNames: 'presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-History'!
@@ -78,6 +98,10 @@ A graduation on the timeline.
 
 !TimelineModel commentStamp: '<historical>' prior: 0!
 - entries, a collection of models (timeline entry)!
+
+!TimelineCanvas commentStamp: '<historical>' prior: 0!
+The place where is effectively drawn the timeline. 
+Its extent covers the whole area of the timeline. Therefore it may be larger than its owner or the screen. It is scrolled or zoomed appropriately with two wheel handles.!
 
 !TimelineView commentStamp: '<historical>' prior: 0!
 Timeline view, it comes with:
@@ -188,13 +212,14 @@ interval
 interval: aDuration
 	interval := aDuration ! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 23:23:10'!
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/29/2025 22:11:12'!
 addEntry: aTimelineEntry
 	| newEntry |
 	ppd := nil.
 	newEntry := entries add: aTimelineEntry.
 	self updateGraduation ;
 		updateSubGraduation.
+	self triggerEvent: #updatedEntry.
 	^ newEntry ! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 23:31:19'!
@@ -267,14 +292,36 @@ updateSubGraduation
 	(timeInterval between: 100 years and: 1 millenniums ) ifTrue: [^ subGraduation interval: 100 years].
 	(timeInterval between: 1 millenniums and: 10 millenniums ) ifTrue: [^ subGraduation interval: 2 millenniums ].! !
 
+!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 9/29/2025 22:11:29'!
+model: timelineModel
+	model := timelineModel.
+	model when: #updatedEntry send: #setExtent to: self! !
+
+!TimelineCanvas methodsFor: 'geometry' stamp: 'hlsf 9/29/2025 22:11:58'!
+setExtent
+	self morphExtent: model canvasExtent ! !
+
+!TimelineContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/29/2025 21:35:40'!
+clipsSubmorphs
+	^ true ! !
+
+!TimelineContainer methodsFor: 'initialization' stamp: 'hlsf 9/29/2025 21:35:57'!
+defaultColor
+	^ Color white! !
+
+!TimelineContainer class methodsFor: 'instance creation' stamp: 'hlsf 9/29/2025 21:48:29'!
+for: aTimelineCanvas
+	^ self new
+		addMorph: aTimelineCanvas position: 0@0! !
+
 !TimelineView methodsFor: 'initialization' stamp: 'hlsf 9/28/2025 11:52:57'!
 initialize
 	super initialize.
 	self installView ! !
 
-!TimelineView methodsFor: 'initialization' stamp: 'hlsf 9/28/2025 11:55:01'!
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 9/29/2025 21:47:14'!
 installView
-	self addMorph: self area 
+	self addMorph: (TimelineContainer for: (TimelineCanvas new model: self model) )
 		layoutSpec: (LayoutEdgesSpec 
 			tlEdgesWeight: 0@0 offset: 0@0 
 			brEdgesWeight: 1@1 offset: -30@-30).
@@ -287,11 +334,15 @@ installView
 			tlEdgesWeight: 0.5@1 offset: -60@-30 
 			brEdgesWeight: 0.5 @1 offset: 60@0)! !
 
-!TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 11:59:14'!
-area
-	^ area ifNil: [area := BoxMorph new]! !
+!TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/29/2025 21:43:41'!
+model
+	^ presenter model! !
 
-!TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/27/2025 13:03:35'!
+!TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/27/2025 12:56:37'!
+presenter: aPresenter
+	presenter := aPresenter ! !
+
+!TimelineView methodsFor: 'widget' stamp: 'hlsf 9/27/2025 13:03:35'!
 horizontalWheel 
 	^ (WheelMorph target: presenter actionSelector: #moveOXAction:)
 		beHorizontal; 
@@ -302,11 +353,7 @@ horizontalWheel
 		borderColor: Color black;
 		yourself! !
 
-!TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/27/2025 12:56:37'!
-presenter: aPresenter
-	presenter := aPresenter ! !
-
-!TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/27/2025 13:01:39'!
+!TimelineView methodsFor: 'widget' stamp: 'hlsf 9/27/2025 13:01:39'!
 zoomWheel
 	^ (WheelMorph target: presenter actionSelector: #zoomAction:)
 		beVertical ;		
