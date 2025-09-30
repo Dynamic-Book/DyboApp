@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 29 September 2025 at 10:12:11 pm'!
+'From Cuis7.5 [latest update: #7621] on 30 September 2025 at 10:08:28 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 5!
+!provides: 'DyboTools-History' 1 6!
 !requires: 'UI-Widgets' 1 61 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
@@ -45,6 +45,16 @@ ActiveModel subclass: #TimelineModel
 TimelineModel class
 	instanceVariableNames: ''!
 
+!classDefinition: #TimelineConnector category: #'DyboTools-History'!
+Morph subclass: #TimelineConnector
+	instanceVariableNames: 'entryView'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-History'!
+!classDefinition: 'TimelineConnector class' category: #'DyboTools-History'!
+TimelineConnector class
+	instanceVariableNames: ''!
+
 !classDefinition: #TimelineCanvas category: #'DyboTools-History'!
 BoxMorph subclass: #TimelineCanvas
 	instanceVariableNames: 'model'
@@ -77,7 +87,7 @@ TimelineView class
 
 !classDefinition: #TimelineEntryView category: #'DyboTools-History'!
 LinearLayoutMorph subclass: #TimelineEntryView
-	instanceVariableNames: ''
+	instanceVariableNames: 'model date description position'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-History'!
@@ -101,7 +111,8 @@ A graduation on the timeline.
 
 !TimelineCanvas commentStamp: '<historical>' prior: 0!
 The place where is effectively drawn the timeline. 
-Its extent covers the whole area of the timeline. Therefore it may be larger than its owner or the screen. It is scrolled or zoomed appropriately with two wheel handles.!
+Its extent covers the whole area of the timeline. Therefore it may be larger than its owner or the screen. It is scrolled or zoomed appropriately with two wheel handles.
+ - model, a TimelineModel!
 
 !TimelineView commentStamp: '<historical>' prior: 0!
 Timeline view, it comes with:
@@ -109,7 +120,11 @@ Timeline view, it comes with:
 - a representation of the timeline!
 
 !TimelineEntryView commentStamp: '<historical>' prior: 0!
-A view of a timeline entry!
+A view of a timeline entry.
+- model, a timeline entry
+- date, a label morph
+- description, a text paragraph morph
+- position, a symbol (#above #below), indicating my positionning to the time line!
 
 !Timeline methodsFor: 'callback ui' stamp: 'hlsf 9/28/2025 11:46:05'!
 moveOXAction: increment! !
@@ -212,14 +227,14 @@ interval
 interval: aDuration
 	interval := aDuration ! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/29/2025 22:11:12'!
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/30/2025 20:04:35'!
 addEntry: aTimelineEntry
 	| newEntry |
 	ppd := nil.
 	newEntry := entries add: aTimelineEntry.
 	self updateGraduation ;
 		updateSubGraduation.
-	self triggerEvent: #updatedEntry.
+	self triggerEvent: #addedEntry.
 	^ newEntry ! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 23:31:19'!
@@ -292,10 +307,24 @@ updateSubGraduation
 	(timeInterval between: 100 years and: 1 millenniums ) ifTrue: [^ subGraduation interval: 100 years].
 	(timeInterval between: 1 millenniums and: 10 millenniums ) ifTrue: [^ subGraduation interval: 2 millenniums ].! !
 
-!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 9/29/2025 22:11:29'!
+!TimelineConnector methodsFor: 'as yet unclassified' stamp: 'hlsf 9/30/2025 22:07:56'!
+drawOn: canvas
+	| join anchor |
+	entryView position == #above
+		ifTrue: [
+			join := entryView localBounds bottomCenter.
+			anchor := join + (0@20)]
+		ifFalse: [
+			join :=  entryView localBounds topCenter.
+			anchor := join - (0@20)].
+	canvas strokeWidth: entryView borderWidth color: entryView borderColor do: [
+		canvas moveTo: join;
+			lineTo: anchor]! !
+
+!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 9/30/2025 20:04:10'!
 model: timelineModel
 	model := timelineModel.
-	model when: #updatedEntry send: #setExtent to: self! !
+	model when: #addedEntry send: #setExtent to: self! !
 
 !TimelineCanvas methodsFor: 'geometry' stamp: 'hlsf 9/29/2025 22:11:58'!
 setExtent
@@ -371,9 +400,24 @@ presenter: aPresenter
 		initialize;
 		yourself! !
 
-!TimelineEntryView class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/28/2025 11:29:00'!
-new
-	^ self newColumn ! !
+!TimelineEntryView methodsFor: 'initialization' stamp: 'hlsf 9/30/2025 21:43:40'!
+initialize
+	super initialize.
+	self beColumn.
+	date := LabelMorph contents: (model date printFormat: #(1 2 3 $/ 1 1 1))  fontSize: 12 emphasis: 1.
+	description := TextParagraphMorph contents: model description.
+	self addMorph: date;
+		addMorph: description! !
+
+!TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 9/30/2025 20:03:08'!
+model: timelineEntry
+	model := timelineEntry ! !
+
+!TimelineEntryView class methodsFor: 'instance creation' stamp: 'hlsf 9/30/2025 20:02:53'!
+on: timelineEntry
+	^ self basicNew
+		model: timelineEntry;
+		initialize! !
 
 !Duration methodsFor: '*DyboTools-History' stamp: 'hlsf 9/28/2025 15:46:15'!
 millenniums
