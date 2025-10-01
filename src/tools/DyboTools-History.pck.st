@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 30 September 2025 at 10:08:28 pm'!
+'From Cuis7.5 [latest update: #7621] on 1 October 2025 at 10:32:15 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 6!
+!provides: 'DyboTools-History' 1 9!
 !requires: 'UI-Widgets' 1 61 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
@@ -46,7 +46,7 @@ TimelineModel class
 	instanceVariableNames: ''!
 
 !classDefinition: #TimelineConnector category: #'DyboTools-History'!
-Morph subclass: #TimelineConnector
+PlacedMorph subclass: #TimelineConnector
 	instanceVariableNames: 'entryView'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -77,7 +77,7 @@ TimelineContainer class
 
 !classDefinition: #TimelineView category: #'DyboTools-History'!
 FormLayoutMorph subclass: #TimelineView
-	instanceVariableNames: 'presenter'
+	instanceVariableNames: 'presenter canvas'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-History'!
@@ -126,11 +126,26 @@ A view of a timeline entry.
 - description, a text paragraph morph
 - position, a symbol (#above #below), indicating my positionning to the time line!
 
-!Timeline methodsFor: 'callback ui' stamp: 'hlsf 9/28/2025 11:46:05'!
-moveOXAction: increment! !
+!Timeline methodsFor: 'callback ui' stamp: 'hlsf 10/1/2025 16:32:07'!
+moveOXAction: increment
+	| canvas |
+	canvas := view canvas.
+	canvas morphPosition: (canvas morphPosition + (increment @ 0) 
+		min: canvas morphExtent x @ 0 
+		max: canvas morphExtent x negated @ 0)! !
 
-!Timeline methodsFor: 'callback ui' stamp: 'hlsf 9/28/2025 11:46:11'!
-zoomAction: increment! !
+!Timeline methodsFor: 'callback ui' stamp: 'hlsf 10/1/2025 22:29:20'!
+zoomAction: increment
+	self zoomAction: increment at: view canvas owner fullBoundsInOwner center! !
+
+!Timeline methodsFor: 'callback ui' stamp: 'hlsf 10/1/2025 22:27:37'!
+zoomAction: increment at: referencePoint
+	| canvas center |
+	canvas := view canvas.
+	center := canvas internalize: referencePoint.
+	canvas scale: (canvas scale - increment min: 2 max: 0.1).
+	center := canvas externalize: center.
+	canvas morphPosition: canvas morphPosition - center + referencePoint .! !
 
 !Timeline methodsFor: 'DSL' stamp: 'hlsf 9/28/2025 13:33:08'!
 addEvent: aText on: aStringDate
@@ -196,23 +211,6 @@ imageUrl: anUrl
 
 	imageUrl := anUrl ! !
 
-!TimelineEntry methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 12:55:53'!
-position
-	"Answer the value of position"
-
-	^ position! !
-
-!TimelineEntry methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 12:57:10'!
-position: aSymbol
-" #above #below"
-
-	position := aSymbol ! !
-
-!TimelineEntry methodsFor: 'initialization' stamp: 'hlsf 9/28/2025 13:33:54'!
-initialize
-	super initialize.
-	position := #below! !
-
 !TimelineEntry methodsFor: 'printing' stamp: 'hlsf 9/28/2025 15:58:52'!
 printOn: stream
 	stream nextPutAll: (date printFormat: #(3 2 1 $. 1 1 2));
@@ -227,6 +225,12 @@ interval
 interval: aDuration
 	interval := aDuration ! !
 
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 14:48:01'!
+abscissaAt: aDate
+"	An entry is positionned on the timeline according to its date, convert the date to a pixel position 
+	Zero pixel is at left "
+	^ ((aDate - entries first date) days * self ppd + TimelineEntryView extent x / 2) rounded! !
+
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/30/2025 20:04:35'!
 addEntry: aTimelineEntry
 	| newEntry |
@@ -237,14 +241,13 @@ addEntry: aTimelineEntry
 	self triggerEvent: #addedEntry.
 	^ newEntry ! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 23:31:19'!
-canvasExtent
-	^ (self ppd * self span days) rounded + self entryExtent x @ (self entryExtent y + 20 * 2)! !
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 16:21:25'!
+canvasWidth
+	^ (self ppd * self span days) rounded + TimelineEntryView extent x ! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 23:27:39'!
-entryExtent
-" expressed in pixels "
-	^ 200@280! !
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 14:22:53'!
+entries
+	^ entries! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 16:20:06'!
 graduation
@@ -265,17 +268,22 @@ initialize
 	graduation := TimelineGraduation new interval: 1 millenniums.
 	subGraduation := TimelineGraduation new interval: 100 years! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 9/28/2025 23:27:52'!
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/1/2025 22:03:07'!
 ppd
 " 	pixels per days 
 	The density of timeline depends on entry view with and time interval"
-	^ ppd ifNil: [ppd := (self entryExtent x / self timeInterval days) asFloat]! !
+	| timeInteval |
+	timeInteval := self timeInterval.
+	timeInteval isZero ifTrue: [timeInteval := 1 months].
+	^ ppd ifNil: [ppd := (TimelineEntryView extent x + 20 / timeInteval days) asFloat]! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 9/28/2025 15:33:36'!
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/1/2025 16:25:15'!
 span
 " 	We want to know the span of the events (distance between oldest and newer events) 
 	to set the graduation approriately "
-	^(entries last date - entries first date)! !
+	^ entries 
+		ifEmpty:  [Duration zero]
+		ifNotEmpty: [entries last date - entries first date]! !
 
 !TimelineModel methodsFor: 'metrics' stamp: 'hlsf 9/28/2025 16:02:59'!
 timeInterval
@@ -297,38 +305,75 @@ updateGraduation
 	(span between: 200 years and: 2 millenniums) ifTrue: [^ graduation interval: 100 years].
 	(span between: Duration zero and: 200 years) ifTrue: [^ graduation interval: 10 years]! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 9/28/2025 16:46:36'!
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/1/2025 16:00:24'!
 updateSubGraduation
 	| timeInterval |
-	timeInterval := self timeInterval 
+	timeInterval := self timeInterval.
 	timeInterval <= 1 years ifTrue: [^ subGraduation interval: 1 months].
 	(timeInterval between: 1 years and: 20 years) ifTrue: [^ subGraduation interval: 1 years ].
 	(timeInterval between: 20 years and: 100 years) ifTrue: [^ subGraduation interval: 10 years].
 	(timeInterval between: 100 years and: 1 millenniums ) ifTrue: [^ subGraduation interval: 100 years].
 	(timeInterval between: 1 millenniums and: 10 millenniums ) ifTrue: [^ subGraduation interval: 2 millenniums ].! !
 
-!TimelineConnector methodsFor: 'as yet unclassified' stamp: 'hlsf 9/30/2025 22:07:56'!
-drawOn: canvas
-	| join anchor |
-	entryView position == #above
-		ifTrue: [
-			join := entryView localBounds bottomCenter.
-			anchor := join + (0@20)]
-		ifFalse: [
-			join :=  entryView localBounds topCenter.
-			anchor := join - (0@20)].
-	canvas strokeWidth: entryView borderWidth color: entryView borderColor do: [
-		canvas moveTo: join;
-			lineTo: anchor]! !
+!TimelineConnector methodsFor: 'as yet unclassified' stamp: 'hlsf 10/1/2025 14:59:06'!
+entryView: aView
+	entryView := aView ! !
 
-!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 9/30/2025 20:04:10'!
+!TimelineConnector methodsFor: 'drawing' stamp: 'hlsf 10/1/2025 21:53:04'!
+drawOn: canvas
+	| toLine anchor |
+	anchor := entryView externalize:  entryView anchor.
+	toLine := anchor +
+		(entryView isAboveTimeline ifTrue: [0@TimelineConnector height] ifFalse: [(0@TimelineConnector height) negated]).
+	canvas line: toLine to: anchor width: entryView borderWidth color: entryView borderColor.
+	canvas fillColor: entryView borderColor do: [canvas ellipseCenter: toLine radius: 5@5]! !
+
+!TimelineConnector class methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 16:17:55'!
+height
+	^ 20! !
+
+!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 14:11:46'!
 model: timelineModel
 	model := timelineModel.
-	model when: #addedEntry send: #setExtent to: self! !
+	model when: #addedEntry send: #updateCanvas to: self! !
 
-!TimelineCanvas methodsFor: 'geometry' stamp: 'hlsf 9/29/2025 22:11:58'!
+!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 17:44:44'!
+positions
+	^ `Array with: #above with: #below`! !
+
+!TimelineCanvas methodsFor: 'geometry' stamp: 'hlsf 10/1/2025 16:21:49'!
 setExtent
-	self morphExtent: model canvasExtent ! !
+	self morphExtent: model canvasWidth @ TimelineCanvas height! !
+
+!TimelineCanvas methodsFor: 'updating' stamp: 'hlsf 10/1/2025 21:29:05'!
+updateCanvas
+	| views view |
+	self setExtent.
+	self removeAllMorphs.
+	views := OrderedCollection new.
+	model entries withIndexDo: [:entry :i | 
+		view := TimelineEntryView on: entry.
+		" We alternate the position #above #below the timeline "
+		view position: (self positions atWrap: i).
+		view abscissa: (model abscissaAt: entry date) - (TimelineEntryView extent x // 2).
+		views add: view.
+		view := TimelineConnector new entryView: view; yourself.
+		
+		views add: view].
+	self addAllMorphs: views! !
+
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/1/2025 15:58:59'!
+drawOn: canvas
+	canvas line: 0@(extent y // 2) to: extent x @ (extent y // 2) width: 2 color: Color black! !
+
+!TimelineCanvas class methodsFor: 'as yet unclassified' stamp: 'hlsf 10/1/2025 18:00:45'!
+height
+	^ (TimelineEntryView extent y + TimelineConnector height + self verticalMargin) * 2! !
+
+!TimelineCanvas class methodsFor: 'as yet unclassified' stamp: 'hlsf 10/1/2025 18:00:36'!
+verticalMargin
+" top and bottom margin "
+	^ 50! !
 
 !TimelineContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/29/2025 21:35:40'!
 clipsSubmorphs
@@ -348,9 +393,11 @@ initialize
 	super initialize.
 	self installView ! !
 
-!TimelineView methodsFor: 'initialization' stamp: 'hlsf 9/29/2025 21:47:14'!
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/1/2025 16:22:59'!
 installView
-	self addMorph: (TimelineContainer for: (TimelineCanvas new model: self model) )
+	canvas := TimelineCanvas new model: self model.
+	canvas setExtent.
+	self addMorph: (TimelineContainer for: canvas )
 		layoutSpec: (LayoutEdgesSpec 
 			tlEdgesWeight: 0@0 offset: 0@0 
 			brEdgesWeight: 1@1 offset: -30@-30).
@@ -362,6 +409,10 @@ installView
 		layoutSpec: (LayoutEdgesSpec 
 			tlEdgesWeight: 0.5@1 offset: -60@-30 
 			brEdgesWeight: 0.5 @1 offset: 60@0)! !
+
+!TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 16:28:34'!
+canvas
+	^ canvas! !
 
 !TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/29/2025 21:43:41'!
 model
@@ -393,31 +444,83 @@ zoomWheel
 		borderColor: Color black;
 		yourself! !
 
-!TimelineView class methodsFor: 'as yet unclassified' stamp: 'hlsf 9/27/2025 12:56:16'!
+!TimelineView class methodsFor: 'instance creation' stamp: 'hlsf 9/27/2025 12:56:16'!
 presenter: aPresenter
 	^ self basicNew
 		presenter: aPresenter;
 		initialize;
 		yourself! !
 
-!TimelineEntryView methodsFor: 'initialization' stamp: 'hlsf 9/30/2025 21:43:40'!
+!TimelineEntryView methodsFor: 'initialization' stamp: 'hlsf 10/1/2025 21:55:13'!
+defaultBorderWidth 
+	^ 2! !
+
+!TimelineEntryView methodsFor: 'initialization' stamp: 'hlsf 10/1/2025 21:54:50'!
+defaultColor
+	^ Color white! !
+
+!TimelineEntryView methodsFor: 'initialization' stamp: 'hlsf 10/1/2025 22:18:18'!
 initialize
 	super initialize.
 	self beColumn.
 	date := LabelMorph contents: (model date printFormat: #(1 2 3 $/ 1 1 1))  fontSize: 12 emphasis: 1.
-	description := TextParagraphMorph contents: model description.
-	self addMorph: date;
-		addMorph: description! !
+	description := TextParagraphMorph contents: (model description italic pointSize: 10):: 
+		color: Color yellow muchLighter ;
+		setHeightOnContent ;
+		borderWidth: 0.
+	self addMorph:  date layoutSpec: LayoutSpec keepMorphExtent ;
+		addMorphUseAll: (PluggableScrollPane new 
+			layoutSpec: LayoutSpec useAll;
+			color: Color yellow muchLighter;
+			scroller: description);
+		morphExtent: TimelineEntryView extent! !
+
+!TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 21:28:18'!
+abscissa: x
+" the view is computed from its date (ox) and its position relative to the timeline (ox) "
+	self morphPosition: x @ self ordinate ! !
+
+!TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 17:25:32'!
+anchor
+	^ self isAboveTimeline 
+		ifTrue: [self localBounds bottomCenter]
+		ifFalse: [self localBounds topCenter] " #below timeline" 
+	! !
 
 !TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 9/30/2025 20:03:08'!
 model: timelineEntry
 	model := timelineEntry ! !
+
+!TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 21:26:49'!
+ordinate
+	" its is constrained by its position relatively to the timeline "
+	^ self isAboveTimeline 
+		ifTrue: [TimelineCanvas verticalMargin]
+		ifFalse: [TimelineCanvas verticalMargin + TimelineEntryView extent y + (TimelineConnector height * 2)]
+		! !
+
+!TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 17:46:10'!
+position: aSymbol
+	position := aSymbol ! !
+
+!TimelineEntryView methodsFor: 'geometry' stamp: 'hlsf 10/1/2025 14:45:13'!
+morphPosition: aPoint 
+	location withTranslation: aPoint.! !
+
+!TimelineEntryView methodsFor: 'testing' stamp: 'hlsf 10/1/2025 17:46:16'!
+isAboveTimeline
+	^ position == #above! !
 
 !TimelineEntryView class methodsFor: 'instance creation' stamp: 'hlsf 9/30/2025 20:02:53'!
 on: timelineEntry
 	^ self basicNew
 		model: timelineEntry;
 		initialize! !
+
+!TimelineEntryView class methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 16:36:09'!
+extent
+" expressed in pixels "
+	^ 150@200! !
 
 !Duration methodsFor: '*DyboTools-History' stamp: 'hlsf 9/28/2025 15:46:15'!
 millenniums
