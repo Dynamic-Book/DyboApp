@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 28 September 2025 at 12:07:34 pm'!
+'From Cuis7.5 [latest update: #7621] on 2 October 2025 at 10:32:59 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 163!
+!provides: 'DyboDoc' 1 164!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -4384,11 +4384,11 @@ regression: y
 variance
 	^ self squared sum / self size - self mean squared! !
 
-!DateAndTime methodsFor: '*DyboDoc' stamp: 'hlsf 11/14/2024 23:24:31'!
+!DateAndTime methodsFor: '*DyboDoc' stamp: 'hlsf 10/2/2025 21:46:31'!
 filenamePrintOn: aStream
 	"
 	As filename that can be sorted, with an accuraccy  of 1 second
-	String streamContents: [ :strm | DateAndTime now sortFilenamePrintOn: strm ] .
+	String streamContents: [ :strm | DateAndTime now filenamePrintOn: strm ] .
 	"
 	
 	| year month day |

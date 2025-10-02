@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 2 October 2025 at 11:15:54 am'!
+'From Cuis7.5 [latest update: #7621] on 2 October 2025 at 10:33:02 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 11!
+!provides: 'DyboTools-History' 1 12!
 !requires: 'UI-Widgets' 1 61 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
@@ -231,11 +231,11 @@ printOn: stream
 	interval years printOn: stream.
 	stream nextPutAll: ' years'! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 14:48:01'!
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 21:31:07'!
 abscissaAt: aDate
 "	An entry is positionned on the timeline according to its date, convert the date to a pixel position 
 	Zero pixel is at left "
-	^ ((aDate - entries first date) days * self ppd + TimelineEntryView extent x / 2) rounded! !
+	^ ((aDate - entries first date) days * self ppd + (TimelineEntryView extent x / 2)) rounded! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/30/2025 20:04:35'!
 addEntry: aTimelineEntry
@@ -247,9 +247,9 @@ addEntry: aTimelineEntry
 	self triggerEvent: #addedEntry.
 	^ newEntry ! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 16:21:25'!
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 22:29:01'!
 canvasWidth
-	^ (self ppd * self span days) rounded + TimelineEntryView extent x ! !
+	^ (self ppd * self span days rounded) + (TimelineEntryView extent x * 2)! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 14:22:53'!
 entries
@@ -282,10 +282,10 @@ initialize
 	graduation := TimelineGraduation new interval: 1 millenniums.
 	subGraduation := TimelineGraduation new interval: 100 years! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/1/2025 22:03:07'!
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/2/2025 21:17:20'!
 ppd
 " 	pixels per days 
-	The density of timeline depends on entry view with and time interval"
+	The density of timeline depends on entry view width and time interval"
 	| timeInteval |
 	timeInteval := self timeInterval.
 	timeInteval isZero ifTrue: [timeInteval := 1 months].
@@ -298,6 +298,15 @@ span
 	^ entries 
 		ifEmpty:  [Duration zero]
 		ifNotEmpty: [entries last date - entries first date]! !
+
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/2/2025 22:21:09'!
+spanForCanvas
+" 	We want to know the span of the events (distance between oldest and newer events) 
+	to set the graduation approriately "
+	^ entries 
+		ifEmpty:  [Duration zero]
+		ifNotEmpty: [(entries last date roundUpTo: graduation interval)
+			- (entries first date roundDownTo: graduation interval)]! !
 
 !TimelineModel methodsFor: 'metrics' stamp: 'hlsf 9/28/2025 16:02:59'!
 timeInterval
@@ -342,9 +351,9 @@ drawOn: canvas
 	canvas line: toLine to: anchor width: entryView borderWidth color: entryView borderColor.
 	canvas fillColor: entryView borderColor do: [canvas ellipseCenter: toLine radius: 5@5]! !
 
-!TimelineConnector class methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 16:17:55'!
+!TimelineConnector class methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 22:29:16'!
 height
-	^ 20! !
+	^ 50! !
 
 !TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 09:43:51'!
 color
@@ -371,7 +380,7 @@ width
 setExtent
 	self morphExtent: model canvasWidth @ TimelineCanvas height! !
 
-!TimelineCanvas methodsFor: 'updating' stamp: 'hlsf 10/1/2025 21:29:05'!
+!TimelineCanvas methodsFor: 'updating' stamp: 'hlsf 10/2/2025 21:11:41'!
 updateCanvas
 	| views view |
 	self setExtent.
@@ -380,17 +389,19 @@ updateCanvas
 	model entries withIndexDo: [:entry :i | 
 		view := TimelineEntryView on: entry.
 		" We alternate the position #above #below the timeline "
-		view position: (self positions atWrap: i).
-		view abscissa: (model abscissaAt: entry date) - (TimelineEntryView extent x // 2).
+		view position: (self positions atWrap: i);
+			abscissa: (model abscissaAt: entry date) - (TimelineEntryView extent x // 2);
+			borderColor: self mainView entryBorderColor;
+			borderWidth: self mainView entryBorderWidth .		
 		views add: view.
 		view := TimelineConnector new entryView: view; yourself.
 		
 		views add: view].
 	self addAllMorphs: views! !
 
-!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/2/2025 11:15:38'!
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/2/2025 22:27:11'!
 drawOn: canvas
-	| start pos posY|
+	| start end pos posY font |
 	canvas strokeWidth: self width color: self color do: [
 		canvas moveTo: 0@(extent y // 2);
 			lineTo: (extent x - 1) @ (extent y // 2);
@@ -399,18 +410,24 @@ drawOn: canvas
 			rel_LineTo: 10@-6].
 	
 	" First level graduation "
-	start := (model firstEvent ifNil: [^ self]) date.
+	start := (model firstEvent ifNil: [^ self]) date roundDownTo: model graduation interval.
+	end := model lastEvent date roundUpTo: model graduation interval.
 	posY := extent y // 2 - 10.
 	canvas strokeWidth: self width color: self color do: [
-		start to: model lastEvent date 	by: model graduation interval do: [:aDate |
+		start to: end 	by: model graduation interval do: [:aDate |
 			pos := (model abscissaAt: aDate) @ posY.
 			canvas moveTo: pos; 	rel_LineTo: 0 @ 20 ] ].
-	
+	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
+	posY := extent y // 2 + 15.
+	start to: end 	by: model graduation interval do: [:aDate |
+		pos := (model abscissaAt: aDate) @ posY.
+		canvas drawString: aDate yearNumber asString atCenterX: pos font: font color: self color].
 	" Sub graduation "
-	start := (model firstEvent ifNil: [^ self]) date + model subGraduation interval.
+	start := start + model subGraduation interval.
+	end := end - model subGraduation interval.
 	posY := extent y // 2 - 5.
 	canvas strokeWidth: self width color: self color do: [
-		start to: model lastEvent date	by: model subGraduation interval do: [:aDate |
+		start to: end by: model subGraduation interval do: [:aDate |
 			pos := (model abscissaAt: aDate) @ posY.
 			canvas moveTo: pos; 	rel_LineTo: 0 @ 10 ] ]! !
 
@@ -470,7 +487,7 @@ container
 entryBorderColor
 	^ `Color blue`! !
 
-!TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 09:40:43'!
+!TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 21:12:22'!
 entryBorderWidth
 	^ 2! !
 
@@ -586,6 +603,20 @@ on: timelineEntry
 extent
 " expressed in pixels "
 	^ 150@200! !
+
+!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/2/2025 22:00:42'!
+roundDownTo: aDuration
+	^ Date 
+		year:  (self yearNumber roundDownTo: aDuration years)
+		month: self monthIndex 
+		day: self dayOfMonth! !
+
+!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/2/2025 22:01:23'!
+roundUpTo: aDuration
+	^ Date 
+		year:  (self yearNumber roundUpTo: aDuration years)
+		month: self monthIndex 
+		day: self dayOfMonth! !
 
 !Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/2/2025 11:14:52'!
 to: endDate by: aDuration do: block
