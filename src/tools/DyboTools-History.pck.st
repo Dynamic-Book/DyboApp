@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 2 October 2025 at 10:55:09 am'!
+'From Cuis7.5 [latest update: #7621] on 2 October 2025 at 11:15:54 am'!
 'Description '!
-!provides: 'DyboTools-History' 1 10!
+!provides: 'DyboTools-History' 1 11!
 !requires: 'UI-Widgets' 1 61 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
@@ -388,7 +388,7 @@ updateCanvas
 		views add: view].
 	self addAllMorphs: views! !
 
-!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/2/2025 10:54:02'!
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/2/2025 11:15:38'!
 drawOn: canvas
 	| start pos posY|
 	canvas strokeWidth: self width color: self color do: [
@@ -402,20 +402,16 @@ drawOn: canvas
 	start := (model firstEvent ifNil: [^ self]) date.
 	posY := extent y // 2 - 10.
 	canvas strokeWidth: self width color: self color do: [
-		(DateAndTime date: start  time: Time new) 
-		to: (DateAndTime date: model lastEvent date time: Time new) 
-		by: model graduation interval do: [:aDateAndTime |
-			pos := (model abscissaAt: aDateAndTime date) @ posY.
+		start to: model lastEvent date 	by: model graduation interval do: [:aDate |
+			pos := (model abscissaAt: aDate) @ posY.
 			canvas moveTo: pos; 	rel_LineTo: 0 @ 20 ] ].
 	
 	" Sub graduation "
 	start := (model firstEvent ifNil: [^ self]) date + model subGraduation interval.
 	posY := extent y // 2 - 5.
 	canvas strokeWidth: self width color: self color do: [
-		(DateAndTime date: start time: Time new) 
-		to: (DateAndTime date: model lastEvent date time: Time new) 
-		by: model subGraduation interval do: [:aDateAndTime |
-			pos := (model abscissaAt: aDateAndTime date) @ posY.
+		start to: model lastEvent date	by: model subGraduation interval do: [:aDate |
+			pos := (model abscissaAt: aDate) @ posY.
 			canvas moveTo: pos; 	rel_LineTo: 0 @ 10 ] ]! !
 
 !TimelineCanvas class methodsFor: 'as yet unclassified' stamp: 'hlsf 10/1/2025 18:00:45'!
@@ -590,6 +586,17 @@ on: timelineEntry
 extent
 " expressed in pixels "
 	^ 150@200! !
+
+!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/2/2025 11:14:52'!
+to: endDate by: aDuration do: block
+" 	Use with caution, because argument to block convert to a Date, 
+	so you may have repeated identical data if duration  is small than a day "
+	| currentDateAndTime endDateAndTime |
+	currentDateAndTime := DateAndTime date: self time: Time now.
+	endDateAndTime := DateAndTime date: endDate time: Time now.
+	[currentDateAndTime <= endDateAndTime ] whileTrue: [
+		block value: currentDateAndTime date.
+		currentDateAndTime := currentDateAndTime + aDuration ]! !
 
 !Duration methodsFor: '*DyboTools-History' stamp: 'hlsf 9/28/2025 15:46:15'!
 millenniums
