@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 2 October 2025 at 10:33:02 pm'!
+'From Cuis7.5 [latest update: #7621] on 3 October 2025 at 10:44:48 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 12!
+!provides: 'DyboTools-History' 1 14!
 !requires: 'UI-Widgets' 1 61 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
@@ -126,13 +126,18 @@ A view of a timeline entry.
 - description, a text paragraph morph
 - position, a symbol (#above #below), indicating my positionning to the time line!
 
-!Timeline methodsFor: 'callback ui' stamp: 'hlsf 10/2/2025 09:29:32'!
+!Timeline methodsFor: 'callback ui' stamp: 'hlsf 10/3/2025 22:07:15'!
 moveOXAction: increment
-	| canvas |
+	| canvas myIncr |
 	canvas := view canvas.
-	canvas morphPosition: (canvas morphPosition x + increment  
-		min: canvas morphExtent x  
-		max: canvas morphExtent x negated) @ canvas morphPosition y! !
+	myIncr := 0.
+	increment > 0 
+		ifTrue: [ " Move to the right as long as canvas ox zero is lower than container right border (extent x) "
+			(canvas externalize: 0@0) x < view container morphExtent x ifTrue: [myIncr := increment ] ]
+		ifFalse: [ " Move to the left as long as canvas width on ox is greater thant container left obrder (0) "
+			(canvas externalize: model canvasWidth@0) x > 0 ifTrue: [myIncr := increment ] ].
+	myIncr isZero not ifTrue: [
+		canvas morphPosition: canvas morphPosition x + increment  @ canvas morphPosition y]! !
 
 !Timeline methodsFor: 'callback ui' stamp: 'hlsf 10/2/2025 08:59:48'!
 zoomAction: increment
@@ -282,14 +287,15 @@ initialize
 	graduation := TimelineGraduation new interval: 1 millenniums.
 	subGraduation := TimelineGraduation new interval: 100 years! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/2/2025 21:17:20'!
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/3/2025 22:23:12'!
 ppd
 " 	pixels per days 
 	The density of timeline depends on entry view width and time interval"
 	| timeInteval |
 	timeInteval := self timeInterval.
 	timeInteval isZero ifTrue: [timeInteval := 1 months].
-	^ ppd ifNil: [ppd := (TimelineEntryView extent x + 20 / timeInteval days) asFloat]! !
+	^ ppd ifNil: [
+		ppd := (TimelineEntryView extent x // 2 + 20 / timeInteval days) asFloat max: 0.001]! !
 
 !TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/1/2025 16:25:15'!
 span
@@ -328,28 +334,29 @@ updateGraduation
 	(span between: 200 years and: 2 millenniums) ifTrue: [^ graduation interval: 100 years].
 	(span between: Duration zero and: 200 years) ifTrue: [^ graduation interval: 10 years]! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/1/2025 16:00:24'!
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/3/2025 22:35:05'!
 updateSubGraduation
 	| timeInterval |
 	timeInterval := self timeInterval.
 	timeInterval <= 1 years ifTrue: [^ subGraduation interval: 1 months].
 	(timeInterval between: 1 years and: 20 years) ifTrue: [^ subGraduation interval: 1 years ].
 	(timeInterval between: 20 years and: 100 years) ifTrue: [^ subGraduation interval: 10 years].
-	(timeInterval between: 100 years and: 1 millenniums ) ifTrue: [^ subGraduation interval: 100 years].
+	(timeInterval between: 100 years and: 1 millenniums ) ifTrue: [^ subGraduation interval: 50 years].
 	(timeInterval between: 1 millenniums and: 10 millenniums ) ifTrue: [^ subGraduation interval: 2 millenniums ].! !
 
 !TimelineConnector methodsFor: 'as yet unclassified' stamp: 'hlsf 10/1/2025 14:59:06'!
 entryView: aView
 	entryView := aView ! !
 
-!TimelineConnector methodsFor: 'drawing' stamp: 'hlsf 10/1/2025 21:53:04'!
+!TimelineConnector methodsFor: 'drawing' stamp: 'hlsf 10/3/2025 22:40:37'!
 drawOn: canvas
-	| toLine anchor |
+	| toLine anchor color |
+	color := entryView borderColor.
 	anchor := entryView externalize:  entryView anchor.
 	toLine := anchor +
 		(entryView isAboveTimeline ifTrue: [0@TimelineConnector height] ifFalse: [(0@TimelineConnector height) negated]).
-	canvas line: toLine to: anchor width: entryView borderWidth color: entryView borderColor.
-	canvas fillColor: entryView borderColor do: [canvas ellipseCenter: toLine radius: 5@5]! !
+	canvas line: toLine to: anchor width: entryView borderWidth color: color.
+	canvas fillColor: color do: [canvas ellipseCenter: toLine radius: 4@4]! !
 
 !TimelineConnector class methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 22:29:16'!
 height
@@ -399,37 +406,40 @@ updateCanvas
 		views add: view].
 	self addAllMorphs: views! !
 
-!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/2/2025 22:27:11'!
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/3/2025 22:43:51'!
 drawOn: canvas
 	| start end pos posY font |
 	canvas strokeWidth: self width color: self color do: [
-		canvas moveTo: 0@(extent y // 2);
+		canvas moveTo: 1@(extent y // 2);
 			lineTo: (extent x - 1) @ (extent y // 2);
 			rel_LineTo: -10@-6;
 			rel_MoveTo: 0@12;
 			rel_LineTo: 10@-6].
 	
 	" First level graduation "
+	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
 	start := (model firstEvent ifNil: [^ self]) date roundDownTo: model graduation interval.
 	end := model lastEvent date roundUpTo: model graduation interval.
 	posY := extent y // 2 - 10.
-	canvas strokeWidth: self width color: self color do: [
-		start to: end 	by: model graduation interval do: [:aDate |
-			pos := (model abscissaAt: aDate) @ posY.
-			canvas moveTo: pos; 	rel_LineTo: 0 @ 20 ] ].
-	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
-	posY := extent y // 2 + 15.
 	start to: end 	by: model graduation interval do: [:aDate |
 		pos := (model abscissaAt: aDate) @ posY.
-		canvas drawString: aDate yearNumber asString atCenterX: pos font: font color: self color].
+		pos x > 0 ifTrue: [
+			canvas strokeWidth: self width color: self color do: [	canvas moveTo: pos; 	rel_LineTo: 0 @ 20].
+			canvas drawString: aDate yearNumber asString atCenterX: pos + (0@25) font: font color: self color] ].
 	" Sub graduation "
+	model graduation interval days = model subGraduation interval days ifTrue: [^ self].
 	start := start + model subGraduation interval.
 	end := end - model subGraduation interval.
 	posY := extent y // 2 - 5.
 	canvas strokeWidth: self width color: self color do: [
 		start to: end by: model subGraduation interval do: [:aDate |
-			pos := (model abscissaAt: aDate) @ posY.
-			canvas moveTo: pos; 	rel_LineTo: 0 @ 10 ] ]! !
+			(aDate roundDownTo: model graduation interval) = aDate ifFalse: [
+				pos := (model abscissaAt: aDate) @ posY.
+				(pos x between: 0 and: extent x) ifTrue: [canvas moveTo: pos; rel_LineTo: 0 @ 10]] ] ]! !
+
+!TimelineCanvas methodsFor: 'as yet unclassified' stamp: 'hlsf 10/3/2025 20:29:29'!
+requiresVectorCanvas
+	^ true ! !
 
 !TimelineCanvas class methodsFor: 'as yet unclassified' stamp: 'hlsf 10/1/2025 18:00:45'!
 height
@@ -499,22 +509,22 @@ model
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!TimelineView methodsFor: 'widget' stamp: 'hlsf 9/27/2025 13:03:35'!
+!TimelineView methodsFor: 'widget' stamp: 'hlsf 10/3/2025 22:18:45'!
 horizontalWheel 
 	^ (WheelMorph target: presenter actionSelector: #moveOXAction:)
 		beHorizontal; 
-		factor: 1; 
+		factor: 2; 
 		setBalloonText: 'Scroll the time line to the left or the right.' translated;
 		borderWidth: 3;
 		color: Color orange;
 		borderColor: Color black;
 		yourself! !
 
-!TimelineView methodsFor: 'widget' stamp: 'hlsf 9/27/2025 13:01:39'!
+!TimelineView methodsFor: 'widget' stamp: 'hlsf 10/3/2025 22:18:31'!
 zoomWheel
 	^ (WheelMorph target: presenter actionSelector: #zoomAction:)
 		beVertical ;		
-		factor: 0.1 ;
+		factor: 0.01 ;
 		setBalloonText: 'Zoom in or out the timeline' translated;
 		borderWidth: 3;
 		color: Color gray;
@@ -599,10 +609,10 @@ on: timelineEntry
 		model: timelineEntry;
 		initialize! !
 
-!TimelineEntryView class methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 16:36:09'!
+!TimelineEntryView class methodsFor: 'accessing' stamp: 'hlsf 10/3/2025 20:26:01'!
 extent
 " expressed in pixels "
-	^ 150@200! !
+	^ 100@150! !
 
 !Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/2/2025 22:00:42'!
 roundDownTo: aDuration
