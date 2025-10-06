@@ -1,7 +1,7 @@
-'From Cuis7.5 [latest update: #7621] on 4 October 2025 at 6:05:32 pm'!
+'From Cuis7.5 [latest update: #7637] on 6 October 2025 at 10:15:44 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 16!
-!requires: 'UI-Widgets' 1 61 nil!
+!provides: 'DyboTools-History' 1 20!
+!requires: 'UI-Widgets' 1 60 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
 
@@ -37,7 +37,7 @@ TimelineGraduation class
 
 !classDefinition: #TimelineModel category: #'DyboTools-History'!
 ActiveModel subclass: #TimelineModel
-	instanceVariableNames: 'title entries graduation subGraduation ppd'
+	instanceVariableNames: 'title entries graduation subGraduation ppd temporalGaps shrink'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-History'!
@@ -96,13 +96,13 @@ TimelineEntryView class
 	instanceVariableNames: ''!
 
 
-!Timeline commentStamp: 'hlsf 10/4/2025 18:05:23' prior: 0!
+!Timeline commentStamp: '<historical>' prior: 0!
 The presenter of the Timeline to handle the controllers and associated callbacks.
 
-(Timeline title: 'Book' ::
-	addEvent: 'Frist printing press' on: '784.1.1';
-	addEvent: 'Gutemberg' on: '1554.1.1';
-	addEvent: 'Internet' on: '1979.1.1';
+(Timeline title: 'History of Book' ::
+	addEvent: 'China. Gong Xuanyi first known printer with a wood printing device on paper.' on: '480.1.1';
+	addEvent: 'Germany. Gutemberg printing press with metal mobile blocks.' on: '1450.1.1';
+	addEvent: 'Spain. Angela Ruiz Robles prototyped the first electronic book device with film rools.' on: '1949.12.7';
 	view) openInWorld.
 !
 
@@ -119,7 +119,7 @@ A graduation on the timeline.
 !TimelineCanvas commentStamp: '<historical>' prior: 0!
 The place where is effectively drawn the timeline. 
 Its extent covers the whole area of the timeline. Therefore it may be larger than its owner or the screen. It is scrolled or zoomed appropriately with two wheel handles.
- - model, a TimelineModel!
+!
 
 !TimelineView commentStamp: '<historical>' prior: 0!
 Timeline view, it comes with:
@@ -224,11 +224,26 @@ imageUrl: anUrl
 
 	imageUrl := anUrl ! !
 
+!TimelineEntry methodsFor: 'printing' stamp: 'hlsf 10/5/2025 14:24:27'!
+balloonText
+	^ Text streamContents: [:str | 
+		str nextPutAll: date printString bold;
+			nextPut: Character lf;
+			nextPutAll: description justified italic]! !
+
 !TimelineEntry methodsFor: 'printing' stamp: 'hlsf 10/2/2025 10:14:07'!
 printOn: stream
 	stream nextPutAll: (date printFormat: #(3 2 1 $. 1 1 2));
 		nextPutAll: ' - ';
 		nextPutAll: (description truncateWithElipsisTo: 20)! !
+
+!TimelineEntry methodsFor: 'comparing' stamp: 'hlsf 10/5/2025 16:18:37'!
+= anEntry
+	^ date = anEntry date! !
+
+!TimelineEntry methodsFor: 'comparing' stamp: 'hlsf 10/5/2025 16:18:45'!
+hash
+	^ date hash! !
 
 !TimelineGraduation methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 16:15:31'!
 interval
@@ -244,13 +259,7 @@ printOn: stream
 	interval years printOn: stream.
 	stream nextPutAll: ' years'! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 21:31:07'!
-abscissaAt: aDate
-"	An entry is positionned on the timeline according to its date, convert the date to a pixel position 
-	Zero pixel is at left "
-	^ ((aDate - entries first date) days * self ppd + (TimelineEntryView extent x / 2)) rounded! !
-
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/30/2025 20:04:35'!
+!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 9/30/2025 20:04:35'!
 addEntry: aTimelineEntry
 	| newEntry |
 	ppd := nil.
@@ -260,29 +269,65 @@ addEntry: aTimelineEntry
 	self triggerEvent: #addedEntry.
 	^ newEntry ! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/4/2025 17:17:45'!
-canvasWidth
-	^ (self ppd * self span days rounded) + (TimelineEntryView extent x * 2)! !
-
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 14:22:53'!
+!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/1/2025 14:22:53'!
 entries
 	^ entries! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 10:23:55'!
+!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/5/2025 21:49:10'!
+entryAt: aDate
+	^ entries detect: [:anEntry | anEntry date = aDate] ifNone: nil! !
+
+!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/5/2025 21:51:47'!
+entryIndexAt: aDate
+	1 to: entries size do: [:i |
+		(entries at: i) date = aDate ifTrue: [^i] ].
+	^ 0! !
+
+!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/5/2025 22:23:04'!
+entryIndexBefore: aDate
+	1 to: entries size -1 do: [:i |
+		((entries at: i) date < aDate 
+		and: [(entries at: i + 1) date >= aDate ]) ifTrue: [^i] ].
+	^ self lastEvent date < aDate
+		ifTrue: [entries size] 
+		ifFalse: [0]! !
+
+!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/2/2025 10:23:55'!
 firstEvent
 	^ entries at: 1 ifAbsent: [nil]! !
+
+!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/2/2025 10:39:56'!
+lastEvent
+	^ entries at: entries size ifAbsent: [nil]! !
+
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/5/2025 10:53:19'!
+canvasWidth
+	^ (self ppd * self span days rounded) + TimelineEntryView extent x! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 16:20:06'!
 graduation
 	^ graduation ! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 10:39:56'!
-lastEvent
-	^ entries at: entries size ifAbsent: [nil]! !
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/5/2025 16:13:35'!
+shrink
+	shrink := true.
+	temporalGaps := nil! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 16:20:12'!
 subGraduation
 	^ subGraduation ! !
+
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/5/2025 22:37:44'!
+temporalGaps
+" 	Temporal gaps, between two consecutive events, spaning over 
+	the temporal threshold could be cut at user preference "
+	^ temporalGaps ifNil: [
+		temporalGaps := OrderedCollection new.
+		entries allButLast withIndexDo: [:each :index |
+			(self distance: (entries at: index + 1) date to: each date) > self temporalThreshold 
+				ifTrue: [temporalGaps add: index + 1 " we have a gap to go to the (index+1)th entry "] ].
+		temporalGaps]
+		! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/4/2025 12:59:39'!
 title
@@ -292,12 +337,33 @@ title
 title: aText
 	title := aText! !
 
-!TimelineModel methodsFor: 'initialization' stamp: 'hlsf 9/28/2025 16:16:32'!
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/5/2025 16:14:37'!
+unshrink
+	shrink := false! !
+
+!TimelineModel methodsFor: 'initialization' stamp: 'hlsf 10/5/2025 16:14:05'!
 initialize
 	super initialize.
 	entries := SortedCollection sortBlock: [:entryA :entryB | entryA date < entryB date].
 	graduation := TimelineGraduation new interval: 1 millenniums.
-	subGraduation := TimelineGraduation new interval: 100 years! !
+	subGraduation := TimelineGraduation new interval: 100 years.
+	self shrink! !
+
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/5/2025 16:09:26'!
+abscissaAt: aDate
+"	An entry is positionned on the timeline according to its date, convert the date to a pixel position 
+	Zero pixel is at left "
+	^ self isShrinked 
+		ifTrue: [self shrinkedAbscissaAt: aDate] 
+		ifFalse: [self unshrinkedAbscissaAt: aDate]! !
+
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/5/2025 15:07:50'!
+distance: date1 to: date2
+" 	We may want to know the pixel distance, 
+	in the timeline, between two events
+"
+	^ (date1 - date2 ) days abs * self ppd
+	! !
 
 !TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/4/2025 17:31:19'!
 ppd
@@ -309,6 +375,31 @@ ppd
 	^ ppd ifNil: [
 		ppd := (TimelineEntryView extent x // 2 + 20 / timeInteval days) asFloat min: 0.1 max: 0.001]! !
 
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/5/2025 22:44:21'!
+shrinkedAbscissaAt: aDate
+	| index anotherDate | 
+	index := self entryIndexAt: aDate.
+	index = 1 
+		ifTrue: [^ TimelineEntryView extent x // 2]
+		ifFalse: [
+			index = 0 
+				ifTrue: [ "It is not a date of an event, search the one right before "
+					index := self entryIndexBefore: aDate.
+					index = 0 ifTrue: [^ self unshrinkedAbscissaAt: aDate].
+					anotherDate := (entries at: index) date.
+					^ (self shrinkedAbscissaAt: (entries at: index) date) 
+					+ (self distance: anotherDate to: aDate)]
+				ifFalse: [	" it is a date of an event, is it subject to a temporal gap? "
+					anotherDate := (entries at: index - 1) date.
+					(temporalGaps includes: index) 
+					ifTrue:  [^ (self shrinkedAbscissaAt: anotherDate)
+							+ TimelineEntryView extent x]
+					ifFalse: [	^ (self shrinkedAbscissaAt: anotherDate)
+							+ (self distance: anotherDate to: aDate) ]
+					]
+				]
+			! !
+
 !TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/1/2025 16:25:15'!
 span
 " 	We want to know the span of the events (distance between oldest and newer events) 
@@ -317,14 +408,12 @@ span
 		ifEmpty:  [Duration zero]
 		ifNotEmpty: [entries last date - entries first date]! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/2/2025 22:21:09'!
-spanForCanvas
-" 	We want to know the span of the events (distance between oldest and newer events) 
-	to set the graduation approriately "
-	^ entries 
-		ifEmpty:  [Duration zero]
-		ifNotEmpty: [(entries last date roundUpTo: graduation interval)
-			- (entries first date roundDownTo: graduation interval)]! !
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/5/2025 11:06:15'!
+temporalThreshold
+" 	When two consecutive events are too far from each other (in screen pixel unit), 
+	we may decide to cut the timeline with ellipsis to shorten it
+"
+	^ 1000! !
 
 !TimelineModel methodsFor: 'metrics' stamp: 'hlsf 9/28/2025 16:02:59'!
 timeInterval
@@ -336,6 +425,10 @@ timeInterval
 		dist := (entries at: i + 1) date - (entries at: i) date.
 		dist < interval ifTrue: [interval := dist] ].
 	^ interval ! !
+
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/5/2025 16:08:46'!
+unshrinkedAbscissaAt: aDate
+	^ ((aDate - entries first date) days * self ppd + (TimelineEntryView extent x / 2)) rounded! !
 
 !TimelineModel methodsFor: 'metrics' stamp: 'hlsf 9/28/2025 16:45:08'!
 updateGraduation
@@ -354,6 +447,11 @@ updateSubGraduation
 	(timeInterval between: 1 years and: 100 years) ifTrue: [^ subGraduation interval: 10 years ].
 	(timeInterval between: 100 years and: 1 millenniums ) ifTrue: [^ subGraduation interval: 50 years].
 	(timeInterval between: 1 millenniums and: 10 millenniums ) ifTrue: [^ subGraduation interval: 2 millenniums ].! !
+
+!TimelineModel methodsFor: 'testing' stamp: 'hlsf 10/5/2025 16:12:47'!
+isShrinked
+" Shrinked timeline skips temporal gap above the temporal threshold "
+	^ shrink! !
 
 !TimelineConnector methodsFor: 'as yet unclassified' stamp: 'hlsf 10/1/2025 14:59:06'!
 entryView: aView
@@ -421,8 +519,8 @@ updateCanvas
 		views add: view].
 	self addAllMorphs: views! !
 
-!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/4/2025 17:49:13'!
-drawOn: canvas
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/5/2025 15:19:45'!
+drawFullOn: canvas
 	| start end font timelineY model endGrad |
 	model := presenter model.
 	canvas fillRectangle: self localBounds color: Color white.
@@ -447,7 +545,14 @@ drawOn: canvas
 
 ! !
 
-!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/4/2025 17:43:56'!
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/5/2025 15:23:32'!
+drawOn: canvas
+	| gaps |
+	(self model isShrinked and: [(gaps := self model temporalGaps) notEmpty])
+		ifTrue: [self drawOn: canvas skip: gaps]
+		ifFalse: [self drawFullOn: canvas]! !
+
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/6/2025 21:49:00'!
 drawOn: canvas graduationAt: posY from: start to: end hardStop: endGrad
 	| model font pos |
 	" First level graduation "
@@ -458,6 +563,59 @@ drawOn: canvas graduationAt: posY from: start to: end hardStop: endGrad
 		(pos x between: 0 and: endGrad) ifTrue: [
 			canvas strokeWidth: self entryWidth color: self color do: [canvas moveTo: pos; rel_LineTo: 0 @ 20].
 			canvas drawString: aDate yearNumber asString atCenterX: pos + (0@25) font: font color: self color] ]! !
+
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/6/2025 22:15:02'!
+drawOn: canvas skip: gaps
+	| start end runningDate font timelineY model entries endGrad |
+	model := presenter model.
+	entries := model entries.
+	canvas fillRectangle: self localBounds color: Color white.
+	font := (FontFamily familyName: FontFamily defaultFamilyName pointSize: 16) emphasized: 7.
+	canvas drawString: model title atCenterX: extent x // 2 @ 0 font: font color: self color.
+	timelineY := TimelineCanvas topMargin + TimelineEntryView extent y + TimelineConnector height.
+	endGrad := extent x - 11.
+		canvas strokeWidth: self entryWidth color: self color do: [
+		canvas moveTo: 1@ timelineY ;
+			lineTo: (model abscissaAt: entries first date) @ timelineY].
+		
+	1 to: model entries size - 1 do: [:index | | dash |
+		dash := (gaps includes: index + 1) ifTrue: [2r10000000] ifFalse: [255].
+		canvas strokeWidth: self entryWidth color: self color dashedStrokeBits: dash do: [
+			canvas moveTo: (model abscissaAt: (entries at: index) date) @ timelineY;
+				lineTo: (model abscissaAt: (entries at: index + 1) date) @ timelineY]].
+	
+	canvas strokeWidth: self entryWidth color: self color do: [
+		canvas moveTo: (model abscissaAt: entries last date) @ timelineY;
+			lineTo: (extent x - 1) @ timelineY;
+			rel_LineTo: -10@-6;
+			rel_MoveTo: 0@12;
+			rel_LineTo: 10@-6].
+	
+	" First level graduation "
+	start := (model firstEvent ifNil: [^ self]) date roundDownTo: model graduation interval.
+	end := (model lastEvent date roundUpTo: model graduation interval) + model graduation interval.
+  	entries allButLast withIndexDo: [:entry :i |
+		runningDate := (entries at: i + 1) date roundUpTo: model graduation interval.
+		(model temporalGaps includes: i + 1 ) ifFalse: [
+			" no temporal gap, non shrinked representation "
+			self 	drawOn: canvas graduationAt: timelineY - 10 from: start to: runningDate hardStop: endGrad].
+		start := runningDate ].
+	self 	drawOn: canvas graduationAt: timelineY - 10 from: start to: end hardStop: endGrad.
+
+	" Sub graduation "
+	model graduation interval days = model subGraduation interval days ifTrue: [^ self].
+	start := (model firstEvent date roundDownTo: model graduation interval)
+			+ model subGraduation interval.
+	self drawOn: canvas subGraduationAt: timelineY - 5 from: start to:  model firstEvent date hardStop: endGrad.
+  	entries allButLast withIndexDo: [:entry :i |
+		runningDate := ((entries at: i + 1) date roundDownTo: model graduation interval) + model subGraduation interval.
+		(model temporalGaps includes: i + 1) ifFalse: [
+			" no temporal gap, non shrinked representation "
+			self drawOn: canvas subGraduationAt: timelineY - 5 from: start to: runningDate hardStop: endGrad].
+		start := runningDate].
+	self drawOn: canvas subGraduationAt: timelineY - 5 from: start to: end hardStop: endGrad 
+
+! !
 
 !TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/4/2025 17:46:48'!
 drawOn: canvas subGraduationAt: posY from: start to: end hardStop: endGrad
@@ -536,10 +694,11 @@ for: aTimelineCanvas
 	^ self new
 		addMorph: aTimelineCanvas position: 0@0! !
 
-!TimelineView methodsFor: 'initialization' stamp: 'hlsf 9/28/2025 11:52:57'!
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/5/2025 12:15:07'!
 initialize
 	super initialize.
-	self installView ! !
+	self installView.
+	self morphExtent: 700@500! !
 
 !TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/4/2025 16:57:30'!
 installView
@@ -619,22 +778,24 @@ presenter: aPresenter
 defaultColor
 	^ Color white! !
 
-!TimelineEntryView methodsFor: 'initialization' stamp: 'hlsf 10/2/2025 10:14:39'!
+!TimelineEntryView methodsFor: 'initialization' stamp: 'hlsf 10/5/2025 14:25:35'!
 initialize
+	| scroll |
 	super initialize.
 	self beColumn.
 	date := LabelMorph contents: (model date printFormat: #(1 2 3 $/ 1 1 1))  fontSize: 12 emphasis: 1.
-	description := TextParagraphMorph contents: (model description italic pointSize: 10):: 
+	description := TextParagraphMorph contents: (model description justified italic pointSize: 10):: 
 		color: Color white ;
 		setHeightOnContent ;
 		borderWidth: 0.
 	self addMorph:  date layoutSpec: LayoutSpec keepMorphExtent ;
-		addMorphUseAll: (PluggableScrollPane new 
+		addMorphUseAll: (scroll := PluggableScrollPane new 
 			layoutSpec: LayoutSpec useAll;
 			color: Color white;
 			scroller: description);
 		morphExtent: TimelineEntryView extent.
-	self setBalloonText: model printString! !
+	scroll adoptWidgetsColor: self defaultColor.
+	self setBalloonText: model balloonText ! !
 
 !TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 21:28:18'!
 abscissa: x
@@ -672,13 +833,14 @@ morphPosition: aPoint
 isAboveTimeline
 	^ position == #above! !
 
-!TimelineEntryView methodsFor: 'as yet unclassified' stamp: 'hlsf 10/2/2025 10:11:38'!
+!TimelineEntryView methodsFor: 'as yet unclassified' stamp: 'hlsf 10/5/2025 12:04:15'!
 borderColor: aColor 
 	super borderColor: aColor.
 	self color: aColor.
 	date color: (aColor luminance > 0.5 ifTrue: [Color black] ifFalse: [Color white]).
 	description color: aColor muchLighter.
-	description owner color: aColor muchLighter! !
+	description owner color: aColor muchLighter.
+	description owner verticalScrollBar color: aColor! !
 
 !TimelineEntryView class methodsFor: 'instance creation' stamp: 'hlsf 9/30/2025 20:02:53'!
 on: timelineEntry
@@ -686,10 +848,18 @@ on: timelineEntry
 		model: timelineEntry;
 		initialize! !
 
-!TimelineEntryView class methodsFor: 'accessing' stamp: 'hlsf 10/3/2025 20:26:01'!
+!TimelineEntryView class methodsFor: 'accessing' stamp: 'hlsf 10/5/2025 12:10:09'!
 extent
 " expressed in pixels "
-	^ 100@150! !
+	^ 120@150! !
+
+!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/5/2025 22:22:03'!
+<= anotherDate
+	^ (self > anotherDate) not! !
+
+!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/5/2025 22:20:25'!
+>= anotherDate
+	^ (self < anotherDate) not! !
 
 !Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/2/2025 22:00:42'!
 roundDownTo: aDuration
