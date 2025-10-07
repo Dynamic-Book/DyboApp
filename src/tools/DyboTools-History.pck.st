@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7637] on 6 October 2025 at 10:15:44 pm'!
+'From Cuis7.5 [latest update: #7637] on 7 October 2025 at 10:04:31 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 20!
+!provides: 'DyboTools-History' 1 21!
 !requires: 'UI-Widgets' 1 60 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
@@ -259,10 +259,11 @@ printOn: stream
 	interval years printOn: stream.
 	stream nextPutAll: ' years'! !
 
-!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 9/30/2025 20:04:35'!
+!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/7/2025 21:55:59'!
 addEntry: aTimelineEntry
 	| newEntry |
 	ppd := nil.
+	temporalGaps := nil.
 	newEntry := entries add: aTimelineEntry.
 	self updateGraduation ;
 		updateSubGraduation.
@@ -300,9 +301,18 @@ firstEvent
 lastEvent
 	^ entries at: entries size ifAbsent: [nil]! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/5/2025 10:53:19'!
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/7/2025 21:53:59'!
 canvasWidth
-	^ (self ppd * self span days rounded) + TimelineEntryView extent x! !
+" Canvas width may depend on timeline shrinked or not  and existing temportal gaps "
+	^ entries 
+		ifEmpty: [0] 
+		ifNotEmpty: [ (self abscissaAt: entries last date) - (self abscissaAt: entries first date) 
+			+ TimelineEntryView extent x]
+	
+	
+"	 Former calculus, not taking in consideration shrinked timeline with temporal gaps
+	(self ppd * self span days rounded) + TimelineEntryView extent x
+"! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 16:20:06'!
 graduation
@@ -453,6 +463,10 @@ isShrinked
 " Shrinked timeline skips temporal gap above the temporal threshold "
 	^ shrink! !
 
+!TimelineModel methodsFor: 'testing' stamp: 'hlsf 10/7/2025 21:38:02'!
+isTemporalGap: eventIndex
+	^ self temporalGaps includes: eventIndex ! !
+
 !TimelineConnector methodsFor: 'as yet unclassified' stamp: 'hlsf 10/1/2025 14:59:06'!
 entryView: aView
 	entryView := aView ! !
@@ -519,7 +533,7 @@ updateCanvas
 		views add: view].
 	self addAllMorphs: views! !
 
-!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/5/2025 15:19:45'!
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/7/2025 21:18:09'!
 drawFullOn: canvas
 	| start end font timelineY model endGrad |
 	model := presenter model.
@@ -537,7 +551,7 @@ drawFullOn: canvas
 	
 	" First level graduation "
 	start := (model firstEvent ifNil: [^ self]) date roundDownTo: model graduation interval.
-	end := (model lastEvent date roundUpTo: model graduation interval) + model graduation interval.
+	end := (model lastEvent date roundUpTo: model graduation interval).
 	self drawOn: canvas graduationAt: timelineY -10 from: start to: end hardStop: endGrad.	
 	" Sub graduation "
 	model graduation interval days = model subGraduation interval days ifTrue: [^ self].
@@ -545,11 +559,60 @@ drawFullOn: canvas
 
 ! !
 
-!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/5/2025 15:23:32'!
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/7/2025 22:03:50'!
+drawGapsOn: canvas
+	| start end runningDate font timelineY model entries endGrad |
+	model := presenter model.
+	entries := model entries.
+	canvas fillRectangle: self localBounds color: Color white.
+	font := (FontFamily familyName: FontFamily defaultFamilyName pointSize: 16) emphasized: 7.
+	canvas drawString: model title atCenterX: extent x // 2 @ 0 font: font color: self color.
+	timelineY := TimelineCanvas topMargin + TimelineEntryView extent y + TimelineConnector height.
+	endGrad := extent x - 11.
+		canvas strokeWidth: self entryWidth color: self color do: [
+		canvas moveTo: 1@ timelineY ;
+			lineTo: (model abscissaAt: entries first date) @ timelineY].
+		
+	1 to: model entries size - 1 do: [:index | | dash |
+		dash := (model isTemporalGap: index + 1) ifTrue: [2r10000000] ifFalse: [255].
+		canvas strokeWidth: self entryWidth color: self color dashedStrokeBits: dash do: [
+			canvas moveTo: (model abscissaAt: (entries at: index) date) @ timelineY;
+				lineTo: (model abscissaAt: (entries at: index + 1) date) @ timelineY]].
+	
+	canvas strokeWidth: self entryWidth color: self color do: [
+		canvas moveTo: (model abscissaAt: entries last date) @ timelineY;
+			lineTo: (extent x - 1) @ timelineY;
+			rel_LineTo: -10@-6;
+			rel_MoveTo: 0@12;
+			rel_LineTo: 10@-6].
+	
+	" First level graduation "
+	start := (model firstEvent ifNil: [^ self]) date roundDownTo: model graduation interval.
+	end := (model lastEvent date roundUpTo: model graduation interval).
+
+  	entries allButLast withIndexDo: [:entry :i |
+		runningDate := (entries at: i + 1) date roundUpTo: model graduation interval.
+		(model isTemporalGap: i + 1 ) ifFalse: [" no temporal gap, non shrinked representation "			
+			self 	drawOn: canvas graduationAt: timelineY - 10 from: start to: runningDate hardStop: endGrad].
+		start := runningDate ].
+
+	" Sub graduation "
+	model graduation interval days = model subGraduation interval days ifTrue: [^ self].
+	start := (model firstEvent date roundDownTo: model graduation interval)
+			- model subGraduation interval.
+	self drawOn: canvas subGraduationAt: timelineY - 5 from: start to: model firstEvent date hardStop: endGrad.
+	entries allButLast withIndexDo: [:entry :i |
+		runningDate := (entries at: i + 1) date roundUpTo: model subGraduation interval.
+		endGrad := model abscissaAt: (entries at: i + 1) date.
+		(model isTemporalGap: i + 1) ifFalse: [" no temporal gap, non shrinked representation "		
+			self drawOn: canvas subGraduationAt: timelineY - 5 from: start to: runningDate hardStop: endGrad].
+		start := runningDate]
+! !
+
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/7/2025 21:39:46'!
 drawOn: canvas
-	| gaps |
-	(self model isShrinked and: [(gaps := self model temporalGaps) notEmpty])
-		ifTrue: [self drawOn: canvas skip: gaps]
+	(self model isShrinked and: [self model temporalGaps notEmpty])
+		ifTrue: [self drawGapsOn: canvas]
 		ifFalse: [self drawFullOn: canvas]! !
 
 !TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/6/2025 21:49:00'!
@@ -564,60 +627,7 @@ drawOn: canvas graduationAt: posY from: start to: end hardStop: endGrad
 			canvas strokeWidth: self entryWidth color: self color do: [canvas moveTo: pos; rel_LineTo: 0 @ 20].
 			canvas drawString: aDate yearNumber asString atCenterX: pos + (0@25) font: font color: self color] ]! !
 
-!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/6/2025 22:15:02'!
-drawOn: canvas skip: gaps
-	| start end runningDate font timelineY model entries endGrad |
-	model := presenter model.
-	entries := model entries.
-	canvas fillRectangle: self localBounds color: Color white.
-	font := (FontFamily familyName: FontFamily defaultFamilyName pointSize: 16) emphasized: 7.
-	canvas drawString: model title atCenterX: extent x // 2 @ 0 font: font color: self color.
-	timelineY := TimelineCanvas topMargin + TimelineEntryView extent y + TimelineConnector height.
-	endGrad := extent x - 11.
-		canvas strokeWidth: self entryWidth color: self color do: [
-		canvas moveTo: 1@ timelineY ;
-			lineTo: (model abscissaAt: entries first date) @ timelineY].
-		
-	1 to: model entries size - 1 do: [:index | | dash |
-		dash := (gaps includes: index + 1) ifTrue: [2r10000000] ifFalse: [255].
-		canvas strokeWidth: self entryWidth color: self color dashedStrokeBits: dash do: [
-			canvas moveTo: (model abscissaAt: (entries at: index) date) @ timelineY;
-				lineTo: (model abscissaAt: (entries at: index + 1) date) @ timelineY]].
-	
-	canvas strokeWidth: self entryWidth color: self color do: [
-		canvas moveTo: (model abscissaAt: entries last date) @ timelineY;
-			lineTo: (extent x - 1) @ timelineY;
-			rel_LineTo: -10@-6;
-			rel_MoveTo: 0@12;
-			rel_LineTo: 10@-6].
-	
-	" First level graduation "
-	start := (model firstEvent ifNil: [^ self]) date roundDownTo: model graduation interval.
-	end := (model lastEvent date roundUpTo: model graduation interval) + model graduation interval.
-  	entries allButLast withIndexDo: [:entry :i |
-		runningDate := (entries at: i + 1) date roundUpTo: model graduation interval.
-		(model temporalGaps includes: i + 1 ) ifFalse: [
-			" no temporal gap, non shrinked representation "
-			self 	drawOn: canvas graduationAt: timelineY - 10 from: start to: runningDate hardStop: endGrad].
-		start := runningDate ].
-	self 	drawOn: canvas graduationAt: timelineY - 10 from: start to: end hardStop: endGrad.
-
-	" Sub graduation "
-	model graduation interval days = model subGraduation interval days ifTrue: [^ self].
-	start := (model firstEvent date roundDownTo: model graduation interval)
-			+ model subGraduation interval.
-	self drawOn: canvas subGraduationAt: timelineY - 5 from: start to:  model firstEvent date hardStop: endGrad.
-  	entries allButLast withIndexDo: [:entry :i |
-		runningDate := ((entries at: i + 1) date roundDownTo: model graduation interval) + model subGraduation interval.
-		(model temporalGaps includes: i + 1) ifFalse: [
-			" no temporal gap, non shrinked representation "
-			self drawOn: canvas subGraduationAt: timelineY - 5 from: start to: runningDate hardStop: endGrad].
-		start := runningDate].
-	self drawOn: canvas subGraduationAt: timelineY - 5 from: start to: end hardStop: endGrad 
-
-! !
-
-!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/4/2025 17:46:48'!
+!TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/7/2025 21:14:16'!
 drawOn: canvas subGraduationAt: posY from: start to: end hardStop: endGrad
 	| model pos |
 	" Sub graduation "
