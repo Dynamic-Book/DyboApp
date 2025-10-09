@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 2 October 2025 at 10:32:59 pm'!
+'From Cuis7.5 [latest update: #7637] on 9 October 2025 at 12:16:47 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 164!
+!provides: 'DyboDoc' 1 165!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -3011,11 +3011,14 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 8/31/2025 11:25:11'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 11:48:54'!
 annotate: aPlacedMorph
-| annotedExtent |
-	annotatedMorph ifNotNil: [self removeMorph: annotatedMorph].
+| annotedExtent formerExtent |
+	annotatedMorph ifNotNil: [
+		formerExtent := annotatedMorph morphExtent.
+		self removeMorph: annotatedMorph].
 	annotatedMorph := aPlacedMorph.
+	formerExtent ifNotNil: [annotatedMorph morphExtent: formerExtent].
 	annotedExtent := annotatedMorph displayBounds 
 		ifNil:[annotatedMorph bitMask extent]
 		ifNotNil: [annotatedMorph displayBounds extent].		
@@ -3521,11 +3524,16 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/10/2025 16:18:16'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 11:36:14'!
 installScriptsFlap
 	| flap items |
 	items := Array 
 		with: DyboTextScript new 
+		with: (DyboScript new :: title: 'Timeline' ; code: 'Timeline title: ''History of Book'' ::
+	addEvent: ''China. Gong Xuanyi first known printer with a wood printing device on paper.'' on: ''480.1.1'';
+	addEvent: ''Germany. Gutemberg printing press with metal mobile blocks.'' on: ''1450.1.1'';
+	addEvent: ''Spain. Angela Ruiz Robles prototyped the first electronic book device with film rolls.'' on: ''1949.12.7'';
+	view')
 		with: (DyboScript new :: title: 'Workspace' ;code: '| ws | 
 ws := Workspace open.
 ws delete.

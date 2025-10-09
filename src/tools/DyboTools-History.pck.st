@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7637] on 7 October 2025 at 10:04:31 pm'!
+'From Cuis7.5 [latest update: #7637] on 9 October 2025 at 12:16:42 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 21!
+!provides: 'DyboTools-History' 1 23!
 !requires: 'UI-Widgets' 1 60 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
@@ -102,7 +102,7 @@ The presenter of the Timeline to handle the controllers and associated callbacks
 (Timeline title: 'History of Book' ::
 	addEvent: 'China. Gong Xuanyi first known printer with a wood printing device on paper.' on: '480.1.1';
 	addEvent: 'Germany. Gutemberg printing press with metal mobile blocks.' on: '1450.1.1';
-	addEvent: 'Spain. Angela Ruiz Robles prototyped the first electronic book device with film rools.' on: '1949.12.7';
+	addEvent: 'Spain. Angela Ruiz Robles prototyped the first electronic book device with film rolls.' on: '1949.12.7';
 	view) openInWorld.
 !
 
@@ -175,11 +175,32 @@ addEvent: aText on: aStringDate image: anUrl
 	^ model addEntry: entry
 	! !
 
-!Timeline methodsFor: 'initialization' stamp: 'hlsf 9/28/2025 11:41:09'!
+!Timeline methodsFor: 'DSL' stamp: 'hlsf 10/9/2025 10:55:30'!
+color: aColor
+	view borderColor: aColor! !
+
+!Timeline methodsFor: 'DSL' stamp: 'hlsf 10/9/2025 10:22:33'!
+shrink
+" Timeline spaning over long periods of time can be shrinked.
+  These periods are then represented as dots in the timeline."
+	model shrink ! !
+
+!Timeline methodsFor: 'DSL' stamp: 'hlsf 10/9/2025 10:22:43'!
+unshrink
+" Timeline spaning over long periods of time can be shrinked.
+  These periods are then represented as dots in the timeline."
+	model unshrink ! !
+
+!Timeline methodsFor: 'DSL' stamp: 'hlsf 10/9/2025 10:57:03'!
+width: aColor
+	view borderWidth: aColor! !
+
+!Timeline methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 11:30:50'!
 initialize
 	super initialize.
 	model := TimelineModel new.
-	view := TimelineView presenter: self.! !
+	view := TimelineView presenter: self.
+	view morphExtent: 500@300! !
 
 !Timeline methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 11:50:00'!
 model
@@ -259,7 +280,7 @@ printOn: stream
 	interval years printOn: stream.
 	stream nextPutAll: ' years'! !
 
-!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/7/2025 21:55:59'!
+!TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/9/2025 10:17:41'!
 addEntry: aTimelineEntry
 	| newEntry |
 	ppd := nil.
@@ -267,7 +288,7 @@ addEntry: aTimelineEntry
 	newEntry := entries add: aTimelineEntry.
 	self updateGraduation ;
 		updateSubGraduation.
-	self triggerEvent: #addedEntry.
+	self triggerEvent: #changedTimeline.
 	^ newEntry ! !
 
 !TimelineModel methodsFor: 'accessing event' stamp: 'hlsf 10/1/2025 14:22:53'!
@@ -318,10 +339,11 @@ canvasWidth
 graduation
 	^ graduation ! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/5/2025 16:13:35'!
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 10:18:12'!
 shrink
 	shrink := true.
-	temporalGaps := nil! !
+	temporalGaps := nil.
+	self triggerEvent: #changedTimeline! !
 
 !TimelineModel methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 16:20:12'!
 subGraduation
@@ -347,9 +369,10 @@ title
 title: aText
 	title := aText! !
 
-!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/5/2025 16:14:37'!
+!TimelineModel methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 10:18:23'!
 unshrink
-	shrink := false! !
+	shrink := false.
+	self triggerEvent: #changedTimeline! !
 
 !TimelineModel methodsFor: 'initialization' stamp: 'hlsf 10/5/2025 16:14:05'!
 initialize
@@ -385,7 +408,7 @@ ppd
 	^ ppd ifNil: [
 		ppd := (TimelineEntryView extent x // 2 + 20 / timeInteval days) asFloat min: 0.1 max: 0.001]! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/5/2025 22:44:21'!
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/9/2025 10:25:13'!
 shrinkedAbscissaAt: aDate
 	| index anotherDate | 
 	index := self entryIndexAt: aDate.
@@ -401,7 +424,7 @@ shrinkedAbscissaAt: aDate
 					+ (self distance: anotherDate to: aDate)]
 				ifFalse: [	" it is a date of an event, is it subject to a temporal gap? "
 					anotherDate := (entries at: index - 1) date.
-					(temporalGaps includes: index) 
+					(self temporalGaps includes: index) 
 					ifTrue:  [^ (self shrinkedAbscissaAt: anotherDate)
 							+ TimelineEntryView extent x]
 					ifFalse: [	^ (self shrinkedAbscissaAt: anotherDate)
@@ -440,12 +463,12 @@ timeInterval
 unshrinkedAbscissaAt: aDate
 	^ ((aDate - entries first date) days * self ppd + (TimelineEntryView extent x / 2)) rounded! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 9/28/2025 16:45:08'!
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/9/2025 10:29:49'!
 updateGraduation
 	| span |
 	span := self span.
-	span > 10 millenniums ifTrue: [^ graduation interval: 10 millenniums].
-	(span between: 2 millenniums and: 10 millenniums) ifTrue: [^ graduation interval: 1 millenniums].
+	span > 10 millenniums ifTrue: [^ graduation interval: 1 millenniums].
+	(span between: 2 millenniums and: 10 millenniums) ifTrue: [^ graduation interval: 200 years].
 	(span between: 200 years and: 2 millenniums) ifTrue: [^ graduation interval: 100 years].
 	(span between: Duration zero and: 200 years) ifTrue: [^ graduation interval: 10 years]! !
 
@@ -485,17 +508,21 @@ drawOn: canvas
 height
 	^ 50! !
 
-!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 09:43:51'!
+!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 10:58:06'!
 color
-	^ self mainView entryBorderColor ! !
+	^ self mainView borderColor ! !
 
-!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/4/2025 13:19:19'!
+!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 10:39:06'!
+container
+	^ owner! !
+
+!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 10:58:00'!
 entryWidth
-	^ self mainView entryBorderWidth ! !
+	^ self mainView borderWidth ! !
 
-!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 09:42:54'!
+!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 10:39:14'!
 mainView
-	^ owner owner! !
+	^ self container owner! !
 
 !TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/4/2025 16:53:13'!
 model
@@ -505,16 +532,16 @@ model
 positions
 	^ `Array with: #above with: #below`! !
 
-!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/4/2025 16:55:13'!
+!TimelineCanvas methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 10:17:35'!
 presenter: aPresenter
 	presenter := aPresenter.
-	presenter model when: #addedEntry send: #updateCanvas to: self! !
+	presenter model when: #changedTimeline send: #updateCanvas to: self! !
 
 !TimelineCanvas methodsFor: 'geometry' stamp: 'hlsf 10/4/2025 16:55:39'!
 setExtent
 	self morphExtent: self model canvasWidth @ TimelineCanvas height! !
 
-!TimelineCanvas methodsFor: 'updating' stamp: 'hlsf 10/4/2025 16:55:53'!
+!TimelineCanvas methodsFor: 'updating' stamp: 'hlsf 10/9/2025 10:58:39'!
 updateCanvas
 	| views view |
 	self setExtent.
@@ -525,13 +552,26 @@ updateCanvas
 		" We alternate the position #above #below the timeline "
 		view position: (self positions atWrap: i);
 			abscissa: (self model abscissaAt: entry date) - (TimelineEntryView extent x // 2);
-			borderColor: self mainView entryBorderColor;
-			borderWidth: self mainView entryBorderWidth .		
+			borderColor: self mainView borderColor;
+			borderWidth: self mainView borderWidth .		
 		views add: view.
 		view := TimelineConnector new entryView: view; yourself.
-		
 		views add: view].
-	self addAllMorphs: views! !
+	self addAllMorphs: views;
+		scale: 1.
+	self morphPosition: self container morphExtent - extent // 2! !
+
+!TimelineCanvas methodsFor: 'updating' stamp: 'hlsf 10/9/2025 11:13:17'!
+updateColor
+	submorphs 
+		select: [:each | each is: #TimelineEntryView] 
+		thenDo: [:eventView  | eventView borderColor: self color]! !
+
+!TimelineCanvas methodsFor: 'updating' stamp: 'hlsf 10/9/2025 11:14:23'!
+updateWidth
+	submorphs 
+		select: [:each | each is: #TimelineEntryView] 
+		thenDo: [:eventView  | eventView borderWidth: self entryWidth]! !
 
 !TimelineCanvas methodsFor: 'drawing' stamp: 'hlsf 10/7/2025 21:18:09'!
 drawFullOn: canvas
@@ -704,17 +744,29 @@ for: aTimelineCanvas
 	^ self new
 		addMorph: aTimelineCanvas position: 0@0! !
 
-!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/5/2025 12:15:07'!
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 10:52:20'!
+defaultBorderColor 
+	^ Color blue! !
+
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 10:52:26'!
+defaultBorderWidth 
+	^ 2! !
+
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/4/2025 17:11:56'!
+defaultColor
+	^ Color transparent! !
+
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 12:15:46'!
 initialize
 	super initialize.
 	self installView.
 	self morphExtent: 700@500! !
 
-!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/4/2025 16:57:30'!
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 12:07:05'!
 installView
 	canvas := TimelineCanvas new presenter: presenter.
 	canvas setExtent.
-	self addMorph: (TimelineContainer for: canvas )
+	self addMorph: (TimelineContainer for: canvas)
 		layoutSpec: (LayoutEdgesSpec 
 			tlEdgesWeight: 0@0 offset: 0@0 
 			brEdgesWeight: 1@1 offset: -30@-30).
@@ -727,6 +779,21 @@ installView
 			tlEdgesWeight: 0.5@1 offset: -60@-30 
 			brEdgesWeight: 0.5 @1 offset: 60@0)! !
 
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 12:15:36'!
+noteNewOwner: aMorph
+	"I have just been added as a submorph of aMorph"
+	canvas morphPosition: canvas owner morphExtent - canvas morphExtent // 2! !
+
+!TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 11:12:33'!
+borderColor: aColor
+	super borderColor: aColor.
+	canvas updateColor! !
+
+!TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 11:15:34'!
+borderWidth: anInteger
+	super borderWidth: anInteger.
+	canvas updateWidth ! !
+
 !TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 16:28:34'!
 canvas
 	^ canvas! !
@@ -734,14 +801,6 @@ canvas
 !TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 08:59:41'!
 container
 	^ canvas owner! !
-
-!TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 09:40:51'!
-entryBorderColor
-	^ `Color blue`! !
-
-!TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/2/2025 21:12:22'!
-entryBorderWidth
-	^ 2! !
 
 !TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/29/2025 21:43:41'!
 model
@@ -772,10 +831,6 @@ zoomWheel
 		color: Color gray;
 		borderColor: Color black;
 		yourself! !
-
-!TimelineView methodsFor: 'as yet unclassified' stamp: 'hlsf 10/4/2025 17:11:56'!
-defaultColor
-	^ Color transparent! !
 
 !TimelineView class methodsFor: 'instance creation' stamp: 'hlsf 9/27/2025 12:56:16'!
 presenter: aPresenter
@@ -819,6 +874,15 @@ anchor
 		ifFalse: [self localBounds topCenter] " #below timeline" 
 	! !
 
+!TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 10/5/2025 12:04:15'!
+borderColor: aColor 
+	super borderColor: aColor.
+	self color: aColor.
+	date color: (aColor luminance > 0.5 ifTrue: [Color black] ifFalse: [Color white]).
+	description color: aColor muchLighter.
+	description owner color: aColor muchLighter.
+	description owner verticalScrollBar color: aColor! !
+
 !TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 9/30/2025 20:03:08'!
 model: timelineEntry
 	model := timelineEntry ! !
@@ -839,18 +903,13 @@ position: aSymbol
 morphPosition: aPoint 
 	location withTranslation: aPoint.! !
 
+!TimelineEntryView methodsFor: 'testing' stamp: 'hlsf 10/9/2025 11:07:04'!
+is: aSymbol
+	^ aSymbol == #TimelineEntryView or: [super is: aSymbol]! !
+
 !TimelineEntryView methodsFor: 'testing' stamp: 'hlsf 10/1/2025 17:46:16'!
 isAboveTimeline
 	^ position == #above! !
-
-!TimelineEntryView methodsFor: 'as yet unclassified' stamp: 'hlsf 10/5/2025 12:04:15'!
-borderColor: aColor 
-	super borderColor: aColor.
-	self color: aColor.
-	date color: (aColor luminance > 0.5 ifTrue: [Color black] ifFalse: [Color white]).
-	description color: aColor muchLighter.
-	description owner color: aColor muchLighter.
-	description owner verticalScrollBar color: aColor! !
 
 !TimelineEntryView class methodsFor: 'instance creation' stamp: 'hlsf 9/30/2025 20:02:53'!
 on: timelineEntry
