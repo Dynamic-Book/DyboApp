@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7637] on 9 October 2025 at 12:16:42 pm'!
+'From Cuis7.5 [latest update: #7637] on 11 October 2025 at 1:45:07 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 23!
+!provides: 'DyboTools-History' 1 24!
 !requires: 'UI-Widgets' 1 60 nil!
 SystemOrganization addCategory: #'DyboTools-History'!
 
@@ -756,33 +756,34 @@ defaultBorderWidth
 defaultColor
 	^ Color transparent! !
 
-!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 12:15:46'!
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 20:03:43'!
 initialize
 	super initialize.
+	self morphExtent: 700@500.
 	self installView.
-	self morphExtent: 700@500! !
+! !
 
-!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 12:07:05'!
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 20:20:03'!
 installView
 	canvas := TimelineCanvas new presenter: presenter.
 	canvas setExtent.
 	self addMorph: (TimelineContainer for: canvas)
 		layoutSpec: (LayoutEdgesSpec 
 			tlEdgesWeight: 0@0 offset: 0@0 
-			brEdgesWeight: 1@1 offset: -30@-30).
+			brEdgesWeight: 1@1 offset: -20@-20).
 	self	addMorph: self zoomWheel
 		layoutSpec: (LayoutEdgesSpec 
-			tlEdgesWeight: 1@0.5 offset: -30@-60
+			tlEdgesWeight: 1@0.5 offset: -20@-60
 			brEdgesWeight: 1@0.5 offset: 0@60).
 	self addMorph: self horizontalWheel 
 		layoutSpec: (LayoutEdgesSpec 
-			tlEdgesWeight: 0.5@1 offset: -60@-30 
-			brEdgesWeight: 0.5 @1 offset: 60@0)! !
+			tlEdgesWeight: 0.5@1 offset: -60@-20 
+			brEdgesWeight: 0.5 @1 offset: 60@0)
+! !
 
-!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 12:15:36'!
+!TimelineView methodsFor: 'initialization' stamp: 'hlsf 10/11/2025 11:28:52'!
 noteNewOwner: aMorph
-	"I have just been added as a submorph of aMorph"
-	canvas morphPosition: canvas owner morphExtent - canvas morphExtent // 2! !
+	  UISupervisor whenUIinSafeState: [canvas morphPosition: canvas owner morphExtent - canvas morphExtent // 2]! !
 
 !TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/9/2025 11:12:33'!
 borderColor: aColor

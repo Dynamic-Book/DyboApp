@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7637] on 9 October 2025 at 12:16:47 pm'!
+'From Cuis7.5 [latest update: #7637] on 11 October 2025 at 1:47:15 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 165!
+!provides: 'DyboDoc' 1 166!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -4296,13 +4296,12 @@ stopDebbuger
 		
 		! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 3/4/2025 19:54:47'!
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 10/11/2025 13:46:27'!
 stopScript
 	ActiveModel flushEventSystem.
-	DrGeoSketch removeActionsForEvent: #newSmalltalkSketch.
-	scriptProcess 	ifNotNil: [
+	scriptProcess ifNotNil: [
 		scriptProcess terminate.
-		scriptProcess := nil	].
+		scriptProcess := nil].
 	self switchToPlayButton .
 	self stopDebbuger 
 	! !
