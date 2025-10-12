@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7637] on 11 October 2025 at 1:47:15 pm'!
+'From Cuis7.5 [latest update: #7637] on 12 October 2025 at 1:42:35 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 166!
+!provides: 'DyboDoc' 1 168!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -1300,6 +1300,10 @@ view
 view: aMorph
 	view := aMorph ! !
 
+!Document methodsFor: 'accessing' stamp: 'hlsf 10/11/2025 18:46:41'!
+window
+	^ self view owner owner! !
+
 !Document methodsFor: 'accessing' stamp: 'hlsf 9/7/2025 17:53:00'!
 writingTool
 	" Depends on the selected tool "
@@ -1909,9 +1913,9 @@ grabAnnotatorsIn: page at: localPosition
 grabbed
 	^ grabbed ! !
 
-!PointerTool methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 16:42:37'!
+!PointerTool methodsFor: 'accessing' stamp: 'hlsf 10/11/2025 17:37:37'!
 grabbed: aMorph
-	grabbed := 	aMorph ! !
+	grabbed := aMorph ! !
 
 !PointerTool class methodsFor: 'accessing' stamp: 'hlsf 10/23/2024 10:50:18'!
 action
@@ -2087,7 +2091,7 @@ handleRelease: localPosition in: paper
 	context switchState: HighligtherToolStateNeutral 
 	! !
 
-!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:53:07'!
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/11/2025 17:34:55'!
 handleMouseAt: localPosition in: paper
 	| delta page worldPosition |
 	worldPosition := paper externalizeToWorld: localPosition.
@@ -2096,9 +2100,9 @@ handleMouseAt: localPosition in: paper
 		delta := worldPosition - prevPosition.
 		context grabbed 
 			ifNotNil: [ :annotator |
-				annotator morphPosition: annotator morphPosition + (delta / page scale) 				] 
-			ifNil: [	page morphPosition: page morphPosition + delta ]		.
-		prevPosition := worldPosition 		]! !
+				annotator morphPosition: annotator morphPosition + (delta / page scale) 	] 
+			ifNil: [page morphPosition: page morphPosition + delta ].
+		prevPosition := worldPosition ]! !
 
 !PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 10/23/2024 19:50:59'!
 handlePress: localPosition in: paper
@@ -2129,7 +2133,7 @@ code
 code: aString
 	code := aString ! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:04:02'!
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 13:00:20'!
 description
 	^ description ifNil: [self class description]! !
 
@@ -2137,14 +2141,19 @@ description
 description: aString
 	description := aString ! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 3/8/2025 11:12:53'!
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 12:54:08'!
 icon
-	| svg |
 	^ icon ifNil: [
-		svg := [SVGMainMorph fromStream: (ReadStream on: self class svgIcon)] 
+		self icon: self class svgIcon.
+		icon]! !
+
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 13:09:31'!
+icon: svgDescription
+	| svg |
+	svg := [SVGMainMorph fromStream: (ReadStream on: svgDescription)] 
 			on: SVGWarning 
 			do: [:warning | warning resume].
-		icon := svg imageForm: (svg morphExtent normalized * 128) rounded depth: 32]
+	icon := svg imageForm: (svg morphExtent normalized * 64) rounded depth: 32
 		! !
 
 !DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:03:30'!
@@ -2166,12 +2175,16 @@ execute
 addCustomMenuItems: menu annoted: view
 	! !
 
-!DyboScript methodsFor: 'as yet unclassified' stamp: 'hlsf 9/7/2025 11:04:48'!
+!DyboScript methodsFor: 'testing' stamp: 'hlsf 9/7/2025 11:04:48'!
 is: aSymbol
 	^ aSymbol == #DyboScript or: [super is: aSymbol ]! !
 
 !DyboScript class methodsFor: 'DKM' stamp: 'hlsf 2/16/2025 16:30:08'!
 dependency
+	^ nil! !
+
+!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 13:00:04'!
+description
 	^ nil! !
 
 !DyboScript class methodsFor: 'DKM' stamp: 'hlsf 3/8/2025 11:12:19'!
@@ -2182,6 +2195,14 @@ svgIcon
 title
 	^ 'A generic script' translated! !
 
+!DyboScript class methodsFor: 'instance creation' stamp: 'hlsf 10/12/2025 13:03:37'!
+for: aPresenterClass
+	^ self new ::
+		title: aPresenterClass title;
+		description: aPresenterClass description;
+		code: aPresenterClass codeSample;
+		icon: aPresenterClass svgIcon ! !
+
 !DyboTextScript methodsFor: 'initialization' stamp: 'hlsf 2/20/2025 10:50:31'!
 initialize
 	super initialize.
@@ -2191,13 +2212,17 @@ initialize
 addCustomMenuItems: menu annoted: view
 	(CommandBuilder on: #dyboTextScriptMenu with: view editor) addToMenu: menu! !
 
+!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 13:04:44'!
+description
+	^ 'A small text editor where the font, size, color and style of the text can be adjusted.' translated! !
+
 !DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 3/8/2025 11:12:19'!
 svgIcon
 	^ '<svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="m432 416h-23.41l-130.71-362.31a32 32 0 0 0 -30.3-21.69h-47.16a32 32 0 0 0 -30.3 21.69l-130.71 362.31h-23.41a16 16 0 0 0 -16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0 -16-16h-19.58l23.3-64h152.56l23.3 64h-19.58a16 16 0 0 0 -16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0 -16-16zm-255.15-144 47.15-129.49 47.15 129.49z"/></svg>'! !
 
-!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 2/20/2025 10:42:23'!
+!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 13:04:52'!
 title
-	^ 'Text frame with style edition' translated! !
+	^ 'Text editor' translated! !
 
 !DyboTextScript class methodsFor: 'menu' stamp: 'hlsf 3/1/2025 15:04:59'!
 menuStyle: menuBuilder
@@ -2743,7 +2768,7 @@ handlesMouseDown: event
 	^ true
 ! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 9/5/2024 15:36:49'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 10/11/2025 17:49:17'!
 mouseButton1Down: event localPosition: localPosition
 	self tool handlePress: localPosition in: self! !
 
@@ -3070,16 +3095,14 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/24/2025 15:13:55'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 10/11/2025 17:31:36'!
 mouseEnter: evt
-	'enter' print.
 	self removeAlarm: #removeHalo.
 	self show.
 	self addHalo! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/24/2025 15:07:30'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 10/11/2025 17:31:41'!
 mouseLeave: evt
-	'leave' print.
 	self addAlarm: #removeHalo after: 2000! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 8/31/2025 11:25:31'!
@@ -3133,10 +3156,14 @@ topLeftCorner
 	^ corner - self frameWidth
 	! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 3/8/2025 11:23:44'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 10/11/2025 18:50:48'!
 editAnnoted
-	^ DyboScriptEditor open: script label: script title ::
-		annotator: self! !
+	| editor | 
+	editor := DyboScriptEditor open: script label: script title ::
+		annotator: self.
+	editor resize: presenter window fullBoundsInOwner.
+	self removeHalo.
+	^ editor! !
 
 !AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 8/31/2025 11:27:08'!
 haloSpecifications
@@ -3243,7 +3270,7 @@ initialize
 	super initialize.
 	self annotate: script execute! !
 
-!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 9/7/2025 11:08:13'!
+!AnnotatorMorph methodsFor: 'submorphs-accessing' stamp: 'hlsf 9/7/2025 11:08:13'!
 noteNewOwner: newOwner
 	self adjustBounds ! !
 
@@ -3524,20 +3551,13 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 11:36:14'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 10/12/2025 13:38:49'!
 installScriptsFlap
 	| flap items |
 	items := Array 
 		with: DyboTextScript new 
-		with: (DyboScript new :: title: 'Timeline' ; code: 'Timeline title: ''History of Book'' ::
-	addEvent: ''China. Gong Xuanyi first known printer with a wood printing device on paper.'' on: ''480.1.1'';
-	addEvent: ''Germany. Gutemberg printing press with metal mobile blocks.'' on: ''1450.1.1'';
-	addEvent: ''Spain. Angela Ruiz Robles prototyped the first electronic book device with film rolls.'' on: ''1949.12.7'';
-	view')
-		with: (DyboScript new :: title: 'Workspace' ;code: '| ws | 
-ws := Workspace open.
-ws delete.
-ws layoutMorph morphExtent: 300@200').
+		with: (DyboScript  for: Timeline)
+		with: (DyboScript for: Workspace).
 	flap := Flap label: ' Test Scripts ' scripts: items.
 	container addMorph: flap.
 	flap target: PageMorph.
@@ -4564,7 +4584,7 @@ handlesMouseOver: evt
 mouseEnter: evt
 	owner target removeAlarm: #removeHalo! !
 
-!Flap methodsFor: '*DyboDoc' stamp: 'hlsf 3/2/2025 10:56:40'!
+!Flap methodsFor: '*DyboDoc' stamp: 'hlsf 10/12/2025 12:59:30'!
 scripts: dyboScripts
 	objects := dyboScripts collect: [:each |
 		FlapItem 
@@ -4572,6 +4592,7 @@ scripts: dyboScripts
 			image: each icon
 			buttons: nil 
 			label: each title ::
+			setBalloonText: each description;
 			flap: self;
 			setProperty: #allowsItemDrag toValue: true;
 			adoptWidgetsColor: borderColor;

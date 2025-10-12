@@ -1,97 +1,96 @@
-'From Cuis7.5 [latest update: #7637] on 11 October 2025 at 7:37:51 pm'!
+'From Cuis7.5 [latest update: #7637] on 12 October 2025 at 1:30:07 pm'!
 'Description '!
-!provides: 'DyboTools-History' 1 25!
-!requires: 'UI-Widgets' 1 60 nil!
-SystemOrganization addCategory: #'DyboTools-History'!
+!provides: 'DyboDKM-History' 1 1!
+SystemOrganization addCategory: #'DyboDKM-History'!
 
 
-!classDefinition: #Timeline category: #'DyboTools-History'!
+!classDefinition: #Timeline category: #'DyboDKM-History'!
 Object subclass: #Timeline
 	instanceVariableNames: 'model view'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DyboTools-History'!
-!classDefinition: 'Timeline class' category: #'DyboTools-History'!
+	category: 'DyboDKM-History'!
+!classDefinition: 'Timeline class' category: #'DyboDKM-History'!
 Timeline class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineEntry category: #'DyboTools-History'!
+!classDefinition: #TimelineEntry category: #'DyboDKM-History'!
 Object subclass: #TimelineEntry
 	instanceVariableNames: 'date description position image imageUrl'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DyboTools-History'!
-!classDefinition: 'TimelineEntry class' category: #'DyboTools-History'!
+	category: 'DyboDKM-History'!
+!classDefinition: 'TimelineEntry class' category: #'DyboDKM-History'!
 TimelineEntry class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineGraduation category: #'DyboTools-History'!
+!classDefinition: #TimelineGraduation category: #'DyboDKM-History'!
 Object subclass: #TimelineGraduation
 	instanceVariableNames: 'interval'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DyboTools-History'!
-!classDefinition: 'TimelineGraduation class' category: #'DyboTools-History'!
+	category: 'DyboDKM-History'!
+!classDefinition: 'TimelineGraduation class' category: #'DyboDKM-History'!
 TimelineGraduation class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineModel category: #'DyboTools-History'!
+!classDefinition: #TimelineModel category: #'DyboDKM-History'!
 ActiveModel subclass: #TimelineModel
 	instanceVariableNames: 'title entries graduation subGraduation ppd temporalGaps shrink'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DyboTools-History'!
-!classDefinition: 'TimelineModel class' category: #'DyboTools-History'!
+	category: 'DyboDKM-History'!
+!classDefinition: 'TimelineModel class' category: #'DyboDKM-History'!
 TimelineModel class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineConnector category: #'DyboTools-History'!
+!classDefinition: #TimelineConnector category: #'DyboDKM-History'!
 PlacedMorph subclass: #TimelineConnector
 	instanceVariableNames: 'entryView'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DyboTools-History'!
-!classDefinition: 'TimelineConnector class' category: #'DyboTools-History'!
+	category: 'DyboDKM-History'!
+!classDefinition: 'TimelineConnector class' category: #'DyboDKM-History'!
 TimelineConnector class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineCanvas category: #'DyboTools-History'!
+!classDefinition: #TimelineCanvas category: #'DyboDKM-History'!
 BoxMorph subclass: #TimelineCanvas
 	instanceVariableNames: 'presenter prevPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DyboTools-History'!
-!classDefinition: 'TimelineCanvas class' category: #'DyboTools-History'!
+	category: 'DyboDKM-History'!
+!classDefinition: 'TimelineCanvas class' category: #'DyboDKM-History'!
 TimelineCanvas class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineContainer category: #'DyboTools-History'!
+!classDefinition: #TimelineContainer category: #'DyboDKM-History'!
 ColoredBoxMorph subclass: #TimelineContainer
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DyboTools-History'!
-!classDefinition: 'TimelineContainer class' category: #'DyboTools-History'!
+	category: 'DyboDKM-History'!
+!classDefinition: 'TimelineContainer class' category: #'DyboDKM-History'!
 TimelineContainer class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineView category: #'DyboTools-History'!
+!classDefinition: #TimelineView category: #'DyboDKM-History'!
 FormLayoutMorph subclass: #TimelineView
 	instanceVariableNames: 'presenter canvas'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DyboTools-History'!
-!classDefinition: 'TimelineView class' category: #'DyboTools-History'!
+	category: 'DyboDKM-History'!
+!classDefinition: 'TimelineView class' category: #'DyboDKM-History'!
 TimelineView class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineEntryView category: #'DyboTools-History'!
+!classDefinition: #TimelineEntryView category: #'DyboDKM-History'!
 LinearLayoutMorph subclass: #TimelineEntryView
 	instanceVariableNames: 'model date description position'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DyboTools-History'!
-!classDefinition: 'TimelineEntryView class' category: #'DyboTools-History'!
+	category: 'DyboDKM-History'!
+!classDefinition: 'TimelineEntryView class' category: #'DyboDKM-History'!
 TimelineEntryView class
 	instanceVariableNames: ''!
 
@@ -209,6 +208,28 @@ model
 !Timeline methodsFor: 'accessing' stamp: 'hlsf 9/28/2025 12:05:29'!
 view
 	^ view! !
+
+!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 12:54:56'!
+codeSample
+	^'Timeline title: ''History of Book'' ::
+	addEvent: ''China. Gong Xuanyi first known printer with a wood printing device on paper.'' on: ''480.1.1'';
+	addEvent: ''Germany. Gutemberg printing press with metal mobile blocks.'' on: ''1450.1.1'';
+	addEvent: ''Spain. Angela Ruiz Robles prototyped the first electronic book device with film rolls.'' on: ''1949.12.7'';
+	shrink;
+	color: Color black;
+	view'! !
+
+!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 12:36:21'!
+description
+	^ 'Design historical timeline with a collection of events. Each event contains a date and a textual description.'  translated! !
+
+!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 12:33:14'!
+svgIcon
+	^'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!!--!!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M160 169.3c28.3-12.3 48-40.5 48-73.3 0-44.2-35.8-80-80-80S48 51.8 48 96c0 32.8 19.7 61 48 73.3l0 54.7-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l224 0 0 54.7c-28.3 12.3-48 40.5-48 73.3 0 44.2 35.8 80 80 80s80-35.8 80-80c0-32.8-19.7-61-48-73.3l0-54.7 224 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0 0-54.7c28.3-12.3 48-40.5 48-73.3 0-44.2-35.8-80-80-80s-80 35.8-80 80c0 32.8 19.7 61 48 73.3l0 54.7-256 0 0-54.7z"/></svg>'! !
+
+!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 12:33:50'!
+title
+	^ 'Timeline' translated! !
 
 !Timeline class methodsFor: 'instance creation' stamp: 'hlsf 9/28/2025 11:52:03'!
 title: aText
@@ -398,9 +419,9 @@ distance: date1 to: date2
 	^ (date1 - date2 ) days abs * self ppd
 	! !
 
-!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/11/2025 19:18:24'!
+!TimelineModel methodsFor: 'metrics' stamp: 'hlsf 10/12/2025 12:17:52'!
 ppd
-" 	pixels per days 
+" 	pixels per day
 	The density of timeline depends on entry view width and time interval"
 	| timeInteval |
 	timeInteval := self timeInterval.
@@ -930,29 +951,29 @@ extent
 " expressed in pixels "
 	^ 120@150! !
 
-!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/5/2025 22:22:03'!
+!Date methodsFor: '*DyboDKM-History' stamp: 'hlsf 10/5/2025 22:22:03'!
 <= anotherDate
 	^ (self > anotherDate) not! !
 
-!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/5/2025 22:20:25'!
+!Date methodsFor: '*DyboDKM-History' stamp: 'hlsf 10/5/2025 22:20:25'!
 >= anotherDate
 	^ (self < anotherDate) not! !
 
-!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/2/2025 22:00:42'!
+!Date methodsFor: '*DyboDKM-History' stamp: 'hlsf 10/2/2025 22:00:42'!
 roundDownTo: aDuration
 	^ Date 
 		year:  (self yearNumber roundDownTo: aDuration years)
 		month: self monthIndex 
 		day: self dayOfMonth! !
 
-!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/2/2025 22:01:23'!
+!Date methodsFor: '*DyboDKM-History' stamp: 'hlsf 10/2/2025 22:01:23'!
 roundUpTo: aDuration
 	^ Date 
 		year:  (self yearNumber roundUpTo: aDuration years)
 		month: self monthIndex 
 		day: self dayOfMonth! !
 
-!Date methodsFor: '*DyboTools-History' stamp: 'hlsf 10/4/2025 13:37:48'!
+!Date methodsFor: '*DyboDKM-History' stamp: 'hlsf 10/4/2025 13:37:48'!
 to: endDate by: aDuration do: block
 " 	Use with caution, because argument to block convert to a Date, 
 	so you may have repeated identical data if duration is smaller than a day "
@@ -963,26 +984,26 @@ to: endDate by: aDuration do: block
 		block value: currentDateAndTime date.
 		currentDateAndTime := currentDateAndTime + aDuration ]! !
 
-!Duration methodsFor: '*DyboTools-History' stamp: 'hlsf 9/28/2025 15:46:15'!
+!Duration methodsFor: '*DyboDKM-History' stamp: 'hlsf 9/28/2025 15:46:15'!
 millenniums
 	^ (self days / 365.25 / 1000) rounded! !
 
-!Duration methodsFor: '*DyboTools-History' stamp: 'hlsf 9/28/2025 15:46:52'!
+!Duration methodsFor: '*DyboDKM-History' stamp: 'hlsf 9/28/2025 15:46:52'!
 years
 	" Just to get an approximation , to the closest "
 	^ (self days / 365.25) rounded! !
 
-!Number methodsFor: '*DyboTools-History' stamp: 'hlsf 9/28/2025 15:39:49'!
+!Number methodsFor: '*DyboDKM-History' stamp: 'hlsf 9/28/2025 15:39:49'!
 millenniums
 " An approximation "
 	^ (self * 1000) years! !
 
-!Number methodsFor: '*DyboTools-History' stamp: 'hlsf 9/28/2025 16:35:51'!
+!Number methodsFor: '*DyboDKM-History' stamp: 'hlsf 9/28/2025 16:35:51'!
 months
 " An approximation "
 	^ Duration days: self * 30.4375! !
 
-!Number methodsFor: '*DyboTools-History' stamp: 'hlsf 9/28/2025 15:38:42'!
+!Number methodsFor: '*DyboDKM-History' stamp: 'hlsf 9/28/2025 15:38:42'!
 years
 " An approximation "
 	^ Duration days: self * 365.25! !
