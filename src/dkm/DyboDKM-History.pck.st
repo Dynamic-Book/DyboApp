@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7637] on 12 October 2025 at 1:30:07 pm'!
+'From Cuis7.5 [latest update: #7637] on 12 October 2025 at 7:13:15 pm'!
 'Description '!
-!provides: 'DyboDKM-History' 1 1!
+!provides: 'DyboDKM-History' 1 2!
 SystemOrganization addCategory: #'DyboDKM-History'!
 
 
@@ -223,9 +223,26 @@ codeSample
 description
 	^ 'Design historical timeline with a collection of events. Each event contains a date and a textual description.'  translated! !
 
+!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 18:50:50'!
+pragmaMenu
+	^ #timelineMenu! !
+
 !Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 12:33:14'!
 svgIcon
 	^'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!!--!!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M160 169.3c28.3-12.3 48-40.5 48-73.3 0-44.2-35.8-80-80-80S48 51.8 48 96c0 32.8 19.7 61 48 73.3l0 54.7-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l224 0 0 54.7c-28.3 12.3-48 40.5-48 73.3 0 44.2 35.8 80 80 80s80-35.8 80-80c0-32.8-19.7-61-48-73.3l0-54.7 224 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0 0-54.7c28.3-12.3 48-40.5 48-73.3 0-44.2-35.8-80-80-80s-80 35.8-80 80c0 32.8 19.7 61 48 73.3l0 54.7-256 0 0-54.7z"/></svg>'! !
+
+!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 18:56:02'!
+timelineMenu: menuBuilder
+	<timelineMenu>
+	menuBuilder model: menuBuilder model presenter.
+	menuBuilder newEntry: #shrink ::
+		label: 'Shrink timeline' translated;
+		selector: #shrink;
+		order: 10.
+	menuBuilder newEntry: #unshrink ::
+		label: 'Expand timeline' translated;
+		selector: #unshrink;
+		order: 20! !
 
 !Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 12:33:50'!
 title
@@ -831,6 +848,10 @@ container
 !TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/29/2025 21:43:41'!
 model
 	^ presenter model! !
+
+!TimelineView methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 18:56:35'!
+presenter
+	^ presenter! !
 
 !TimelineView methodsFor: 'accessing' stamp: 'hlsf 9/27/2025 12:56:37'!
 presenter: aPresenter

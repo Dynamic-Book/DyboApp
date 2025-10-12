@@ -1,11 +1,13 @@
-'From Cuis7.5 [latest update: #7637] on 12 October 2025 at 4:14:44 pm'!
+'From Cuis7.5 [latest update: #7637] on 12 October 2025 at 7:13:57 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 169!
+!provides: 'DyboDoc' 1 170!
+!requires: 'DyboDKM-History' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'Commander' 1 7 nil!
+!requires: 'DyboDKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
