@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7637] on 12 October 2025 at 1:42:35 pm'!
+'From Cuis7.5 [latest update: #7637] on 12 October 2025 at 4:14:44 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 168!
+!provides: 'DyboDoc' 1 169!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
@@ -346,22 +346,12 @@ PointerToolStateNeutral class
 
 !classDefinition: #DyboScript category: #'DyboDoc-Script'!
 Object subclass: #DyboScript
-	instanceVariableNames: 'code title description icon'
+	instanceVariableNames: 'presenter icon code'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Script'!
 !classDefinition: 'DyboScript class' category: #'DyboDoc-Script'!
 DyboScript class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyboTextScript category: #'DyboDoc-Script'!
-DyboScript subclass: #DyboTextScript
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'DyboDoc-Script'!
-!classDefinition: 'DyboTextScript class' category: #'DyboDoc-Script'!
-DyboTextScript class
 	instanceVariableNames: ''!
 
 !classDefinition: #CommandStack category: #'DyboDoc-Presenter-Command'!
@@ -2125,26 +2115,22 @@ handlePress: localPosition in: paper
 		handlePress: localPosition in: paper
 	! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 3/4/2025 19:48:00'!
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 16:00:40'!
 code
-	^ code! !
+	^ code ifNil: [code := presenter codeSample]! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:04:47'!
-code: aString
-	code := aString ! !
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 16:00:18'!
+code: aUnicodeString 
+	code := aUnicodeString ! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 13:00:20'!
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 15:52:35'!
 description
-	^ description ifNil: [self class description]! !
+	^ presenter description ! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:04:19'!
-description: aString
-	description := aString ! !
-
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 12:54:08'!
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 15:52:50'!
 icon
 	^ icon ifNil: [
-		self icon: self class svgIcon.
+		self icon: presenter svgIcon.
 		icon]! !
 
 !DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 13:09:31'!
@@ -2156,24 +2142,25 @@ icon: svgDescription
 	icon := svg imageForm: (svg morphExtent normalized * 64) rounded depth: 32
 		! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:03:30'!
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 15:51:46'!
+presenter: aPresenterClass
+	presenter := aPresenterClass ! !
+
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 10/12/2025 15:52:25'!
 title
-	^ title ifNil: [self class title]! !
+	^ presenter title! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 2/16/2025 17:04:26'!
-title: aString
-	title := aString ! !
-
-!DyboScript methodsFor: 'updating' stamp: 'hlsf 3/8/2025 18:11:18'!
+!DyboScript methodsFor: 'updating' stamp: 'hlsf 10/12/2025 15:59:09'!
 execute
 	| scriptView |
-	scriptView :=  Compiler evaluate: code.
+	scriptView :=  Compiler evaluate: self code.
 	DyboScript triggerEvent: #compiledDyboScript with: scriptView.
 	^ scriptView! !
 
-!DyboScript methodsFor: 'menu' stamp: 'hlsf 2/22/2025 23:22:15'!
+!DyboScript methodsFor: 'menu' stamp: 'hlsf 10/12/2025 16:14:15'!
 addCustomMenuItems: menu annoted: view
-	! !
+	(presenter respondsTo: #pragmaMenu) 
+		ifTrue: [(CommandBuilder on: presenter pragmaMenu with: view) addToMenu: menu]! !
 
 !DyboScript methodsFor: 'testing' stamp: 'hlsf 9/7/2025 11:04:48'!
 is: aSymbol
@@ -2195,57 +2182,10 @@ svgIcon
 title
 	^ 'A generic script' translated! !
 
-!DyboScript class methodsFor: 'instance creation' stamp: 'hlsf 10/12/2025 13:03:37'!
+!DyboScript class methodsFor: 'instance creation' stamp: 'hlsf 10/12/2025 15:51:16'!
 for: aPresenterClass
 	^ self new ::
-		title: aPresenterClass title;
-		description: aPresenterClass description;
-		code: aPresenterClass codeSample;
-		icon: aPresenterClass svgIcon ! !
-
-!DyboTextScript methodsFor: 'initialization' stamp: 'hlsf 2/20/2025 10:50:31'!
-initialize
-	super initialize.
-	code := 'TextModelMorph withText: ''Write your text here.'''! !
-
-!DyboTextScript methodsFor: 'menu' stamp: 'hlsf 3/1/2025 11:48:06'!
-addCustomMenuItems: menu annoted: view
-	(CommandBuilder on: #dyboTextScriptMenu with: view editor) addToMenu: menu! !
-
-!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 13:04:44'!
-description
-	^ 'A small text editor where the font, size, color and style of the text can be adjusted.' translated! !
-
-!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 3/8/2025 11:12:19'!
-svgIcon
-	^ '<svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="m432 416h-23.41l-130.71-362.31a32 32 0 0 0 -30.3-21.69h-47.16a32 32 0 0 0 -30.3 21.69l-130.71 362.31h-23.41a16 16 0 0 0 -16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0 -16-16h-19.58l23.3-64h152.56l23.3 64h-19.58a16 16 0 0 0 -16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0 -16-16zm-255.15-144 47.15-129.49 47.15 129.49z"/></svg>'! !
-
-!DyboTextScript class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 13:04:52'!
-title
-	^ 'Text editor' translated! !
-
-!DyboTextScript class methodsFor: 'menu' stamp: 'hlsf 3/1/2025 15:04:59'!
-menuStyle: menuBuilder
-	<dyboTextScriptMenu>
-	menuBuilder newEntry: #font ::
-		label: 'Set font' translated;
-		icon: Theme current preferencesDesktopFontIcon;
-		selector: #offerFontMenu;
-		order: 10.
-	menuBuilder newEntry: #size ::
-		label: 'Set font size' translated;
-		selector: #offerFontSizeMenu;
-		order: 20.
-	menuBuilder newEntry: #style ::
-		label: 'Set style' translated;
-		selector: #offerFontStyleMenu;
-		icon: (Theme current fetch: #('16x16' 'actions' 'format-text-italic'));
-		order: 30.
-	menuBuilder newEntry: #color ::
-		label: 'Set text color' translated;
-		icon: Theme current graphicsIcon ;
-		selector: #offerColorMenu;
-		order: 40.! !
+		presenter: aPresenterClass ! !
 
 !CommandStack methodsFor: 'private' stamp: 'hlsf 9/10/2024 21:00:31'!
 truncate
@@ -3551,11 +3491,11 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 10/12/2025 13:38:49'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 10/12/2025 15:58:27'!
 installScriptsFlap
 	| flap items |
 	items := Array 
-		with: DyboTextScript new 
+		with: (DyboScript for: TextModelMorph)
 		with: (DyboScript  for: Timeline)
 		with: (DyboScript for: Workspace).
 	flap := Flap label: ' Test Scripts ' scripts: items.
