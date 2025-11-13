@@ -1,15 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   viewBox="0 0 440 440"
-   version="1.1"
-   id="svg4"
-   width="440"
-   height="440"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs8" />
-  <path
-     d="m 345.47632,236.9705 -194.344,194.343 c -9.373,9.373 -24.569,9.373 -33.941,0 l -22.667001,-22.667 c -9.357,-9.357 -9.375,-24.522 -0.04,-33.901 L 248.50532,219.9995 94.484319,65.254504 c -9.335,-9.379004 -9.317,-24.544004 0.04,-33.901004 L 117.19132,8.6865 c 9.373,-9.373 24.569,-9.373 33.941,0 l 194.343,194.343 c 9.373,9.372 9.373,24.568 10e-4,33.941 z"
-     id="path2" />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc. --><path fill="currentColor" d="M247.1 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L179.2 256 41.9 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg>
