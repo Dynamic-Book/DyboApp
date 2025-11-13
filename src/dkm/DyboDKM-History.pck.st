@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7637] on 12 October 2025 at 7:13:15 pm'!
+'From Cuis7.5 [latest update: #7661] on 16 October 2025 at 9:37:46 am'!
 'Description '!
-!provides: 'DyboDKM-History' 1 2!
+!provides: 'DyboDKM-History' 1 4!
 SystemOrganization addCategory: #'DyboDKM-History'!
 
 
@@ -99,7 +99,7 @@ TimelineEntryView class
 The presenter of the Timeline to handle the controllers and associated callbacks.
 
 (Timeline title: 'History of Book' ::
-	addEvent: 'China. Gong Xuanyi first known printer with a wood printing device on paper.' on: '480.1.1';
+	addEvent: 'Spain. Angela Ruiz Robles prototyped the first electronic book device with film rolls.China. Gong Xuanyi first known printer with a wood printing device on paper.' on: '480.1.1';
 	addEvent: 'Germany. Gutemberg printing press with metal mobile blocks.' on: '1450.1.1';
 	addEvent: 'Spain. Angela Ruiz Robles prototyped the first electronic book device with film rolls.' on: '1949.12.7';
 	view) openInWorld.
@@ -893,7 +893,7 @@ presenter: aPresenter
 defaultColor
 	^ Color white! !
 
-!TimelineEntryView methodsFor: 'initialization' stamp: 'hlsf 10/5/2025 14:25:35'!
+!TimelineEntryView methodsFor: 'initialization' stamp: 'hlsf 10/15/2025 21:37:43'!
 initialize
 	| scroll |
 	super initialize.
@@ -910,6 +910,7 @@ initialize
 			scroller: description);
 		morphExtent: TimelineEntryView extent.
 	scroll adoptWidgetsColor: self defaultColor.
+	scroll verticalScrollBar morphWidth: 6.
 	self setBalloonText: model balloonText ! !
 
 !TimelineEntryView methodsFor: 'accessing' stamp: 'hlsf 10/1/2025 21:28:18'!
