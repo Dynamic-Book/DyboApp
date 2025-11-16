@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7661] on 16 October 2025 at 9:37:46 am'!
+'From Cuis7.5 [latest update: #7689] on 16 November 2025 at 7:52:47 pm'!
 'Description '!
-!provides: 'DyboDKM-History' 1 4!
+!provides: 'DyboDKM-History' 1 5!
 SystemOrganization addCategory: #'DyboDKM-History'!
 
 
@@ -194,9 +194,8 @@ unshrink
 width: aColor
 	view borderWidth: aColor! !
 
-!Timeline methodsFor: 'initialization' stamp: 'hlsf 10/9/2025 11:30:50'!
+!Timeline methodsFor: 'initialization' stamp: 'hlsf 11/16/2025 18:05:27'!
 initialize
-	super initialize.
 	model := TimelineModel new.
 	view := TimelineView presenter: self.
 	view morphExtent: 500@300! !
@@ -412,9 +411,8 @@ unshrink
 	shrink := false.
 	self triggerEvent: #changedTimeline! !
 
-!TimelineModel methodsFor: 'initialization' stamp: 'hlsf 10/5/2025 16:14:05'!
+!TimelineModel methodsFor: 'initialization' stamp: 'hlsf 11/16/2025 15:57:44'!
 initialize
-	super initialize.
 	entries := SortedCollection sortBlock: [:entryA :entryB | entryA date < entryB date].
 	graduation := TimelineGraduation new interval: 1 millenniums.
 	subGraduation := TimelineGraduation new interval: 100 years.
