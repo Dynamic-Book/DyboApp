@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 16 November 2025 at 7:52:49 pm'!
+'From Cuis7.5 [latest update: #7689] on 16 November 2025 at 8:04:36 pm'!
 'Description '!
-!provides: 'DyboDKM-Physics' 1 1!
+!provides: 'DyboDKM-Physics' 1 2!
 SystemOrganization addCategory: #'DyboDKM-Physics'!
 
 
@@ -261,11 +261,11 @@ linesIntersectionOf: para1 and: para2
 bounce: molecule at: t1 to: timeInterval
 	! !
 
-!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 19:51:09'!
+!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 20:03:55'!
 bounce: molecule over: newPosition with: timeInterval
 	| a b collision t1 |
 	collision := self intersectionWithTrajectory: molecule to: newPosition.
-	t1 := (collision - molecule position) / molecule speed.
+	t1 := (collision - molecule position) r / molecule speed r.
 	a := molecule speed * director.
 	b := molecule speed * normal.
 	molecule 
