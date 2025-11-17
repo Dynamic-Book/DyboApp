@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 16 November 2025 at 8:04:36 pm'!
+'From Cuis7.5 [latest update: #7689] on 17 November 2025 at 10:23:43 pm'!
 'Description '!
-!provides: 'DyboDKM-Physics' 1 2!
+!provides: 'DyboDKM-Physics' 1 3!
 SystemOrganization addCategory: #'DyboDKM-Physics'!
 
 
@@ -105,6 +105,10 @@ It comes with:
 model
 	^ model! !
 
+!IdealGasSimulation methodsFor: 'accessing' stamp: 'hlsf 11/17/2025 21:55:56'!
+view
+	^ view ifNil: [view := IdealGasSimulationView presenter: self]! !
+
 !IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 11/16/2025 17:53:07'!
 addMolecules: quantity
 	model addMolecules: quantity ! !
@@ -113,15 +117,9 @@ addMolecules: quantity
 addWallFrom: extremity1 to: extremity2
 	model addWall: (Array with: extremity1 with: extremity2)! !
 
-!IdealGasSimulation methodsFor: 'initialization' stamp: 'hlsf 11/16/2025 18:16:45'!
+!IdealGasSimulation methodsFor: 'initialization' stamp: 'hlsf 11/17/2025 21:55:43'!
 initialize
-	model := IdealGasSimulation new.
-	view := IdealGasSimulationView presenter: self.
-"
- 	Simulation real world stepping time is 0.01s.
-	For a speed of 300 m.s ⁻¹, at each simulation step, a molecule moves of 3 m
-"	
-	model simulationStep: 0.01 / (view stepTime / 1000) ! !
+	model := IdealGasSimulationModel new! !
 
 !IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 11:45:43'!
 bounds
@@ -149,6 +147,10 @@ addMolecules: quantity
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 17:50:40'!
 addWall: array
 	walls add: (Wall new vertices: array)! !
+
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/17/2025 22:14:23'!
+molecules
+	^ molecules ! !
 
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 18:15:14'!
 simulationStep: float
@@ -199,6 +201,18 @@ speed: aPoint
 !Molecule methodsFor: 'initialization' stamp: 'hlsf 11/16/2025 18:37:44'!
 initialize
 	speed := 340 + (20 atRandom - 10) * (100 atRandom @ 100 atRandom) normalized ! !
+
+!Molecule methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:06:59'!
+printOn: aStream
+	aStream nextPutAll: 'Molecule :: ('.
+	position x printOn: aStream fractionDigits: 1.
+	aStream nextPutAll: ' ; '.
+	position y printOn: aStream fractionDigits: 1.
+	aStream nextPutAll: ') v=('.
+	speed x printOn: aStream fractionDigits: 1.
+	aStream nextPutAll: ' ; '.
+	speed y printOn: aStream fractionDigits: 1.
+	aStream nextPut: $).! !
 
 !Molecule class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 16:38:52'!
 radius
@@ -257,14 +271,10 @@ linesIntersectionOf: para1 and: para2
 		x: para1 third  * para2 second - (para1 second * para2 third) / det
 		y: para1 first * para2 third - (para1 third * para2 first) / det! !
 
-!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 19:41:23'!
-bounce: molecule at: t1 to: timeInterval
-	! !
-
-!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 20:03:55'!
+!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:20:04'!
 bounce: molecule over: newPosition with: timeInterval
 	| a b collision t1 |
-	collision := self intersectionWithTrajectory: molecule to: newPosition.
+	collision := self intersectionWithTrajectory: molecule position to: newPosition.
 	t1 := (collision - molecule position) r / molecule speed r.
 	a := molecule speed * director.
 	b := molecule speed * normal.
@@ -277,6 +287,14 @@ bounce: molecule over: newPosition with: timeInterval
 thickness
 	^ 5! !
 
+!MoleculeMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:16:50'!
+drawOn: canvas
+	canvas ellipseCenter: model position radius: Molecule radius borderWidth: 0 borderColor: nil fillColor: Color green! !
+
+!MoleculeMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:10:35'!
+model: aMolecule
+	model := aMolecule ! !
+
 !WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/16/2025 16:39:41'!
 drawOn: canvas
 	canvas line: model extremity1 to: model extremity2 width: Wall thickness color: Color white! !
@@ -284,13 +302,6 @@ drawOn: canvas
 !WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 12:39:48'!
 model: wall
 	model := wall ! !
-
-!WallMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 12:39:25'!
-on: wall
-	^ self basicNew
-		model: wall;
-		initialize
-		! !
 
 !IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 11:25:50'!
 model
@@ -300,20 +311,35 @@ model
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 18:02:31'!
-stepTime
-" Update the view every 100 millisecond, 0.1 s "
-	^ 100! !
-
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/16/2025 12:46:44'!
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/17/2025 22:21:55'!
 initialize
 	super initialize.
+	" 	Simulation real world stepping time is 0.01s.
+		For a speed of 300 m.s ⁻¹, at each simulation step, a molecule moves of 3 m "	
+	self model simulationStep: 0.01 / (self stepTime / 1000). 
 	canvas := ColoredBoxMorph new morphExtent: self model bounds corner.
 	canvas color: Color black.
 	self addMorph: canvas
 		layoutSpec: (LayoutEdgesSpec 
 			tlEdgesWeight: 0@0 offset: 0@0 
-			brEdgesWeight: 1@1 offset: 0@-20).! !
+			brEdgesWeight: 1@1 offset: 0@-20).
+	self installSimulationViews .
+	self startStepping ! !
+
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/17/2025 22:15:11'!
+installSimulationViews
+	self model walls do: [:aWall | canvas addMorph: (WallMorph new model: aWall)].
+	self model molecules do: [:aMolecule | canvas addMorph: (MoleculeMorph new model: aMolecule) ]! !
+
+!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/17/2025 21:46:23'!
+step
+	self model update.
+	self redrawNeeded ! !
+
+!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/16/2025 18:02:31'!
+stepTime
+" Update the view every 100 millisecond, 0.1 s "
+	^ 100! !
 
 !IdealGasSimulationView class methodsFor: 'instance creation' stamp: 'hlsf 11/16/2025 11:20:42'!
 presenter: aPresenter
