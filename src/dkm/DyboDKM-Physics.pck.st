@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 17 November 2025 at 10:23:43 pm'!
+'From Cuis7.5 [latest update: #7689] on 18 November 2025 at 10:39:18 pm'!
 'Description '!
-!provides: 'DyboDKM-Physics' 1 3!
+!provides: 'DyboDKM-Physics' 1 4!
 SystemOrganization addCategory: #'DyboDKM-Physics'!
 
 
@@ -134,13 +134,14 @@ isValidPosition: aPoint
 wallVertices
 	^ (walls collect: [:aWall | aWall vertices]) flatten! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 16:20:40'!
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/18/2025 22:22:31'!
 addMolecules: quantity
 	| extent position |
 	walls ifEmpty: [self error: 'Set the walls of the simulation first'].
 	extent := self bounds extent.
 	quantity timesRepeat: [
 		[position := extent x atRandom @ extent y atRandom.
+		"position := extent // 2."
 		self isValidPosition: position ] whileFalse.
 		molecules add: (Molecule new position: position)]! !
 
@@ -165,13 +166,14 @@ initialize
 	walls := OrderedCollection new.
 	molecules := OrderedCollection new.! !
 
-!IdealGasSimulationModel methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 19:51:39'!
+!IdealGasSimulationModel methodsFor: 'as yet unclassified' stamp: 'hlsf 11/18/2025 21:24:53'!
 update
 	molecules do: [:molecule | | newPosition |
 		newPosition := molecule nextPosition: simulationStep.
 		walls 
 			detect:  [:aWall | aWall collidedByTrajectory: molecule position to: newPosition]
-			ifFound: [:collidedWall | collidedWall bounce: molecule over: newPosition with: simulationStep]
+			ifFound: [:collidedWall | 
+				collidedWall bounce: molecule over: newPosition with: simulationStep]
 			ifNone: [molecule position: newPosition]
 		]
 	
@@ -198,9 +200,9 @@ speed
 speed: aPoint
 	speed := aPoint ! !
 
-!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/16/2025 18:37:44'!
+!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/18/2025 21:58:47'!
 initialize
-	speed := 340 + (20 atRandom - 10) * (100 atRandom @ 100 atRandom) normalized ! !
+	speed := 340 + (20 atRandom - 10) * (100 atRandom - 50 @ (100 atRandom - 50)) normalized ! !
 
 !Molecule methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:06:59'!
 printOn: aStream
@@ -226,11 +228,11 @@ extremity1
 extremity2
 	^ extremity2! !
 
-!Wall methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 19:14:24'!
+!Wall methodsFor: 'accessing' stamp: 'hlsf 11/18/2025 21:35:55'!
 intersectionWithTrajectory: position1 to: position2
 	^ self 
-		linesIntersectionOf: (self lineEquationParameters: extremity1 along: extremity2)
-		and: (self lineEquationParameters: position1 along: position2)! !
+		linesIntersectionOf: (self lineEquationParameters: extremity1 along: extremity2 - extremity1)
+		and: (self lineEquationParameters: position1 along: position2 - position1)! !
 
 !Wall methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 12:44:43'!
 vertices
@@ -271,10 +273,11 @@ linesIntersectionOf: para1 and: para2
 		x: para1 third  * para2 second - (para1 second * para2 third) / det
 		y: para1 first * para2 third - (para1 third * para2 first) / det! !
 
-!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:20:04'!
+!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/18/2025 22:34:55'!
 bounce: molecule over: newPosition with: timeInterval
 	| a b collision t1 |
-	collision := self intersectionWithTrajectory: molecule position to: newPosition.
+	collision := self intersectionWithTrajectory: molecule position to: newPosition. 
+	collision ifNil: [^ molecule speed: molecule speed * (0.8@1.1)].
 	t1 := (collision - molecule position) r / molecule speed r.
 	a := molecule speed * director.
 	b := molecule speed * normal.
@@ -287,13 +290,14 @@ bounce: molecule over: newPosition with: timeInterval
 thickness
 	^ 5! !
 
-!MoleculeMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:16:50'!
-drawOn: canvas
-	canvas ellipseCenter: model position radius: Molecule radius borderWidth: 0 borderColor: nil fillColor: Color green! !
-
 !MoleculeMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:10:35'!
 model: aMolecule
 	model := aMolecule ! !
+
+!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/18/2025 22:34:25'!
+drawOn: canvas
+	canvas ellipseCenter: model position radius: Molecule radius borderWidth: 0 borderColor: nil fillColor: Color green.
+	canvas line: model position to: model position + (model speed * 0.05) width: 1 color: Color white.! !
 
 !WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/16/2025 16:39:41'!
 drawOn: canvas
@@ -311,12 +315,12 @@ model
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/17/2025 22:21:55'!
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/18/2025 19:18:38'!
 initialize
 	super initialize.
 	" 	Simulation real world stepping time is 0.01s.
 		For a speed of 300 m.s ⁻¹, at each simulation step, a molecule moves of 3 m "	
-	self model simulationStep: 0.01 / (self stepTime / 1000). 
+	self model simulationStep: 0.001 / (self stepTime / 1000). 
 	canvas := ColoredBoxMorph new morphExtent: self model bounds corner.
 	canvas color: Color black.
 	self addMorph: canvas
