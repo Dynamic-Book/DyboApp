@@ -1,12 +1,12 @@
-'From Cuis7.5 [latest update: #7689] on 18 November 2025 at 10:39:18 pm'!
+'From Cuis7.5 [latest update: #7689] on 19 November 2025 at 9:08:16 pm'!
 'Description '!
-!provides: 'DyboDKM-Physics' 1 4!
+!provides: 'DyboDKM-Physics' 1 5!
 SystemOrganization addCategory: #'DyboDKM-Physics'!
 
 
 !classDefinition: #IdealGasSimulation category: #'DyboDKM-Physics'!
 Object subclass: #IdealGasSimulation
-	instanceVariableNames: 'model view'
+	instanceVariableNames: 'model view playing'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDKM-Physics'!
@@ -65,7 +65,7 @@ WallMorph class
 	instanceVariableNames: ''!
 
 !classDefinition: #IdealGasSimulationView category: #'DyboDKM-Physics'!
-FormLayoutMorph subclass: #IdealGasSimulationView
+LinearLayoutMorph subclass: #IdealGasSimulationView
 	instanceVariableNames: 'presenter canvas'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -109,17 +109,37 @@ model
 view
 	^ view ifNil: [view := IdealGasSimulationView presenter: self]! !
 
-!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 11/16/2025 17:53:07'!
+!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 11/19/2025 21:00:40'!
+addFence: array4
+	array4 size ~= 4 ifTrue: [self error: 'Fence must be a quadrangle'].
+	array4 withPreviousCyclicDo: [:vertex1 :vertex2 | self addWallFrom: vertex1 to: vertex2 ]! !
+
+!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 11/19/2025 16:15:45'!
 addMolecules: quantity
-	model addMolecules: quantity ! !
+	model addMolecules: quantity at: nil! !
+
+!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 11/19/2025 16:16:25'!
+addMolecules: quantity at: aPosition
+	model addMolecules: quantity at: aPosition ! !
 
 !IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 11/16/2025 17:53:29'!
 addWallFrom: extremity1 to: extremity2
 	model addWall: (Array with: extremity1 with: extremity2)! !
 
-!IdealGasSimulation methodsFor: 'initialization' stamp: 'hlsf 11/17/2025 21:55:43'!
+!IdealGasSimulation methodsFor: 'initialization' stamp: 'hlsf 11/19/2025 16:29:26'!
 initialize
-	model := IdealGasSimulationModel new! !
+	model := IdealGasSimulationModel new.
+	playing := false.! !
+
+!IdealGasSimulation methodsFor: 'as yet unclassified' stamp: 'hlsf 11/19/2025 16:29:43'!
+isPlaying
+	^ playing ! !
+
+!IdealGasSimulation methodsFor: 'as yet unclassified' stamp: 'hlsf 11/19/2025 16:31:36'!
+playStopSimulation
+	playing ifTrue: [view stopStepping] ifFalse: [view startStepping].
+	playing := playing not.
+	self changed: #isPlaying! !
 
 !IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 11:45:43'!
 bounds
@@ -134,16 +154,17 @@ isValidPosition: aPoint
 wallVertices
 	^ (walls collect: [:aWall | aWall vertices]) flatten! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/18/2025 22:22:31'!
-addMolecules: quantity
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/19/2025 16:15:11'!
+addMolecules: quantity at: aPosition
 	| extent position |
 	walls ifEmpty: [self error: 'Set the walls of the simulation first'].
 	extent := self bounds extent.
 	quantity timesRepeat: [
-		[position := extent x atRandom @ extent y atRandom.
-		"position := extent // 2."
-		self isValidPosition: position ] whileFalse.
-		molecules add: (Molecule new position: position)]! !
+		aPosition ifNil: [
+			[position := extent x atRandom @ extent y atRandom.
+			self isValidPosition: position ] whileFalse].
+		molecules add: (Molecule new position: (aPosition ifNil: [position]) ) ]
+		! !
 
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 17:50:40'!
 addWall: array
@@ -200,9 +221,9 @@ speed
 speed: aPoint
 	speed := aPoint ! !
 
-!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/18/2025 21:58:47'!
+!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/19/2025 21:05:23'!
 initialize
-	speed := 340 + (20 atRandom - 10) * (100 atRandom - 50 @ (100 atRandom - 50)) normalized ! !
+	speed := 340 + (30 atRandom - 15) * (100 atRandom - 50 @ (100 atRandom - 50)) normalized ! !
 
 !Molecule methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:06:59'!
 printOn: aStream
@@ -273,14 +294,15 @@ linesIntersectionOf: para1 and: para2
 		x: para1 third  * para2 second - (para1 second * para2 third) / det
 		y: para1 first * para2 third - (para1 third * para2 first) / det! !
 
-!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/18/2025 22:34:55'!
+!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/19/2025 15:53:18'!
 bounce: molecule over: newPosition with: timeInterval
 	| a b collision t1 |
+	"extremity1 = (50@20) ifTrue: [self halt]."
 	collision := self intersectionWithTrajectory: molecule position to: newPosition. 
 	collision ifNil: [^ molecule speed: molecule speed * (0.8@1.1)].
 	t1 := (collision - molecule position) r / molecule speed r.
-	a := molecule speed * director.
-	b := molecule speed * normal.
+	a := molecule speed dotProduct: director.
+	b := molecule speed dotProduct: normal.
 	molecule 
 		speed: a * director - (b * normal);
 		position: (timeInterval - t1) * molecule speed + collision
@@ -294,10 +316,10 @@ thickness
 model: aMolecule
 	model := aMolecule ! !
 
-!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/18/2025 22:34:25'!
+!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/19/2025 20:49:50'!
 drawOn: canvas
 	canvas ellipseCenter: model position radius: Molecule radius borderWidth: 0 borderColor: nil fillColor: Color green.
-	canvas line: model position to: model position + (model speed * 0.05) width: 1 color: Color white.! !
+"	canvas line: model position to: model position + (model speed * 0.05) width: 1.5 color: Color red."! !
 
 !WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/16/2025 16:39:41'!
 drawOn: canvas
@@ -307,6 +329,10 @@ drawOn: canvas
 model: wall
 	model := wall ! !
 
+!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 11/19/2025 16:06:03'!
+defaultBorderWidth
+	^ 10 ! !
+
 !IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 11:25:50'!
 model
 	^ presenter model! !
@@ -315,20 +341,20 @@ model
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/18/2025 19:18:38'!
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/19/2025 16:33:17'!
 initialize
 	super initialize.
+	self beColumn.
+	self padding: 5@5.
 	" 	Simulation real world stepping time is 0.01s.
 		For a speed of 300 m.s ⁻¹, at each simulation step, a molecule moves of 3 m "	
 	self model simulationStep: 0.001 / (self stepTime / 1000). 
+	self morphExtent: self model bounds corner + (borderWidth + padding * 2) asPoint + (0@40).
 	canvas := ColoredBoxMorph new morphExtent: self model bounds corner.
 	canvas color: Color black.
-	self addMorph: canvas
-		layoutSpec: (LayoutEdgesSpec 
-			tlEdgesWeight: 0@0 offset: 0@0 
-			brEdgesWeight: 1@1 offset: 0@-20).
-	self installSimulationViews .
-	self startStepping ! !
+	self addMorphUseAll: canvas.		
+	self addMorph: (PluggableButtonMorph model: presenter stateGetter: #isPlaying action: #playStopSimulation label: 'Play').
+	self installSimulationViews.! !
 
 !IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/17/2025 22:15:11'!
 installSimulationViews
