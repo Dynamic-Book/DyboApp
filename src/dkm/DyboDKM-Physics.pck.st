@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 19 November 2025 at 9:08:16 pm'!
+'From Cuis7.5 [latest update: #7689] on 20 November 2025 at 11:20:28 am'!
 'Description '!
-!provides: 'DyboDKM-Physics' 1 5!
+!provides: 'DyboDKM-Physics' 1 6!
 SystemOrganization addCategory: #'DyboDKM-Physics'!
 
 
@@ -341,14 +341,17 @@ model
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/19/2025 16:33:17'!
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/20/2025 11:20:21'!
 initialize
 	super initialize.
 	self beColumn.
 	self padding: 5@5.
-	" 	Simulation real world stepping time is 0.01s.
-		For a speed of 300 m.s ⁻¹, at each simulation step, a molecule moves of 3 m "	
-	self model simulationStep: 0.001 / (self stepTime / 1000). 
+"	Simulation step (δt)  at each view update (view' step and stepTime related):
+	For a speed of 300 m.s ⁻¹, a molecule moves of 3m per view update (stepTime=0.1s) is visually appealing
+	This makes a δt of 0.01 per stepTime (0.1), those δt=stepTime*0.1
+	For a smoother animation, edit IdealGasSimulationView>>stepTime, ie 50, δt is set accordingly
+"	
+	self model simulationStep: (self stepTime /1000) / 10. 
 	self morphExtent: self model bounds corner + (borderWidth + padding * 2) asPoint + (0@40).
 	canvas := ColoredBoxMorph new morphExtent: self model bounds corner.
 	canvas color: Color black.
@@ -366,7 +369,7 @@ step
 	self model update.
 	self redrawNeeded ! !
 
-!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/16/2025 18:02:31'!
+!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/20/2025 11:17:32'!
 stepTime
 " Update the view every 100 millisecond, 0.1 s "
 	^ 100! !
