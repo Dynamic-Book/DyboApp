@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 20 November 2025 at 11:20:28 am'!
+'From Cuis7.5 [latest update: #7689] on 22 November 2025 at 12:11:09 pm'!
 'Description '!
-!provides: 'DyboDKM-Physics' 1 6!
+!provides: 'DyboDKM-Physics' 1 7!
 SystemOrganization addCategory: #'DyboDKM-Physics'!
 
 
@@ -26,7 +26,7 @@ IdealGasSimulationModel class
 
 !classDefinition: #Molecule category: #'DyboDKM-Physics'!
 Object subclass: #Molecule
-	instanceVariableNames: 'position speed'
+	instanceVariableNames: 'position velocity'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDKM-Physics'!
@@ -36,7 +36,7 @@ Molecule class
 
 !classDefinition: #Wall category: #'DyboDKM-Physics'!
 Object subclass: #Wall
-	instanceVariableNames: 'extremity1 extremity2 normal director'
+	instanceVariableNames: 'extremity1 extremity2 normal director heating'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDKM-Physics'!
@@ -56,7 +56,7 @@ MoleculeMorph class
 
 !classDefinition: #WallMorph category: #'DyboDKM-Physics'!
 PlacedMorph subclass: #WallMorph
-	instanceVariableNames: 'model'
+	instanceVariableNames: 'model heating'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDKM-Physics'!
@@ -122,9 +122,12 @@ addMolecules: quantity
 addMolecules: quantity at: aPosition
 	model addMolecules: quantity at: aPosition ! !
 
-!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 11/16/2025 17:53:29'!
+!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 11/22/2025 10:02:43'!
 addWallFrom: extremity1 to: extremity2
-	model addWall: (Array with: extremity1 with: extremity2)! !
+"	Shift the wall position of the half width of the wall "
+	model addWall: (Array 
+		with: extremity1 + (Wall thickness // 2) 
+		with: extremity2 + (Wall thickness // 2) )! !
 
 !IdealGasSimulation methodsFor: 'initialization' stamp: 'hlsf 11/19/2025 16:29:26'!
 initialize
@@ -187,23 +190,26 @@ initialize
 	walls := OrderedCollection new.
 	molecules := OrderedCollection new.! !
 
-!IdealGasSimulationModel methodsFor: 'as yet unclassified' stamp: 'hlsf 11/18/2025 21:24:53'!
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/22/2025 12:08:26'!
 update
+	| bounds |
+	bounds := self bounds.
 	molecules do: [:molecule | | newPosition |
-		newPosition := molecule nextPosition: simulationStep.
+		newPosition := molecule forwardPosition: simulationStep.
 		walls 
 			detect:  [:aWall | aWall collidedByTrajectory: molecule position to: newPosition]
 			ifFound: [:collidedWall | 
 				collidedWall bounce: molecule over: newPosition with: simulationStep]
-			ifNone: [molecule position: newPosition]
+			ifNone: [molecule position: newPosition].
+		(bounds containsPoint: molecule position) ifFalse: [molecule position: bounds center] 	
 		]
 	
 	
 	! !
 
-!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 18:45:48'!
-nextPosition: t
-	^ speed * t + position! !
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 10:20:33'!
+forwardPosition: t
+	^ velocity * t + position! !
 
 !Molecule methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 16:24:05'!
 position
@@ -213,29 +219,33 @@ position
 position: aPoint
 	position := aPoint ! !
 
-!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 16:24:13'!
-speed 
-	^ speed ! !
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 10:15:25'!
+velocity 
+	^ velocity ! !
 
-!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 16:24:22'!
-speed: aPoint
-	speed := aPoint ! !
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 10:15:41'!
+velocity: aPoint
+	velocity := aPoint ! !
 
-!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/19/2025 21:05:23'!
+!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/22/2025 10:14:58'!
 initialize
-	speed := 340 + (30 atRandom - 15) * (100 atRandom - 50 @ (100 atRandom - 50)) normalized ! !
+	velocity := 340 + (30 atRandom - 15) * (100 atRandom - 50 @ (100 atRandom - 50)) normalized ! !
 
-!Molecule methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:06:59'!
+!Molecule methodsFor: 'printing' stamp: 'hlsf 11/22/2025 10:14:58'!
 printOn: aStream
 	aStream nextPutAll: 'Molecule :: ('.
 	position x printOn: aStream fractionDigits: 1.
 	aStream nextPutAll: ' ; '.
 	position y printOn: aStream fractionDigits: 1.
 	aStream nextPutAll: ') v=('.
-	speed x printOn: aStream fractionDigits: 1.
+	velocity x printOn: aStream fractionDigits: 1.
 	aStream nextPutAll: ' ; '.
-	speed y printOn: aStream fractionDigits: 1.
+	velocity y printOn: aStream fractionDigits: 1.
 	aStream nextPut: $).! !
+
+!Molecule methodsFor: 'model' stamp: 'hlsf 11/22/2025 10:18:26'!
+updatePositionAt: t from: aPosition
+	position := t * velocity + aPosition ! !
 
 !Molecule class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 16:38:52'!
 radius
@@ -249,11 +259,9 @@ extremity1
 extremity2
 	^ extremity2! !
 
-!Wall methodsFor: 'accessing' stamp: 'hlsf 11/18/2025 21:35:55'!
-intersectionWithTrajectory: position1 to: position2
-	^ self 
-		linesIntersectionOf: (self lineEquationParameters: extremity1 along: extremity2 - extremity1)
-		and: (self lineEquationParameters: position1 along: position2 - position1)! !
+!Wall methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 09:48:24'!
+heating
+	^ heating! !
 
 !Wall methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 12:44:43'!
 vertices
@@ -294,23 +302,50 @@ linesIntersectionOf: para1 and: para2
 		x: para1 third  * para2 second - (para1 second * para2 third) / det
 		y: para1 first * para2 third - (para1 third * para2 first) / det! !
 
-!Wall methodsFor: 'as yet unclassified' stamp: 'hlsf 11/19/2025 15:53:18'!
+!Wall methodsFor: 'model' stamp: 'hlsf 11/22/2025 10:18:51'!
 bounce: molecule over: newPosition with: timeInterval
-	| a b collision t1 |
-	"extremity1 = (50@20) ifTrue: [self halt]."
+	| collision t1 |
 	collision := self intersectionWithTrajectory: molecule position to: newPosition. 
-	collision ifNil: [^ molecule speed: molecule speed * (0.8@1.1)].
-	t1 := (collision - molecule position) r / molecule speed r.
-	a := molecule speed dotProduct: director.
-	b := molecule speed dotProduct: normal.
-	molecule 
-		speed: a * director - (b * normal);
-		position: (timeInterval - t1) * molecule speed + collision
+	collision ifNil: [^ molecule velocity: molecule velocity * (0.8@1.1)].
+	t1 := (collision - molecule position) r / molecule velocity r.
+	self updateVelocity: molecule.
+	molecule updatePositionAt: timeInterval - t1 from: collision
 ! !
 
-!Wall class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 16:39:17'!
+!Wall methodsFor: 'model' stamp: 'hlsf 11/22/2025 09:50:47'!
+incrHeating
+"	heating ∈ [-2 ; 2]. 
+	Cycle in this interval "
+	heating := (heating + 2) +1 \\ 5 -2! !
+
+!Wall methodsFor: 'model' stamp: 'hlsf 11/18/2025 21:35:55'!
+intersectionWithTrajectory: position1 to: position2
+	^ self 
+		linesIntersectionOf: (self lineEquationParameters: extremity1 along: extremity2 - extremity1)
+		and: (self lineEquationParameters: position1 along: position2 - position1)! !
+
+!Wall methodsFor: 'model' stamp: 'hlsf 11/22/2025 11:19:13'!
+updateVelocity: molecule
+	| a b newVelocity |
+	a := molecule velocity dotProduct: director.
+	b := molecule velocity dotProduct: normal.
+	newVelocity  := a * director - (b * normal).
+"	Make the direction to fluctuate of 10 degrees maximum"
+	newVelocity := Point r: newVelocity r degrees: newVelocity degrees + (20 atRandom -10).
+"	Apply the energy transfer "
+	newVelocity := newVelocity * (1 + (heating * 2  / 10)).
+"	Velocity remains below 500m/s "
+	(newVelocity dotProduct: newVelocity) > `500 squared` 
+		ifTrue: [ newVelocity := newVelocity normalized * 500].
+	molecule velocity: newVelocity ! !
+
+!Wall methodsFor: 'initialization' stamp: 'hlsf 11/22/2025 09:48:12'!
+initialize
+	heating := 0 ! !
+
+!Wall class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/22/2025 09:56:27'!
 thickness
-	^ 5! !
+	^ 10! !
 
 !MoleculeMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 11/17/2025 22:10:35'!
 model: aMolecule
@@ -321,13 +356,37 @@ drawOn: canvas
 	canvas ellipseCenter: model position radius: Molecule radius borderWidth: 0 borderColor: nil fillColor: Color green.
 "	canvas line: model position to: model position + (model speed * 0.05) width: 1.5 color: Color red."! !
 
-!WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/16/2025 16:39:41'!
+!WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/22/2025 09:55:21'!
 drawOn: canvas
-	canvas line: model extremity1 to: model extremity2 width: Wall thickness color: Color white! !
+	canvas line: model extremity1 to: model extremity2 width: Wall thickness color: (self colors at: model heating + 3)! !
+
+!WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 09:53:30'!
+colors
+	^ `Array 
+		with: Color blue 
+		with: Color blue muchLighter 
+		with: Color white
+		with:  Color red muchLighter 
+		with: Color red`! !
 
 !WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 12:39:48'!
 model: wall
 	model := wall ! !
+
+!WallMorph methodsFor: 'event handling testing' stamp: 'hlsf 11/22/2025 09:43:25'!
+handlesMouseDown:  event 
+	^ true! !
+
+!WallMorph methodsFor: 'initialization' stamp: 'hlsf 11/22/2025 09:47:33'!
+initialize
+	super initialize.
+	heating := 0! !
+
+!WallMorph methodsFor: 'events' stamp: 'hlsf 11/22/2025 09:56:01'!
+mouseButton1Down: aEvent localPosition: aPosition 
+"mouse click on the wall increase the heating parameter "
+	model incrHeating.
+	self redrawNeeded ! !
 
 !IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 11/19/2025 16:06:03'!
 defaultBorderWidth
@@ -341,7 +400,7 @@ model
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/20/2025 11:20:21'!
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/22/2025 10:55:30'!
 initialize
 	super initialize.
 	self beColumn.
@@ -352,7 +411,7 @@ initialize
 	For a smoother animation, edit IdealGasSimulationView>>stepTime, ie 50, δt is set accordingly
 "	
 	self model simulationStep: (self stepTime /1000) / 10. 
-	self morphExtent: self model bounds corner + (borderWidth + padding * 2) asPoint + (0@40).
+	self morphExtent: self model bounds corner + (borderWidth + padding * 2) asPoint + (10@50).
 	canvas := ColoredBoxMorph new morphExtent: self model bounds corner.
 	canvas color: Color black.
 	self addMorphUseAll: canvas.		
