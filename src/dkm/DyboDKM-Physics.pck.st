@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 22 November 2025 at 12:11:09 pm'!
+'From Cuis7.5 [latest update: #7689] on 23 November 2025 at 12:59:29 pm'!
 'Description '!
-!provides: 'DyboDKM-Physics' 1 7!
+!provides: 'DyboDKM-Physics' 1 8!
 SystemOrganization addCategory: #'DyboDKM-Physics'!
 
 
@@ -26,7 +26,7 @@ IdealGasSimulationModel class
 
 !classDefinition: #Molecule category: #'DyboDKM-Physics'!
 Object subclass: #Molecule
-	instanceVariableNames: 'position velocity'
+	instanceVariableNames: 'position velocity bounced'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDKM-Physics'!
@@ -36,7 +36,7 @@ Molecule class
 
 !classDefinition: #Wall category: #'DyboDKM-Physics'!
 Object subclass: #Wall
-	instanceVariableNames: 'extremity1 extremity2 normal director heating'
+	instanceVariableNames: 'extremity1 extremity2 normal director heating bounced'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDKM-Physics'!
@@ -190,11 +190,13 @@ initialize
 	walls := OrderedCollection new.
 	molecules := OrderedCollection new.! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/22/2025 12:08:26'!
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/23/2025 11:19:54'!
 update
 	| bounds |
+	walls do: #reset.
 	bounds := self bounds.
 	molecules do: [:molecule | | newPosition |
+		molecule reset.
 		newPosition := molecule forwardPosition: simulationStep.
 		walls 
 			detect:  [:aWall | aWall collidedByTrajectory: molecule position to: newPosition]
@@ -206,6 +208,10 @@ update
 	
 	
 	! !
+
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:17:30'!
+bounced
+	bounced := true! !
 
 !Molecule methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 10:20:33'!
 forwardPosition: t
@@ -219,6 +225,10 @@ position
 position: aPoint
 	position := aPoint ! !
 
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:17:43'!
+reset
+	bounced := false! !
+
 !Molecule methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 10:15:25'!
 velocity 
 	^ velocity ! !
@@ -227,9 +237,10 @@ velocity
 velocity: aPoint
 	velocity := aPoint ! !
 
-!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/22/2025 10:14:58'!
+!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/23/2025 11:16:03'!
 initialize
-	velocity := 340 + (30 atRandom - 15) * (100 atRandom - 50 @ (100 atRandom - 50)) normalized ! !
+	velocity := 340 + (30 atRandom - 15) * (100 atRandom - 50 @ (100 atRandom - 50)) normalized .
+	bounced := false! !
 
 !Molecule methodsFor: 'printing' stamp: 'hlsf 11/22/2025 10:14:58'!
 printOn: aStream
@@ -250,6 +261,10 @@ updatePositionAt: t from: aPosition
 !Molecule class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 16:38:52'!
 radius
 	^ 3! !
+
+!Wall methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:19:14'!
+bounced
+	^ bounced! !
 
 !Wall methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 12:46:01'!
 extremity1
@@ -302,11 +317,12 @@ linesIntersectionOf: para1 and: para2
 		x: para1 third  * para2 second - (para1 second * para2 third) / det
 		y: para1 first * para2 third - (para1 third * para2 first) / det! !
 
-!Wall methodsFor: 'model' stamp: 'hlsf 11/22/2025 10:18:51'!
+!Wall methodsFor: 'model' stamp: 'hlsf 11/23/2025 11:20:26'!
 bounce: molecule over: newPosition with: timeInterval
 	| collision t1 |
 	collision := self intersectionWithTrajectory: molecule position to: newPosition. 
 	collision ifNil: [^ molecule velocity: molecule velocity * (0.8@1.1)].
+	bounced := true.
 	t1 := (collision - molecule position) r / molecule velocity r.
 	self updateVelocity: molecule.
 	molecule updatePositionAt: timeInterval - t1 from: collision
@@ -339,9 +355,14 @@ updateVelocity: molecule
 		ifTrue: [ newVelocity := newVelocity normalized * 500].
 	molecule velocity: newVelocity ! !
 
-!Wall methodsFor: 'initialization' stamp: 'hlsf 11/22/2025 09:48:12'!
+!Wall methodsFor: 'initialization' stamp: 'hlsf 11/23/2025 11:16:12'!
 initialize
-	heating := 0 ! !
+	heating := 0.
+	bounced := false! !
+
+!Wall methodsFor: 'initialization' stamp: 'hlsf 11/23/2025 11:17:06'!
+reset
+	bounced := false! !
 
 !Wall class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/22/2025 09:56:27'!
 thickness
@@ -351,21 +372,40 @@ thickness
 model: aMolecule
 	model := aMolecule ! !
 
-!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/19/2025 20:49:50'!
+!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/23/2025 11:33:10'!
 drawOn: canvas
 	canvas ellipseCenter: model position radius: Molecule radius borderWidth: 0 borderColor: nil fillColor: Color green.
-"	canvas line: model position to: model position + (model speed * 0.05) width: 1.5 color: Color red."! !
+	canvas 
+		ellipseCenter: model position 
+		radius: (model position dist: (model forwardPosition: 0.01))
+		borderWidth: 0.5 
+		borderColor: Color white
+		fillColor: nil.
+! !
 
-!WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/22/2025 09:55:21'!
+!WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/23/2025 11:23:32'!
 drawOn: canvas
-	canvas line: model extremity1 to: model extremity2 width: Wall thickness color: (self colors at: model heating + 3)! !
+	| indexColor |
+	indexColor := model heating + 3.
+	canvas line: model extremity1 to: model extremity2 width: Wall thickness color: (self colors at: indexColor).
+	model bounced ifTrue: [
+		canvas line: model extremity1 to: model extremity2 width: 1 color: (self bounceColors at: indexColor)]! !
 
-!WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 09:53:30'!
+!WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:21:53'!
+bounceColors
+	^ `Array 
+		with: Color blue muchLighter 
+		with: Color blue 
+		with: Color white
+		with: Color red 
+		with: Color red muchLighter `! !
+
+!WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:24:29'!
 colors
 	^ `Array 
 		with: Color blue 
 		with: Color blue muchLighter 
-		with: Color white
+		with: Color grey muchLighter
 		with:  Color red muchLighter 
 		with: Color red`! !
 
