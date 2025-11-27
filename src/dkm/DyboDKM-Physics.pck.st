@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 27 November 2025 at 11:04:33 am'!
+'From Cuis7.5 [latest update: #7689] on 27 November 2025 at 10:40:22 pm'!
 'Description '!
-!provides: 'DyboDKM-Physics' 1 9!
+!provides: 'DyboDKM-Physics' 1 10!
 SystemOrganization addCategory: #'DyboDKM-Physics'!
 
 
@@ -157,7 +157,7 @@ isValidPosition: aPoint
 wallVertices
 	^ (walls collect: [:aWall | aWall vertices]) flatten! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/19/2025 16:15:11'!
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 21:47:58'!
 addMolecules: quantity at: aPosition
 	| extent position |
 	walls ifEmpty: [self error: 'Set the walls of the simulation first'].
@@ -166,8 +166,7 @@ addMolecules: quantity at: aPosition
 		aPosition ifNil: [
 			[position := extent x atRandom @ extent y atRandom.
 			self isValidPosition: position ] whileFalse].
-		molecules add: (Molecule new position: (aPosition ifNil: [position]) ) ]
-		! !
+		molecules add: (Molecule new position: (aPosition ifNil: [position]) ) ]! !
 
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 17:50:40'!
 addWall: array
@@ -185,12 +184,22 @@ simulationStep: float
 walls
 	^ walls! !
 
-!IdealGasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 11/16/2025 15:58:05'!
+!IdealGasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 11/27/2025 21:22:22'!
 initialize
 	walls := OrderedCollection new.
-	molecules := OrderedCollection new.! !
+	molecules := OrderedCollection new.
+	energy := 0.! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/23/2025 11:19:54'!
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/27/2025 21:48:22'!
+energy
+	^ molecules inject: 0 into: [: theEnergy :aMolecule| 
+		theEnergy + (0.5 * Molecule mass * (aMolecule velocity dotProduct: aMolecule velocity) )]! !
+
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/27/2025 21:49:19'!
+temperature
+	^ self energy / (IdealGasSimulationModel kb * molecules size)! !
+
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/27/2025 21:48:45'!
 update
 	| bounds |
 	walls do: #reset.
@@ -203,11 +212,15 @@ update
 			ifFound: [:collidedWall | 
 				collidedWall bounce: molecule over: newPosition with: simulationStep]
 			ifNone: [molecule position: newPosition].
-		(bounds containsPoint: molecule position) ifFalse: [molecule position: bounds center] 	
-		]
+		(bounds containsPoint: molecule position) ifFalse: [molecule position: bounds center] ]
 	
 	
 	! !
+
+!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 11/27/2025 21:29:30'!
+kb
+" Boltzmann constant "
+	^ 1.3806e-23! !
 
 !Molecule methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:17:30'!
 bounced
@@ -258,7 +271,12 @@ printOn: aStream
 updatePositionAt: t from: aPosition
 	position := t * velocity + aPosition ! !
 
-!Molecule class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/16/2025 16:38:52'!
+!Molecule class methodsFor: 'constants' stamp: 'hlsf 11/27/2025 21:26:44'!
+mass
+" Helium atom mass "
+	^  6.6465e-27! !
+
+!Molecule class methodsFor: 'constants' stamp: 'hlsf 11/16/2025 16:38:52'!
 radius
 	^ 3! !
 
@@ -278,10 +296,10 @@ extremity2
 heating
 	^ heating! !
 
-!Wall methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 10:44:17'!
+!Wall methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 21:28:43'!
 heating: index
 	heating := index.
-	speedT := (2 * 1.3806e-23 * self temperature / 6.6465e-27) sqrt! !
+	speedT := (2 * IdealGasSimulationModel kb * self temperature / Molecule mass) sqrt! !
 
 !Wall methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 10:59:05'!
 incrHeating
@@ -292,15 +310,6 @@ incrHeating
 !Wall methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 10:32:09'!
 temperature
 	^ self temperatures at: heating! !
-
-!Wall methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 11:01:14'!
-temperatures
-	^ `Array 
-		with:  273.15 + (-273)
-		with:  273.15 + (-20)
-		with:  273.15 + (0)
-		with:  273.15 + (20)
-		with: 273.15 + (50)`! !
 
 !Wall methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 12:44:43'!
 vertices
@@ -352,13 +361,15 @@ bounce: molecule over: newPosition with: timeInterval
 	molecule updatePositionAt: timeInterval - t1 from: collision
 ! !
 
-!Wall methodsFor: 'model' stamp: 'hlsf 11/27/2025 10:54:22'!
+!Wall methodsFor: 'model' stamp: 'hlsf 11/27/2025 19:23:34'!
 diffuseBouncingVelocity: molecule
-	| a b newVelocity |
-
+	| a b myNormal newVelocity |
+	myNormal := (molecule velocity dotProduct: normal) < 0 
+		ifTrue: [normal negated] 
+		ifFalse: [normal].
 	a := (Random next ln negated) sqrt * (Float twoPi * Random next) cos * speedT.
 	b := (Random next ln negated) sqrt * speedT.
-	newVelocity  := a * director - (b * normal).
+	newVelocity  := a * director - (b * myNormal ).
 	molecule velocity: newVelocity ! !
 
 !Wall methodsFor: 'model' stamp: 'hlsf 11/18/2025 21:35:55'!
@@ -382,6 +393,15 @@ stupidBouncingVelocity: molecule
 		ifTrue: [ newVelocity := newVelocity normalized * 500].
 	molecule velocity: newVelocity ! !
 
+!Wall methodsFor: 'model' stamp: 'hlsf 11/27/2025 11:05:46'!
+temperatures
+	^ `Array 
+		with:  273.15 + (-273)
+		with:  273.15 + (-100)
+		with:  273.15 + (0)
+		with:  273.15 + (20)
+		with: 273.15 + (50)`! !
+
 !Wall methodsFor: 'initialization' stamp: 'hlsf 11/27/2025 10:55:58'!
 initialize
 	self heating: 3.
@@ -391,6 +411,17 @@ initialize
 reset
 	bounced := false! !
 
+!Wall methodsFor: 'printing' stamp: 'hlsf 11/27/2025 21:13:44'!
+printOn: aStream
+	aStream nextPutAll: 'Wall :: '.
+	extremity1 printOn: aStream.
+	aStream nextPutAll: ' → '.
+	extremity2 printOn: aStream .
+	aStream nextPutAll: ', T = '.
+	self temperature printOn: aStream .
+	aStream nextPutAll: 'K'.
+	! !
+
 !Wall class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/22/2025 09:56:27'!
 thickness
 	^ 10! !
@@ -399,16 +430,16 @@ thickness
 model: aMolecule
 	model := aMolecule ! !
 
-!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/23/2025 11:33:10'!
+!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/27/2025 19:41:05'!
 drawOn: canvas
 	canvas ellipseCenter: model position radius: Molecule radius borderWidth: 0 borderColor: nil fillColor: Color green.
-	canvas 
+"	canvas 
 		ellipseCenter: model position 
 		radius: (model position dist: (model forwardPosition: 0.01))
 		borderWidth: 0.5 
 		borderColor: Color white
 		fillColor: nil.
-! !
+"! !
 
 !WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/27/2025 10:57:25'!
 drawOn: canvas
@@ -465,8 +496,16 @@ model
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/22/2025 10:55:30'!
+!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 21:53:49'!
+temperatureString
+	^ String streamContents: [:str |
+		str nextPutAll: 'Temperature: '.
+		self model temperature rounded printOn: str.
+		str nextPutAll: ' K']! !
+
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/27/2025 21:57:31'!
 initialize
+	| row label |
 	super initialize.
 	self beColumn.
 	self padding: 5@5.
@@ -480,13 +519,22 @@ initialize
 	canvas := ColoredBoxMorph new morphExtent: self model bounds corner.
 	canvas color: Color black.
 	self addMorphUseAll: canvas.		
-	self addMorph: (PluggableButtonMorph model: presenter stateGetter: #isPlaying action: #playStopSimulation label: 'Play').
+	row := LayoutMorph newRow.
+	label := UpdatingLabelMorph new
+		target: self;
+		getSelector: #temperatureString;
+		stepTime: 1000.
+	row
+		addMorph: label;
+		 addMorph: (PluggableButtonMorph model: presenter stateGetter: #isPlaying action: #playStopSimulation label: 'Play').
+	self addMorphKeepMorphHeight: row .
 	self installSimulationViews.! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/17/2025 22:15:11'!
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/27/2025 20:57:35'!
 installSimulationViews
-	self model walls do: [:aWall | canvas addMorph: (WallMorph new model: aWall)].
-	self model molecules do: [:aMolecule | canvas addMorph: (MoleculeMorph new model: aMolecule) ]! !
+	self model molecules do: [:aMolecule | canvas addMorph: (MoleculeMorph new model: aMolecule) ].
+	self model walls do: [:aWall | canvas addMorph: (WallMorph new model: aWall)]
+! !
 
 !IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/17/2025 21:46:23'!
 step
