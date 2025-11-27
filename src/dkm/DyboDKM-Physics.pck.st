@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 23 November 2025 at 12:59:29 pm'!
+'From Cuis7.5 [latest update: #7689] on 27 November 2025 at 11:04:33 am'!
 'Description '!
-!provides: 'DyboDKM-Physics' 1 8!
+!provides: 'DyboDKM-Physics' 1 9!
 SystemOrganization addCategory: #'DyboDKM-Physics'!
 
 
@@ -36,7 +36,7 @@ Molecule class
 
 !classDefinition: #Wall category: #'DyboDKM-Physics'!
 Object subclass: #Wall
-	instanceVariableNames: 'extremity1 extremity2 normal director heating bounced'
+	instanceVariableNames: 'extremity1 extremity2 normal director heating bounced speedT'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDKM-Physics'!
@@ -278,6 +278,30 @@ extremity2
 heating
 	^ heating! !
 
+!Wall methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 10:44:17'!
+heating: index
+	heating := index.
+	speedT := (2 * 1.3806e-23 * self temperature / 6.6465e-27) sqrt! !
+
+!Wall methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 10:59:05'!
+incrHeating
+"	heating ∈ [1 ; 5]. 
+	Cycle in this interval "
+	self heating: heating \\ 5 + 1! !
+
+!Wall methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 10:32:09'!
+temperature
+	^ self temperatures at: heating! !
+
+!Wall methodsFor: 'accessing' stamp: 'hlsf 11/27/2025 11:01:14'!
+temperatures
+	^ `Array 
+		with:  273.15 + (-273)
+		with:  273.15 + (-20)
+		with:  273.15 + (0)
+		with:  273.15 + (20)
+		with: 273.15 + (50)`! !
+
 !Wall methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 12:44:43'!
 vertices
 	^ Array with: extremity1 with: extremity2! !
@@ -317,22 +341,25 @@ linesIntersectionOf: para1 and: para2
 		x: para1 third  * para2 second - (para1 second * para2 third) / det
 		y: para1 first * para2 third - (para1 third * para2 first) / det! !
 
-!Wall methodsFor: 'model' stamp: 'hlsf 11/23/2025 11:20:26'!
+!Wall methodsFor: 'model' stamp: 'hlsf 11/27/2025 10:54:52'!
 bounce: molecule over: newPosition with: timeInterval
 	| collision t1 |
 	collision := self intersectionWithTrajectory: molecule position to: newPosition. 
 	collision ifNil: [^ molecule velocity: molecule velocity * (0.8@1.1)].
 	bounced := true.
 	t1 := (collision - molecule position) r / molecule velocity r.
-	self updateVelocity: molecule.
+	self diffuseBouncingVelocity: molecule.
 	molecule updatePositionAt: timeInterval - t1 from: collision
 ! !
 
-!Wall methodsFor: 'model' stamp: 'hlsf 11/22/2025 09:50:47'!
-incrHeating
-"	heating ∈ [-2 ; 2]. 
-	Cycle in this interval "
-	heating := (heating + 2) +1 \\ 5 -2! !
+!Wall methodsFor: 'model' stamp: 'hlsf 11/27/2025 10:54:22'!
+diffuseBouncingVelocity: molecule
+	| a b newVelocity |
+
+	a := (Random next ln negated) sqrt * (Float twoPi * Random next) cos * speedT.
+	b := (Random next ln negated) sqrt * speedT.
+	newVelocity  := a * director - (b * normal).
+	molecule velocity: newVelocity ! !
 
 !Wall methodsFor: 'model' stamp: 'hlsf 11/18/2025 21:35:55'!
 intersectionWithTrajectory: position1 to: position2
@@ -340,8 +367,8 @@ intersectionWithTrajectory: position1 to: position2
 		linesIntersectionOf: (self lineEquationParameters: extremity1 along: extremity2 - extremity1)
 		and: (self lineEquationParameters: position1 along: position2 - position1)! !
 
-!Wall methodsFor: 'model' stamp: 'hlsf 11/22/2025 11:19:13'!
-updateVelocity: molecule
+!Wall methodsFor: 'model' stamp: 'hlsf 11/27/2025 10:39:21'!
+stupidBouncingVelocity: molecule
 	| a b newVelocity |
 	a := molecule velocity dotProduct: director.
 	b := molecule velocity dotProduct: normal.
@@ -355,9 +382,9 @@ updateVelocity: molecule
 		ifTrue: [ newVelocity := newVelocity normalized * 500].
 	molecule velocity: newVelocity ! !
 
-!Wall methodsFor: 'initialization' stamp: 'hlsf 11/23/2025 11:16:12'!
+!Wall methodsFor: 'initialization' stamp: 'hlsf 11/27/2025 10:55:58'!
 initialize
-	heating := 0.
+	self heating: 3.
 	bounced := false! !
 
 !Wall methodsFor: 'initialization' stamp: 'hlsf 11/23/2025 11:17:06'!
@@ -383,13 +410,11 @@ drawOn: canvas
 		fillColor: nil.
 ! !
 
-!WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/23/2025 11:23:32'!
+!WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/27/2025 10:57:25'!
 drawOn: canvas
-	| indexColor |
-	indexColor := model heating + 3.
-	canvas line: model extremity1 to: model extremity2 width: Wall thickness color: (self colors at: indexColor).
+	canvas line: model extremity1 to: model extremity2 width: Wall thickness color: (self colors at: model heating).
 	model bounced ifTrue: [
-		canvas line: model extremity1 to: model extremity2 width: 1 color: (self bounceColors at: indexColor)]! !
+		canvas line: model extremity1 to: model extremity2 width: 1 color: (self bounceColors at: model heating)]! !
 
 !WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:21:53'!
 bounceColors
