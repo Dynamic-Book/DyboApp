@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 29 November 2025 at 6:56:46 pm'!
+'From Cuis7.5 [latest update: #7689] on 29 November 2025 at 7:01:06 pm'!
 'Description '!
-!provides: 'DKM-Physics-IdealGas' 1 12!
+!provides: 'DKM-Physics-IdealGas' 1 13!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-IdealGas'!
 
@@ -161,9 +161,9 @@ codeSample
 	addMolecules: 1000 ;
 	view'! !
 
-!IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 11/29/2025 18:38:40'!
+!IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 11/29/2025 19:00:15'!
 description
-	^ 'A simulation of ideal gas. In top of the fence, arbitrary walls can be arranged inside the fence. Each wall temperature are adjusted by a mouse clic.' translated! !
+	^ 'A simulation of ideal gas. In top of the fence, arbitrary walls can be arranged inside the fence. Each wall temperature is adjusted by mouse clic.' translated! !
 
 !IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 11/29/2025 18:39:10'!
 title 
