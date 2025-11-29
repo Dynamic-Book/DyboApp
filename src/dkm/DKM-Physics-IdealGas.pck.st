@@ -1,82 +1,89 @@
-'From Cuis7.5 [latest update: #7689] on 27 November 2025 at 10:40:22 pm'!
+'From Cuis7.5 [latest update: #7689] on 29 November 2025 at 4:16:07 pm'!
 'Description '!
-!provides: 'DKMPhysics-IdealGas' 1 10!
-SystemOrganization addCategory: #'DKMPhysics-IdealGas'!
+!provides: 'DKM-Physics-IdealGas' 1 11!
+SystemOrganization addCategory: #'DKM-Physics-IdealGas'!
 
 
-!classDefinition: #IdealGasSimulation category: #'DKMPhysics-IdealGas'!
+!classDefinition: #IdealGasSimulation category: #'DKM-Physics-IdealGas'!
 Object subclass: #IdealGasSimulation
 	instanceVariableNames: 'model view playing'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMPhysics-IdealGas'!
-!classDefinition: 'IdealGasSimulation class' category: #'DKMPhysics-IdealGas'!
+	category: 'DKM-Physics-IdealGas'!
+!classDefinition: 'IdealGasSimulation class' category: #'DKM-Physics-IdealGas'!
 IdealGasSimulation class
 	instanceVariableNames: ''!
 
-!classDefinition: #IdealGasSimulationModel category: #'DKMPhysics-IdealGas'!
+!classDefinition: #IdealGasSimulationModel category: #'DKM-Physics-IdealGas'!
 Object subclass: #IdealGasSimulationModel
 	instanceVariableNames: 'molecules walls simulationStep'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMPhysics-IdealGas'!
-!classDefinition: 'IdealGasSimulationModel class' category: #'DKMPhysics-IdealGas'!
+	category: 'DKM-Physics-IdealGas'!
+!classDefinition: 'IdealGasSimulationModel class' category: #'DKM-Physics-IdealGas'!
 IdealGasSimulationModel class
 	instanceVariableNames: ''!
 
-!classDefinition: #Molecule category: #'DKMPhysics-IdealGas'!
+!classDefinition: #Molecule category: #'DKM-Physics-IdealGas'!
 Object subclass: #Molecule
 	instanceVariableNames: 'position velocity bounced'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMPhysics-IdealGas'!
-!classDefinition: 'Molecule class' category: #'DKMPhysics-IdealGas'!
+	category: 'DKM-Physics-IdealGas'!
+!classDefinition: 'Molecule class' category: #'DKM-Physics-IdealGas'!
 Molecule class
 	instanceVariableNames: ''!
 
-!classDefinition: #Wall category: #'DKMPhysics-IdealGas'!
+!classDefinition: #Wall category: #'DKM-Physics-IdealGas'!
 Object subclass: #Wall
 	instanceVariableNames: 'extremity1 extremity2 normal director heating bounced speedT'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMPhysics-IdealGas'!
-!classDefinition: 'Wall class' category: #'DKMPhysics-IdealGas'!
+	category: 'DKM-Physics-IdealGas'!
+!classDefinition: 'Wall class' category: #'DKM-Physics-IdealGas'!
 Wall class
 	instanceVariableNames: ''!
 
-!classDefinition: #MoleculeMorph category: #'DKMPhysics-IdealGas'!
+!classDefinition: #MoleculeMorph category: #'DKM-Physics-IdealGas'!
 Morph subclass: #MoleculeMorph
 	instanceVariableNames: 'model'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMPhysics-IdealGas'!
-!classDefinition: 'MoleculeMorph class' category: #'DKMPhysics-IdealGas'!
+	category: 'DKM-Physics-IdealGas'!
+!classDefinition: 'MoleculeMorph class' category: #'DKM-Physics-IdealGas'!
 MoleculeMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #WallMorph category: #'DKMPhysics-IdealGas'!
+!classDefinition: #WallMorph category: #'DKM-Physics-IdealGas'!
 PlacedMorph subclass: #WallMorph
 	instanceVariableNames: 'model heating'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMPhysics-IdealGas'!
-!classDefinition: 'WallMorph class' category: #'DKMPhysics-IdealGas'!
+	category: 'DKM-Physics-IdealGas'!
+!classDefinition: 'WallMorph class' category: #'DKM-Physics-IdealGas'!
 WallMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #IdealGasSimulationView category: #'DKMPhysics-IdealGas'!
+!classDefinition: #IdealGasSimulationView category: #'DKM-Physics-IdealGas'!
 LinearLayoutMorph subclass: #IdealGasSimulationView
 	instanceVariableNames: 'presenter canvas'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMPhysics-IdealGas'!
-!classDefinition: 'IdealGasSimulationView class' category: #'DKMPhysics-IdealGas'!
+	category: 'DKM-Physics-IdealGas'!
+!classDefinition: 'IdealGasSimulationView class' category: #'DKM-Physics-IdealGas'!
 IdealGasSimulationView class
 	instanceVariableNames: ''!
 
 
 !IdealGasSimulation commentStamp: '<historical>' prior: 0!
-The presenter of the Ideal Gas Simulation to handle the DSL, the controllers and associated callbacks!
+The presenter of the Ideal Gas Simulation to handle the DSL, the controllers and associated callbacks.
+
+(IdealGasSimulation new
+	addFence: {0@0 . 300@0 . 300@200. 0@200};
+	addWallFrom: 100@0 to: 80@85;
+	addWallFrom: 100@200 to: 80@105;
+	addMolecules: 1000 ;
+	view) openInWorld!
 
 !IdealGasSimulationModel commentStamp: '<historical>' prior: 0!
 timeStep, time interval between two step of the simulation!

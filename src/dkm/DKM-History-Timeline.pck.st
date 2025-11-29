@@ -1,96 +1,96 @@
 'From Cuis7.5 [latest update: #7689] on 16 November 2025 at 7:52:47 pm'!
 'Description '!
 !provides: 'DKMHistory-Timeline' 1 5!
-SystemOrganization addCategory: #'DKMHistory-Timeline'!
+SystemOrganization addCategory: #'DKM-History-Timeline'!
 
 
-!classDefinition: #Timeline category: #'DKMHistory-Timeline'!
+!classDefinition: #Timeline category: #'DKM-History-Timeline'!
 Object subclass: #Timeline
 	instanceVariableNames: 'model view'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMHistory-Timeline'!
-!classDefinition: 'Timeline class' category: #'DKMHistory-Timeline'!
+	category: 'DKM-History-Timeline'!
+!classDefinition: 'Timeline class' category: #'DKM-History-Timeline'!
 Timeline class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineEntry category: #'DKMHistory-Timeline'!
+!classDefinition: #TimelineEntry category: #'DKM-History-Timeline'!
 Object subclass: #TimelineEntry
 	instanceVariableNames: 'date description position image imageUrl'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMHistory-Timeline'!
-!classDefinition: 'TimelineEntry class' category: #'DKMHistory-Timeline'!
+	category: 'DKM-History-Timeline'!
+!classDefinition: 'TimelineEntry class' category: #'DKM-History-Timeline'!
 TimelineEntry class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineGraduation category: #'DKMHistory-Timeline'!
+!classDefinition: #TimelineGraduation category: #'DKM-History-Timeline'!
 Object subclass: #TimelineGraduation
 	instanceVariableNames: 'interval'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMHistory-Timeline'!
-!classDefinition: 'TimelineGraduation class' category: #'DKMHistory-Timeline'!
+	category: 'DKM-History-Timeline'!
+!classDefinition: 'TimelineGraduation class' category: #'DKM-History-Timeline'!
 TimelineGraduation class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineModel category: #'DKMHistory-Timeline'!
+!classDefinition: #TimelineModel category: #'DKM-History-Timeline'!
 ActiveModel subclass: #TimelineModel
 	instanceVariableNames: 'title entries graduation subGraduation ppd temporalGaps shrink'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMHistory-Timeline'!
-!classDefinition: 'TimelineModel class' category: #'DKMHistory-Timeline'!
+	category: 'DKM-History-Timeline'!
+!classDefinition: 'TimelineModel class' category: #'DKM-History-Timeline'!
 TimelineModel class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineConnector category: #'DKMHistory-Timeline'!
+!classDefinition: #TimelineConnector category: #'DKM-History-Timeline'!
 PlacedMorph subclass: #TimelineConnector
 	instanceVariableNames: 'entryView'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMHistory-Timeline'!
-!classDefinition: 'TimelineConnector class' category: #'DKMHistory-Timeline'!
+	category: 'DKM-History-Timeline'!
+!classDefinition: 'TimelineConnector class' category: #'DKM-History-Timeline'!
 TimelineConnector class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineCanvas category: #'DKMHistory-Timeline'!
+!classDefinition: #TimelineCanvas category: #'DKM-History-Timeline'!
 BoxMorph subclass: #TimelineCanvas
 	instanceVariableNames: 'presenter prevPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMHistory-Timeline'!
-!classDefinition: 'TimelineCanvas class' category: #'DKMHistory-Timeline'!
+	category: 'DKM-History-Timeline'!
+!classDefinition: 'TimelineCanvas class' category: #'DKM-History-Timeline'!
 TimelineCanvas class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineContainer category: #'DKMHistory-Timeline'!
+!classDefinition: #TimelineContainer category: #'DKM-History-Timeline'!
 ColoredBoxMorph subclass: #TimelineContainer
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMHistory-Timeline'!
-!classDefinition: 'TimelineContainer class' category: #'DKMHistory-Timeline'!
+	category: 'DKM-History-Timeline'!
+!classDefinition: 'TimelineContainer class' category: #'DKM-History-Timeline'!
 TimelineContainer class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineView category: #'DKMHistory-Timeline'!
+!classDefinition: #TimelineView category: #'DKM-History-Timeline'!
 FormLayoutMorph subclass: #TimelineView
 	instanceVariableNames: 'presenter canvas'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMHistory-Timeline'!
-!classDefinition: 'TimelineView class' category: #'DKMHistory-Timeline'!
+	category: 'DKM-History-Timeline'!
+!classDefinition: 'TimelineView class' category: #'DKM-History-Timeline'!
 TimelineView class
 	instanceVariableNames: ''!
 
-!classDefinition: #TimelineEntryView category: #'DKMHistory-Timeline'!
+!classDefinition: #TimelineEntryView category: #'DKM-History-Timeline'!
 LinearLayoutMorph subclass: #TimelineEntryView
 	instanceVariableNames: 'model date description position'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'DKMHistory-Timeline'!
-!classDefinition: 'TimelineEntryView class' category: #'DKMHistory-Timeline'!
+	category: 'DKM-History-Timeline'!
+!classDefinition: 'TimelineEntryView class' category: #'DKM-History-Timeline'!
 TimelineEntryView class
 	instanceVariableNames: ''!
 
@@ -971,29 +971,29 @@ extent
 " expressed in pixels "
 	^ 120@150! !
 
-!Date methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 10/5/2025 22:22:03'!
+!Date methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 10/5/2025 22:22:03'!
 <= anotherDate
 	^ (self > anotherDate) not! !
 
-!Date methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 10/5/2025 22:20:25'!
+!Date methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 10/5/2025 22:20:25'!
 >= anotherDate
 	^ (self < anotherDate) not! !
 
-!Date methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 10/2/2025 22:00:42'!
+!Date methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 10/2/2025 22:00:42'!
 roundDownTo: aDuration
 	^ Date 
 		year:  (self yearNumber roundDownTo: aDuration years)
 		month: self monthIndex 
 		day: self dayOfMonth! !
 
-!Date methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 10/2/2025 22:01:23'!
+!Date methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 10/2/2025 22:01:23'!
 roundUpTo: aDuration
 	^ Date 
 		year:  (self yearNumber roundUpTo: aDuration years)
 		month: self monthIndex 
 		day: self dayOfMonth! !
 
-!Date methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 10/4/2025 13:37:48'!
+!Date methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 10/4/2025 13:37:48'!
 to: endDate by: aDuration do: block
 " 	Use with caution, because argument to block convert to a Date, 
 	so you may have repeated identical data if duration is smaller than a day "
@@ -1004,26 +1004,26 @@ to: endDate by: aDuration do: block
 		block value: currentDateAndTime date.
 		currentDateAndTime := currentDateAndTime + aDuration ]! !
 
-!Duration methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 9/28/2025 15:46:15'!
+!Duration methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 9/28/2025 15:46:15'!
 millenniums
 	^ (self days / 365.25 / 1000) rounded! !
 
-!Duration methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 9/28/2025 15:46:52'!
+!Duration methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 9/28/2025 15:46:52'!
 years
 	" Just to get an approximation , to the closest "
 	^ (self days / 365.25) rounded! !
 
-!Number methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 9/28/2025 15:39:49'!
+!Number methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 9/28/2025 15:39:49'!
 millenniums
 " An approximation "
 	^ (self * 1000) years! !
 
-!Number methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 9/28/2025 16:35:51'!
+!Number methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 9/28/2025 16:35:51'!
 months
 " An approximation "
 	^ Duration days: self * 30.4375! !
 
-!Number methodsFor: '*DKMHistory-Timeline' stamp: 'hlsf 9/28/2025 15:38:42'!
+!Number methodsFor: '*DKM-History-Timeline' stamp: 'hlsf 9/28/2025 15:38:42'!
 years
 " An approximation "
 	^ Duration days: self * 365.25! !
