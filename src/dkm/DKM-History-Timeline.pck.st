@@ -1,11 +1,12 @@
-'From Cuis7.5 [latest update: #7689] on 16 November 2025 at 7:52:47 pm'!
+'From Cuis7.5 [latest update: #7689] on 29 November 2025 at 6:56:49 pm'!
 'Description '!
-!provides: 'DKMHistory-Timeline' 1 5!
+!provides: 'DKM-History-Timeline' 1 6!
+!requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-History-Timeline'!
 
 
 !classDefinition: #Timeline category: #'DKM-History-Timeline'!
-Object subclass: #Timeline
+DKMPresenter subclass: #Timeline
 	instanceVariableNames: 'model view'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -222,17 +223,11 @@ codeSample
 description
 	^ 'Design historical timeline with a collection of events. Each event contains a date and a textual description.'  translated! !
 
-!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 18:50:50'!
-pragmaMenu
-	^ #timelineMenu! !
-
-!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 12:33:14'!
-svgIcon
-	^'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!!--!!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M160 169.3c28.3-12.3 48-40.5 48-73.3 0-44.2-35.8-80-80-80S48 51.8 48 96c0 32.8 19.7 61 48 73.3l0 54.7-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l224 0 0 54.7c-28.3 12.3-48 40.5-48 73.3 0 44.2 35.8 80 80 80s80-35.8 80-80c0-32.8-19.7-61-48-73.3l0-54.7 224 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0 0-54.7c28.3-12.3 48-40.5 48-73.3 0-44.2-35.8-80-80-80s-80 35.8-80 80c0 32.8 19.7 61 48 73.3l0 54.7-256 0 0-54.7z"/></svg>'! !
-
-!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 18:56:02'!
-timelineMenu: menuBuilder
-	<timelineMenu>
+!Timeline class methodsFor: 'DKM' stamp: 'hlsf 11/29/2025 18:25:52'!
+menu: menuBuilder
+	<timeline>
+"	Set the right model, menuBuilder is initialized with the view as a model, 
+	commands handled by presenter "
 	menuBuilder model: menuBuilder model presenter.
 	menuBuilder newEntry: #shrink ::
 		label: 'Shrink timeline' translated;
@@ -242,6 +237,14 @@ timelineMenu: menuBuilder
 		label: 'Expand timeline' translated;
 		selector: #unshrink;
 		order: 20! !
+
+!Timeline class methodsFor: 'DKM' stamp: 'hlsf 11/29/2025 18:10:06'!
+pragmaMenu
+	^ #timeline! !
+
+!Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 12:33:14'!
+svgIcon
+	^'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!!--!!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M160 169.3c28.3-12.3 48-40.5 48-73.3 0-44.2-35.8-80-80-80S48 51.8 48 96c0 32.8 19.7 61 48 73.3l0 54.7-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l224 0 0 54.7c-28.3 12.3-48 40.5-48 73.3 0 44.2 35.8 80 80 80s80-35.8 80-80c0-32.8-19.7-61-48-73.3l0-54.7 224 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0 0-54.7c28.3-12.3 48-40.5 48-73.3 0-44.2-35.8-80-80-80s-80 35.8-80 80c0 32.8 19.7 61 48 73.3l0 54.7-256 0 0-54.7z"/></svg>'! !
 
 !Timeline class methodsFor: 'DKM' stamp: 'hlsf 10/12/2025 12:33:50'!
 title

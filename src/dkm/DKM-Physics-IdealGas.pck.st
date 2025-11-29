@@ -1,11 +1,12 @@
-'From Cuis7.5 [latest update: #7689] on 29 November 2025 at 4:16:07 pm'!
+'From Cuis7.5 [latest update: #7689] on 29 November 2025 at 6:56:46 pm'!
 'Description '!
-!provides: 'DKM-Physics-IdealGas' 1 11!
+!provides: 'DKM-Physics-IdealGas' 1 12!
+!requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-IdealGas'!
 
 
 !classDefinition: #IdealGasSimulation category: #'DKM-Physics-IdealGas'!
-Object subclass: #IdealGasSimulation
+DKMPresenter subclass: #IdealGasSimulation
 	instanceVariableNames: 'model view playing'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -150,6 +151,23 @@ playStopSimulation
 	playing ifTrue: [view stopStepping] ifFalse: [view startStepping].
 	playing := playing not.
 	self changed: #isPlaying! !
+
+!IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 11/29/2025 18:35:03'!
+codeSample
+	^ 'IdealGasSimulation new
+	addFence: {0@0 . 300@0 . 300@200. 0@200};
+	addWallFrom: 100@0 to: 80@85;
+	addWallFrom: 100@200 to: 80@105;
+	addMolecules: 1000 ;
+	view'! !
+
+!IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 11/29/2025 18:38:40'!
+description
+	^ 'A simulation of ideal gas. In top of the fence, arbitrary walls can be arranged inside the fence. Each wall temperature are adjusted by a mouse clic.' translated! !
+
+!IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 11/29/2025 18:39:10'!
+title 
+	^ 'Ideal gas' translated! !
 
 !IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 11:45:43'!
 bounds
