@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 30 November 2025 at 8:56:28 pm'!
+'From Cuis7.5 [latest update: #7689] on 30 November 2025 at 11:59:15 pm'!
 'Description '!
-!provides: 'DKM-Physics-IdealGas' 1 17!
+!provides: 'DKM-Physics-IdealGas' 1 18!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-IdealGas'!
 
@@ -27,7 +27,7 @@ IdealGasSimulationModel class
 
 !classDefinition: #Molecule category: #'DKM-Physics-IdealGas'!
 Object subclass: #Molecule
-	instanceVariableNames: 'position velocity bounced'
+	instanceVariableNames: 'position velocity velocityHalf force'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DKM-Physics-IdealGas'!
@@ -99,7 +99,9 @@ Real gas can be simulated, adding inter-molecules potential interactions.
 !
 
 !Molecule commentStamp: '<historical>' prior: 0!
-Model of a molecule in a gas simulation!
+Model of a molecule in a gas simulation
+- velocity at time δt
+- velocityHalf at time -δt/2!
 
 !Wall commentStamp: '<historical>' prior: 0!
 A wall modelised as a thick line between extremitoes 1 and 2.!
@@ -183,17 +185,23 @@ svgIcon
 title 
 	^ 'Ideal gas' translated! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 20:43:01'!
+!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 23:36:16'!
 modelToPixel: aPosition
 	^ aPosition * 1.0e11! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 20:42:57'!
+!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 23:36:20'!
 pixelToModel: aPoint
 	^ aPoint * 1.0e-11! !
 
 !IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 11:45:43'!
 bounds
 	^ Rectangle encompassing: self wallVertices :: encompass: 0@0! !
+
+!IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/30/2025 23:47:20'!
+centerBounds
+	| bounds |
+	bounds := self bounds.
+	^ bounds topLeft + bounds bottomRight / 2! !
 
 !IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 18:51:21'!
 isValidPosition: aPoint
@@ -246,53 +254,64 @@ energy
 	^ molecules inject: 0 into: [: theEnergy :aMolecule| 
 		theEnergy + (0.5 * Molecule mass * (aMolecule velocity dotProduct: aMolecule velocity) )]! !
 
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/30/2025 23:17:05'!
+forcesOn: aMolecule
+	| r rVector val epsilon24 potentialMolecules cutOff |
+	cutOff := IdealGasSimulationModel cutOff squared.
+	epsilon24 := IdealGasSimulationModel epsilon * 24.
+	potentialMolecules := molecules select: [:anotherMolecule | | dist |
+		dist := aMolecule position squaredDistanceTo: anotherMolecule position.
+		anotherMolecule ~= aMolecule 
+			and: [dist < cutOff
+			and: [dist ~= 0] ]
+	].
+	^ potentialMolecules inject: 0@0 into: [:subForces :anotherMolecule | 
+		rVector := anotherMolecule position - aMolecule position.
+		r := rVector r.
+		val := (IdealGasSimulationModel delta / r) raisedTo: 6. 
+		subForces + ((epsilon24 / r) *val * (2 * val -1) * rVector normalized) ]
+	! !
+
 !IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/27/2025 21:49:19'!
 temperature
 	^ self energy / (IdealGasSimulationModel kb * molecules size)! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/30/2025 11:08:43'!
-update
-	self updateIdealGas ! !
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/30/2025 23:58:42'!
+updateRealGas: molecule
+	molecule velocityHalf: (molecule forwardVelocity: simulationStep).
+	molecule position: (molecule forwardPositionHalf: simulationStep).
+	"molecule force: (self forcesOn: molecule)."
+	molecule velocity: (molecule forwardVelocity: simulationStep / 2)
+	
+	! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/30/2025 11:00:57'!
-updateIdealGas
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/30/2025 23:57:57'!
+updateSimulation
 	| bounds |
 	walls do: #reset.
 	bounds := self bounds.
 	molecules do: [:molecule | | newPosition |
-		molecule reset.
 		newPosition := molecule forwardPosition: simulationStep.
 		walls 
 			detect:  [:aWall | aWall collidedByTrajectory: molecule position to: newPosition]
 			ifFound: [:collidedWall | 
 				collidedWall bounce: molecule over: newPosition with: simulationStep]
-			ifNone: [molecule position: newPosition].
-		(bounds containsPoint: molecule position) ifFalse: [molecule position: bounds center] ]
+			ifNone: [
+				self isRealGas 
+					ifTrue:  [self updateRealGas: molecule]
+					ifFalse: [	molecule position: newPosition]].
+		(bounds containsPoint: molecule position) ifFalse: [molecule position: self centerBounds ] ]
 	
 	
 	! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/30/2025 11:08:32'!
-updateRealGas
-	| bounds |
-	walls do: #reset.
-	bounds := self bounds.
-	molecules do: [:molecule | | newPosition |
-		molecule reset.
-		newPosition := molecule forwardPosition: simulationStep.
-		walls 
-			detect:  [:aWall | aWall collidedByTrajectory: molecule position to: newPosition]
-			ifFound: [:collidedWall | 
-				collidedWall bounce: molecule over: newPosition with: simulationStep]
-			ifNone: [molecule position: newPosition].
-		(bounds containsPoint: molecule position) ifFalse: [molecule position: bounds center] ]
-	
-	
-	! !
+!IdealGasSimulationModel methodsFor: 'testing' stamp: 'hlsf 11/30/2025 23:52:52'!
+isRealGas
+	^ true! !
 
-!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 11/30/2025 11:39:33'!
+!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 11/30/2025 20:59:21'!
 cutOff
-"	Cut off distance, potiential is considered zero over that distance "
+"	Cut off distance, potential is considered zero over that distance "
 	^ 3 * self delta 
 ! !
 
@@ -311,13 +330,10 @@ kb
 " Boltzmann constant "
 	^ 1.3806e-23! !
 
-!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:17:30'!
-bounced
-	bounced := true! !
-
-!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 10:20:33'!
-forwardPosition: t
-	^ velocity * t + position! !
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 23:18:51'!
+force: aVector
+"force print."
+	force := aVector ! !
 
 !Molecule methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 16:24:05'!
 position
@@ -327,24 +343,25 @@ position
 position: aPoint
 	position := aPoint ! !
 
-!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:17:43'!
-reset
-	bounced := false! !
-
 !Molecule methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 10:15:25'!
 velocity 
 	^ velocity ! !
 
-!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/22/2025 10:15:41'!
-velocity: aPoint
-	velocity := aPoint ! !
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 22:20:04'!
+velocity: aVector
+	velocity := aVector ! !
 
-!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 20:18:00'!
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 22:19:55'!
+velocityHalf: aVector
+	velocityHalf := aVector ! !
+
+!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 22:30:04'!
 initialize
 	velocity := (100 atRandom - 50) @ (100 atRandom - 50).
 	velocity isZero ifTrue: [velocity := 1@1].
-	velocity := 340 + (30 atRandom - 15) * velocity normalized .
-	bounced := false! !
+	velocity := 340 + (30 atRandom - 15) * velocity normalized.
+	velocityHalf := velocity .
+	force := 0@0.! !
 
 !Molecule methodsFor: 'printing' stamp: 'hlsf 11/22/2025 10:14:58'!
 printOn: aStream
@@ -357,6 +374,18 @@ printOn: aStream
 	aStream nextPutAll: ' ; '.
 	velocity y printOn: aStream fractionDigits: 1.
 	aStream nextPut: $).! !
+
+!Molecule methodsFor: 'model' stamp: 'hlsf 11/22/2025 10:20:33'!
+forwardPosition: t
+	^ velocity * t + position! !
+
+!Molecule methodsFor: 'model' stamp: 'hlsf 11/30/2025 21:33:27'!
+forwardPositionHalf: t
+	^ velocityHalf * t + position! !
+
+!Molecule methodsFor: 'model' stamp: 'hlsf 11/30/2025 23:29:30'!
+forwardVelocity: t
+	^ velocityHalf + (force / Molecule mass * t)! !
 
 !Molecule methodsFor: 'model' stamp: 'hlsf 11/22/2025 10:18:26'!
 updatePositionAt: t from: aPosition
@@ -441,7 +470,7 @@ linesIntersectionOf: para1 and: para2
 		x: para1 third  * para2 second - (para1 second * para2 third) / det
 		y: para1 first * para2 third - (para1 third * para2 first) / det! !
 
-!Wall methodsFor: 'model' stamp: 'hlsf 11/30/2025 20:53:12'!
+!Wall methodsFor: 'model' stamp: 'hlsf 11/30/2025 22:10:28'!
 bounce: molecule over: newPosition with: timeInterval
 	| collision t1 |
 	collision := self intersectionWithTrajectory: molecule position to: newPosition. 
@@ -517,21 +546,14 @@ printOn: aStream
 model: aMolecule
 	model := aMolecule ! !
 
-!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/30/2025 14:00:42'!
+!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/30/2025 23:34:34'!
 drawOn: canvas
 	canvas 
 		ellipseCenter: (IdealGasSimulation modelToPixel: model position) 
 		radius: MoleculeMorph radius 
 		borderWidth: 0 
 		borderColor: nil 
-		fillColor: Color green.
-"	canvas 
-		ellipseCenter: model position 
-		radius: (model position dist: (model forwardPosition: 0.01))
-		borderWidth: 0.5 
-		borderColor: Color white
-		fillColor: nil.
-"! !
+		fillColor: Color green! !
 
 !MoleculeMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/30/2025 10:54:36'!
 radius
@@ -653,9 +675,9 @@ installSimulationViews
 	self model walls do: [:aWall | canvas addMorph: (WallMorph new model: aWall)]
 ! !
 
-!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/17/2025 21:46:23'!
+!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/30/2025 22:27:28'!
 step
-	self model update.
+	self model updateSimulation .
 	self redrawNeeded ! !
 
 !IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/20/2025 11:17:32'!
