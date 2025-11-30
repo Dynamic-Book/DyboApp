@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 30 November 2025 at 2:39:08 pm'!
+'From Cuis7.5 [latest update: #7689] on 30 November 2025 at 8:56:28 pm'!
 'Description '!
-!provides: 'DKM-Physics-IdealGas' 1 16!
+!provides: 'DKM-Physics-IdealGas' 1 17!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-IdealGas'!
 
@@ -86,10 +86,10 @@ The presenter of the Ideal Gas Simulation to handle the DSL, the controllers and
 	addMolecules: 1000 ;
 	view) openInWorld!
 
-!IdealGasSimulationModel commentStamp: '<historical>' prior: 0!
+!IdealGasSimulationModel commentStamp: 'hlsf 11/30/2025 20:38:48' prior: 0!
 I simulate idea gas in a fence. Additional inside wall can be added.
 Temperature of the walls and fence can be adjusted during the simulation.
-We approximate 1 pixel = 10e-11 m
+We approximate 1 pixel = 1e-11 m
 
 Real gas can be simulated, adding inter-molecules potential interactions.
 
@@ -183,13 +183,13 @@ svgIcon
 title 
 	^ 'Ideal gas' translated! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 12:16:28'!
+!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 20:43:01'!
 modelToPixel: aPosition
-	^ aPosition * 1e11! !
+	^ aPosition * 1.0e11! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 12:16:33'!
+!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 20:42:57'!
 pixelToModel: aPoint
-	^ aPoint * 1e-11! !
+	^ aPoint * 1.0e-11! !
 
 !IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 11:45:43'!
 bounds
@@ -204,11 +204,11 @@ isValidPosition: aPoint
 wallVertices
 	^ (walls collect: [:aWall | aWall vertices]) flatten! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 12:31:44'!
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 20:43:48'!
 addMolecules: quantity at: aPosition
 	| extent position |
 	walls ifEmpty: [self error: 'Set the walls of the simulation first'].
-	extent := IdealGasSimulation modelToPixel: self bounds extent.
+	extent := (IdealGasSimulation modelToPixel: self bounds extent) rounded.
 	quantity timesRepeat: [
 		aPosition ifNil: [
 			[position := extent x atRandom @ extent y atRandom.
@@ -235,11 +235,11 @@ simulationStep: float
 walls
 	^ walls! !
 
-!IdealGasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 14:33:41'!
+!IdealGasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 20:42:52'!
 initialize
 	walls := OrderedCollection new.
 	molecules := OrderedCollection new.
-	simulationStep := 1e-13! !
+	simulationStep := 1.0e-13! !
 
 !IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/27/2025 21:48:22'!
 energy
@@ -339,9 +339,11 @@ velocity
 velocity: aPoint
 	velocity := aPoint ! !
 
-!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/23/2025 11:16:03'!
+!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 20:18:00'!
 initialize
-	velocity := 340 + (30 atRandom - 15) * (100 atRandom - 50 @ (100 atRandom - 50)) normalized .
+	velocity := (100 atRandom - 50) @ (100 atRandom - 50).
+	velocity isZero ifTrue: [velocity := 1@1].
+	velocity := 340 + (30 atRandom - 15) * velocity normalized .
 	bounced := false! !
 
 !Molecule methodsFor: 'printing' stamp: 'hlsf 11/22/2025 10:14:58'!
@@ -429,17 +431,17 @@ Returns the parameters a, b and c of the equation ax + by + c = 0"
 		with: 0 - direction x 
 		with: point y * direction x - (point x * direction y)! !
 
-!Wall methodsFor: 'helpers' stamp: 'hlsf 11/16/2025 19:10:54'!
+!Wall methodsFor: 'helpers' stamp: 'hlsf 11/30/2025 20:52:52'!
 linesIntersectionOf: para1 and: para2
 " Intersection between two lines charactersized by their equation parameters ax + by + c = 0 "
 	| det |
 	det := para2 first * para1 second - (para1 first * para2 second).
-	(det  - 0) abs < 1e-5 ifTrue: [ ^ nil].
+	(det  - 0) abs < 1e-100 ifTrue: [ ^ nil].
 	^ Point
 		x: para1 third  * para2 second - (para1 second * para2 third) / det
 		y: para1 first * para2 third - (para1 third * para2 first) / det! !
 
-!Wall methodsFor: 'model' stamp: 'hlsf 11/27/2025 10:54:52'!
+!Wall methodsFor: 'model' stamp: 'hlsf 11/30/2025 20:53:12'!
 bounce: molecule over: newPosition with: timeInterval
 	| collision t1 |
 	collision := self intersectionWithTrajectory: molecule position to: newPosition. 
@@ -617,7 +619,7 @@ temperatureString
 		self model temperature rounded printOn: str.
 		str nextPutAll: ' K']! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 14:38:54'!
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 20:45:23'!
 initialize
 	| row label |
 	super initialize.
@@ -629,7 +631,7 @@ initialize
 	For a smoother animation, edit IdealGasSimulationView>>stepTime, ie 50ms 
 	Adjust δt accordingly if stepTime is different than 100ms
 "	
-	self model simulationStep: (self stepTime * self model simulationStep) * 10. 
+	self model simulationStep: (self stepTime / 1000) * self model simulationStep * 10. 
 	self morphExtent: self bounds corner + (borderWidth + padding * 2) asPoint + (10@50).
 	canvas := ColoredBoxMorph new morphExtent: self bounds corner.
 	canvas color: Color black.
