@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 30 November 2025 at 12:34:01 pm'!
+'From Cuis7.5 [latest update: #7689] on 30 November 2025 at 2:39:08 pm'!
 'Description '!
-!provides: 'DKM-Physics-IdealGas' 1 15!
+!provides: 'DKM-Physics-IdealGas' 1 16!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-IdealGas'!
 
@@ -223,6 +223,10 @@ addWall: array
 molecules
 	^ molecules ! !
 
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 14:37:26'!
+simulationStep
+	^ simulationStep! !
+
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 18:15:14'!
 simulationStep: float
 	simulationStep := float! !
@@ -231,11 +235,11 @@ simulationStep: float
 walls
 	^ walls! !
 
-!IdealGasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 11/27/2025 21:22:22'!
+!IdealGasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 14:33:41'!
 initialize
 	walls := OrderedCollection new.
 	molecules := OrderedCollection new.
-	energy := 0.! !
+	simulationStep := 1e-13! !
 
 !IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/27/2025 21:48:22'!
 energy
@@ -511,9 +515,14 @@ printOn: aStream
 model: aMolecule
 	model := aMolecule ! !
 
-!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/30/2025 10:54:48'!
+!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 11/30/2025 14:00:42'!
 drawOn: canvas
-	canvas ellipseCenter: model position radius: MoleculeMorph radius borderWidth: 0 borderColor: nil fillColor: Color green.
+	canvas 
+		ellipseCenter: (IdealGasSimulation modelToPixel: model position) 
+		radius: MoleculeMorph radius 
+		borderWidth: 0 
+		borderColor: nil 
+		fillColor: Color green.
 "	canvas 
 		ellipseCenter: model position 
 		radius: (model position dist: (model forwardPosition: 0.01))
@@ -526,11 +535,11 @@ drawOn: canvas
 radius
 	^ 3! !
 
-!WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/30/2025 10:55:46'!
+!WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/30/2025 14:02:28'!
 drawOn: canvas
-	canvas line: model extremity1 to: model extremity2 width: WallMorph thickness color: (self colors at: model heating).
+	canvas line: self extremity1 to: self extremity2 width: WallMorph thickness color: (self colors at: model heating).
 	model bounced ifTrue: [
-		canvas line: model extremity1 to: model extremity2 width: 1 color: (self bounceColors at: model heating)]! !
+		canvas line: self extremity1 to: self extremity2 width: 1 color: (self bounceColors at: model heating)]! !
 
 !WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:21:53'!
 bounceColors
@@ -549,6 +558,14 @@ colors
 		with: Color grey muchLighter
 		with:  Color red muchLighter 
 		with: Color red`! !
+
+!WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 14:02:02'!
+extremity1
+	^ IdealGasSimulation modelToPixel: model extremity1 ! !
+
+!WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 14:02:05'!
+extremity2
+	^ IdealGasSimulation modelToPixel: model extremity2! !
 
 !WallMorph methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 12:39:48'!
 model: wall
@@ -573,9 +590,13 @@ mouseButton1Down: aEvent localPosition: aPosition
 thickness
 	^ 10! !
 
-!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 12:20:48'!
+!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 14:22:59'!
 bounds
-	^ IdealGasSimulation modelToPixel: self model bounds! !
+	| modelBounds |
+	modelBounds := self model bounds.
+	^ Rectangle 
+		origin: (IdealGasSimulation modelToPixel: modelBounds origin)
+		corner: (IdealGasSimulation modelToPixel: modelBounds corner)! !
 
 !IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 11/19/2025 16:06:03'!
 defaultBorderWidth
@@ -596,18 +617,19 @@ temperatureString
 		self model temperature rounded printOn: str.
 		str nextPutAll: ' K']! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 12:21:00'!
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 14:38:54'!
 initialize
 	| row label |
 	super initialize.
 	self beColumn.
 	self padding: 5@5.
 "	Simulation step (δt)  at each view update (view' step and stepTime related):
-	For a speed of 300 m.s ⁻¹, a molecule moves of 3m per view update (stepTime=0.1s) is visually appealing
-	This makes a δt of 0.01 per stepTime (0.1), those δt=stepTime*0.1
-	For a smoother animation, edit IdealGasSimulationView>>stepTime, ie 50, δt is set accordingly
+	For a speed of 300 m.s ⁻¹, a molecule moves of 3 pixels per view update (stepTime=0.1s) is visually appealing
+	This makes a δt of 1e-13 per stepTime (0.1), those δt=stepTime*1e-12
+	For a smoother animation, edit IdealGasSimulationView>>stepTime, ie 50ms 
+	Adjust δt accordingly if stepTime is different than 100ms
 "	
-	self model simulationStep: (self stepTime /1000) / 10. 
+	self model simulationStep: (self stepTime * self model simulationStep) * 10. 
 	self morphExtent: self bounds corner + (borderWidth + padding * 2) asPoint + (10@50).
 	canvas := ColoredBoxMorph new morphExtent: self bounds corner.
 	canvas color: Color black.
