@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 30 November 2025 at 11:59:15 pm'!
+'From Cuis7.5 [latest update: #7689] on 4 December 2025 at 11:08:21 am'!
 'Description '!
-!provides: 'DKM-Physics-IdealGas' 1 18!
+!provides: 'DKM-Physics-IdealGas' 1 20!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-IdealGas'!
 
@@ -17,7 +17,7 @@ IdealGasSimulation class
 
 !classDefinition: #IdealGasSimulationModel category: #'DKM-Physics-IdealGas'!
 Object subclass: #IdealGasSimulationModel
-	instanceVariableNames: 'molecules walls simulationStep'
+	instanceVariableNames: 'molecules walls simulationStep reinject idealGas'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DKM-Physics-IdealGas'!
@@ -27,7 +27,7 @@ IdealGasSimulationModel class
 
 !classDefinition: #Molecule category: #'DKM-Physics-IdealGas'!
 Object subclass: #Molecule
-	instanceVariableNames: 'position velocity velocityHalf force'
+	instanceVariableNames: 'position velocity force'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DKM-Physics-IdealGas'!
@@ -100,8 +100,7 @@ Real gas can be simulated, adding inter-molecules potential interactions.
 
 !Molecule commentStamp: '<historical>' prior: 0!
 Model of a molecule in a gas simulation
-- velocity at time δt
-- velocityHalf at time -δt/2!
+!
 
 !Wall commentStamp: '<historical>' prior: 0!
 A wall modelised as a thick line between extremitoes 1 and 2.!
@@ -154,15 +153,31 @@ initialize
 	model := IdealGasSimulationModel new.
 	playing := false.! !
 
-!IdealGasSimulation methodsFor: 'as yet unclassified' stamp: 'hlsf 11/19/2025 16:29:43'!
-isPlaying
-	^ playing ! !
-
-!IdealGasSimulation methodsFor: 'as yet unclassified' stamp: 'hlsf 11/19/2025 16:31:36'!
+!IdealGasSimulation methodsFor: 'callback' stamp: 'hlsf 11/19/2025 16:31:36'!
 playStopSimulation
 	playing ifTrue: [view stopStepping] ifFalse: [view startStepping].
 	playing := playing not.
 	self changed: #isPlaying! !
+
+!IdealGasSimulation methodsFor: 'callback' stamp: 'hlsf 12/4/2025 11:03:07'!
+toggleIdealGas
+	model idealGas: model idealGas not! !
+
+!IdealGasSimulation methodsFor: 'callback' stamp: 'hlsf 12/4/2025 10:06:58'!
+toggleReinjecting
+	model reinject: model reinject not! !
+
+!IdealGasSimulation methodsFor: 'testing' stamp: 'hlsf 12/4/2025 11:02:48'!
+isIdealGas
+	^ model idealGas ! !
+
+!IdealGasSimulation methodsFor: 'testing' stamp: 'hlsf 11/19/2025 16:29:43'!
+isPlaying
+	^ playing ! !
+
+!IdealGasSimulation methodsFor: 'testing' stamp: 'hlsf 12/4/2025 10:06:29'!
+isReinjecting
+	^ model reinject! !
 
 !IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 11/29/2025 18:35:03'!
 codeSample
@@ -185,13 +200,18 @@ svgIcon
 title 
 	^ 'Ideal gas' translated! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 23:36:16'!
+!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 12/4/2025 09:42:00'!
 modelToPixel: aPosition
-	^ aPosition * 1.0e11! !
+	^ aPosition / self scale! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 11/30/2025 23:36:20'!
+!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 12/4/2025 09:41:53'!
 pixelToModel: aPoint
-	^ aPoint * 1.0e-11! !
+	^ aPoint * self scale! !
+
+!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 12/4/2025 10:58:56'!
+scale
+"	Length of one pixel in meter "
+	^ 2.5e-10! !
 
 !IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 11:45:43'!
 bounds
@@ -227,9 +247,35 @@ addMolecules: quantity at: aPosition
 addWall: array
 	walls add: (Wall new vertices: array)! !
 
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/4/2025 11:01:35'!
+idealGas
+	^ idealGas ! !
+
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/4/2025 11:06:58'!
+idealGas: boolean
+	idealGas := boolean.
+	idealGas 
+		ifTrue:  [simulationStep := 1.0e-12]
+		ifFalse: [simulationStep := 1.0e-13]! !
+
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/17/2025 22:14:23'!
 molecules
 	^ molecules ! !
+
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/2/2025 21:33:12'!
+randomPosition
+	| extent |
+	extent := (IdealGasSimulation modelToPixel: self bounds extent) rounded.
+	^ IdealGasSimulation pixelToModel: extent x atRandom @ extent y atRandom! !
+
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/4/2025 10:01:48'!
+reinject
+" Some molecule may escape de the fence, do we reinject them within the fence "
+	^ reinject ! !
+
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/4/2025 10:01:57'!
+reinject: boolean
+	reinject := boolean ! !
 
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 14:37:26'!
 simulationStep
@@ -243,50 +289,41 @@ simulationStep: float
 walls
 	^ walls! !
 
-!IdealGasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 20:42:52'!
+!IdealGasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 12/4/2025 11:06:47'!
 initialize
 	walls := OrderedCollection new.
 	molecules := OrderedCollection new.
-	simulationStep := 1.0e-13! !
+	reinject := true.
+	self idealGas: true! !
 
 !IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/27/2025 21:48:22'!
 energy
 	^ molecules inject: 0 into: [: theEnergy :aMolecule| 
 		theEnergy + (0.5 * Molecule mass * (aMolecule velocity dotProduct: aMolecule velocity) )]! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/30/2025 23:17:05'!
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/3/2025 23:11:12'!
 forcesOn: aMolecule
-	| r rVector val epsilon24 potentialMolecules cutOff |
+	| r rVector val e24 potentialMolecules cutOff |
 	cutOff := IdealGasSimulationModel cutOff squared.
-	epsilon24 := IdealGasSimulationModel epsilon * 24.
+	e24 := IdealGasSimulationModel E₀ * 24.
 	potentialMolecules := molecules select: [:anotherMolecule | | dist |
 		dist := aMolecule position squaredDistanceTo: anotherMolecule position.
 		anotherMolecule ~= aMolecule 
 			and: [dist < cutOff
-			and: [dist ~= 0] ]
-	].
-	^ potentialMolecules inject: 0@0 into: [:subForces :anotherMolecule | 
-		rVector := anotherMolecule position - aMolecule position.
+			and: [dist ~= 0] ] ].
+	^ potentialMolecules inject: 0@0 into: [:subForces :nextMolecule | 
+		rVector := aMolecule position - nextMolecule position.
 		r := rVector r.
-		val := (IdealGasSimulationModel delta / r) raisedTo: 6. 
-		subForces + ((epsilon24 / r) *val * (2 * val -1) * rVector normalized) ]
+		val := (IdealGasSimulationModel delta / r) raisedToInteger: 6. 
+		subForces + ((e24 / r) *val * (2 * val -1) * rVector / r) ]
 	! !
 
 !IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/27/2025 21:49:19'!
 temperature
 	^ self energy / (IdealGasSimulationModel kb * molecules size)! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/30/2025 23:58:42'!
-updateRealGas: molecule
-	molecule velocityHalf: (molecule forwardVelocity: simulationStep).
-	molecule position: (molecule forwardPositionHalf: simulationStep).
-	"molecule force: (self forcesOn: molecule)."
-	molecule velocity: (molecule forwardVelocity: simulationStep / 2)
-	
-	! !
-
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 11/30/2025 23:57:57'!
-updateSimulation
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/4/2025 10:05:14'!
+updateIdealGasSimulation
 	| bounds |
 	walls do: #reset.
 	bounds := self bounds.
@@ -294,24 +331,62 @@ updateSimulation
 		newPosition := molecule forwardPosition: simulationStep.
 		walls 
 			detect:  [:aWall | aWall collidedByTrajectory: molecule position to: newPosition]
-			ifFound: [:collidedWall | 
-				collidedWall bounce: molecule over: newPosition with: simulationStep]
-			ifNone: [
-				self isRealGas 
-					ifTrue:  [self updateRealGas: molecule]
-					ifFalse: [	molecule position: newPosition]].
-		(bounds containsPoint: molecule position) ifFalse: [molecule position: self centerBounds ] ]
+			ifFound: [:collidedWall | collidedWall bounce: molecule over: newPosition with: simulationStep]
+			ifNone: [molecule position: newPosition].
+		(reinject and: [(bounds containsPoint: molecule position) not]) 
+			ifTrue: [molecule position: self randomPosition] ]
+! !
+
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/4/2025 10:54:47'!
+updateRealGas: molecule
+"
+	v1 : v(t + δt / 2)
+"
+	| v1 a |
+	a := molecule force / Molecule mass.
+	"a print."
+	"molecule force print."
+	v1 := molecule velocity +  (a * simulationStep / 2).
+	molecule position: molecule position + (v1 * simulationStep).
+	molecule force: (self forcesOn: molecule).
+	a := molecule force / Molecule mass.
+	molecule velocity: v1 + (a * simulationStep / 2)
+	
+	! !
+
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/4/2025 10:04:39'!
+updateRealGasSimulation
+	| bounds |
+	walls do: #reset.
+	bounds := self bounds.
+	molecules do: [:molecule | | newPosition |
+		newPosition := molecule forwardPosition: simulationStep.
+		walls 
+			detect:  [:aWall | aWall collidedByTrajectory: molecule position to: newPosition]
+			ifFound: [:collidedWall | collidedWall bounce: molecule over: newPosition with: simulationStep]
+			ifNone: [	self updateRealGas: molecule].
+		(reinject and: [(bounds containsPoint: molecule position) not]) 
+			ifTrue: [molecule position: self randomPosition] ]
 	
 	
 	! !
 
-!IdealGasSimulationModel methodsFor: 'testing' stamp: 'hlsf 11/30/2025 23:52:52'!
-isRealGas
-	^ true! !
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/4/2025 11:02:10'!
+updateSimulation
+	idealGas 
+		ifFalse: [self updateRealGasSimulation]
+		ifTrue: [self updateIdealGasSimulation ]
+	
+	! !
 
-!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 11/30/2025 20:59:21'!
+!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 12/3/2025 22:02:48'!
+E₀ 
+"	ε : depth of the potential well "
+	^ 1.66e-21! !
+
+!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 12/4/2025 09:50:50'!
 cutOff
-"	Cut off distance, potential is considered zero over that distance "
+"	Cut off distance, potential is considered zero over that distance ≈ 10e-9 m  "
 	^ 3 * self delta 
 ! !
 
@@ -330,10 +405,14 @@ kb
 " Boltzmann constant "
 	^ 1.3806e-23! !
 
-!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 23:18:51'!
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 12/3/2025 22:22:44'!
+force
+	^ force! !
+
+!Molecule methodsFor: 'accessing' stamp: 'hlsf 12/3/2025 23:15:26'!
 force: aVector
 "force print."
-	force := aVector ! !
+	force := aVector .! !
 
 !Molecule methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 16:24:05'!
 position
@@ -351,16 +430,11 @@ velocity
 velocity: aVector
 	velocity := aVector ! !
 
-!Molecule methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 22:19:55'!
-velocityHalf: aVector
-	velocityHalf := aVector ! !
-
-!Molecule methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 22:30:04'!
+!Molecule methodsFor: 'initialization' stamp: 'hlsf 12/4/2025 09:30:27'!
 initialize
-	velocity := (100 atRandom - 50) @ (100 atRandom - 50).
-	velocity isZero ifTrue: [velocity := 1@1].
-	velocity := 340 + (30 atRandom - 15) * velocity normalized.
-	velocityHalf := velocity .
+	| a |
+	a := Random next * Float twoPi.
+	velocity := (a cos @ a sin) * 340.
 	force := 0@0.! !
 
 !Molecule methodsFor: 'printing' stamp: 'hlsf 11/22/2025 10:14:58'!
@@ -378,14 +452,6 @@ printOn: aStream
 !Molecule methodsFor: 'model' stamp: 'hlsf 11/22/2025 10:20:33'!
 forwardPosition: t
 	^ velocity * t + position! !
-
-!Molecule methodsFor: 'model' stamp: 'hlsf 11/30/2025 21:33:27'!
-forwardPositionHalf: t
-	^ velocityHalf * t + position! !
-
-!Molecule methodsFor: 'model' stamp: 'hlsf 11/30/2025 23:29:30'!
-forwardVelocity: t
-	^ velocityHalf + (force / Molecule mass * t)! !
 
 !Molecule methodsFor: 'model' stamp: 'hlsf 11/22/2025 10:18:26'!
 updatePositionAt: t from: aPosition
@@ -641,9 +707,9 @@ temperatureString
 		self model temperature rounded printOn: str.
 		str nextPutAll: ' K']! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 11/30/2025 20:45:23'!
+!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 12/4/2025 11:04:37'!
 initialize
-	| row label |
+	| row col label |
 	super initialize.
 	self beColumn.
 	self padding: 5@5.
@@ -653,18 +719,22 @@ initialize
 	For a smoother animation, edit IdealGasSimulationView>>stepTime, ie 50ms 
 	Adjust δt accordingly if stepTime is different than 100ms
 "	
-	self model simulationStep: (self stepTime / 1000) * self model simulationStep * 10. 
-	self morphExtent: self bounds corner + (borderWidth + padding * 2) asPoint + (10@50).
+	"self model simulationStep: (self stepTime / 1000) * self model simulationStep * 10. "
+	self morphExtent: self bounds corner + (borderWidth + padding * 2) asPoint + (10@110).
 	canvas := ColoredBoxMorph new morphExtent: self bounds corner.
 	canvas color: Color black.
 	self addMorphUseAll: canvas.		
 	row := LayoutMorph newRow.
+	col := LayoutMorph newColumn.
 	label := UpdatingLabelMorph new
 		target: self;
 		getSelector: #temperatureString;
 		stepTime: 1000.
+	col addMorph: label fixedHeight: 20;
+		addMorph: (PluggableButtonMorph model: presenter stateGetter: #isReinjecting action: #toggleReinjecting label: 'Re-inject');
+		addMorph: (PluggableButtonMorph model: presenter stateGetter: #isIdealGas action: #toggleIdealGas label: 'Ideal Gas').
 	row
-		addMorph: label;
+		addMorph: col;
 		 addMorph: (PluggableButtonMorph model: presenter stateGetter: #isPlaying action: #playStopSimulation label: 'Play').
 	self addMorphKeepMorphHeight: row .
 	self installSimulationViews.! !
@@ -675,9 +745,9 @@ installSimulationViews
 	self model walls do: [:aWall | canvas addMorph: (WallMorph new model: aWall)]
 ! !
 
-!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/30/2025 22:27:28'!
+!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 12/3/2025 21:22:19'!
 step
-	self model updateSimulation .
+	self model updateSimulation.
 	self redrawNeeded ! !
 
 !IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/20/2025 11:17:32'!
