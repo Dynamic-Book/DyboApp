@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7689] on 4 December 2025 at 11:08:21 am'!
+'From Cuis7.5 [latest update: #7689] on 6 December 2025 at 12:29:53 am'!
 'Description '!
-!provides: 'DKM-Physics-IdealGas' 1 20!
+!provides: 'DKM-Physics-IdealGas' 1 21!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-IdealGas'!
 
@@ -17,7 +17,7 @@ IdealGasSimulation class
 
 !classDefinition: #IdealGasSimulationModel category: #'DKM-Physics-IdealGas'!
 Object subclass: #IdealGasSimulationModel
-	instanceVariableNames: 'molecules walls simulationStep reinject idealGas'
+	instanceVariableNames: 'molecules walls simulationStep reinject idealGas extent'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DKM-Physics-IdealGas'!
@@ -208,10 +208,10 @@ modelToPixel: aPosition
 pixelToModel: aPoint
 	^ aPoint * self scale! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 12/4/2025 10:58:56'!
+!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 12/5/2025 22:30:07'!
 scale
 "	Length of one pixel in meter "
-	^ 2.5e-10! !
+	^ 0.3e-10! !
 
 !IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 11:45:43'!
 bounds
@@ -223,25 +223,31 @@ centerBounds
 	bounds := self bounds.
 	^ bounds topLeft + bounds bottomRight / 2! !
 
-!IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 18:51:21'!
+!IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 12/5/2025 23:48:40'!
+extent
+	^ extent ifNil: [extent :=  (IdealGasSimulation modelToPixel: self bounds extent) rounded]! !
+
+!IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 12/5/2025 23:58:10'!
 isValidPosition: aPoint
 " Does aPoint overlap any wall? "
-	^ walls noneSatisfy: [:aWall | aWall isOverlappedBy: aPoint ]! !
+	| realPositon minDist |
+	realPositon := IdealGasSimulation pixelToModel: aPoint.
+	minDist := IdealGasSimulationModel delta * 1.1.
+	^ (walls noneSatisfy: [:aWall | aWall isOverlappedBy: aPoint ])
+		and: [molecules noneSatisfy: [:aMolecule | (aMolecule position dist: realPositon) < minDist ] ]
+			! !
 
 !IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 11/16/2025 11:39:38'!
 wallVertices
 	^ (walls collect: [:aWall | aWall vertices]) flatten! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/30/2025 20:43:48'!
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/5/2025 23:53:44'!
 addMolecules: quantity at: aPosition
-	| extent position |
+	| position |
 	walls ifEmpty: [self error: 'Set the walls of the simulation first'].
-	extent := (IdealGasSimulation modelToPixel: self bounds extent) rounded.
 	quantity timesRepeat: [
-		aPosition ifNil: [
-			[position := extent x atRandom @ extent y atRandom.
-			self isValidPosition: position ] whileFalse].
-		molecules add: (Molecule new position: (aPosition ifNil: [(IdealGasSimulation pixelToModel: position)]) ) ]! !
+		position := aPosition ifNil: [self suitablePositionForMolecule].
+		molecules add: (Molecule new position: (IdealGasSimulation pixelToModel: position) ) ]! !
 
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 17:50:40'!
 addWall: array
@@ -251,22 +257,16 @@ addWall: array
 idealGas
 	^ idealGas ! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/4/2025 11:06:58'!
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/5/2025 23:17:21'!
 idealGas: boolean
 	idealGas := boolean.
 	idealGas 
-		ifTrue:  [simulationStep := 1.0e-12]
-		ifFalse: [simulationStep := 1.0e-13]! !
+		ifTrue:  [simulationStep := 1.0e-14]
+		ifFalse: [simulationStep := 1.0e-14]! !
 
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/17/2025 22:14:23'!
 molecules
 	^ molecules ! !
-
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/2/2025 21:33:12'!
-randomPosition
-	| extent |
-	extent := (IdealGasSimulation modelToPixel: self bounds extent) rounded.
-	^ IdealGasSimulation pixelToModel: extent x atRandom @ extent y atRandom! !
 
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/4/2025 10:01:48'!
 reinject
@@ -285,6 +285,13 @@ simulationStep
 simulationStep: float
 	simulationStep := float! !
 
+!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 12/5/2025 23:49:56'!
+suitablePositionForMolecule
+	| position |
+	[position := self extent x atRandom @ self extent y atRandom.
+	self isValidPosition: position ] whileFalse.
+	^ position! !
+
 !IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 11/16/2025 12:38:02'!
 walls
 	^ walls! !
@@ -301,7 +308,7 @@ energy
 	^ molecules inject: 0 into: [: theEnergy :aMolecule| 
 		theEnergy + (0.5 * Molecule mass * (aMolecule velocity dotProduct: aMolecule velocity) )]! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/3/2025 23:11:12'!
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/5/2025 23:15:22'!
 forcesOn: aMolecule
 	| r rVector val e24 potentialMolecules cutOff |
 	cutOff := IdealGasSimulationModel cutOff squared.
@@ -322,7 +329,7 @@ forcesOn: aMolecule
 temperature
 	^ self energy / (IdealGasSimulationModel kb * molecules size)! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/4/2025 10:05:14'!
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/6/2025 00:03:24'!
 updateIdealGasSimulation
 	| bounds |
 	walls do: #reset.
@@ -334,7 +341,7 @@ updateIdealGasSimulation
 			ifFound: [:collidedWall | collidedWall bounce: molecule over: newPosition with: simulationStep]
 			ifNone: [molecule position: newPosition].
 		(reinject and: [(bounds containsPoint: molecule position) not]) 
-			ifTrue: [molecule position: self randomPosition] ]
+			ifTrue: [molecule position: self suitablePositionForMolecule ] ]
 ! !
 
 !IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/4/2025 10:54:47'!
@@ -354,7 +361,7 @@ updateRealGas: molecule
 	
 	! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/4/2025 10:04:39'!
+!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 12/6/2025 00:05:42'!
 updateRealGasSimulation
 	| bounds |
 	walls do: #reset.
@@ -366,7 +373,9 @@ updateRealGasSimulation
 			ifFound: [:collidedWall | collidedWall bounce: molecule over: newPosition with: simulationStep]
 			ifNone: [	self updateRealGas: molecule].
 		(reinject and: [(bounds containsPoint: molecule position) not]) 
-			ifTrue: [molecule position: self randomPosition] ]
+			ifTrue: [ " likely got creazy "
+				molecule initialize.
+				molecule position: self suitablePositionForMolecule ] ]
 	
 	
 	! !
@@ -430,11 +439,11 @@ velocity
 velocity: aVector
 	velocity := aVector ! !
 
-!Molecule methodsFor: 'initialization' stamp: 'hlsf 12/4/2025 09:30:27'!
+!Molecule methodsFor: 'initialization' stamp: 'hlsf 12/6/2025 00:24:57'!
 initialize
 	| a |
 	a := Random next * Float twoPi.
-	velocity := (a cos @ a sin) * 340.
+	velocity := (a cos @ a sin) * (340 + (0.5 - Random next * 20)). 
 	force := 0@0.! !
 
 !Molecule methodsFor: 'printing' stamp: 'hlsf 11/22/2025 10:14:58'!
@@ -457,9 +466,9 @@ forwardPosition: t
 updatePositionAt: t from: aPosition
 	position := t * velocity + aPosition ! !
 
-!Molecule class methodsFor: 'constants' stamp: 'hlsf 11/30/2025 11:09:35'!
+!Molecule class methodsFor: 'constants' stamp: 'hlsf 12/5/2025 22:43:16'!
 mass
-" Argon atom mass "
+" Argon atom mass kg "
 	^  6.6335e-26! !
 
 !Wall methodsFor: 'accessing' stamp: 'hlsf 11/23/2025 11:19:14'!
@@ -625,9 +634,9 @@ drawOn: canvas
 radius
 	^ 3! !
 
-!WallMorph methodsFor: 'drawing' stamp: 'hlsf 11/30/2025 14:02:28'!
+!WallMorph methodsFor: 'drawing' stamp: 'hlsf 12/6/2025 00:27:23'!
 drawOn: canvas
-	canvas line: self extremity1 to: self extremity2 width: WallMorph thickness color: (self colors at: model heating).
+	canvas line: self extremity1 to: self extremity2 width: WallMorph thickness color: ((self colors at: model heating) alpha: 0.8).
 	model bounced ifTrue: [
 		canvas line: self extremity1 to: self extremity2 width: 1 color: (self bounceColors at: model heating)]! !
 
@@ -750,10 +759,15 @@ step
 	self model updateSimulation.
 	self redrawNeeded ! !
 
-!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 11/20/2025 11:17:32'!
+!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 12/5/2025 23:17:31'!
 stepTime
 " Update the view every 100 millisecond, 0.1 s "
-	^ 100! !
+	^ 10! !
+
+!IdealGasSimulationView methodsFor: 'as yet unclassified' stamp: 'hlsf 12/5/2025 23:32:56'!
+mouseMove: aMouseMoveEvent localPosition: localEventPosition
+	super mouseMove: aMouseMoveEvent localPosition: localEventPosition.
+	aMouseMoveEvent mouseButton1Pressed ifTrue: ['move and mouse down' print].! !
 
 !IdealGasSimulationView class methodsFor: 'instance creation' stamp: 'hlsf 11/16/2025 11:20:42'!
 presenter: aPresenter
