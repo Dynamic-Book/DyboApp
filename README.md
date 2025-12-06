@@ -20,7 +20,7 @@ Smalltalk 2023 Fast event in Buenos Aires.
 Instructions to install the DyboApp in a Cuis-Smalltalk developer
 environment.
 
-1. Set up your Cuis-Smalltalk environment
+1. Set up your Cuis-Smalltalk environment.
 ```bash
 mkdir Cuis
 cd Cuis
@@ -28,13 +28,34 @@ cd Cuis
 git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-Dev
 git clone --depth 1 https://github.com/Cuis-Smalltalk/Cuis-Smalltalk-UI
 git clone --depth 1 https://github.com/Dynamic-Book/NeoCSV
+git clone --depth 1 https://github.com/Cuis-Smalltalk/SVG
+git clone --depth 1 https://github.com/Cuis-Smalltalk/Numerics
+git clone --depth 1 https://github.com/Cuis-Smalltalk/OSProcess
 
 cd Cuis-Smalltalk-Dev
 git clone --depth 1 https://github.com/Dynamic-Book/DyboLib
 git clone --depth 1 https://github.com/Dynamic-Book/DyboApp
 ```
 
-2. Start the DyboApp IDE
+Optionally, to be able to import and annotate PDF document, install
+the needed package **poppler-utils**. On Debian based distribution:
+```bash
+sudo apt install poppler-utils
+```
+
+2. Prepare the data sample.
+
+This set preset data, for fast testing. These data is created directly
+from the DyboApp, with the settings tool (the gear button at the right
+of the toolbar)
+
+```bash
+cd DyboApp/resources/data
+cp data_sample.obj data.obj
+cd -
+```
+
+3. Start the DyboApp IDE.
 ```
 cd Cuis/Cuis-Smalltalk-Dev
 ./DyboApp/startIDE.sh
@@ -47,7 +68,12 @@ In the Workspace window, execute the statement `DySystem
 beDevelopment`, it will set up the paths to the resources to test
 appropriately the application.
 
-Then, execute `Dybo new` to start the application.
+Then, execute `Dybo load` to start the application with the existing
+data sample.
+
+Alternatively, execute `Dybo new` to start the application with no initial
+data, you will have to create it with the settings tool (the gear
+button at the right in the toolbar).
 
 Have an interesting exploration!
 
