@@ -20,7 +20,7 @@ Smalltalk 2023 Fast event in Buenos Aires.
 Instructions to install the DyboApp in a Cuis-Smalltalk developer
 environment.
 
-## 1. Set up your Cuis-Smalltalk environment.
+## 1. Set-up the Cuis-Smalltalk Environment.
 ```bash
 mkdir Cuis
 cd Cuis
@@ -37,17 +37,20 @@ git clone --depth 1 https://github.com/Dynamic-Book/DyboLib
 git clone --depth 1 https://github.com/Dynamic-Book/DyboApp
 ```
 
+## 2. External Dependency.
 Optionally, to be able to import and annotate PDF document, install
 the needed package **poppler-utils**. On Debian based distribution:
 ```bash
 sudo apt install poppler-utils
 ```
 
-## 2. Prepare the data sample.
+## 3. Prepare Data.
 
-This set preset data, for fast testing. These data is created directly
-from the DyboApp, with the settings tool (the gear button at the right
-of the toolbar)
+For quick testing, you can installs preset data. These data contain a
+school entity, a teacher with his schedule and courses.
+
+These data are created directly from the DyboApp, with the settings
+tool (the gear button at the right of the toolbar).
 
 ```bash
 cd DyboApp/resources/data
@@ -68,8 +71,8 @@ In the Workspace window, execute the statement `DySystem
 beDevelopment`, it will set up the paths to the resources to test
 appropriately the application.
 
-Then, execute `Dybo load` to start the application with the existing
-data sample.
+Then, execute `Dybo load` to start the application with the data
+sample previously installed.
 
 Alternatively, execute `Dybo new` to start the application with no initial
 data, you will have to create it with the settings tool (the gear
