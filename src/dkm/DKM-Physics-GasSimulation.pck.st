@@ -1,28 +1,28 @@
-'From Cuis7.5 [latest update: #7739] on 6 December 2025 at 11:46:17 am'!
+'From Cuis7.5 [latest update: #7739] on 6 December 2025 at 5:14:33 pm'!
 'Description '!
-!provides: 'DKM-Physics-GasSimulation' 1 22!
+!provides: 'DKM-Physics-GasSimulation' 1 23!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-GasSimulation'!
 
 
-!classDefinition: #IdealGasSimulation category: #'DKM-Physics-GasSimulation'!
-DKMPresenter subclass: #IdealGasSimulation
+!classDefinition: #GasSimulation category: #'DKM-Physics-GasSimulation'!
+DKMPresenter subclass: #GasSimulation
 	instanceVariableNames: 'model view playing'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DKM-Physics-GasSimulation'!
-!classDefinition: 'IdealGasSimulation class' category: #'DKM-Physics-GasSimulation'!
-IdealGasSimulation class
+!classDefinition: 'GasSimulation class' category: #'DKM-Physics-GasSimulation'!
+GasSimulation class
 	instanceVariableNames: ''!
 
-!classDefinition: #IdealGasSimulationModel category: #'DKM-Physics-GasSimulation'!
-Object subclass: #IdealGasSimulationModel
-	instanceVariableNames: 'molecules walls simulationStep reinject idealGas extent'
+!classDefinition: #GasSimulationModel category: #'DKM-Physics-GasSimulation'!
+Object subclass: #GasSimulationModel
+	instanceVariableNames: 'molecules walls simulationStep reinject idealGas pixelExtent'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DKM-Physics-GasSimulation'!
-!classDefinition: 'IdealGasSimulationModel class' category: #'DKM-Physics-GasSimulation'!
-IdealGasSimulationModel class
+!classDefinition: 'GasSimulationModel class' category: #'DKM-Physics-GasSimulation'!
+GasSimulationModel class
 	instanceVariableNames: ''!
 
 !classDefinition: #Molecule category: #'DKM-Physics-GasSimulation'!
@@ -65,31 +65,30 @@ PlacedMorph subclass: #WallMorph
 WallMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #IdealGasSimulationView category: #'DKM-Physics-GasSimulation'!
-LinearLayoutMorph subclass: #IdealGasSimulationView
+!classDefinition: #GasSimulationView category: #'DKM-Physics-GasSimulation'!
+LinearLayoutMorph subclass: #GasSimulationView
 	instanceVariableNames: 'presenter canvas'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DKM-Physics-GasSimulation'!
-!classDefinition: 'IdealGasSimulationView class' category: #'DKM-Physics-GasSimulation'!
-IdealGasSimulationView class
+!classDefinition: 'GasSimulationView class' category: #'DKM-Physics-GasSimulation'!
+GasSimulationView class
 	instanceVariableNames: ''!
 
 
-!IdealGasSimulation commentStamp: '<historical>' prior: 0!
-The presenter of the Ideal Gas Simulation to handle the DSL, the controllers and associated callbacks.
+!GasSimulation commentStamp: '<historical>' prior: 0!
+The presenter of the Gas Simulation to handle the DSL, the controllers and associated callbacks.
 
-(IdealGasSimulation new
+(GasSimulation new
 	addFence: {0@0 . 300@0 . 300@200. 0@200};
 	addWallFrom: 100@0 to: 80@85;
 	addWallFrom: 100@200 to: 80@105;
 	addMolecules: 100 ;
 	view) openInWorld!
 
-!IdealGasSimulationModel commentStamp: 'hlsf 11/30/2025 20:38:48' prior: 0!
+!GasSimulationModel commentStamp: '<historical>' prior: 0!
 I simulate idea gas in a fence. Additional inside wall can be added.
 Temperature of the walls and fence can be adjusted during the simulation.
-We approximate 1 pixel = 1e-11 m
 
 Real gas can be simulated, adding inter-molecules potential interactions.
 
@@ -113,73 +112,73 @@ A view of a molecule in a simulation
 A view of a wall in a simulation
  - model, a Wall instance!
 
-!IdealGasSimulationView commentStamp: '<historical>' prior: 0!
-The ideal gas simulation view. My extent is computed depending on the installed walls in the simulation.
+!GasSimulationView commentStamp: '<historical>' prior: 0!
+The gas simulation view. My extent is computed depending on the installed walls in the simulation.
 It comes with:
 - a collection of buttons to pause/play the simulation
 - a canvas to hold the simulation!
 
-!IdealGasSimulation methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 11:26:37'!
+!GasSimulation methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 11:26:37'!
 model
 	^ model! !
 
-!IdealGasSimulation methodsFor: 'accessing' stamp: 'hlsf 17/Nov/2025 21:55:56'!
+!GasSimulation methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 15:06:36'!
 view
-	^ view ifNil: [view := IdealGasSimulationView presenter: self]! !
+	^ view ifNil: [view := GasSimulationView presenter: self]! !
 
-!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 19/Nov/2025 21:00:40'!
+!GasSimulation methodsFor: 'DSL' stamp: 'hlsf 19/Nov/2025 21:00:40'!
 addFence: array4
 	array4 size ~= 4 ifTrue: [self error: 'Fence must be a quadrangle'].
 	array4 withPreviousCyclicDo: [:vertex1 :vertex2 | self addWallFrom: vertex1 to: vertex2 ]! !
 
-!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 19/Nov/2025 16:15:45'!
+!GasSimulation methodsFor: 'DSL' stamp: 'hlsf 19/Nov/2025 16:15:45'!
 addMolecules: quantity
 	model addMolecules: quantity at: nil! !
 
-!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 30/Nov/2025 12:18:18'!
+!GasSimulation methodsFor: 'DSL' stamp: 'hlsf 6/Dec/2025 15:05:59'!
 addMolecules: quantity at: aPoint
-	model addMolecules: quantity at: (aPoint ifNotNil: [IdealGasSimulation pixelToModel: aPoint])! !
+	model addMolecules: quantity at: (aPoint ifNotNil: [GasSimulation pixelToModel: aPoint])! !
 
-!IdealGasSimulation methodsFor: 'DSL' stamp: 'hlsf 30/Nov/2025 12:17:27'!
+!GasSimulation methodsFor: 'DSL' stamp: 'hlsf 6/Dec/2025 15:05:59'!
 addWallFrom: extremity1 to: extremity2
 "	Shift the wall position of the half width of the wall "
 	model addWall: (Array 
-		with: (IdealGasSimulation pixelToModel: extremity1 + (WallMorph thickness // 2) )
-		with: (IdealGasSimulation pixelToModel: extremity2 + (WallMorph thickness // 2) ) 
+		with: (GasSimulation pixelToModel: extremity1 + (WallMorph thickness // 2) )
+		with: (GasSimulation pixelToModel: extremity2 + (WallMorph thickness // 2) ) 
 		)! !
 
-!IdealGasSimulation methodsFor: 'initialization' stamp: 'hlsf 19/Nov/2025 16:29:26'!
+!GasSimulation methodsFor: 'initialization' stamp: 'hlsf 6/Dec/2025 15:06:24'!
 initialize
-	model := IdealGasSimulationModel new.
+	model := GasSimulationModel new.
 	playing := false.! !
 
-!IdealGasSimulation methodsFor: 'callback' stamp: 'hlsf 19/Nov/2025 16:31:36'!
+!GasSimulation methodsFor: 'callback' stamp: 'hlsf 19/Nov/2025 16:31:36'!
 playStopSimulation
 	playing ifTrue: [view stopStepping] ifFalse: [view startStepping].
 	playing := playing not.
 	self changed: #isPlaying! !
 
-!IdealGasSimulation methodsFor: 'callback' stamp: 'hlsf 4/Dec/2025 11:03:07'!
+!GasSimulation methodsFor: 'callback' stamp: 'hlsf 4/Dec/2025 11:03:07'!
 toggleIdealGas
 	model idealGas: model idealGas not! !
 
-!IdealGasSimulation methodsFor: 'callback' stamp: 'hlsf 4/Dec/2025 10:06:58'!
+!GasSimulation methodsFor: 'callback' stamp: 'hlsf 4/Dec/2025 10:06:58'!
 toggleReinjecting
 	model reinject: model reinject not! !
 
-!IdealGasSimulation methodsFor: 'testing' stamp: 'hlsf 4/Dec/2025 11:02:48'!
+!GasSimulation methodsFor: 'testing' stamp: 'hlsf 4/Dec/2025 11:02:48'!
 isIdealGas
 	^ model idealGas ! !
 
-!IdealGasSimulation methodsFor: 'testing' stamp: 'hlsf 19/Nov/2025 16:29:43'!
+!GasSimulation methodsFor: 'testing' stamp: 'hlsf 19/Nov/2025 16:29:43'!
 isPlaying
 	^ playing ! !
 
-!IdealGasSimulation methodsFor: 'testing' stamp: 'hlsf 4/Dec/2025 10:06:29'!
+!GasSimulation methodsFor: 'testing' stamp: 'hlsf 4/Dec/2025 10:06:29'!
 isReinjecting
 	^ model reinject! !
 
-!IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 29/Nov/2025 18:35:03'!
+!GasSimulation class methodsFor: 'DKM' stamp: 'hlsf 29/Nov/2025 18:35:03'!
 codeSample
 	^ 'IdealGasSimulation new
 	addFence: {0@0 . 300@0 . 300@200. 0@200};
@@ -188,131 +187,129 @@ codeSample
 	addMolecules: 1000 ;
 	view'! !
 
-!IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 29/Nov/2025 19:00:15'!
+!GasSimulation class methodsFor: 'DKM' stamp: 'hlsf 29/Nov/2025 19:00:15'!
 description
 	^ 'A simulation of ideal gas. In top of the fence, arbitrary walls can be arranged inside the fence. Each wall temperature is adjusted by mouse clic.' translated! !
 
-!IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 29/Nov/2025 23:47:56'!
+!GasSimulation class methodsFor: 'DKM' stamp: 'hlsf 29/Nov/2025 23:47:56'!
 svgIcon
 	^'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!!--!!Font Awesome Free v5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M156.7 256H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h142.2c15.9 0 30.8 10.9 33.4 26.6 3.3 20-12.1 37.4-31.6 37.4-14.1 0-26.1-9.2-30.4-21.9-2.1-6.3-8.6-10.1-15.2-10.1H81.6c-9.8 0-17.7 8.8-15.9 18.4 8.6 44.1 47.6 77.6 94.2 77.6 57.1 0 102.7-50.1 95.2-108.6C249 291 205.4 256 156.7 256zM16 224h336c59.7 0 106.8-54.8 93.8-116.7-7.6-36.2-36.9-65.5-73.1-73.1-55.4-11.6-105.1 24.9-114.9 75.5-1.9 9.6 6.1 18.3 15.8 18.3h32.8c6.7 0 13.1-3.8 15.2-10.1C325.9 105.2 337.9 96 352 96c19.4 0 34.9 17.4 31.6 37.4-2.6 15.7-17.4 26.6-33.4 26.6H16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16zm384 32H243.7c19.3 16.6 33.2 38.8 39.8 64H400c26.5 0 48 21.5 48 48s-21.5 48-48 48c-17.9 0-33.3-9.9-41.6-24.4-2.9-5-8.7-7.6-14.5-7.6h-33.8c-10.9 0-19 10.8-15.3 21.1 17.8 50.6 70.5 84.8 129.4 72.3 41.2-8.7 75.1-41.6 84.7-82.7C526 321.5 470.5 256 400 256z"/></svg>'! !
 
-!IdealGasSimulation class methodsFor: 'DKM' stamp: 'hlsf 29/Nov/2025 18:39:10'!
+!GasSimulation class methodsFor: 'DKM' stamp: 'hlsf 29/Nov/2025 18:39:10'!
 title 
 	^ 'Ideal gas' translated! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 4/Dec/2025 09:42:00'!
+!GasSimulation class methodsFor: 'convert' stamp: 'hlsf 4/Dec/2025 09:42:00'!
 modelToPixel: aPosition
 	^ aPosition / self scale! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 4/Dec/2025 09:41:53'!
+!GasSimulation class methodsFor: 'convert' stamp: 'hlsf 4/Dec/2025 09:41:53'!
 pixelToModel: aPoint
 	^ aPoint * self scale! !
 
-!IdealGasSimulation class methodsFor: 'convert' stamp: 'hlsf 5/Dec/2025 22:30:07'!
+!GasSimulation class methodsFor: 'convert' stamp: 'hlsf 5/Dec/2025 22:30:07'!
 scale
 "	Length of one pixel in meter "
 	^ 0.3e-10! !
 
-!IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 16/Nov/2025 11:45:43'!
+!GasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 16/Nov/2025 11:45:43'!
 bounds
 	^ Rectangle encompassing: self wallVertices :: encompass: 0@0! !
 
-!IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 30/Nov/2025 23:47:20'!
+!GasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 30/Nov/2025 23:47:20'!
 centerBounds
 	| bounds |
 	bounds := self bounds.
 	^ bounds topLeft + bounds bottomRight / 2! !
 
-!IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 5/Dec/2025 23:48:40'!
-extent
-	^ extent ifNil: [extent :=  (IdealGasSimulation modelToPixel: self bounds extent) rounded]! !
-
-!IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 5/Dec/2025 23:58:10'!
+!GasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 6/Dec/2025 15:06:24'!
 isValidPosition: aPoint
 " Does aPoint overlap any wall? "
 	| realPositon minDist |
-	realPositon := IdealGasSimulation pixelToModel: aPoint.
-	minDist := IdealGasSimulationModel delta * 1.1.
+	realPositon := GasSimulation pixelToModel: aPoint.
+	minDist := GasSimulationModel delta * 1.1.
 	^ (walls noneSatisfy: [:aWall | aWall isOverlappedBy: aPoint ])
 		and: [molecules noneSatisfy: [:aMolecule | (aMolecule position dist: realPositon) < minDist ] ]
 			! !
 
-!IdealGasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 16/Nov/2025 11:39:38'!
+!GasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 6/Dec/2025 15:11:11'!
+pixelExtent
+	^ pixelExtent ifNil: [pixelExtent := (GasSimulation modelToPixel: self bounds extent) rounded]! !
+
+!GasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 16/Nov/2025 11:39:38'!
 wallVertices
 	^ (walls collect: [:aWall | aWall vertices]) flatten! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 5/Dec/2025 23:53:44'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 15:05:59'!
 addMolecules: quantity at: aPosition
 	| position |
 	walls ifEmpty: [self error: 'Set the walls of the simulation first'].
 	quantity timesRepeat: [
 		position := aPosition ifNil: [self suitablePositionForMolecule].
-		molecules add: (Molecule new position: (IdealGasSimulation pixelToModel: position) ) ]! !
+		molecules add: (Molecule new position: (GasSimulation pixelToModel: position) ) ]! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 17:50:40'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 17:50:40'!
 addWall: array
 	walls add: (Wall new vertices: array)! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 4/Dec/2025 11:01:35'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 4/Dec/2025 11:01:35'!
 idealGas
 	^ idealGas ! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 5/Dec/2025 23:17:21'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 15:08:24'!
 idealGas: boolean
-	idealGas := boolean.
-	idealGas 
-		ifTrue:  [simulationStep := 1.0e-14]
-		ifFalse: [simulationStep := 1.0e-14]! !
+	idealGas := boolean! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 17/Nov/2025 22:14:23'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 17/Nov/2025 22:14:23'!
 molecules
 	^ molecules ! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 4/Dec/2025 10:01:48'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 4/Dec/2025 10:01:48'!
 reinject
 " Some molecule may escape de the fence, do we reinject them within the fence "
 	^ reinject ! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 4/Dec/2025 10:01:57'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 4/Dec/2025 10:01:57'!
 reinject: boolean
 	reinject := boolean ! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 30/Nov/2025 14:37:26'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 30/Nov/2025 14:37:26'!
 simulationStep
 	^ simulationStep! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 18:15:14'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 18:15:14'!
 simulationStep: float
 	simulationStep := float! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 5/Dec/2025 23:49:56'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 15:10:45'!
 suitablePositionForMolecule
 	| position |
-	[position := self extent x atRandom @ self extent y atRandom.
+	[position := self pixelExtent x atRandom @ self pixelExtent y atRandom.
 	self isValidPosition: position ] whileFalse.
 	^ position! !
 
-!IdealGasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 12:38:02'!
+!GasSimulationModel methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 12:38:02'!
 walls
 	^ walls! !
 
-!IdealGasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 4/Dec/2025 11:06:47'!
+!GasSimulationModel methodsFor: 'initialization' stamp: 'hlsf 6/Dec/2025 15:08:16'!
 initialize
 	walls := OrderedCollection new.
 	molecules := OrderedCollection new.
 	reinject := true.
-	self idealGas: true! !
+	simulationStep := 1.0e-14.
+	idealGas := true! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 27/Nov/2025 21:48:22'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 27/Nov/2025 21:48:22'!
 energy
 	^ molecules inject: 0 into: [: theEnergy :aMolecule| 
 		theEnergy + (0.5 * Molecule mass * (aMolecule velocity dotProduct: aMolecule velocity) )]! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 5/Dec/2025 23:15:22'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 6/Dec/2025 15:06:24'!
 forcesOn: aMolecule
 	| r rVector val e24 potentialMolecules cutOff |
-	cutOff := IdealGasSimulationModel cutOff squared.
-	e24 := IdealGasSimulationModel E₀ * 24.
+	cutOff := GasSimulationModel cutOff squared.
+	e24 := GasSimulationModel E₀ * 24.
 	potentialMolecules := molecules select: [:anotherMolecule | | dist |
 		dist := aMolecule position squaredDistanceTo: anotherMolecule position.
 		anotherMolecule ~= aMolecule 
@@ -321,15 +318,15 @@ forcesOn: aMolecule
 	^ potentialMolecules inject: 0@0 into: [:subForces :nextMolecule | 
 		rVector := aMolecule position - nextMolecule position.
 		r := rVector r.
-		val := (IdealGasSimulationModel delta / r) raisedToInteger: 6. 
+		val := (GasSimulationModel delta / r) raisedToInteger: 6. 
 		subForces + ((e24 / r) *val * (2 * val -1) * rVector / r) ]
 	! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 27/Nov/2025 21:49:19'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 6/Dec/2025 15:06:24'!
 temperature
-	^ self energy / (IdealGasSimulationModel kb * molecules size)! !
+	^ self energy / (GasSimulationModel kb * molecules size)! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 6/Dec/2025 00:03:24'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 6/Dec/2025 17:09:45'!
 updateIdealGasSimulation
 	| bounds |
 	walls do: #reset.
@@ -341,18 +338,16 @@ updateIdealGasSimulation
 			ifFound: [:collidedWall | collidedWall bounce: molecule over: newPosition with: simulationStep]
 			ifNone: [molecule position: newPosition].
 		(reinject and: [(bounds containsPoint: molecule position) not]) 
-			ifTrue: [molecule position: self suitablePositionForMolecule ] ]
+			ifTrue: [molecule position: (GasSimulation pixelToModel: self suitablePositionForMolecule) ] ]
 ! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 4/Dec/2025 10:54:47'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 6/Dec/2025 15:18:48'!
 updateRealGas: molecule
 "
 	v1 : v(t + δt / 2)
 "
 	| v1 a |
 	a := molecule force / Molecule mass.
-	"a print."
-	"molecule force print."
 	v1 := molecule velocity +  (a * simulationStep / 2).
 	molecule position: molecule position + (v1 * simulationStep).
 	molecule force: (self forcesOn: molecule).
@@ -361,7 +356,7 @@ updateRealGas: molecule
 	
 	! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 6/Dec/2025 00:05:42'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 6/Dec/2025 17:10:09'!
 updateRealGasSimulation
 	| bounds |
 	walls do: #reset.
@@ -373,14 +368,14 @@ updateRealGasSimulation
 			ifFound: [:collidedWall | collidedWall bounce: molecule over: newPosition with: simulationStep]
 			ifNone: [	self updateRealGas: molecule].
 		(reinject and: [(bounds containsPoint: molecule position) not]) 
-			ifTrue: [ " likely got creazy "
+			ifTrue: [ " likely got creazy, calm it down "
 				molecule initialize.
-				molecule position: self suitablePositionForMolecule ] ]
+				molecule position:(GasSimulation pixelToModel: self suitablePositionForMolecule) ] ]
 	
 	
 	! !
 
-!IdealGasSimulationModel methodsFor: 'model' stamp: 'hlsf 4/Dec/2025 11:02:10'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 4/Dec/2025 11:02:10'!
 updateSimulation
 	idealGas 
 		ifFalse: [self updateRealGasSimulation]
@@ -388,28 +383,28 @@ updateSimulation
 	
 	! !
 
-!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 3/Dec/2025 22:02:48'!
+!GasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 3/Dec/2025 22:02:48'!
 E₀ 
 "	ε : depth of the potential well "
 	^ 1.66e-21! !
 
-!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 4/Dec/2025 09:50:50'!
+!GasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 4/Dec/2025 09:50:50'!
 cutOff
 "	Cut off distance, potential is considered zero over that distance ≈ 10e-9 m  "
 	^ 3 * self delta 
 ! !
 
-!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 30/Nov/2025 11:39:29'!
+!GasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 30/Nov/2025 11:39:29'!
 delta
 "	δ : distance at which the molecule-molecule potential energy is zero "
 	^ 3.4e-10! !
 
-!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 30/Nov/2025 11:39:23'!
+!GasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 30/Nov/2025 11:39:23'!
 epsilon
 "	ε : depth of the potential well "
 	^ 1.66e-21! !
 
-!IdealGasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 27/Nov/2025 21:29:30'!
+!GasSimulationModel class methodsFor: 'constants' stamp: 'hlsf 27/Nov/2025 21:29:30'!
 kb
 " Boltzmann constant "
 	^ 1.3806e-23! !
@@ -487,10 +482,10 @@ extremity2
 heating
 	^ heating! !
 
-!Wall methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2025 21:28:43'!
+!Wall methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 15:06:24'!
 heating: index
 	heating := index.
-	speedT := (2 * IdealGasSimulationModel kb * self temperature / Molecule mass) sqrt! !
+	speedT := (2 * GasSimulationModel kb * self temperature / Molecule mass) sqrt! !
 
 !Wall methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2025 10:59:05'!
 incrHeating
@@ -517,12 +512,12 @@ vertices: array
 collidedByTrajectory: position1 to: position2
 	^ extremity1 to: extremity2 intersects: position1 to: position2 ! !
 
-!Wall methodsFor: 'testing' stamp: 'hlsf 30/Nov/2025 12:27:17'!
+!Wall methodsFor: 'testing' stamp: 'hlsf 6/Dec/2025 15:05:59'!
 isOverlappedBy: aPoint
 " 	Checking done in the screen coordinates system (pixels) "
 	^ aPoint 
-		onLineFrom: (IdealGasSimulation modelToPixel: extremity1)
-		to: (IdealGasSimulation modelToPixel: extremity2)
+		onLineFrom: (GasSimulation modelToPixel: extremity1)
+		to: (GasSimulation modelToPixel: extremity2)
 		within: WallMorph thickness + MoleculeMorph radius! !
 
 !Wall methodsFor: 'helpers' stamp: 'hlsf 16/Nov/2025 19:11:05'!
@@ -621,10 +616,10 @@ printOn: aStream
 model: aMolecule
 	model := aMolecule ! !
 
-!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 30/Nov/2025 23:34:34'!
+!MoleculeMorph methodsFor: 'drawing' stamp: 'hlsf 6/Dec/2025 15:05:59'!
 drawOn: canvas
 	canvas 
-		ellipseCenter: (IdealGasSimulation modelToPixel: model position) 
+		ellipseCenter: (GasSimulation modelToPixel: model position) 
 		radius: MoleculeMorph radius 
 		borderWidth: 0 
 		borderColor: nil 
@@ -658,13 +653,13 @@ colors
 		with:  Color red muchLighter 
 		with: Color red`! !
 
-!WallMorph methodsFor: 'accessing' stamp: 'hlsf 30/Nov/2025 14:02:02'!
+!WallMorph methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 15:05:59'!
 extremity1
-	^ IdealGasSimulation modelToPixel: model extremity1 ! !
+	^ GasSimulation modelToPixel: model extremity1 ! !
 
-!WallMorph methodsFor: 'accessing' stamp: 'hlsf 30/Nov/2025 14:02:05'!
+!WallMorph methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 15:05:59'!
 extremity2
-	^ IdealGasSimulation modelToPixel: model extremity2! !
+	^ GasSimulation modelToPixel: model extremity2! !
 
 !WallMorph methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 12:39:48'!
 model: wall
@@ -689,34 +684,38 @@ mouseButton1Down: aEvent localPosition: aPosition
 thickness
 	^ 10! !
 
-!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 30/Nov/2025 14:22:59'!
+!GasSimulationView methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 15:05:59'!
 bounds
 	| modelBounds |
 	modelBounds := self model bounds.
 	^ Rectangle 
-		origin: (IdealGasSimulation modelToPixel: modelBounds origin)
-		corner: (IdealGasSimulation modelToPixel: modelBounds corner)! !
+		origin: (GasSimulation modelToPixel: modelBounds origin)
+		corner: (GasSimulation modelToPixel: modelBounds corner)! !
 
-!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 19/Nov/2025 16:06:03'!
+!GasSimulationView methodsFor: 'accessing' stamp: 'hlsf 19/Nov/2025 16:06:03'!
 defaultBorderWidth
 	^ 10 ! !
 
-!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 11:25:50'!
+!GasSimulationView methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 11:25:50'!
 model
 	^ presenter model! !
 
-!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 11:21:12'!
+!GasSimulationView methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 17:06:57'!
+presenter
+	^ presenter! !
+
+!GasSimulationView methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2025 11:21:12'!
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!IdealGasSimulationView methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2025 21:53:49'!
+!GasSimulationView methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2025 21:53:49'!
 temperatureString
 	^ String streamContents: [:str |
 		str nextPutAll: 'Temperature: '.
 		self model temperature rounded printOn: str.
 		str nextPutAll: ' K']! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 4/Dec/2025 11:04:37'!
+!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 4/Dec/2025 11:04:37'!
 initialize
 	| row col label |
 	super initialize.
@@ -748,28 +747,23 @@ initialize
 	self addMorphKeepMorphHeight: row .
 	self installSimulationViews.! !
 
-!IdealGasSimulationView methodsFor: 'initialization' stamp: 'hlsf 27/Nov/2025 20:57:35'!
+!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 27/Nov/2025 20:57:35'!
 installSimulationViews
 	self model molecules do: [:aMolecule | canvas addMorph: (MoleculeMorph new model: aMolecule) ].
 	self model walls do: [:aWall | canvas addMorph: (WallMorph new model: aWall)]
 ! !
 
-!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 3/Dec/2025 21:22:19'!
+!GasSimulationView methodsFor: 'stepping' stamp: 'hlsf 3/Dec/2025 21:22:19'!
 step
 	self model updateSimulation.
 	self redrawNeeded ! !
 
-!IdealGasSimulationView methodsFor: 'stepping' stamp: 'hlsf 5/Dec/2025 23:17:31'!
+!GasSimulationView methodsFor: 'stepping' stamp: 'hlsf 5/Dec/2025 23:17:31'!
 stepTime
 " Update the view every 100 millisecond, 0.1 s "
 	^ 10! !
 
-!IdealGasSimulationView methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Dec/2025 23:32:56'!
-mouseMove: aMouseMoveEvent localPosition: localEventPosition
-	super mouseMove: aMouseMoveEvent localPosition: localEventPosition.
-	aMouseMoveEvent mouseButton1Pressed ifTrue: ['move and mouse down' print].! !
-
-!IdealGasSimulationView class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2025 11:20:42'!
+!GasSimulationView class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2025 11:20:42'!
 presenter: aPresenter
 	^ self basicNew
 		presenter: aPresenter;
