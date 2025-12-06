@@ -4,7 +4,7 @@
 !requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'Commander' 1 7 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
-!requires: 'DKM-Physics-IdealGas' 1 11 nil!
+!requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
