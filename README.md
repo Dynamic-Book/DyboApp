@@ -20,7 +20,7 @@ Smalltalk 2023 Fast event in Buenos Aires.
 Instructions to install the DyboApp in a Cuis-Smalltalk developer
 environment.
 
-1. Set up your Cuis-Smalltalk environment.
+## 1. Set up your Cuis-Smalltalk environment.
 ```bash
 mkdir Cuis
 cd Cuis
@@ -43,7 +43,7 @@ the needed package **poppler-utils**. On Debian based distribution:
 sudo apt install poppler-utils
 ```
 
-2. Prepare the data sample.
+## 2. Prepare the data sample.
 
 This set preset data, for fast testing. These data is created directly
 from the DyboApp, with the settings tool (the gear button at the right
@@ -55,7 +55,7 @@ cp data_sample.obj data.obj
 cd -
 ```
 
-3. Start the DyboApp IDE.
+## 3. Start the DyboApp IDE.
 ```
 cd Cuis/Cuis-Smalltalk-Dev
 ./DyboApp/startIDE.sh
@@ -77,6 +77,6 @@ button at the right in the toolbar).
 
 Have an interesting exploration!
 
-## License
+# License
 
 Copyright 2023--2025 Hilaire Fernandes 
