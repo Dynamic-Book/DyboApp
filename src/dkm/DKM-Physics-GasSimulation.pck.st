@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7739] on 6 December 2025 at 5:14:33 pm'!
+'From Cuis7.5 [latest update: #7739] on 8 December 2025 at 12:21:49 am'!
 'Description '!
-!provides: 'DKM-Physics-GasSimulation' 1 23!
+!provides: 'DKM-Physics-GasSimulation' 1 25!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-GasSimulation'!
 
@@ -80,7 +80,7 @@ GasSimulationView class
 The presenter of the Gas Simulation to handle the DSL, the controllers and associated callbacks.
 
 (GasSimulation new
-	addFence: {0@0 . 300@0 . 300@200. 0@200};
+	fenceOrigin: 0@0 corner: 300@200;
 	addWallFrom: 100@0 to: 80@85;
 	addWallFrom: 100@200 to: 80@105;
 	addMolecules: 100 ;
@@ -126,11 +126,6 @@ model
 view
 	^ view ifNil: [view := GasSimulationView presenter: self]! !
 
-!GasSimulation methodsFor: 'DSL' stamp: 'hlsf 19/Nov/2025 21:00:40'!
-addFence: array4
-	array4 size ~= 4 ifTrue: [self error: 'Fence must be a quadrangle'].
-	array4 withPreviousCyclicDo: [:vertex1 :vertex2 | self addWallFrom: vertex1 to: vertex2 ]! !
-
 !GasSimulation methodsFor: 'DSL' stamp: 'hlsf 19/Nov/2025 16:15:45'!
 addMolecules: quantity
 	model addMolecules: quantity at: nil! !
@@ -139,13 +134,20 @@ addMolecules: quantity
 addMolecules: quantity at: aPoint
 	model addMolecules: quantity at: (aPoint ifNotNil: [GasSimulation pixelToModel: aPoint])! !
 
-!GasSimulation methodsFor: 'DSL' stamp: 'hlsf 6/Dec/2025 15:05:59'!
+!GasSimulation methodsFor: 'DSL' stamp: 'hlsf 8/Dec/2025 00:02:21'!
 addWallFrom: extremity1 to: extremity2
 "	Shift the wall position of the half width of the wall "
 	model addWall: (Array 
-		with: (GasSimulation pixelToModel: extremity1 + (WallMorph thickness // 2) )
-		with: (GasSimulation pixelToModel: extremity2 + (WallMorph thickness // 2) ) 
+		with: (GasSimulation pixelToModel: extremity1 +  (WallMorph thickness / 2.0) )
+		with: (GasSimulation pixelToModel: extremity2 + (WallMorph thickness / 2.0) ) 
 		)! !
+
+!GasSimulation methodsFor: 'DSL' stamp: 'hlsf 7/Dec/2025 23:13:16'!
+fenceOrigin: origin corner: corner
+	self addWallFrom: origin to: corner x @ origin y;
+		addWallFrom: corner x @origin y to: corner;
+		addWallFrom: corner to: origin x @ corner y;
+		addWallFrom: origin x @ corner y to: origin! !
 
 !GasSimulation methodsFor: 'initialization' stamp: 'hlsf 6/Dec/2025 15:06:24'!
 initialize
@@ -207,10 +209,10 @@ modelToPixel: aPosition
 pixelToModel: aPoint
 	^ aPoint * self scale! !
 
-!GasSimulation class methodsFor: 'convert' stamp: 'hlsf 5/Dec/2025 22:30:07'!
+!GasSimulation class methodsFor: 'convert' stamp: 'hlsf 7/Dec/2025 23:19:58'!
 scale
 "	Length of one pixel in meter "
-	^ 0.3e-10! !
+	^ 3e-11! !
 
 !GasSimulationModel methodsFor: 'geometry' stamp: 'hlsf 16/Nov/2025 11:45:43'!
 bounds
@@ -356,7 +358,7 @@ updateRealGas: molecule
 	
 	! !
 
-!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 6/Dec/2025 17:10:09'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 7/Dec/2025 23:55:14'!
 updateRealGasSimulation
 	| bounds |
 	walls do: #reset.
@@ -368,9 +370,9 @@ updateRealGasSimulation
 			ifFound: [:collidedWall | collidedWall bounce: molecule over: newPosition with: simulationStep]
 			ifNone: [	self updateRealGas: molecule].
 		(reinject and: [(bounds containsPoint: molecule position) not]) 
-			ifTrue: [ " likely got creazy, calm it down "
-				molecule initialize.
-				molecule position:(GasSimulation pixelToModel: self suitablePositionForMolecule) ] ]
+			ifTrue: [ " likely got creazy, calm it down if needed "
+				molecule velocity r > 500 ifTrue: [molecule initialize].
+				molecule position: self suitablePositionForMolecule ] ]
 	
 	
 	! !
@@ -715,23 +717,15 @@ temperatureString
 		self model temperature rounded printOn: str.
 		str nextPutAll: ' K']! !
 
-!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 4/Dec/2025 11:04:37'!
+!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 7/Dec/2025 23:53:38'!
 initialize
 	| row col label |
 	super initialize.
 	self beColumn.
 	self padding: 5@5.
-"	Simulation step (δt)  at each view update (view' step and stepTime related):
-	For a speed of 300 m.s ⁻¹, a molecule moves of 3 pixels per view update (stepTime=0.1s) is visually appealing
-	This makes a δt of 1e-13 per stepTime (0.1), those δt=stepTime*1e-12
-	For a smoother animation, edit IdealGasSimulationView>>stepTime, ie 50ms 
-	Adjust δt accordingly if stepTime is different than 100ms
-"	
-	"self model simulationStep: (self stepTime / 1000) * self model simulationStep * 10. "
-	self morphExtent: self bounds corner + (borderWidth + padding * 2) asPoint + (10@110).
-	canvas := ColoredBoxMorph new morphExtent: self bounds corner.
+	canvas := ColoredBoxMorph new morphExtent: self bounds corner + WallMorph thickness - 2.
 	canvas color: Color black.
-	self addMorphUseAll: canvas.		
+	self addMorph: canvas layoutSpec: LayoutSpec keepMorphExtent .		
 	row := LayoutMorph newRow.
 	col := LayoutMorph newColumn.
 	label := UpdatingLabelMorph new
