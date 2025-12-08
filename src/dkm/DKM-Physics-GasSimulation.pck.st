@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7739] on 8 December 2025 at 12:21:49 am'!
+'From Cuis7.5 [latest update: #7739] on 8 December 2025 at 11:09:33 pm'!
 'Description '!
-!provides: 'DKM-Physics-GasSimulation' 1 25!
+!provides: 'DKM-Physics-GasSimulation' 1 26!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-GasSimulation'!
 
@@ -328,7 +328,7 @@ forcesOn: aMolecule
 temperature
 	^ self energy / (GasSimulationModel kb * molecules size)! !
 
-!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 6/Dec/2025 17:09:45'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 8/Dec/2025 21:55:01'!
 updateIdealGasSimulation
 	| bounds |
 	walls do: #reset.
@@ -358,7 +358,7 @@ updateRealGas: molecule
 	
 	! !
 
-!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 7/Dec/2025 23:55:14'!
+!GasSimulationModel methodsFor: 'model' stamp: 'hlsf 8/Dec/2025 22:03:37'!
 updateRealGasSimulation
 	| bounds |
 	walls do: #reset.
@@ -372,7 +372,7 @@ updateRealGasSimulation
 		(reinject and: [(bounds containsPoint: molecule position) not]) 
 			ifTrue: [ " likely got creazy, calm it down if needed "
 				molecule velocity r > 500 ifTrue: [molecule initialize].
-				molecule position: self suitablePositionForMolecule ] ]
+				molecule position: (GasSimulation pixelToModel: self suitablePositionForMolecule) ] ]
 	
 	
 	! !
@@ -717,29 +717,38 @@ temperatureString
 		self model temperature rounded printOn: str.
 		str nextPutAll: ' K']! !
 
-!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 7/Dec/2025 23:53:38'!
+!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 8/Dec/2025 23:06:44'!
 initialize
-	| row col label |
+	| simulation temperatures label |
 	super initialize.
-	self beColumn.
+	self beRow.
 	self padding: 5@5.
+	simulation := LayoutMorph newColumn .
+	temperatures := LayoutMorph newColumn.
 	canvas := ColoredBoxMorph new morphExtent: self bounds corner + WallMorph thickness - 2.
 	canvas color: Color black.
-	self addMorph: canvas layoutSpec: LayoutSpec keepMorphExtent .		
-	row := LayoutMorph newRow.
-	col := LayoutMorph newColumn.
+	simulation 
+		addMorph: canvas layoutSpec: LayoutSpec keepMorphExtent;
+		addMorphKeepMorphHeight: self installButtons.
 	label := UpdatingLabelMorph new
 		target: self;
 		getSelector: #temperatureString;
 		stepTime: 1000.
-	col addMorph: label fixedHeight: 20;
-		addMorph: (PluggableButtonMorph model: presenter stateGetter: #isReinjecting action: #toggleReinjecting label: 'Re-inject');
-		addMorph: (PluggableButtonMorph model: presenter stateGetter: #isIdealGas action: #toggleIdealGas label: 'Ideal Gas').
-	row
-		addMorph: col;
-		 addMorph: (PluggableButtonMorph model: presenter stateGetter: #isPlaying action: #playStopSimulation label: 'Play').
-	self addMorphKeepMorphHeight: row .
+	temperatures addMorph: label.
+	self addMorph: simulation ;
+		addMorph: temperatures .
 	self installSimulationViews.! !
+
+!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 8/Dec/2025 22:58:32'!
+installButtons
+	| row |
+	row := LayoutMorph newRow.
+	row
+		addMorph: (PluggableButtonMorph model: presenter stateGetter: #isReinjecting action: #toggleReinjecting label: 'Re-inject');
+		addMorph: (PluggableButtonMorph model: presenter stateGetter: #isIdealGas action: #toggleIdealGas label: 'Ideal Gas');
+		addMorph: (PluggableButtonMorph model: presenter stateGetter: #isPlaying action: #playStopSimulation label: 'Play').
+	^ row
+	! !
 
 !GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 27/Nov/2025 20:57:35'!
 installSimulationViews
