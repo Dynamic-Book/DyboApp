@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7739] on 9 December 2025 at 7:29:41 pm'!
+'From Cuis7.5 [latest update: #7739] on 10 December 2025 at 3:29:14 pm'!
 'Description '!
-!provides: 'DKM-Physics-GasSimulation' 1 27!
+!provides: 'DKM-Physics-GasSimulation' 1 28!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-GasSimulation'!
 
@@ -65,9 +65,19 @@ PlacedMorph subclass: #WallMorph
 WallMorph class
 	instanceVariableNames: ''!
 
+!classDefinition: #GasSimulationCanvas category: #'DKM-Physics-GasSimulation'!
+ColoredBoxMorph subclass: #GasSimulationCanvas
+	instanceVariableNames: 'presenter sensorArea'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DKM-Physics-GasSimulation'!
+!classDefinition: 'GasSimulationCanvas class' category: #'DKM-Physics-GasSimulation'!
+GasSimulationCanvas class
+	instanceVariableNames: ''!
+
 !classDefinition: #GasSimulationView category: #'DKM-Physics-GasSimulation'!
 LinearLayoutMorph subclass: #GasSimulationView
-	instanceVariableNames: 'presenter canvas temperaturesView'
+	instanceVariableNames: 'presenter canvas temperaturesView sensor state'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DKM-Physics-GasSimulation'!
@@ -696,6 +706,23 @@ mouseButton1Down: aEvent localPosition: aPosition
 thickness
 	^ 10! !
 
+!GasSimulationCanvas methodsFor: 'accessing' stamp: 'hlsf 10/Dec/2025 15:28:50'!
+initialize
+	super initialize.
+	self color: Color black.
+	sensorArea := Rectangle new.! !
+
+!GasSimulationCanvas methodsFor: 'accessing' stamp: 'hlsf 10/Dec/2025 15:22:51'!
+presenter: aPresenter
+	presenter := aPresenter ! !
+
+!GasSimulationCanvas class methodsFor: 'as yet unclassified' stamp: 'hlsf 10/Dec/2025 15:22:32'!
+presenter: aPresenter
+	^ self basicNew
+		presenter: aPresenter;
+		initialize;
+		yourself! !
+
 !GasSimulationView methodsFor: 'accessing' stamp: 'hlsf 6/Dec/2025 15:05:59'!
 bounds
 	| modelBounds |
@@ -727,13 +754,13 @@ temperatureString
 		self model temperature rounded printOn: str.
 		str nextPutAll: ' K']! !
 
-!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 9/Dec/2025 19:18:06'!
+!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 10/Dec/2025 15:13:07'!
 initialize
 	super initialize.
 	self beRow.
-	self padding: 5@5.
+	self padding: 4@5; gap: 10.
 	self addMorph: self simulationView ;
-		addMorph: self temperatureView! !
+		addMorph: self temperatureView layoutSpec: (LayoutSpec keepMorphExtent offAxisEdgeWeight: 0)! !
 
 !GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 8/Dec/2025 22:58:32'!
 installButtons
@@ -746,23 +773,23 @@ installButtons
 	^ row
 	! !
 
-!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 9/Dec/2025 19:15:44'!
+!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 10/Dec/2025 15:24:09'!
 simulationView
 	| view |
-	canvas := ColoredBoxMorph new morphExtent: self bounds corner + WallMorph thickness - 2.
-	canvas color: Color black.
+	canvas := GasSimulationCanvas presenter: presenter ::
+		morphExtent: self bounds corner + WallMorph thickness - 2.
 	view := LayoutMorph newColumn.
 	view 
 		addMorph: canvas layoutSpec: LayoutSpec keepMorphExtent;
-		addMorphKeepMorphHeight: self installButtons.
+		addMorph: self installButtons layoutSpec: (LayoutSpec keepMorphExtent offAxisEdgeWeight: 0).
 	self model molecules do: [:aMolecule | canvas addMorph: (MoleculeMorph new model: aMolecule) ].
-	self model walls do: [:aWall | canvas addMorph: (WallMorph new model: aWall)]
+	self model walls do: [:aWall | canvas addMorph: (WallMorph new model: aWall)].
 	^ view! !
 
 !GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 9/Dec/2025 18:46:33'!
 temperatureSensorAt: aRectangle! !
 
-!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 9/Dec/2025 19:29:03'!
+!GasSimulationView methodsFor: 'initialization' stamp: 'hlsf 10/Dec/2025 15:12:05'!
 temperatureView
 	| label row btn |
 	temperaturesView := LayoutMorph newColumn.
@@ -772,10 +799,11 @@ temperatureView
 		getSelector: #temperatureString;
 		stepTime: 1000.
 	btn := PluggableButtonMorph model: self action:  #addTemperatureSensor ::
-		setBalloonText: 'Add a temperature sensor for designed rectangular area.' translated;
+		setBalloonText: 'Add a temperature sensor for a designated rectangular area.' translated;
 		icon: Theme current listAddIcon.
-	row addMorphUseAll: label;
-		addMorph: btn.
+	row gap: 5;
+		addMorphUseAll: label;
+		addMorph: btn layoutSpec: (LayoutSpec keepMorphExtent offAxisEdgeWeight: 0).
 	temperaturesView addMorph: row.
 	^ temperaturesView! !
 
@@ -788,6 +816,18 @@ step
 stepTime
 " Update the view every 100 millisecond, 0.1 s "
 	^ 10! !
+
+!GasSimulationView methodsFor: 'state' stamp: 'hlsf 10/Dec/2025 15:18:31'!
+setSensorState
+	state := #setSensor! !
+
+!GasSimulationView methodsFor: 'state' stamp: 'hlsf 10/Dec/2025 15:17:17'!
+simulationState
+	state := #simulation! !
+
+!GasSimulationView methodsFor: 'testing' stamp: 'hlsf 10/Dec/2025 15:26:28'!
+isStateSetSensor
+	^ state = #setSensor! !
 
 !GasSimulationView class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2025 11:20:42'!
 presenter: aPresenter
