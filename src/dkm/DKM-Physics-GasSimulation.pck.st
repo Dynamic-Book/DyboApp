@@ -1,13 +1,13 @@
-'From Cuis7.5 [latest update: #7739] on 10 December 2025 at 3:29:14 pm'!
+'From Cuis7.5 [latest update: #7739] on 10 December 2025 at 3:36:12 pm'!
 'Description '!
-!provides: 'DKM-Physics-GasSimulation' 1 28!
+!provides: 'DKM-Physics-GasSimulation' 1 29!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-GasSimulation'!
 
 
 !classDefinition: #GasSimulation category: #'DKM-Physics-GasSimulation'!
 DKMPresenter subclass: #GasSimulation
-	instanceVariableNames: 'model view playing'
+	instanceVariableNames: 'model view playing state'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DKM-Physics-GasSimulation'!
@@ -169,10 +169,11 @@ fenceOrigin: origin corner: corner
 		addWallFrom: corner to: origin x @ corner y;
 		addWallFrom: origin x @ corner y to: origin! !
 
-!GasSimulation methodsFor: 'initialization' stamp: 'hlsf 6/Dec/2025 15:06:24'!
+!GasSimulation methodsFor: 'initialization' stamp: 'hlsf 10/Dec/2025 15:36:01'!
 initialize
 	model := GasSimulationModel new.
-	playing := false.! !
+	playing := false.
+	self simulationState ! !
 
 !GasSimulation methodsFor: 'callback' stamp: 'hlsf 19/Nov/2025 16:31:36'!
 playStopSimulation
@@ -199,6 +200,18 @@ isPlaying
 !GasSimulation methodsFor: 'testing' stamp: 'hlsf 4/Dec/2025 10:06:29'!
 isReinjecting
 	^ model reinject! !
+
+!GasSimulation methodsFor: 'testing' stamp: 'hlsf 10/Dec/2025 15:35:23'!
+isStateSetSensor
+	^ state = #setSensor! !
+
+!GasSimulation methodsFor: 'state' stamp: 'hlsf 10/Dec/2025 15:34:57'!
+setSensorState
+	state := #setSensor! !
+
+!GasSimulation methodsFor: 'state' stamp: 'hlsf 10/Dec/2025 15:35:09'!
+simulationState
+	state := #simulation! !
 
 !GasSimulation class methodsFor: 'DKM' stamp: 'hlsf 29/Nov/2025 18:35:03'!
 codeSample
@@ -716,6 +729,10 @@ initialize
 presenter: aPresenter
 	presenter := aPresenter ! !
 
+!GasSimulationCanvas methodsFor: 'as yet unclassified' stamp: 'hlsf 10/Dec/2025 15:33:42'!
+handlesMouseDown: aMouseButtonEvent
+	^ presenter isStateSetSensor ! !
+
 !GasSimulationCanvas class methodsFor: 'as yet unclassified' stamp: 'hlsf 10/Dec/2025 15:22:32'!
 presenter: aPresenter
 	^ self basicNew
@@ -816,18 +833,6 @@ step
 stepTime
 " Update the view every 100 millisecond, 0.1 s "
 	^ 10! !
-
-!GasSimulationView methodsFor: 'state' stamp: 'hlsf 10/Dec/2025 15:18:31'!
-setSensorState
-	state := #setSensor! !
-
-!GasSimulationView methodsFor: 'state' stamp: 'hlsf 10/Dec/2025 15:17:17'!
-simulationState
-	state := #simulation! !
-
-!GasSimulationView methodsFor: 'testing' stamp: 'hlsf 10/Dec/2025 15:26:28'!
-isStateSetSensor
-	^ state = #setSensor! !
 
 !GasSimulationView class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2025 11:20:42'!
 presenter: aPresenter
