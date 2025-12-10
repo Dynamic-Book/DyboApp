@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7739] on 10 December 2025 at 9:44:26 pm'!
+'From Cuis7.5 [latest update: #7739] on 10 December 2025 at 9:56:03 pm'!
 'Description '!
-!provides: 'DKM-Physics-GasSimulation' 1 30!
+!provides: 'DKM-Physics-GasSimulation' 1 31!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-GasSimulation'!
 
@@ -768,9 +768,9 @@ drawOn: canvas
 handlesMouseDown: aMouseButtonEvent
 	^ presenter isStateSetSensor ! !
 
-!GasSimulationCanvas methodsFor: 'events' stamp: 'hlsf 10/Dec/2025 21:42:21'!
+!GasSimulationCanvas methodsFor: 'events' stamp: 'hlsf 10/Dec/2025 21:52:26'!
 mouseButton1Down: event localPosition: localPosition 
-	sensorArea := localPosition extent: localPosition ! !
+	sensorArea := localPosition corner: localPosition ! !
 
 !GasSimulationCanvas methodsFor: 'events' stamp: 'hlsf 10/Dec/2025 21:42:32'!
 mouseButton1Up: event localPosition: localPosition 
@@ -780,9 +780,9 @@ mouseButton1Up: event localPosition: localPosition
 	sensorArea := nil.
 	self redrawNeeded ! !
 
-!GasSimulationCanvas methodsFor: 'events' stamp: 'hlsf 10/Dec/2025 21:24:10'!
+!GasSimulationCanvas methodsFor: 'events' stamp: 'hlsf 10/Dec/2025 21:50:47'!
 mouseMove: event localPosition: localPosition
-	event anyButtonPressed ifFalse: [^ self].
+	(event anyButtonPressed and: [presenter isStateSetSensor]) ifFalse: [^ self].
 	sensorArea := Rectangle origin: sensorArea origin corner: localPosition.
 	self redrawNeeded ! !
 
