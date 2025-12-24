@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7739] on 11 December 2025 at 11:08:42 am'!
+'From Cuis7.5 [latest update: #7739] on 24 December 2025 at 12:04:17 pm'!
 'Description '!
-!provides: 'DKM-Physics-GasSimulation' 1 32!
+!provides: 'DKM-Physics-GasSimulation' 1 33!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-Physics-GasSimulation'!
 
@@ -724,12 +724,12 @@ bounceColors
 		with: Color red 
 		with: Color red muchLighter `! !
 
-!WallMorph methodsFor: 'accessing' stamp: 'hlsf 23/Nov/2025 11:24:29'!
+!WallMorph methodsFor: 'accessing' stamp: 'hlsf 24/Dec/2025 12:03:43'!
 colors
 	^ `Array 
 		with: Color blue 
 		with: Color blue muchLighter 
-		with: Color grey muchLighter
+		with: Color gray muchLighter
 		with:  Color red muchLighter 
 		with: Color red`! !
 
