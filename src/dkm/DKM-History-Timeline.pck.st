@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7739] on 24 December 2025 at 12:26:37 pm'!
+'From Cuis7.5 [latest update: #7739] on 24 December 2025 at 12:39:20 pm'!
 'Description '!
-!provides: 'DKM-History-Timeline' 1 8!
+!provides: 'DKM-History-Timeline' 1 9!
 !requires: 'UI-Widgets' 1 62 nil!
 !requires: 'DKM-Core' 1 0 nil!
 SystemOrganization addCategory: #'DKM-History-Timeline'!
@@ -105,7 +105,12 @@ The presenter of the Timeline to handle the controllers and associated callbacks
 	addEvent: 'Germany. Gutemberg printing press with metal mobile blocks.' on: '1450.1.1';
 	addEvent: 'Spain. Angela Ruiz Robles prototyped the first electronic book device with film rolls.' on: '1949.12.7';
 	view) openInWorld.
-!
+
+((Timeline title: 'History of Book' ::
+	addEvent: 'Spain. Angela Ruiz Robles prototyped the first electronic book device with film rolls.China. Gong Xuanyi first known printer with a wood printing device on paper.' on: '480.1.1';
+	addEvent: 'Germany. Gutemberg printing press with metal mobile blocks.' on: '1450.1.1';
+	addEvent: 'Spain. Angela Ruiz Robles prototyped the first electronic book device with film rolls.' on: '1949.12.7';
+	view) embeddedInMorphicWindowLabeled: 'History of Book') openInWorld!
 
 !TimelineEntry commentStamp: '<historical>' prior: 0!
 A model of an entry in the timeline!
@@ -883,6 +888,10 @@ zoomWheel
 
 !TimelineView methodsFor: 'drawing' stamp: 'hlsf 11/Oct/2025 17:29:40'!
 drawOn: aCanvas ! !
+
+!TimelineView methodsFor: 'as yet unclassified' stamp: 'hlsf 24/Dec/2025 12:38:20'!
+adoptWidgetsColor: paneColor
+	! !
 
 !TimelineView class methodsFor: 'instance creation' stamp: 'hlsf 27/Sep/2025 12:56:16'!
 presenter: aPresenter
