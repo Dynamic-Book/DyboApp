@@ -1,14 +1,15 @@
-'From Cuis7.5 [latest update: #7739] on 6 December 2025 at 5:14:36 pm'!
+'From Cuis7.7 [latest update: #7827] on 4 February 2026 at 4:34:30 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 173!
-!requires: 'DKM-Extention' 1 1 nil!
+!provides: 'DyboDoc' 1 174!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'Commander' 1 7 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -2136,13 +2137,14 @@ icon
 		self icon: presenter svgIcon.
 		icon]! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 13:09:31'!
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 4/Feb/2026 16:12:43'!
 icon: svgDescription
-	| svg |
+	| svg iconExtent |
 	svg := [SVGMainMorph fromStream: (ReadStream on: svgDescription)] 
 			on: SVGWarning 
 			do: [:warning | warning resume].
-	icon := svg imageForm: (svg morphExtent normalized * 64) rounded depth: 32
+	iconExtent := svg morphExtent ifNil:[ svg fullBoundsInOwner extent].
+	icon := svg imageForm: (iconExtent normalized * 64) rounded depth: 32
 		! !
 
 !DyboScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:51:46'!
@@ -2627,11 +2629,12 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 24/Sep/2025 14:14:55'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 4/Feb/2026 16:19:28'!
 acceptDroppingMorph: flapItem event: dropEvent
 	| dropMorph |
 	dropMorph := (flapItem object is: #DyboScript) 
-		ifTrue:  [AnnotatorMorph newOn: presenter for: flapItem object copy]
+		ifTrue:  [presenter pointerTool.
+			AnnotatorMorph newOn: presenter for: flapItem object copy]
 		ifFalse: [flapItem object copy].
 	self 
 		addMorphFront: dropMorph 
@@ -3494,13 +3497,14 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 6/Dec/2025 15:05:59'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 4/Feb/2026 15:54:41'!
 installScriptsFlap
 	| flap items |
 	items := Array 
 		with: (DyboScript for: TextModelMorph)
 		with: (DyboScript  for: Timeline)
 		with: (DyboScript  for: GasSimulation )
+		with: (DyboScript  for: InteractiveGeometry)
 		with: (DyboScript for: Workspace).
 	flap := Flap label: ' Test Scripts ' scripts: items.
 	container addMorph: flap.
@@ -4528,10 +4532,10 @@ handlesMouseOver: evt
 mouseEnter: evt
 	owner target removeAlarm: #removeHalo! !
 
-!Flap methodsFor: '*DyboDoc' stamp: 'hlsf 12/Oct/2025 12:59:30'!
+!Flap methodsFor: '*DyboDoc' stamp: 'hlsf 4/Feb/2026 16:15:54'!
 scripts: dyboScripts
-	objects := dyboScripts collect: [:each |
-		FlapItem 
+	objects := dyboScripts collect: [:each | | item |
+		item := FlapItem 
 			object: each 
 			image: each icon
 			buttons: nil 
@@ -4540,7 +4544,9 @@ scripts: dyboScripts
 			flap: self;
 			setProperty: #allowsItemDrag toValue: true;
 			adoptWidgetsColor: borderColor;
-			borderWidth: 2]! !
+			borderWidth: 2.
+		item imageMorph setBalloonText: each description.
+		item]! !
 
 !Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 16/Feb/2025 23:02:55'!
 label: aString emphasis: emphasis scripts: dyboScripts
