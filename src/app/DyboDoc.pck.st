@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7827] on 4 February 2026 at 4:34:30 pm'!
+'From Cuis7.7 [latest update: #7827] on 5 February 2026 at 11:29:14 am'!
 'Description '!
-!provides: 'DyboDoc' 1 174!
+!provides: 'DyboDoc' 1 175!
 !requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
@@ -2147,6 +2147,10 @@ icon: svgDescription
 	icon := svg imageForm: (iconExtent normalized * 64) rounded depth: 32
 		! !
 
+!DyboScript methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026 10:52:41'!
+presenter
+	^ presenter! !
+
 !DyboScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:51:46'!
 presenter: aPresenterClass
 	presenter := aPresenterClass ! !
@@ -3995,13 +3999,14 @@ newPane
 		addMorphUseAll: self newCodeAndView;
 		yourself! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 8/Mar/2025 18:18:12'!
+!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 5/Feb/2026 10:50:02'!
 newToolbar
 	^ LayoutMorph newRow
 		separation: 5@0 ;
 		addMorph: (playButton := self button: #play action: #executeScript help: 'Play the script.' translated);
 		addMorph: (self button: #debug action: #debugScript help: 'Debug the Smalltalk sketch.' translated);
 		addMorph: (self button: #stop action: #stopScript help: 'Stop the execution of the Script.' translated);
+		addMorph: (self button: #brain action: #copyAIprompt help: 'Generate a prompt for AI and copy it in the host clipboard.' translated);
 		addMorph: self transparentMorph layoutSpec: (LayoutSpec proportionalWidth: 1.0);
 		addMorph: (self button: #doc action: #toggleHelp state: #isDocVisible help: 'Script help' translated)
 		yourself! !
@@ -4170,6 +4175,10 @@ styleByParagraphs
 !DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 14/Apr/2022 16:40:27'!
 textStylerClassFor: object
 	^ SHTextStylerST80 ! !
+
+!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 5/Feb/2026 10:53:04'!
+copyAIprompt
+	Clipboard storeObject: model presenter promptForAI ! !
 
 !DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 18:24:45'!
 debugScript
