@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7827] on 5 February 2026 at 11:29:14 am'!
+'From Cuis7.7 [latest update: #7827] on 5 February 2026 at 12:06:07 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 175!
+!provides: 'DyboDoc' 1 176!
 !requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
@@ -3006,9 +3006,9 @@ annotate: aPlacedMorph
 annotated
 	^ annotatedMorph ! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 13/Feb/2025 11:28:36'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026 12:05:59'!
 frameWidth
-	^ 8  / ((self scale max: 0.8) * (owner ifNotNil: [ owner scale max: 0.8] ifNil: [1]))! !
+	^ 12  / ((self scale max: 0.8) * (owner ifNotNil: [ owner scale max: 0.8] ifNil: [1]))! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025 11:25:11'!
 lockAnnoted
@@ -3045,8 +3045,11 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 11/Oct/2025 17:31:36'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 5/Feb/2026 12:03:54'!
 mouseEnter: evt
+	| myInnerFrame |
+	myInnerFrame := (self externalizeBoundsToWorld: self localBounds) insetBy: 20.
+	(myInnerFrame containsPoint: evt eventPosition) ifTrue: [^ self].
 	self removeAlarm: #removeHalo.
 	self show.
 	self addHalo! !
