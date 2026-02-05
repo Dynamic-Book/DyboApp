@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7827] on 5 February 2026 at 12:06:07 pm'!
+'From Cuis7.7 [latest update: #7827] on 5 February 2026 at 7:46:08 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 176!
+!provides: 'DyboDoc' 1 177!
 !requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
@@ -2530,6 +2530,11 @@ deleteBitMasks
 haloShowsCoordinateSystem
 	^ false! !
 
+!StrokeGroupMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Feb/2026 19:10:34'!
+initialize
+	super initialize.
+	self lock: true! !
+
 !StrokeGroupMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:34:47'!
 includeInNewMorphMenu
 	^ false! !
@@ -3143,6 +3148,13 @@ canResizeAnnoted
 !AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024 11:15:37'!
 is: aSymbol
 	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
+
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 5/Feb/2026 19:43:28'!
+isOverFrame: localPosition
+" Is this local position over my gray surrounding frame? "
+	^ ((self localBounds insetBy: self frameWidth) containsPoint: localPosition) not
+	and: [self localBounds containsPoint: localPosition]
+	! !
 
 !AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 28/Sep/2024 16:10:48'!
 endWritingAt: localPosition
