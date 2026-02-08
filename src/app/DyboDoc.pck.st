@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7827] on 5 February 2026 at 7:46:08 pm'!
+'From Cuis7.7 [latest update: #7827] on 8 February 2026 at 12:16:47 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 177!
+!provides: 'DyboDoc' 1 178!
 !requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
@@ -3123,16 +3123,16 @@ editAnnoted
 	self removeHalo.
 	^ editor! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 31/Aug/2025 11:27:08'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 7/Feb/2026 11:11:16'!
 haloSpecifications
 	^ {	"selector 						horiz 			vert 			color info 			icon key	"
-		{#addDismissHandle:.			#left.			#top.			#(red).				#haloAnnDismissIcon. 		'Remove' translated}.
+		{#addDismissHandle:.			#left.			#top.			#(red).				#haloAnnDismissIcon. 	'Remove' translated}.
 		{#addMenuHandle:. 			#leftCenter.	#top.			#(blue darker).		#haloMenuIcon.		'Menu' translated}.
-		{#addEditAnnotatedHandle:.		#right.		 	#topCenter.	#(orange darker).	#haloAnnEditIcon.		'Edit' translated}.
+		{#addEditAnnotatedHandle:.	#right.		 	#topCenter.	#(orange darker).	#haloAnnEditIcon.		'Edit' translated}.
 		{#addDragHandle:.			#center.		#top.			#(brown).			#haloAnnDragIcon. 	'Move' translated}.
 		{#addInspectHandle:.			#right.			#center.		#(orange lighter).	#haloAnnInspectIcon. 	'Inspect' translated}.
 		{#addRotateHandle:.			#left.			#bottom.		#(blue).			#haloAnnRotateIcon.	'Rotate' translated}.		
-		{#addResizeAnnotatedHandle:.	#right.			#bottom.		#(yellow).			#haloAnnResizeIcon. 	'Change size' translated}.
+		{#addResizeAnnotatedHandle:.#right.			#bottom.		#(yellow).			#haloAnnResizeIcon. 	'Change size' translated}.
 		{#addHelpHandle:.				#center.		#bottom.		#(lightBlue).		#haloAnnHelpIcon. 	'Help' translated}
 	} collect: [:anArray | HaloSpec from: anArray]! !
 
