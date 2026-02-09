@@ -1,6 +1,6 @@
-'From Cuis7.5 [latest update: #7621] on 28 September 2025 at 4:46:42 pm'!
+'From Cuis7.7 [latest update: #7835] on 9 February 2026 at 7:12:36 pm'!
 'Description '!
-!provides: 'Dybo' 1 145!
+!provides: 'Dybo' 1 146!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -405,7 +405,7 @@ I am a view to browse the past document, depending on the class groups, courses 
 !DynabookView commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/26/2024 11:15:54'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 26/Dec/2024 11:15:54'!
 addDocument: aDocument to: topic
 	topic documents add: aDocument.
 	aDocument model ownerPath: topic relPath.
@@ -414,17 +414,17 @@ addDocument: aDocument to: topic
 	aDocument saveDocument.
 	^ aDocument ! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/14/2024 11:31:05'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 14/Dec/2024 11:31:05'!
 deleteDocument: aDocument from: topic
 	topic documents remove: aDocument.
 	(topic directory / aDocument model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/16/2024 21:43:05'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:43:05'!
 deleteTask: aTask
 	userData agenda tasks remove: aTask.
 	(DySystem userDataPath / DySystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 12/24/2024 16:43:42'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 24/Dec/2024 16:43:42'!
 newTask: aTask
 	userData agenda tasks add: aTask.
 	aTask document model ownerPath: DySystem tasksRelPath.
@@ -433,47 +433,47 @@ newTask: aTask
 		modified;
 		saveDocument! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:39:50'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 16/Aug/2023 21:39:50'!
 userData
 	^ userData! !
 
-!DyDomain methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 12:14:17'!
+!DyDomain methodsFor: 'initialization' stamp: 'hlsf 5/Dec/2024 12:14:17'!
 initialize
 	DyUserData current: (userData := DyUserData new)! !
 
-!DyDomain methodsFor: 'initialization' stamp: 'hlsf 12/19/2024 11:00:19'!
+!DyDomain methodsFor: 'initialization' stamp: 'hlsf 19/Dec/2024 11:00:19'!
 load
 	userData := ReferenceStream restoreFromFile: DySystem userDataPath // 'data.obj'.
 	DyUserData current: userData.! !
 
-!DyDomain methodsFor: 'dangerous' stamp: 'hlsf 12/14/2024 11:18:47'!
+!DyDomain methodsFor: 'dangerous' stamp: 'hlsf 14/Dec/2024 11:18:47'!
 purge
 	self allTopics do: [:aTopic | 
 		aTopic documents do: [:aDocument | aTopic documents remove: aDocument ]].
 	userData agenda tasks do: [:aTask | self deleteTask: aTask]! !
 
-!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:57:14'!
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 11:57:14'!
 allCourses
 " Returns the collection of the user's courses"
 	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
 		courses 	addAll: aClassGroup courses.
 		courses ]! !
 
-!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/12/2024 22:12:59'!
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/Dec/2024 22:12:59'!
 allTopics
 " Returns the collection of the user's topcis "
 	^ self allCourses inject: OrderedCollection new into: [:topics :aCourse |
 		topics 	addAll: aCourse topics.
 		topics ]! !
 
-!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:59:33'!
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 11:59:33'!
 classGroups
 " Returns the collection of the user's class groups"
 	^ userData schools inject: OrderedCollection new into: [:classGroups :aSchool |
 		classGroups addAll: aSchool classGroups.
 		classGroups ]! !
 
-!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:59:27'!
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 11:59:27'!
 courseAndGroupAt: aDateTime
 " Search my course and group occuring at this date and time "
 	userData schools do: [:aSchool |
@@ -485,12 +485,12 @@ courseAndGroupAt: aDateTime
 	].
 	^ nil! !
 
-!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 11:59:55'!
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 11:59:55'!
 courseAt: aDateTime
 " Search my course occuring at this date and time "
 	^ (self courseAndGroupAt: aDateTime) ifNotNil: [:anArray | anArray first]! !
 
-!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/5/2024 12:02:18'!
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 12:02:18'!
 nextCourseHourAfter: aDateAndTime
 "Search for the next course hour in the same course occuring at aDateAndTime"
 	| course |
@@ -498,76 +498,76 @@ nextCourseHourAfter: aDateAndTime
 	course ifNil: [^nil].
 	^ course nextCourseHourAfter: aDateAndTime date! !
 
-!DyDomain class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/5/2024 12:10:54'!
+!DyDomain class methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Dec/2024 12:10:54'!
 daysOfWeek
 	^ Week dayNames collect: [:day | day translated]! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 8/9/2023 14:36:55'!
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 9/Aug/2023 14:36:55'!
 agenda
 	^ agenda ifNil: [agenda := DyAgenda new]! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:19:32'!
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:19:32'!
 directory
 " Mydirectory entry "
 	^ DySystem userDataPath ! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 12/16/2024 21:45:36'!
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:45:36'!
 relPath
 	^ ''! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:13'!
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 25/Jun/2023 23:54:13'!
 schools
 	^ schools ! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 6/25/2023 23:54:03'!
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 25/Jun/2023 23:54:03'!
 user
 	^ user! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 11/7/2023 23:50:33'!
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 7/Nov/2023 23:50:33'!
 user: aPerson
 	user := aPerson ! !
 
-!DyUserData methodsFor: 'initialization' stamp: 'hlsf 9/24/2023 14:38:24'!
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 24/Sep/2023 14:38:24'!
 initialize
 	super initialize.
 	schools := OrderedCollection new.
 	user := DyTeacher new.
 	agenda := DyAgenda new owner: self! !
 
-!DyUserData methodsFor: 'printing' stamp: 'hlsf 6/28/2023 00:09:47'!
+!DyUserData methodsFor: 'printing' stamp: 'hlsf 28/Jun/2023 00:09:47'!
 printOn: str
 	user firstName 
 		ifNotNil:  [:firstName | str nextPutAll: ('{1}''s Dynabook' translated format: {firstName})]
 		ifNil: [super printOn: str]! !
 
-!DyUserData methodsFor: 'visiting' stamp: 'hlsf 6/26/2023 21:28:11'!
+!DyUserData methodsFor: 'visiting' stamp: 'hlsf 26/Jun/2023 21:28:11'!
 accept: aVisitor
 	^ aVisitor visitUserData: self! !
 
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 12:09:48'!
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 5/Dec/2024 12:09:48'!
 current
 	^ Current ifNil: [Current := self new]! !
 
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 9/11/2023 22:24:43'!
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2023 22:24:43'!
 current: aDyUserData
 	Current := aDyUserData ! !
 
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 8/16/2025 15:55:56'!
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 16/Aug/2025 15:55:56'!
 schoolOf: anObject
 "Search the school tree this object belongs to"
 	self current  schools do: [:school |			
 		(school treePointsTo: anObject) ifTrue: [^ school] ].
 	^ nil! !
 
-!DyUserData class methodsFor: 'initialization' stamp: 'hlsf 9/12/2023 21:54:25'!
+!DyUserData class methodsFor: 'initialization' stamp: 'hlsf 12/Sep/2023 21:54:25'!
 reset
 	self current: nil! !
 
-!DyUserData class methodsFor: 'translated' stamp: 'hlsf 9/28/2023 11:23:46'!
+!DyUserData class methodsFor: 'translated' stamp: 'hlsf 28/Sep/2023 11:23:46'!
 daysOfWeek
 	^ Week dayNames collect: [:day | day translated]! !
 
-!DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 12/5/2024 12:11:02'!
+!DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 5/Dec/2024 12:11:02'!
 mold: school
 	| mold |
 	mold := Mold new.
@@ -589,36 +589,36 @@ mold: school
 		beRequired.
 	^ mold! !
 
-!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 12:33:27'!
+!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 12:33:27'!
 dayOfWeek
 	^ dayOfWeek ! !
 
-!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 12:34:47'!
+!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 12:34:47'!
 dayOfWeek: anInteger
 "1 is Monday"
 	dayOfWeek := anInteger ! !
 
-!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 12:33:12'!
+!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 12:33:12'!
 room
 	^ room! !
 
-!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 12:33:00'!
+!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 12:33:00'!
 room: aString
 	room := aString ! !
 
-!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 13:28:30'!
+!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 13:28:30'!
 timeSlots
 	^ timeSlots ! !
 
-!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 13:29:14'!
+!DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 13:29:14'!
 timeSlots: aCollection
 	timeSlots := aCollection ! !
 
-!DyCourseHour methodsFor: 'visiting' stamp: 'hlsf 7/1/2023 13:08:44'!
+!DyCourseHour methodsFor: 'visiting' stamp: 'hlsf 1/Jul/2023 13:08:44'!
 accept: aVisitor
 	^ aVisitor visitCourseHour: self! !
 
-!DyCourseHour methodsFor: 'printing' stamp: 'hlsf 12/5/2024 12:11:08'!
+!DyCourseHour methodsFor: 'printing' stamp: 'hlsf 5/Dec/2024 12:11:08'!
 printOn: str
 	dayOfWeek 
 		ifNotNil:  [str nextPutAll: (DyDomain daysOfWeek at: dayOfWeek);
@@ -627,42 +627,42 @@ printOn: str
 				nextPut: $)]
 		ifNil: [super printOn: str]! !
 
-!DyCourseHour methodsFor: 'initialization' stamp: 'hlsf 7/1/2023 18:34:56'!
+!DyCourseHour methodsFor: 'initialization' stamp: 'hlsf 1/Jul/2023 18:34:56'!
 initialize
 	super initialize.
 	dayOfWeek := 0.
 	timeSlots := OrderedCollection new! !
 
-!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 10/27/2024 19:51:18'!
+!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 27/Oct/2024 19:51:18'!
 isAt: aTimeSlot day: aDayNumber
 	^ dayOfWeek = aDayNumber 		and: [timeSlots includes: aTimeSlot ]! !
 
-!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 9/28/2025 16:27:23'!
+!DyCourseHour methodsFor: 'testing' stamp: 'hlsf 28/Sep/2025 16:27:23'!
 isDuring: aDateAndTime
 	^ dayOfWeek = aDateAndTime dayOfWeek 
 		and: [aDateAndTime time between: timeSlots first start and: timeSlots last end]! !
 
-!DyCourseHour class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:35:55'!
+!DyCourseHour class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:35:55'!
 label
 	^ 'period' translated! !
 
-!DyCourseHour class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:36:05'!
+!DyCourseHour class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:36:05'!
 pluralLabel
 	^ 'Periods' translated! !
 
-!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:59:16'!
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:59:16'!
 date
 	"Answer the value of date"
 
 	^ date! !
 
-!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:59:16'!
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:59:16'!
 date: anObject
 	"Set the value of date"
 
 	date := anObject! !
 
-!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:01:34'!
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:01:34'!
 printOn: stream
 	stream nextPutAll: date ddmmyyyy ;
 		nextPut: Character space.
@@ -670,34 +670,34 @@ printOn: stream
 		do: [:each | 	stream nextPutAll: each slotName ]
 		separatedBy: [stream nextPut: $-]					! !
 
-!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:01:45'!
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:01:45'!
 timeSlots
 	"Answer the value of timeSlots"
 
 	^ timeSlots! !
 
-!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:01:45'!
+!DyCourseHourDate methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:01:45'!
 timeSlots: anObject
 	"Set the value of timeSlots"
 
 	timeSlots := anObject! !
 
-!DyCourseHourDate methodsFor: 'converting' stamp: 'hlsf 12/1/2024 18:25:55'!
+!DyCourseHourDate methodsFor: 'converting' stamp: 'hlsf 1/Dec/2024 18:25:55'!
 asDateAndTime
 	^ DateAndTime 
 		date: date
 		time: timeSlots first start! !
 
-!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 12/7/2024 09:39:53'!
+!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 7/Dec/2024 09:39:53'!
 = aCourseHourDate
 	^ date = aCourseHourDate date 
 	and: [timeSlots = aCourseHourDate timeSlots]! !
 
-!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 12/7/2024 09:41:14'!
+!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 7/Dec/2024 09:41:14'!
 hash
 	^ date hash bitXor: timeSlots hash! !
 
-!DyDayInterval methodsFor: 'printing' stamp: 'hlsf 10/27/2024 16:30:32'!
+!DyDayInterval methodsFor: 'printing' stamp: 'hlsf 27/Oct/2024 16:30:32'!
 printOn: aStream
 	start 
 		ifNotNil:  [aStream nextPutAll:  start ddmmyy;
@@ -705,13 +705,13 @@ printOn: aStream
 				nextPutAll: self end ddmmyy .]
 		ifNil: [aStream nextPutAll: 'days inteval' translated]! !
 
-!DyDayInterval methodsFor: 'testing' stamp: 'hlsf 8/11/2024 10:44:37'!
+!DyDayInterval methodsFor: 'testing' stamp: 'hlsf 11/Aug/2024 10:44:37'!
 includes: aDay
 	^ start = aDay 
 	or: [self end = aDay 
 	or: [start < aDay and: [aDay < self end ] ] ]! !
 
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 8/11/2024 10:44:21'!
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 11/Aug/2024 10:44:21'!
 end
 " if end date is nil,  then start date if any. Handy to input only one day off "
 	^ (end isNil and: [start notNil])
@@ -719,24 +719,24 @@ end
 		ifFalse: [	end]
 ! !
 
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 8/11/2024 10:42:55'!
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 11/Aug/2024 10:42:55'!
 end: aDate
 	end := aDate ! !
 
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 00:38:28'!
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 00:38:28'!
 start
 	^ start ! !
 
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 00:38:56'!
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 00:38:56'!
 start: aDate
 	start := aDate ! !
 
-!DyDayInterval methodsFor: 'comparing' stamp: 'hlsf 7/30/2023 18:08:33'!
+!DyDayInterval methodsFor: 'comparing' stamp: 'hlsf 30/Jul/2023 18:08:33'!
 <= aDayInterval
 "Date does not implement <=, dive into its attribute start, a DateAndTime "
 	^ start start <= aDayInterval start start! !
 
-!DyDayInterval methodsFor: 'user interface' stamp: 'hlsf 8/11/2024 10:38:11'!
+!DyDayInterval methodsFor: 'user interface' stamp: 'hlsf 11/Aug/2024 10:38:11'!
 mold
 	| mold |
 	mold := Mold new.
@@ -751,15 +751,15 @@ mold
 	^ mold
 	! !
 
-!DyDayInterval class methodsFor: 'user interface' stamp: 'hlsf 7/29/2023 16:18:04'!
+!DyDayInterval class methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 16:18:04'!
 label
 	^ 'day off' translated! !
 
-!DyDayInterval class methodsFor: 'user interface' stamp: 'hlsf 7/29/2023 16:24:47'!
+!DyDayInterval class methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 16:24:47'!
 pluralLabel
 	^ 'Days off' translated! !
 
-!DyDayInterval class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/29/2023 16:54:46'!
+!DyDayInterval class methodsFor: 'fileIn/Out' stamp: 'hlsf 29/Jul/2023 16:54:46'!
 export: daysOff to: writeStream
 	| writer |
 	writer := NeoCSVWriter on: writeStream.
@@ -767,7 +767,7 @@ export: daysOff to: writeStream
 		addFields: #(start end);
 		nextPutAll: daysOff ! !
 
-!DyDayInterval class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/29/2023 17:01:46'!
+!DyDayInterval class methodsFor: 'fileIn/Out' stamp: 'hlsf 29/Jul/2023 17:01:46'!
 importFrom: readStream
 "Import days off from a CSV file with header: start, end "
 | reader |
@@ -780,49 +780,49 @@ importFrom: readStream
 		addField: #end: converter: [:d | Date fromString: d].
 	^ reader upToEnd asSortedCollection ! !
 
-!DyDayInterval class methodsFor: 'instance creation' stamp: 'hlsf 9/24/2023 14:05:07'!
+!DyDayInterval class methodsFor: 'instance creation' stamp: 'hlsf 24/Sep/2023 14:05:07'!
 start: startDateString end: endDateString
 	^ self new
 		start: startDateString asDate;
 		end: endDateString  asDate! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:21:09'!
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:21:09'!
 dirName
 	self subclassResponsibility ! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:50:57'!
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:50:57'!
 directory
 "Location on of the object data and associated document "
 	^ owner directory / self dirName! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:04:50'!
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:04:50'!
 owner
 	^ owner! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:04:58'!
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:04:58'!
 owner: anObject
 	owner := 	anObject ! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 12/16/2024 21:45:13'!
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:45:13'!
 relPath
 "relative path to the object within the data "
 	^ owner relPath, '/', self dirName! !
 
-!DyObject class methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:29:21'!
+!DyObject class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:21'!
 label
 	^ 'unnamed object'! !
 
-!DyObject class methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:29:27'!
+!DyObject class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:27'!
 pluralLabel
 	^ 'Unnamed objects'! !
 
-!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 9/24/2023 10:38:03'!
+!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 24/Sep/2023 10:38:03'!
 initialize
 	super initialize.
 	tasks := OrderedCollection new.
 	daysOff := SortedCollection new! !
 
-!DyAgenda methodsFor: 'user interface' stamp: 'hlsf 7/29/2023 00:50:25'!
+!DyAgenda methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 00:50:25'!
 mold
 	| mold |
 	mold := Mold new.
@@ -837,11 +837,11 @@ mold
 	^ mold
 	! !
 
-!DyAgenda methodsFor: 'visiting' stamp: 'hlsf 7/28/2023 18:31:24'!
+!DyAgenda methodsFor: 'visiting' stamp: 'hlsf 28/Jul/2023 18:31:24'!
 accept: aVisitor
 	^ aVisitor visitAgenda: self! !
 
-!DyAgenda methodsFor: 'printing' stamp: 'hlsf 7/30/2023 18:09:47'!
+!DyAgenda methodsFor: 'printing' stamp: 'hlsf 30/Jul/2023 18:09:47'!
 printOn: stream
 	start 
 		ifNotNil: [ 	stream nextPutAll: 
@@ -849,35 +849,35 @@ printOn: stream
 				{start ddmmyyyy . end ddmmyyyy }) 		] 
 		ifNil: [stream nextPutAll: 'Unspecified agenda' translated]! !
 
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:09:53'!
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:09:53'!
 daysOff
 	^ daysOff ! !
 
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:23:47'!
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:23:47'!
 end
 	^ end ! !
 
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:27:11'!
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:27:11'!
 end: aDate
 	end := aDate ! !
 
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:23:42'!
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:23:42'!
 start
 	^ start! !
 
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 7/29/2023 16:27:23'!
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:27:23'!
 start: aDate
 	start := 	aDate ! !
 
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:34:08'!
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:34:08'!
 tasks
 	^ tasks! !
 
-!DyAgenda methodsFor: 'testing' stamp: 'hlsf 9/24/2023 14:02:05'!
+!DyAgenda methodsFor: 'testing' stamp: 'hlsf 24/Sep/2023 14:02:05'!
 isDayOff: aDate
 	^ daysOff anySatisfy: [:aDayInteverval | aDayInteverval 	 includes: aDate]! !
 
-!DyClassGroup methodsFor: 'user interface' stamp: 'hlsf 6/30/2023 21:15:15'!
+!DyClassGroup methodsFor: 'user interface' stamp: 'hlsf 30/Jun/2023 21:15:15'!
 mold
 	| mold |
 	mold := Mold new.
@@ -887,41 +887,41 @@ mold
 		beRequired.
 	^ mold! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 22:01:14'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:14'!
 courses
 	^ courses ! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:38:51'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
 dirName
 	^ number asFileName! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 22:01:09'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:09'!
 headTeacher
 	^ headTeacher ! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 6/4/2023 18:12:55'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 4/Jun/2023 18:12:55'!
 number
 	^number! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:45:44'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 21:45:44'!
 number: newNumber 
 	self triggerEvent: #renamedClassGroup withArguments: {self . number . newNumber }.
 	number := newNumber.
 ! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 21:43:32'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:43:32'!
 school
 	^ owner! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 22:01:20'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:20'!
 students
 	^ students! !
 
-!DyClassGroup methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:34:42'!
+!DyClassGroup methodsFor: 'printing' stamp: 'hlsf 8/Oct/2023 23:34:42'!
 printOn: str
 	str nextPutAll: number! !
 
-!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:34:51'!
+!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:34:51'!
 initialize
 	super initialize.
 	headTeacher := DyTeacher new.
@@ -929,29 +929,29 @@ initialize
 	students := SortedCollection new.
 	number := 'Unknown class' translated! !
 
-!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 16:52:38'!
+!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 20/Aug/2023 16:52:38'!
 registerEvents
 	self when: #renamedClassGroup send: #renameClassGroup:from:to: to: DySystem! !
 
-!DyClassGroup methodsFor: 'visiting' stamp: 'hlsf 6/30/2023 22:01:43'!
+!DyClassGroup methodsFor: 'visiting' stamp: 'hlsf 30/Jun/2023 22:01:43'!
 accept: aVisitor 
 	^ aVisitor visitClassGroup: self! !
 
-!DyClassGroup class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:36:49'!
+!DyClassGroup class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:36:49'!
 label
 	^ 'class' translated! !
 
-!DyClassGroup class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:36:59'!
+!DyClassGroup class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:36:59'!
 pluralLabel
 	^ 'Classes' translated! !
 
-!DyClassGroup class methodsFor: 'instance creation' stamp: 'hlsf 9/14/2023 15:59:15'!
+!DyClassGroup class methodsFor: 'instance creation' stamp: 'hlsf 14/Sep/2023 15:59:15'!
 number: aString in: aSchool
 	^ self new ::
 		number: aString;
 		owner: aSchool! !
 
-!DyCourse methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:34:26'!
+!DyCourse methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:34:26'!
 initialize
 	super initialize.
 	courseHours := OrderedCollection new.
@@ -959,11 +959,11 @@ initialize
 	teacher := DyTeacher new.
 	subject := 'Unnamed course' translated! !
 
-!DyCourse methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 16:52:51'!
+!DyCourse methodsFor: 'initialization' stamp: 'hlsf 20/Aug/2023 16:52:51'!
 registerEvents
 	self when: #renamedCourse send: #renameCourse:from:to: to: DySystem! !
 
-!DyCourse methodsFor: 'user interface' stamp: 'hlsf 7/3/2023 11:30:36'!
+!DyCourse methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:30:36'!
 mold
 	| mold |
 	mold := Mold new.
@@ -973,70 +973,70 @@ mold
 		beRequired.
 	^ mold! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 9/23/2023 10:28:49'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 23/Sep/2023 10:28:49'!
 agenda 
 	^ self school owner agenda! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 21:43:52'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:43:52'!
 classGroup
 	^ owner! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 08:52:47'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 08:52:47'!
 courseHours
 	^ courseHours ! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:38:51'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
 dirName
 	^ subject asFileName! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 21:44:07'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:44:07'!
 school 
 	^ self classGroup school! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 6/19/2023 22:33:42'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 19/Jun/2023 22:33:42'!
 subject
 	^subject! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:43:17'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:43:17'!
 subject: newName 
 	self triggerEvent: #renamedCourse withArguments: {self . subject . newName }.
 	subject := newName.
 ! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 7/1/2023 08:52:52'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 08:52:52'!
 teacher
 	^ teacher ! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 10/8/2023 23:09:25'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 8/Oct/2023 23:09:25'!
 topics
 	^ topics! !
 
-!DyCourse methodsFor: 'printing' stamp: 'hlsf 12/7/2024 09:34:58'!
+!DyCourse methodsFor: 'printing' stamp: 'hlsf 7/Dec/2024 09:34:58'!
 printOn: aStream
 	aStream nextPutAll: subject";
 		nextPutAll: ' (';
 		print: self classGroup;
 		nextPut: $)"! !
 
-!DyCourse methodsFor: 'visiting' stamp: 'hlsf 7/1/2023 08:53:53'!
+!DyCourse methodsFor: 'visiting' stamp: 'hlsf 1/Jul/2023 08:53:53'!
 accept: aVisitor
 	^ aVisitor visitCourse: self! !
 
-!DyCourse methodsFor: 'testing' stamp: 'hlsf 10/27/2024 19:51:49'!
+!DyCourse methodsFor: 'testing' stamp: 'hlsf 27/Oct/2024 19:51:49'!
 isAt: aTimeSlot day: aDayNumber
 	^ courseHours 
 		detect:  [:aCourseHour | aCourseHour isAt: aTimeSlot day: aDayNumber]
 		ifFound: [:aCourse | true]
 		ifNone: [false]! !
 
-!DyCourse methodsFor: 'testing' stamp: 'hlsf 9/19/2023 21:27:08'!
+!DyCourse methodsFor: 'testing' stamp: 'hlsf 19/Sep/2023 21:27:08'!
 isDuring: aDateAndTime
 	^ courseHours 
 		detect:  [:aCourseHour | aCourseHour isDuring: aDateAndTime ]
 		ifFound: [:aCourse | true]
 		ifNone: [false]! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 12/1/2024 18:13:51'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 1/Dec/2024 18:13:51'!
 futureDates: qty
 " A list of future course hours dates after today "
 	^ (self next: qty courseHoursAfter: Date today) collect: [: anArray |
@@ -1045,7 +1045,7 @@ futureDates: qty
 			date: anArray second;
 			yourself]! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 10/27/2024 19:45:23'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 27/Oct/2024 19:45:23'!
 next: qty courseHoursAfter: aDate
 " A list of qty course hours & dates after a given date"
 	| futureDates n next |
@@ -1058,7 +1058,7 @@ next: qty courseHoursAfter: aDate
 		n := n - 1	] .
 	^ futureDates ! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 10/29/2024 21:24:16'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 29/Oct/2024 21:24:16'!
 nextCourseHourAfter: aDate
 "Search for my next course hour after aDate"
 	| dayOfWeek currentCourseHourIndex nextCourseHour nextDate |
@@ -1079,36 +1079,36 @@ nextCourseHourAfter: aDate
 		ifTrue: [self nextCourseHourAfter: nextDate]
 		ifFalse: [Array with: nextCourseHour with: nextDate]! !
 
-!DyCourse class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:34:16'!
+!DyCourse class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:34:16'!
 label
 	^  'lesson' translated! !
 
-!DyCourse class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:33:49'!
+!DyCourse class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:33:49'!
 pluralLabel
 	^  'Lessons' translated! !
 
-!DyCourse class methodsFor: 'instance creation' stamp: 'hlsf 9/14/2023 16:00:09'!
+!DyCourse class methodsFor: 'instance creation' stamp: 'hlsf 14/Sep/2023 16:00:09'!
 subject: aString in: aClassGroup
 	^ self new ::
 		subject: aString ;
 		owner: aClassGroup ! !
 
-!DySchool methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:33:45'!
+!DySchool methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:33:45'!
 initialize
 	super initialize .
 	timeSlots := SortedCollection new.
 	classGroups := OrderedCollection new.
 	name := 'Unknown school' translated! !
 
-!DySchool methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:33'!
+!DySchool methodsFor: 'initialization' stamp: 'hlsf 20/Aug/2023 17:09:33'!
 registerEvents
 	self when: #renamedSchool send: #renameSchool:from:to: to: DySystem! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 21:49:32'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:49:32'!
 classGroups
 	^ classGroups ! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 10/27/2024 20:49:33'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 27/Oct/2024 20:49:33'!
 courseAt: aTimeSlot day: aDayNumber
 	classGroups do: [:aClassGroup |
 		aClassGroup courses 	
@@ -1118,28 +1118,28 @@ courseAt: aTimeSlot day: aDayNumber
 		].
 	^ nil! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 8/22/2023 21:38:51'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
 dirName
 	^ name asFileName! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:54:57'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:54:57'!
 schoolName
 	^ name! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:45:03'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 21:45:03'!
 schoolName: newName
 	self triggerEvent: #renamedSchool withArguments: {self . name . newName}.
 	name := newName.! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 6/30/2023 21:48:48'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:48:48'!
 timeSlots
 	^ timeSlots ! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 9/13/2023 23:11:12'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 23:11:12'!
 timeSlotsDic
 	^ (timeSlots collect: [:each | each slotName -> each] ) asDictionary ! !
 
-!DySchool methodsFor: 'user interface' stamp: 'hlsf 7/3/2023 11:31:58'!
+!DySchool methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:31:58'!
 mold
 	| mold |
 	mold := Mold new.
@@ -1149,11 +1149,11 @@ mold
 		beRequired.
 	^ mold! !
 
-!DySchool methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:40:39'!
+!DySchool methodsFor: 'printing' stamp: 'hlsf 8/Oct/2023 23:40:39'!
 printOn: str
 	str nextPutAll: name! !
 
-!DySchool methodsFor: 'printing' stamp: 'hlsf 12/5/2024 12:11:15'!
+!DySchool methodsFor: 'printing' stamp: 'hlsf 5/Dec/2024 12:11:15'!
 printTimesTableOn: aStream
 	| indent |
 	indent := 6.
@@ -1170,67 +1170,67 @@ printTimesTableOn: aStream
 			separatedBy: [aStream tab: indent]
 		] separatedBy: [aStream lf]! !
 
-!DySchool methodsFor: 'visiting' stamp: 'hlsf 6/30/2023 21:49:08'!
+!DySchool methodsFor: 'visiting' stamp: 'hlsf 30/Jun/2023 21:49:08'!
 accept: aVisitor 
 	^ aVisitor visitSchool: self! !
 
-!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:38:14'!
+!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:38:14'!
 label
 	^ 'school' translated! !
 
-!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:38:22'!
+!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:38:22'!
 pluralLabel
 	^ 'Schools' translated! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
 color
 	"Answer the value of color"
 
 	^ color! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
 color: anObject
 	"Set the value of color"
 
 	color := anObject! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 10:55:31'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 10:55:31'!
 course
 	^ owner! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 11/27/2024 21:29:15'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:29:15'!
 dirName
 	^ title asFileName ! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
 documents
 	"Answer the value of documents"
 
 	^ documents! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 16:53:31'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
 title
 	"Answer the value of title"
 
 	^ title! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 8/20/2023 21:44:42'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 21:44:42'!
 title: newTitle
 	"Set the value of title"
 	self triggerEvent: #renamedTopic withArguments: {self. title . newTitle }.
 	title := newTitle.! !
 
-!DyTopic methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:33:08'!
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:33:08'!
 initialize
 	documents := OrderedCollection new.
 	resources := OrderedCollection new.
 	title := 'Unnamed topic' translated! !
 
-!DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/20/2023 17:09:11'!
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 20/Aug/2023 17:09:11'!
 registerEvents
 	self when: #renamedTopic send: #renameTopic:from:to: to: DySystem! !
 
-!DyTopic methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:37:49'!
+!DyTopic methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:37:49'!
 mold
 	| mold |
 	mold := Mold new.
@@ -1240,63 +1240,63 @@ mold
 		beRequired.
 	^ mold! !
 
-!DyTopic methodsFor: 'printing' stamp: 'hlsf 12/11/2024 18:48:02'!
+!DyTopic methodsFor: 'printing' stamp: 'hlsf 11/Dec/2024 18:48:02'!
 printOn: str
 	str nextPutAll: title! !
 
-!DyTopic class methodsFor: 'instance creation' stamp: 'hlsf 10/8/2023 23:21:58'!
+!DyTopic class methodsFor: 'instance creation' stamp: 'hlsf 8/Oct/2023 23:21:58'!
 title: aString in: aCourse
 	^ self new ::
 		title: aString;
 		owner: aCourse! !
 
-!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:29:57'!
+!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:57'!
 label
 	^ 'topic' translated! !
 
-!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 10/8/2023 23:30:19'!
+!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:30:19'!
 pluralLabel
 	^ 'Topics' translated! !
 
-!DyPerson methodsFor: 'testing' stamp: 'hlsf 5/23/2023 20:18:30'!
+!DyPerson methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:30'!
 isStudent
 	^ false! !
 
-!DyPerson methodsFor: 'testing' stamp: 'hlsf 5/23/2023 20:18:25'!
+!DyPerson methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:25'!
 isTeacher
 	^ false! !
 
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:36:00'!
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:36:00'!
 email
 	^ email! !
 
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:35:49'!
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:49'!
 email: aString
 	email := 	aString ! !
 
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:35:38'!
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:38'!
 firstName
 	^ firstName! !
 
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:35:31'!
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:31'!
 firstName: aString
 	firstName := 	aString ! !
 
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:35:12'!
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:12'!
 lastName
 	^ lastName ! !
 
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 5/23/2023 20:35:24'!
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:24'!
 lastName: aString
 	lastName := 	aString ! !
 
-!DyPerson methodsFor: 'printing' stamp: 'hlsf 10/8/2023 23:36:49'!
+!DyPerson methodsFor: 'printing' stamp: 'hlsf 8/Oct/2023 23:36:49'!
 printOn: str
 	str nextPutAll: lastName;
 		space;
 		nextPutAll: firstName! !
 
-!DyPerson methodsFor: 'user interface' stamp: 'hlsf 7/3/2023 11:36:22'!
+!DyPerson methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:36:22'!
 mold
 	| mold |
 	mold := Mold new.
@@ -1313,32 +1313,32 @@ mold
 		on: #email of: self.
 	^ mold! !
 
-!DyPerson methodsFor: 'initialization' stamp: 'hlsf 10/8/2023 23:36:24'!
+!DyPerson methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:36:24'!
 initialize
 	super initialize.
 	lastName := 'Unknown person' translated.
 	firstName := ''! !
 
-!DyPerson methodsFor: 'comparing' stamp: 'hlsf 11/28/2024 10:35:00'!
+!DyPerson methodsFor: 'comparing' stamp: 'hlsf 28/Nov/2024 10:35:00'!
 <= aPerson
 	^ lastName < aPerson lastName 
 	or: [lastName = aPerson lastName 
 		and: [	firstName <= aPerson firstName]
 		]! !
 
-!DyStudent methodsFor: 'testing' stamp: 'hlsf 5/23/2023 20:18:38'!
+!DyStudent methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:38'!
 isStudent
 	^ true! !
 
-!DyStudent class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:35:08'!
+!DyStudent class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:35:08'!
 label
 	^ 'student' translated! !
 
-!DyStudent class methodsFor: 'user interface' stamp: 'hlsf 7/15/2023 11:35:30'!
+!DyStudent class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:35:30'!
 pluralLabel
 	^ 'Students' translated! !
 
-!DyStudent class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/27/2023 00:39:46'!
+!DyStudent class methodsFor: 'fileIn/Out' stamp: 'hlsf 27/Jul/2023 00:39:46'!
 export: persons to: writeStream
 	| writer |
 	writer := NeoCSVWriter on: writeStream.
@@ -1346,7 +1346,7 @@ export: persons to: writeStream
 		addFields: #(firstName lastName email);
 		nextPutAll: persons ! !
 
-!DyStudent class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/29/2023 16:57:44'!
+!DyStudent class methodsFor: 'fileIn/Out' stamp: 'hlsf 29/Jul/2023 16:57:44'!
 importFrom: readStream
 "Import student from a CSV file"
 | reader |
@@ -1358,47 +1358,47 @@ importFrom: readStream
 		addFields: #(firstName: lastName: email:).
 	^ reader upToEnd asSortedCollection ! !
 
-!DyTeacher methodsFor: 'testing' stamp: 'hlsf 5/23/2023 20:18:52'!
+!DyTeacher methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:52'!
 isTeacher
 	^ true! !
 
-!DyTeacher methodsFor: 'visiting' stamp: 'hlsf 6/28/2023 00:18:07'!
+!DyTeacher methodsFor: 'visiting' stamp: 'hlsf 28/Jun/2023 00:18:07'!
 accept: aVisitor
 	^ aVisitor visitTeacher: self! !
 
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:36:16'!
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
 courseHourDate
 	"Answer the value of courseHourDate"
 
 	^ courseHourDate! !
 
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:36:16'!
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
 courseHourDate: anObject
 	"Set the value of courseHourDate"
 
 	courseHourDate := anObject! !
 
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:36:16'!
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
 document
 	"Answer the value of document"
 
 	^ document! !
 
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:36:16'!
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
 document: anObject
 	"Set the value of document"
 
 	document := anObject! !
 
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:05:22'!
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 12:05:22'!
 printOn: aStream
 	aStream print: courseHourDate ! !
 
-!DyTask methodsFor: 'persistence' stamp: 'hlsf 12/18/2024 15:24:29'!
+!DyTask methodsFor: 'persistence' stamp: 'hlsf 18/Dec/2024 15:24:29'!
 restoreDocumentFromDisk
 	document := document loadFromDisk! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/23/2024 10:42:15'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 23/Dec/2024 10:42:15'!
 deleteDocument: aDocument 
  | topic binderView |
 	binderView := controlsManager activeView.
@@ -1414,7 +1414,7 @@ in the topic: {2}?' translated
 	DySystem saveData 
 	! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/26/2024 12:54:38'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 26/Dec/2024 12:54:38'!
 importPDF
 	| newDoc answer |
 	answer := (StandardFileMenu  new 
@@ -1433,7 +1433,7 @@ importPDF
 		deletePage.		
 	^ newDoc! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/31/2024 12:34:39'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 31/Dec/2024 12:34:39'!
 newDocument
 	| newDoc |
 	currentTopic ifNil: [^ self].
@@ -1441,17 +1441,17 @@ newDocument
 	DySystem saveData.
 	^ newDoc ! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/31/2024 12:35:33'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 31/Dec/2024 12:35:33'!
 openDocument: aDocument
 	self goDocument: aDocument view! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 12/23/2024 10:24:00'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 23/Dec/2024 10:24:00'!
 saveDocument: aDocument 
  | binderView |
 	binderView := controlsManager activeView.
 	aDocument saveDocument ifTrue: [	binderView updateDocumentPreviews]! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/14/2024 11:27:57'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 14/Dec/2024 11:27:57'!
 deleteTask: aDyTask 
 	(PopUpMenu 
 		confirm: ('Delete the task at {1}?' translated format: {aDyTask})
@@ -1460,7 +1460,7 @@ deleteTask: aDyTask
 	DySystem saveData.
 	self activeView resetTask.! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/19/2024 11:48:54'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 19/Dec/2024 11:48:54'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
 	| task agendaView |
@@ -1476,7 +1476,7 @@ saveCurrentTask
 		agendaView changedFutureTasks]
 	! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/12/2024 21:09:47'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/Dec/2024 21:09:47'!
 saveNewTask
 	| taskView task |
 	taskView := self activeView.
@@ -1489,26 +1489,26 @@ saveNewTask
 	taskView resetTask 
 	! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/12/2024 21:09:51'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/Dec/2024 21:09:51'!
 saveTask
 	self activeView task
 		ifNotNil: [self saveCurrentTask]
 		ifNil: [self saveNewTask]
 	! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/31/2024 11:07:16'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 31/Dec/2024 11:07:16'!
 goBinder
 	activeViewType := #binder.
 	controlsManager plugBinder.
 	self changed: #isView:	! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 8/16/2025 16:21:10'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 16/Aug/2025 16:21:10'!
 goDocument
 " Plug a new document "
 	^ self goDocument:  (DocumentView presenter: Document new :: installView)
 ! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/14/2024 14:55:15'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 14/Dec/2024 14:55:15'!
 goDocument: aDocumentView
 " Go to an existing document "
 	activeViewType := #document.
@@ -1518,106 +1518,125 @@ goDocument: aDocumentView
 	self changed: #isView:.
 	^ controlsManager docPresenter! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 1/Dec/2024 17:18:51'!
 goSettings
 	activeViewType := #settings.
 	controlsManager plugSettings.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 1/Dec/2024 17:18:51'!
 goStart
 	activeViewType := #start.
 	controlsManager plugStart.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 12/1/2024 17:18:51'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 1/Dec/2024 17:18:51'!
 goTasks
 	activeViewType := #tasks.
 	controlsManager plugTask.
 	self changed: #isView:! !
 
-!Dybo methodsFor: 'testing' stamp: 'hlsf 12/1/2024 17:18:51'!
+!Dybo methodsFor: 'testing' stamp: 'hlsf 1/Dec/2024 17:18:51'!
 isView: aSymbolView
 " We have the start, tasks, binder, and settings views "
 	^ activeViewType == aSymbolView ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:31:11'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 6/Nov/2024 19:31:11'!
 initialize
 	domain := DyDomain new.
 	self installComponents ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:03:09'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 1/Dec/2024 17:03:09'!
 installComponents
 	controlsManager := DyControlsManager new.
 	controlsManager installDyboView: self.
 	self goStart.
 	self view openInWorld ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 11/6/2024 19:31:22'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 6/Nov/2024 19:31:22'!
 load
 	domain := DyDomain new load.
 	self installComponents ! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/12/2024 21:08:35'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/Dec/2024 21:08:35'!
 activeView
 	^ controlsManager activeView ! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 9/1/2024 09:59:47'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 09:59:47'!
 controlsManager
 	^ controlsManager ! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 11:08:13'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 11:08:13'!
 currentTopic
 	^ currentTopic ! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 12:33:21'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 12:33:21'!
 currentTopic: aTopic
 	currentTopic := aTopic ! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 8/16/2023 21:40:14'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 16/Aug/2023 21:40:14'!
 domain
 	^ domain! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:02:49'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:02:49'!
 view
 	^ controlsManager dyboView! !
 
-!Dybo methodsFor: 'tool' stamp: 'hlsf 12/14/2024 14:27:18'!
+!Dybo methodsFor: 'tool' stamp: 'hlsf 14/Dec/2024 14:27:18'!
 isTool: aToolName
 	^ controlsManager docPresenter isTool: aToolName ! !
 
-!Dybo class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/6/2024 19:31:50'!
+!Dybo class methodsFor: 'as yet unclassified' stamp: 'hlsf 6/Nov/2024 19:31:50'!
 load
 " load the user data in a new Dybo window "
 	self basicNew
 		load! !
 
-!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 8/29/2024 11:50:31'!
+!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 29/Aug/2024 11:50:31'!
 iconToolbarSize
 	^ 32! !
 
-!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 8/14/2023 22:11:06'!
+!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 14/Aug/2023 22:11:06'!
 miniToolbarSize
 	^ self iconToolbarSize // 2! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:12:16'!
-iconsPath
-	^ self rootPath / 'icons'! !
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:36:05'!
+resourcesPath
+	^ self rootPath / 'Resources'
+	! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 8/1/2023 12:04:45'!
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 1/Aug/2023 12:04:45'!
 rootPath
 "Dynabook/ directory"
 	^ DirectoryEntry smalltalkImageDirectory parent parent! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 8/20/2023 14:33:21'!
-userDataPath
-	^ self rootPath / 'data'! !
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:25:04'!
+userPath
+"Where are located user resources as PDF, image, DKM scripts 
+Global variable userPath may be set by Dybo start-up script "
+	^ Smalltalk at: #userPath ifAbsent: [self userPathPreference]! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 10/12/2024 10:09:22'!
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:26:02'!
+userPathPreference
+"	Is there a user prefrerence where to save user data ?"
+	^ (self preferences at: #userPath) 
+		ifNotEmpty: [:userPath | | userDirectoryEntry |
+			userDirectoryEntry := userPath asDirectoryEntry .
+			" Check if it is a relative path or an absolute path "
+			userDirectoryEntry pathName = userPath
+				ifTrue: [userDirectoryEntry "Absolute path"]
+				ifFalse: ["Relative path, append the home/user directory if any"
+					Smalltalk at: #home 
+						ifPresent: [:home | home / userPath]
+						ifAbsent: [userDirectoryEntry ] ] ]
+		ifEmpty: [self rootPath]
+		! !
+
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 12/Oct/2024 10:09:22'!
 preferences
 	^ preferences ifNil: [self setPreferences ]! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 11/15/2024 20:01:24'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 15/Nov/2024 20:01:24'!
 setPreferences
 	preferences := PreferenceSet new.
 	preferences 
@@ -1635,78 +1654,88 @@ setPreferences
 		
 	^ preferences! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 12/24/2024 15:36:28'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 24/Dec/2024 15:36:28'!
 reset
 	icons := preferences := nil! !
 
-!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 12/24/2024 15:38:10'!
+!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 24/Dec/2024 15:38:10'!
 icons
 	^ icons ifNil: [icons := IconImporter path: DySystem iconsPath]! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/13/2023 16:31:47'!
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 13/Aug/2023 16:31:47'!
 iconsPath
 	^ self rootPath / 'resources' / 'graphics' / 'icons'! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 10/10/2024 10:18:28'!
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 10/Oct/2024 10:18:28'!
 rootPath
 "dynabook/ directory"
 	^ DirectoryEntry smalltalkImageDirectory parent / 'DyboApp'! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 8/20/2023 21:48:08'!
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 20/Aug/2023 21:48:08'!
 userDataPath
 	^ self rootPath / 'resources' / 'data'! !
 
-!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 8/9/2023 14:40:44'!
+!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication
 	platform := DyPlatform new! !
 
-!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 8/9/2023 14:41:14'!
+!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:41:14'!
 beDevelopment
 	platform := DyDevelopment new! !
 
-!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 10/12/2024 10:50:25'!
+!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 12/Oct/2024 10:50:25'!
 reset
 	platform reset! !
 
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/14/2023 22:11:06'!
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 14/Aug/2023 22:11:06'!
 iconToolbarSize
 " Size of the squared icons in the top toolbar"
 	^ platform iconToolbarSize ! !
 
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 12/24/2024 15:38:43'!
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 24/Dec/2024 15:38:43'!
 icons
 " Access to the icons manager"
 	^ platform icons! !
 
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 8/13/2023 17:16:57'!
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 13/Aug/2023 17:16:57'!
 miniToolbarSize
 " Size of the squared icons in the secondary toolbar"
 	^ platform miniToolbarSize ! !
 
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 10/12/2024 09:40:04'!
+!DySystem class methodsFor: 'user interface' stamp: 'hlsf 12/Oct/2024 09:40:04'!
 screenSize
 	^ self runningWorld morphExtent! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 8/1/2023 11:53:04'!
+!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:30:32'!
 iconsPath
-	^ platform iconsPath! !
+	^ platform rootPath / 'icons'! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 12/26/2024 11:35:31'!
+!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:28:17'!
 myResourcesPath
 " the location of the user resources as PDF or other media files "
-	^ platform rootPath/ 'myResources'! !
+	^ (platform userPath/ 'myResources') assureExistence ! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 12/16/2024 21:43:05'!
+!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:34:11'!
+myScriptsPath
+" the location of the user DKM scripts "
+	^ (platform userPath/ 'myScripts') assureExistence ! !
+
+!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:37:22'!
+scriptsPath
+" the location of the DKM scripts shipped with DyboApp"
+	^ platform resourcesPath / 'scripts'! !
+
+!DySystem class methodsFor: 'path' stamp: 'hlsf 16/Dec/2024 21:43:05'!
 tasksRelPath
 " the location of the user documents "
 	^ 'tasks'! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 8/20/2023 14:30:45'!
+!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:28:41'!
 userDataPath
 " the location of the user data and documents "
-	^ platform userDataPath! !
+	^ (platform userPath / 'data') assureExistence ! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 8/11/2024 10:47:46'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Aug/2024 10:47:46'!
 rename: oldName to: newName in: parentDir
 	| dir |
 	oldName = newName ifTrue: [^ self].
@@ -1718,31 +1747,31 @@ rename: oldName to: newName in: parentDir
 				ifTrue: [dir rename: newName asFileName ] 
 				ifFalse: [(parentDir / newName asFileName ) assureExistence]						]! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:58:55'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:58:55'!
 renameClassGroup: aClassGroup from: prevName to: newName
 	self rename: prevName to: newName in: aClassGroup directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:59:02'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:02'!
 renameCourse: aCourse from: prevName to: newName
 	self rename: prevName to: newName in: aCourse directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:59:07'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:07'!
 renameSchool: aSchool from: prevName to: newName
 "Should use a data manager facade at some point "
 	self rename: prevName to: newName in: aSchool directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 12/11/2024 18:59:12'!
+!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:12'!
 renameTopic: aTopic from: prevName to: newName
 	self rename: prevName to: newName in: aTopic directory parent! !
 
-!DySystem class methodsFor: 'cleaning' stamp: 'hlsf 8/22/2023 20:57:02'!
+!DySystem class methodsFor: 'cleaning' stamp: 'hlsf 22/Aug/2023 20:57:02'!
 removeUserData
 	#(renamedSchool renamedClassGroup renamedCourse renamedTopic) do: [:anEvent |
 		self removeActionsForEvent: anEvent].
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 9/4/2025 10:55:39'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 4/Sep/2025 10:55:39'!
 convert: destEntry pages: interval dpi: integer
 " 
 	In destEntry, convert the doc.pdf interval pages at interger resolution	   
@@ -1758,13 +1787,13 @@ convert: destEntry pages: interval dpi: integer
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 10:58:37'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:58:37'!
 defaultPaperSize
 " Its width fill the screen, according to its default ratio "
 	
 	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 9/4/2025 10:55:03'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 4/Sep/2025 10:55:03'!
 import: pdfEntry to: destEntry pages: interval
 "
 	In our destEntry, generate a doc.pdf document with the selected pages interval, if fany ;
@@ -1782,25 +1811,25 @@ import: pdfEntry to: destEntry pages: interval
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
 	^ self convert: destEntry pages: interval dpi: 150.! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 10:51:41'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:41'!
 paperBackground
 	^ self preferences at: #paperBackground! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 10:51:23'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:23'!
 paperRatio
 	^ self preferences at: #paperRatio! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 10/12/2024 09:38:35'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 09:38:35'!
 preferences
 	^ platform preferences! !
 
-!DySystem class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/18/2024 16:38:51'!
+!DySystem class methodsFor: 'as yet unclassified' stamp: 'hlsf 18/Dec/2024 16:38:51'!
 saveData
 	ReferenceStream 
 		dumpOnFile: (DySystem userDataPath // 'data.obj') 
 		object: DyUserData current! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/13/2024 17:11:46'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 13/Oct/2024 17:11:46'!
 addChevron: data to: aToolbar
 	"data first = action selector
 	data second = button form 
@@ -1812,7 +1841,7 @@ addChevron: data to: aToolbar
 		setBalloonText: data third ;
 		yourself	! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/18/2024 21:56:47'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 18/Dec/2024 21:56:47'!
 documentCircularToolbar
 	| toolsData circularToolbar |
 	toolsData := OrderedCollection 
@@ -1833,7 +1862,7 @@ documentCircularToolbar
 	self when: #switchView send: #delete to: circularToolbar.
 	^ circularToolbar ! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/16/2024 22:39:19'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 16/Oct/2024 22:39:19'!
 eraser: squareWidth width: width
 " An icon to represent partially erased handstrokes "
 	| aForm mask scale |
@@ -1847,7 +1876,7 @@ eraser: squareWidth width: width
 	^ aForm eraseShape: (mask asFormOfDepth: 1)
 ! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/16/2024 22:56:53'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 16/Oct/2024 22:56:53'!
 eraserSizeTools
 " Data to build the circular sub toolbar of nib size "
 	| size help |
@@ -1859,7 +1888,7 @@ eraserSizeTools
 			with: (self eraser: size width: eraserSize )
 			with: (help format: {eraserSize })		 	]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/16/2024 18:53:46'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 16/Oct/2024 18:53:46'!
 handStroke: squareWidth width: width color: color
 " Handstrokes to represent writting icon "
 	| aForm scale |
@@ -1874,7 +1903,7 @@ handStroke: squareWidth width: width color: color
 	^ aForm
 ! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/24/2024 15:39:24'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 24/Dec/2024 15:39:24'!
 highlighterColorTools
 " Data to build the circular sub toolbar of highlighter colors "
 	| size help |
@@ -1888,7 +1917,7 @@ highlighterColorTools
 			with: (	DySystem icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
 			with: (help format: {aColor translated})		 	]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/16/2024 22:56:48'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 16/Oct/2024 22:56:48'!
 highligtherSizeTools
 " Data to build the circular sub toolbar of highligther size "
 	| size help |
@@ -1900,7 +1929,7 @@ highligtherSizeTools
 			with: (self tile: size width: nibSize / 2.0 color: (Color black))
 			with: (help format: {nibSize })		 	]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/15/2024 18:31:39'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 15/Oct/2024 18:31:39'!
 nibSizeTools
 " Data to build the circular sub toolbar of nib size "
 	| size help |
@@ -1912,7 +1941,7 @@ nibSizeTools
 			with: (self handStroke: size width: nibSize color: Color black)
 			with: (help format: {nibSize })		 	]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/24/2024 15:39:32'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 24/Dec/2024 15:39:32'!
 penColorTools
 " Data to build the circular sub toolbar of pen colors "
 	| size help |
@@ -1926,7 +1955,7 @@ penColorTools
 			with: (	DySystem icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
 			with: (help format: {aColor translated})		 	]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/15/2024 21:10:56'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 15/Oct/2024 21:10:56'!
 tile: squareWidth width: width color: color
 " A tile to represent a highlighter stroke "
 	| aForm scale |
@@ -1940,12 +1969,12 @@ tile: squareWidth width: width color: color
 	^ aForm 
 ! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 10/13/2024 13:09:40'!
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 13/Oct/2024 13:09:40'!
 docPresenter
 " Access the presenter of the currently used document, if any "
 	^ docView presenter! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 22:23:03'!
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024 22:23:03'!
 docView: aView
 " Connect the control manager document view to aView (doc)
 Update the docView of the current document "
@@ -1954,15 +1983,15 @@ Update the docView of the current document "
 	self docPresenter controlsManager: self
 	! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:02:37'!
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:02:37'!
 dyboPresenter
 	^ dyboView presenter! !
 
-!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:02:49'!
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:02:49'!
 dyboView
 	^ dyboView! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:00'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 5/Sep/2024 11:11:00'!
 binderButtonData
 " label - iconName - callback - description "
 	^ {'Binders' translated . 
@@ -1970,7 +1999,7 @@ binderButtonData
 	#goBinder . 
 	'In the Binders, find the documents of your courses and start a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 12/24/2024 15:09:41'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 15:09:41'!
 pageButtonData
 " label - iconName - callback - description "
 	^ {'Open document' translated . 
@@ -1978,7 +2007,7 @@ pageButtonData
 	#goDocument . 
 	'Open a blank document to start writing.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:51'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 5/Sep/2024 11:11:51'!
 settingsButtonData
 " label - iconName - callback - description "
 	^ {'Settings' translated . 
@@ -1986,7 +2015,7 @@ settingsButtonData
 	#goSettings . 
 	'In the Settings, edit your course and student lists.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:11:57'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 5/Sep/2024 11:11:57'!
 startButtonData
 " label - iconName - callback - description "
 	^ {'Start' translated . 
@@ -1994,7 +2023,7 @@ startButtonData
 	#goStart . 
 	'In Start, review and search for the recent activities.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 9/5/2024 11:12:02'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 5/Sep/2024 11:12:02'!
 tasksButtonData
 " label - iconName - callback - description "
 	^ {'Tasks' translated . 
@@ -2002,19 +2031,19 @@ tasksButtonData
 	#goTasks . 
 	'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:02:23'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 1/Dec/2024 17:02:23'!
 buttonColor
 	^ dyboView 
 		ifNotNil: [:v | v buttonColor ] 
 		ifNil: [Theme current buttonColorFrom: Theme current workspace ]! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:02:23'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 1/Dec/2024 17:02:23'!
 defaultColor
 	^ dyboView 
 		ifNotNil: [:v | v defaultColor] 
 		ifNil: [Theme current paneBackgroundFrom: Theme current transcript ]! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 12/1/2024 17:03:09'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 1/Dec/2024 17:03:09'!
 installDyboView: aPresenter
 	dyboView := DynabookView for: aPresenter.
 	dyboView 
@@ -2022,7 +2051,7 @@ installDyboView: aPresenter
 		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
 	self plugStart! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/14/2024 15:21:49'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 14/Dec/2024 15:21:49'!
 activeView
 " 	The active view is the view where the user operates. It is a subview in the Dybo view.
 	It can be the Home, the Task, the Binder, the Document or the Settings view 
@@ -2030,7 +2059,7 @@ activeView
  "
 	^ activeView! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 1/4/2025 10:30:30'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 4/Jan/2025 10:30:30'!
 plugBinder
 	self plugInDyboView: (DyBinderView presenter: self dyboPresenter).
 	self dyboPresenter currentTopic "Any previously selected topic? "
@@ -2041,7 +2070,7 @@ plugBinder
 				self activeView updateDocumentPreviews]	].
 	self runningWorld doOneCycleNow.! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/31/2024 11:08:55'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 31/Dec/2024 11:08:55'!
 plugInDyboView: aView
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout |
@@ -2052,22 +2081,22 @@ plugInDyboView: aView
 	dyboView changed.
 	self triggerEvent: #switchView! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 1/Dec/2024 17:02:37'!
 plugSettings
 	self plugInDyboView: (
 		BreadcrumbsPane 
 			on: self dyboPresenter domain userData 
 			with: DyViewerVisitor )! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 10:32:31'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 1/Dec/2024 10:32:31'!
 plugStart
 ! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 12/1/2024 17:02:37'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 1/Dec/2024 17:02:37'!
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 3/4/2025 20:17:50'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 4/Mar/2025 20:17:50'!
 dyboToolbar
 	| toolbar buttonWidth|
 	toolbar := LayoutMorph newRow separation: 5.
@@ -2082,11 +2111,11 @@ dyboToolbar
 					self on: self dyboPresenter  button: aTool state: #isView: size: buttonWidth )] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/1/2024 17:01:30'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 1/Dec/2024 17:01:30'!
 dyboToolbarSpec
 	^ #(start tasks binder page spacer settings)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 12/24/2024 15:39:28'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 24/Dec/2024 15:39:28'!
 on: aPresenter button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
@@ -2108,18 +2137,18 @@ on: aPresenter button: symbol state: stateGetter size: size
 		morphExtent: (size  * 1.3) rounded asPoint;
 		yourself	! !
 
-!DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/10/2024 11:00:40'!
+!DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/Oct/2024 11:00:40'!
 spacer
 	^ self spacer: 1! !
 
-!DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/10/2024 11:00:08'!
+!DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/Oct/2024 11:00:08'!
 spacer: size
 	^ ColoredBoxMorph new 
 		color: Color transparent; 
 		morphWidth: size;
 		yourself! !
 
-!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 12/23/2024 21:06:46'!
+!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 23/Dec/2024 21:06:46'!
 horizontalWheel 
 	^ (WheelMorph target: self docPresenter actionSelector: #moveOXAction:)
 		beHorizontal; 
@@ -2130,7 +2159,7 @@ horizontalWheel
 		borderColor: Color black;
 		yourself! !
 
-!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 12/23/2024 21:06:41'!
+!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 23/Dec/2024 21:06:41'!
 verticalWheel 
 	^  (WheelMorph target: self docPresenter actionSelector: #moveOYAction:)
 		beVertical; 
@@ -2142,7 +2171,7 @@ verticalWheel
 		yourself		
 		! !
 
-!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 12/23/2024 21:06:33'!
+!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 23/Dec/2024 21:06:33'!
 zoomWheel 
 	^  (WheelMorph target: self docPresenter actionSelector: #zoomAction:)
 		beVertical; 
@@ -2153,7 +2182,7 @@ zoomWheel
 		borderColor: Color black;
 		yourself! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 10:25:09'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 10:25:09'!
 decoratedPaneFor: aMold labeled: aMessage
 	^ DecoratedPane 
 			open: (PluggableScrollPane new 
@@ -2162,7 +2191,7 @@ decoratedPaneFor: aMold labeled: aMessage
 				yourself) 
 			label: aMessage ! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 10:59:55'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 10:59:55'!
 visitAgenda: agenda
 | mold |
 	mold := agenda mold.
@@ -2171,7 +2200,7 @@ visitAgenda: agenda
 		self decoratedPaneFor: mold labeled: 'Information' translated.
 		self editorsFor: agenda daysOff ofType: DyDayInterval}! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 11:00:38'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 11:00:38'!
 visitClassGroup: class
 | mold |
 	mold := class mold.
@@ -2182,7 +2211,7 @@ visitClassGroup: class
 		self editorsFor: class courses ofType: DyCourse in: class.
 		self editorsFor: class students ofType: DyStudent }! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 10/27/2024 19:09:23'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 27/Oct/2024 19:09:23'!
 visitCourse: course 
 | mold columns |
 	mold := course mold.
@@ -2195,7 +2224,7 @@ visitCourse: course
 	columns add: (	self editorsFor: course topics ofType: DyTopic in: course).
 	^ self newColumnWith:		 columns ! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 11:01:34'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 11:01:34'!
 visitCourseHour: courseHour
 | mold |
 	mold := courseHour mold: (DyUserData schoolOf: courseHour).
@@ -2203,7 +2232,7 @@ visitCourseHour: courseHour
 	^ self newColumnWith: {
 		self decoratedPaneFor: mold labeled: 'Information' translated }! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 8/20/2025 17:19:26'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 20/Aug/2025 17:19:26'!
 visitSchool: school 
 | mold |
 	mold := school mold.
@@ -2213,7 +2242,7 @@ visitSchool: school
 		self editorsFor: school classGroups ofType: DyClassGroup in: school.
 		self 	editorsFor: school timeSlots ofType: DyTimeSlot. }! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 11:02:13'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 11:02:13'!
 visitTeacher: teacher
 | mold |
 	mold := teacher mold.
@@ -2221,7 +2250,7 @@ visitTeacher: teacher
 	^ self newColumnWith: {
 		self decoratedPaneFor: mold labeled: 'Teacher' translated }! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 7/14/2024 10:25:32'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 10:25:32'!
 visitUserData: userData
 | mold |
 	mold := userData user mold.
@@ -2230,11 +2259,11 @@ visitUserData: userData
 		self decoratedPaneFor: mold labeled: 'Owner' translated.
 		self editorsFor: userData schools ofType: DySchool in: userData}! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/22/2023 21:15:02'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 22/Aug/2023 21:15:02'!
 editorsFor: aCollection ofType: classModel 
 	^ self editorsFor: aCollection ofType: classModel in: nil! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/20/2025 17:29:08'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 20/Aug/2025 17:29:08'!
 editorsFor: aCollection ofType: classModel in: anOwner
 " A decorated editor to edit a collection of models "
 	| listMorph quickButtons decoratedPanel |
@@ -2278,7 +2307,7 @@ editorsFor: aCollection ofType: classModel in: anOwner
 	decoratedPanel quickButtons: quickButtons.
 	^ decoratedPanel! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/20/2025 17:20:48'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 20/Aug/2025 17:20:48'!
 newColumnWith: morphs
 | column |
 	column := LayoutMorph newColumn.
@@ -2288,7 +2317,7 @@ newColumnWith: morphs
 	column morphExtent: column minimumExtent.
 	^ column ! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 9/21/2023 10:55:12'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 21/Sep/2023 10:55:12'!
 quickAdd: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
@@ -2330,7 +2359,7 @@ quickAdd: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/20/2025 17:18:53'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 20/Aug/2025 17:18:53'!
 quickDelete: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
@@ -2359,7 +2388,7 @@ quickDelete: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 8/27/2023 15:34:57'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 27/Aug/2023 15:34:57'!
 quickEdit: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
@@ -2394,7 +2423,7 @@ quickEdit: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 10/10/2023 23:05:57'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 10/Oct/2023 23:05:57'!
 quickExport: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
@@ -2406,7 +2435,7 @@ quickExport: args
 		answer directory // answer name writeStreamDo: [:str |
 			args first export: args second to: str ]]! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 7/26/2023 13:12:40'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 26/Jul/2023 13:12:40'!
 quickImport: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to import
@@ -2423,11 +2452,11 @@ quickImport: args
 				args second become: importedCollection.
 				args third updateList]] ]! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 6/26/2023 21:29:08'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 26/Jun/2023 21:29:08'!
 paneFor: anObject label: aTitle 
 	^self paneFor: anObject label: aTitle browse: true! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 7/1/2023 21:23:29'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 1/Jul/2023 21:23:29'!
 paneFor: anObject label: aTitle browse: canBeBrowsed
 " Present the view of an object in a decorated pane with a title "
 	| viewBuilderMessage attributeView scroller |
@@ -2441,7 +2470,7 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 	attributeView morphWidth: scroller viewableExtent x.
 	^ DecoratedPane open: scroller label: aTitle ! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 12/1/2024 18:44:42'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 1/Dec/2024 18:44:42'!
 plugView: aMorph
 " Add an Edit button to this contents "
 	| viewer |
@@ -2462,7 +2491,7 @@ plugView: aMorph
 		yourself.
 	^ viewer ! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 8/12/2023 13:58:45'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 12/Aug/2023 13:58:45'!
 viewFor: anAttribute browse: canBeBrowsed
 " Present a text view of an attribute."
 	| aTextView |
@@ -2480,7 +2509,7 @@ viewFor: anAttribute browse: canBeBrowsed
 			toValue: [ :event :position | visitedModel triggerEvent: #browseTo with: anAttribute]].
 	^ aTextView ! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 7/3/2023 12:30:05'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 3/Jul/2023 12:30:05'!
 viewsFor: aCollection browse: canBeBrowsed
 " Present a column of text views for each item of the collection"
 	| column |
@@ -2495,7 +2524,7 @@ viewsFor: aCollection browse: canBeBrowsed
 	column morphExtent: column minimumExtent.
 	^ column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 8/16/2025 16:09:01'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 16/Aug/2025 16:09:01'!
 visitAgenda: agenda
 	| column |
 	visitedModel := agenda .
@@ -2504,7 +2533,7 @@ visitAgenda: agenda
 		addMorph: (self paneFor: agenda daysOff label: 'Days off' translated browse: false).
 	^ self plugView: column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 7/27/2023 00:52:27'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 27/Jul/2023 00:52:27'!
 visitClassGroup: class
 	| column |
 	visitedModel := class .
@@ -2514,7 +2543,7 @@ visitClassGroup: class
 		addMorph: (self paneFor: class students label: 'Students' translated browse: false).
 	^ self plugView: column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 10/27/2024 19:05:55'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 27/Oct/2024 19:05:55'!
 visitCourse: course
 	| column |
 	visitedModel := course .
@@ -2527,7 +2556,7 @@ visitCourse: course
 		addMorph: (self paneFor: course topics label: 'Topics' translated browse: false).
 	^ self plugView: column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 9/28/2023 12:08:32'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 28/Sep/2023 12:08:32'!
 visitCourseHour: courseHour
 	| column slots|
 	visitedModel := courseHour .
@@ -2538,7 +2567,7 @@ visitCourseHour: courseHour
 		addMorph: (self paneFor: slots selectedItems label: 'Period(s)' translated browse: false).
 	^ self plugView: column	! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 7/3/2023 15:14:16'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 3/Jul/2023 15:14:16'!
 visitSchool: school
 	| column |
 	visitedModel := school .
@@ -2548,7 +2577,7 @@ visitSchool: school
 		addMorph: (self paneFor: school timeSlots label: 'Time slots' translated browse: false)		.
 	^ self plugView: column	! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 7/3/2023 15:00:42'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 3/Jul/2023 15:00:42'!
 visitTeacher: teacher
 	| column |
 	visitedModel := teacher .
@@ -2556,7 +2585,7 @@ visitTeacher: teacher
 	column 	addMorph: (self paneFor: teacher classGroups label: 'Classes ' translated).
 	^ self plugView: column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 7/30/2023 18:08:50'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 30/Jul/2023 18:08:50'!
 visitUserData: userData
 	| column |
 	visitedModel := userData.
@@ -2565,31 +2594,31 @@ visitUserData: userData
 		addMorph: (self paneFor: userData agenda label: 'Agenda' translated).
 	^ self plugView: column! !
 
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:58:55'!
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 22/May/2023 19:58:55'!
 end
 	^ endTime! !
 
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 20:01:48'!
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 22/May/2023 20:01:48'!
 end: aTime
 	endTime := aTime! !
 
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:58:11'!
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 22/May/2023 19:58:11'!
 slotName
 	^ name! !
 
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 20:02:10'!
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 22/May/2023 20:02:10'!
 slotName: aString
 	name := 	aString ! !
 
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 19:56:55'!
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 22/May/2023 19:56:55'!
 start
 	^ startTime ! !
 
-!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 5/22/2023 20:01:59'!
+!DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 22/May/2023 20:01:59'!
 start: aTime
 	startTime := aTime ! !
 
-!DyTimeSlot methodsFor: 'printing' stamp: 'hlsf 10/27/2024 16:26:53'!
+!DyTimeSlot methodsFor: 'printing' stamp: 'hlsf 27/Oct/2024 16:26:53'!
 printOn: aStream
 	name ifNil: [ super printOn: aStream ]
 		ifNotNil: [	
@@ -2598,7 +2627,7 @@ printOn: aStream
 			aStream 	nextPutAll: ' - '.
 			endTime print24: true showSeconds: false on: aStream]! !
 
-!DyTimeSlot methodsFor: 'user interface' stamp: 'hlsf 6/30/2023 21:15:31'!
+!DyTimeSlot methodsFor: 'user interface' stamp: 'hlsf 30/Jun/2023 21:15:31'!
 mold
 	| mold start |
 	mold := Mold new.
@@ -2619,31 +2648,31 @@ mold
 	^ mold
 	! !
 
-!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/14/2023 15:50:29'!
+!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 14/Sep/2023 15:50:29'!
 < aTimeSlot
 	^ startTime < aTimeSlot start or: [endTime < aTimeSlot end]! !
 
-!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/14/2023 15:53:07'!
+!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 14/Sep/2023 15:53:07'!
 = aTimeSlot
 	^ startTime = aTimeSlot start and: [endTime = aTimeSlot end]! !
 
-!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/14/2023 15:53:29'!
+!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 14/Sep/2023 15:53:29'!
 hash
 	^ startTime hash bitXor: endTime end! !
 
-!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 9/10/2023 23:15:56'!
+!DyTimeSlot methodsFor: 'comparing' stamp: 'hlsf 10/Sep/2023 23:15:56'!
 includes: aTime
 	^ startTime <= aTime and: [endTime >= aTime]! !
 
-!DyTimeSlot class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:37:26'!
+!DyTimeSlot class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:37:26'!
 label
 	^ 'time slot' translated! !
 
-!DyTimeSlot class methodsFor: 'user inteface' stamp: 'hlsf 7/15/2023 11:37:35'!
+!DyTimeSlot class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:37:35'!
 pluralLabel
 	^ 'Time slots' translated! !
 
-!DyTimeSlot class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/26/2023 13:10:13'!
+!DyTimeSlot class methodsFor: 'fileIn/Out' stamp: 'hlsf 26/Jul/2023 13:10:13'!
 export: timeSlots to: writeStream
 	| writer |
 	writer := NeoCSVWriter on: writeStream.
@@ -2651,7 +2680,7 @@ export: timeSlots to: writeStream
 		addFields: #(slotName start end);
 		nextPutAll: timeSlots! !
 
-!DyTimeSlot class methodsFor: 'fileIn/Out' stamp: 'hlsf 7/26/2023 13:09:22'!
+!DyTimeSlot class methodsFor: 'fileIn/Out' stamp: 'hlsf 26/Jul/2023 13:09:22'!
 importFrom: readStream
 "Import time slots from a CSV file with header:
 timeSlotName,start, end "
@@ -2666,38 +2695,38 @@ timeSlotName,start, end "
 		addField: #end: converter: [:s | Time fromString: s].
 	^ reader upToEnd asSortedCollection ! !
 
-!DyView methodsFor: 'ui' stamp: 'hlsf 10/1/2023 18:53:08'!
+!DyView methodsFor: 'ui' stamp: 'hlsf 1/Oct/2023 18:53:08'!
 adoptWidgetsColor: aColor 
 	super adoptWidgetsColor: aColor.
 	color := Theme current paneBackgroundFrom: aColor.! !
 
-!DyView methodsFor: 'ui' stamp: 'hlsf 10/1/2023 18:53:14'!
+!DyView methodsFor: 'ui' stamp: 'hlsf 1/Oct/2023 18:53:14'!
 defaultBorderColor
 	^ Theme current transcript! !
 
-!DyView methodsFor: 'ui' stamp: 'hlsf 10/1/2023 18:53:20'!
+!DyView methodsFor: 'ui' stamp: 'hlsf 1/Oct/2023 18:53:20'!
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:55:05'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 16:55:05'!
 classGroup
 " The selected class group, if any "
 	^ self classGroups at: classGroupIndex ifAbsent: [nil]! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/7/2024 09:27:27'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 7/Dec/2024 09:27:27'!
 classGroup: aClassGroup
 	self classGroupIndex: (self classGroups indexOf: aClassGroup ifAbsent: 0)! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:45:06'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 12:45:06'!
 classGroupCourses
 	" The existing courses of the selected class group "
 	^ self classGroup ifNil: [`Array new`] ifNotNil: [:cg | cg courses]! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/3/2023 22:45:18'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 3/Oct/2023 22:45:18'!
 classGroupIndex
 	^ classGroupIndex! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:43:45'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 12:43:45'!
 classGroupIndex: anIndex
 	" Set the class group "
 	classGroupIndex := anIndex.
@@ -2706,49 +2735,49 @@ classGroupIndex: anIndex
 	self changed: #classGroupCourses.
 	self courseIndex: (self classGroupCourses ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:54:24'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/Dec/2024 11:54:24'!
 classGroups
 " All the user class groups "
 	^ self domain classGroups! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/18/2024 22:20:34'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024 22:20:34'!
 controlsManager
 	^ presenter controlsManager ! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:45:52'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 12:45:52'!
 course
 	" The selected course, if any "
 	^ self classGroupCourses at: courseIndex ifAbsent: [nil]! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:46:17'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 12:46:17'!
 course: aCourse
 	" Set the course for the selected class group "
 	self courseIndex: (self classGroupCourses indexOf: aCourse ifAbsent: [0])! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:21:53'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 16:21:53'!
 courseIndex
 " The selected course index in a give class group "
 	^ courseIndex! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 12:45:37'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 12:45:37'!
 courseIndex: anIndex
 	" Set the course index of the selected class group "
 	courseIndex := anIndex.
 	self changed: #courseIndex:.! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:53:24'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 1/Oct/2023 18:53:24'!
 data
 	^ presenter  domain userData ! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 11:54:11'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 5/Dec/2024 11:54:11'!
 domain
 	^ presenter  domain! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 10/1/2023 18:52:42'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 1/Oct/2023 18:52:42'!
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DyView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 16:34:08'!
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 26/May/2024 16:34:08'!
 classGroupCoursesListMorph
 " Present the list of the user courses in a given class group"
 	^ DropDownListMorph 
@@ -2758,7 +2787,7 @@ classGroupCoursesListMorph
 		indexSetter: #courseIndex: ::
 		autoDeselect: false.! !
 
-!DyView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 16:38:01'!
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 26/May/2024 16:38:01'!
 classGroupListMorph
 " Present a list of user class group "
 	^ DropDownListMorph 
@@ -2768,23 +2797,23 @@ classGroupListMorph
 		indexSetter: #classGroupIndex: ::
 		autoDeselect: false.! !
 
-!DyView methodsFor: 'initialization' stamp: 'hlsf 10/7/2023 15:56:04'!
+!DyView methodsFor: 'initialization' stamp: 'hlsf 7/Oct/2023 15:56:04'!
 initialize
 	super initialize.
 	self beColumn.
 	self doAdoptWidgetsColor.! !
 
-!DyView class methodsFor: 'instance creation' stamp: 'hlsf 10/1/2023 18:52:51'!
+!DyView class methodsFor: 'instance creation' stamp: 'hlsf 1/Oct/2023 18:52:51'!
 presenter: aPresenter
 	^ self basicNew 
 		presenter: aPresenter ;
 		initialize ! !
 
-!DyView class methodsFor: 'new-morph participation' stamp: 'hlsf 1/9/2025 20:35:32'!
+!DyView class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:35:32'!
 includeInNewMorphMenu
 	^ false! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 5/26/2024 15:45:39'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 26/May/2024 15:45:39'!
 courseHourDateListMorph
 " Present a list of forthcomming date for the selected course (courseIndex) "
 	^ DropDownListMorph 
@@ -2794,14 +2823,14 @@ courseHourDateListMorph
 		indexSetter: #courseHourIndex: ::
 		autoDeselect: false.! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/5/2024 11:31:02'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 5/Dec/2024 11:31:02'!
 incomingTasksPanel
 "A view to browse the tasks already assigned "
 	^ LayoutMorph newColumn 
 		addMorph: (LabelMorph contents: 'Future tasks' translated);
 		addMorphUseAll: self tasksListMorph ! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/5/2024 11:07:42'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 5/Dec/2024 11:07:42'!
 newTaskPanel
 "The tools to assign a new task : which classGroup, which course and when "
 	^​ LayoutMorph newRow ::
@@ -2816,7 +2845,7 @@ newTaskPanel
 			action: #saveTask
 			label: 'Save' translated)! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 12/8/2024 19:26:09'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 8/Dec/2024 19:26:09'!
 tasksListMorph
 " Present a list of forthcomming tasks "
 	^ PluggableListOfMorph 
@@ -2826,23 +2855,23 @@ tasksListMorph
 		indexSetter: #taskIndex: ::
 		autoDeselect: true.! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:15:41'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 17:15:41'!
 classGroupIndex: anIndex
 	super classGroupIndex: anIndex.
 	self courseHourIndex:​ 0.
 	self changed: #courseHourDates.
 	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 17:26:36'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:26:36'!
 courseHourDate
 " The selected course hour date "
 	^ self courseHourDates at: courseHourIndex ifAbsent: [nil]! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/7/2024 09:42:22'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 7/Dec/2024 09:42:22'!
 courseHourDate: aCourseHourDate
 	self courseHourIndex: (self courseHourDates indexOf: aCourseHourDate ifAbsent: [0])! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 18:06:49'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:06:49'!
 courseHourDates
 " A list of future course hour dates "
 	^ self course 
@@ -2850,24 +2879,24 @@ courseHourDates
 		ifNotNil: [:course | course futureDates: 10]
 		! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 11:13:57'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 11:13:57'!
 courseHourIndex
 	^ courseHourIndex! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 12/8/2024 19:31:58'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 19:31:58'!
 courseHourIndex: anIndex
 	" Set the course hour date (date+timeslot) index of the selected class group and course "
 	courseHourIndex := anIndex.
 	self changed: #courseHourIndex:! !
 
-!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:16:38'!
+!DyAgendaView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 17:16:38'!
 courseIndex: anIndex
 	super courseIndex: anIndex.
 	self courseHourIndex:​ 0.
 	self changed: #courseHourDates.
 	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/8/2024 12:06:49'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 8/Dec/2024 12:06:49'!
 labelForTask: aTask
 	^String streamContents: [:str |
 		(self domain courseAndGroupAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourseGroup |
@@ -2879,16 +2908,16 @@ labelForTask: aTask
 		
 				! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/5/2024 11:36:32'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 5/Dec/2024 11:36:32'!
 task
 	" the selected task "
 	^ self tasks at: taskIndex ifAbsent: [nil]! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/5/2024 11:44:16'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 5/Dec/2024 11:44:16'!
 taskIndex
 	^ taskIndex! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/18/2024 22:16:08'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 18/Dec/2024 22:16:08'!
 taskIndex: anIndex
 	taskIndex := anIndex.
 	self changed: #taskIndex:.
@@ -2903,11 +2932,11 @@ taskIndex: anIndex
 		ifNil: [	self plugNewMiniDocument]
 		! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/5/2024 11:28:11'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 5/Dec/2024 11:28:11'!
 tasks
 	^ self data agenda tasks! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 12/7/2024 11:08:09'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 7/Dec/2024 11:08:09'!
 tasksWidget
 	^ self tasks collect: [:aTask | | label |
 		label := self labelForTask: aTask.
@@ -2921,7 +2950,7 @@ tasksWidget
 			yourself		]
 				! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/8/2024 19:34:01'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 8/Dec/2024 19:34:01'!
 initTask
 	" Guess the course at current time, then its classGroup "
 	| courseGroupNow |
@@ -2937,7 +2966,7 @@ initTask
 	self changedFutureTasks 
 	! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 10:37:31'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 5/Dec/2024 10:37:31'!
 initialize
 	super initialize.
 	self initTask.	
@@ -2949,7 +2978,7 @@ initialize
 	
 ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/18/2024 22:21:14'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 18/Dec/2024 22:21:14'!
 plugMiniDocument: aDocView
 " plug the mini document in my view "
 	miniDocView 
@@ -2959,32 +2988,32 @@ plugMiniDocument: aDocView
 	self controlsManager docView: aDocView.
 	miniDocView := aDocView ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 9/27/2025 10:01:21'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 27/Sep/2025 10:01:21'!
 plugNewMiniDocument
 " Insert a new empty mini document  "
 	self plugMiniDocument: (DocumentView presenter: Document new :: installMiniView)
 	
 	! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 12/5/2024 11:04:04'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 5/Dec/2024 11:04:04'!
 resetTask
 	self initTask.
 	self plugNewMiniDocument ! !
 
-!DyAgendaView methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:48:20'!
+!DyAgendaView methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:48:20'!
 isTaskValid
 " Is the currently edited task valid "
 	^ classGroupIndex > 0 
 	and: [courseIndex >0
 	and: [courseHourIndex > 0 ]]! !
 
-!DyAgendaView methodsFor: 'update' stamp: 'hlsf 12/8/2024 19:34:18'!
+!DyAgendaView methodsFor: 'update' stamp: 'hlsf 8/Dec/2024 19:34:18'!
 changedFutureTasks
 	self changed: #tasksWidget.
 	self changed: #taskIndex:
 	! !
 
-!DyAgendaView methodsFor: 'update' stamp: 'hlsf 12/7/2024 09:20:33'!
+!DyAgendaView methodsFor: 'update' stamp: 'hlsf 7/Dec/2024 09:20:33'!
 changedNewTask
 
 	self changed: #classGroups.
@@ -2994,64 +3023,64 @@ changedNewTask
 	self changed: #courseIndex:.
 	self changed: #courseHourIndex:! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:17:48'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 17:17:48'!
 classGroupIndex: anIndex
 	super classGroupIndex: anIndex.
 	self topicIndex: 0.
 	self changed: #topics.
 	self topicIndex:​ (self topics ifEmpty: [0] ifNotEmpty: [1])! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 17:17:24'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 17:17:24'!
 courseIndex: anIndex
 	super courseIndex: anIndex.
 	self topicIndex: 0.
 	self changed: #topics.
 	self topicIndex:​ (self topics ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 11:52:11'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 7/Oct/2023 11:52:11'!
 sortIndex
 	^ sortIndex! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 11:52:37'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 7/Oct/2023 11:52:37'!
 sortIndex: anIndex
 	sortIndex := 	anIndex.
 	self changed: #sortIndex:! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/7/2023 11:51:47'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 7/Oct/2023 11:51:47'!
 sortOptions
 	^ `Array with: 'Newer first' translated with: 'Older first' translated with: 'By name' translated`! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 12/1/2024 11:23:19'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 11:23:19'!
 topic
 " The selected topic, if any "
 	^ self topics at: topicIndex ifAbsent: [nil]! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 12/31/2024 10:59:00'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 10:59:00'!
 topic: aTopic
 " Set the selected topic once the classGroup and course are set accordingly "
 	self classGroup: aTopic course classGroup.
 	self course: aTopic course.
 	self topicIndex: (self topics indexOf: aTopic ifAbsent: [0])! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 10/4/2023 22:39:04'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 4/Oct/2023 22:39:04'!
 topicIndex
 	^ topicIndex! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 1/4/2025 10:30:51'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 4/Jan/2025 10:30:51'!
 topicIndex: anIndex
 	topicIndex := anIndex.
 	self changed: #topicIndex:.
 	self updateDocumentPreviews.
 	presenter currentTopic: self topic! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 5/26/2024 16:57:40'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 16:57:40'!
 topics
 "The topics of a given course"
 	^ self course 
 		ifNotNil: [:aCourse | aCourse topics]
 		ifNil: [`Array new`]! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 9/1/2024 09:59:19'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 1/Sep/2024 09:59:19'!
 documentSelectorPanel
 " A view to select documents according to classGroups, courses, topics and sorting option "
 	^ LayoutMorph newRow ::
@@ -3061,7 +3090,7 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 8/20/2025 17:29:31'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 20/Aug/2025 17:29:31'!
 documentsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
 	| quickButtons scroller |
@@ -3082,7 +3111,7 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 12/31/2024 19:29:17'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 31/Dec/2024 19:29:17'!
 previewFor: aDocument
 	| buttons  |
 	buttons := OrderedCollection new.
@@ -3106,14 +3135,14 @@ previewFor: aDocument
 		borderWidth: 2;
 		borderColor: (aDocument isSaved ifTrue: [Color black] ifFalse: [Color red])! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 2/6/2025 11:18:18'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 6/Feb/2025 11:18:18'!
 previewRow
 	^ ​ LayoutMorph newRow :: 
 		separation: DocumentView previewGap ; 
 		adoptWidgetsColor: self defaultColor
 	! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 5/26/2024 15:45:41'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 26/May/2024 15:45:41'!
 sortListMorph
 " Present a list of topic in selected course "
 	^ DropDownListMorph 
@@ -3123,7 +3152,7 @@ sortListMorph
 		indexSetter: #sortIndex: ::
 		autoDeselect: false.! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 5/26/2024 15:45:44'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 26/May/2024 15:45:44'!
 topicListMorph
 " Present a list of topic in selected course "
 	^ DropDownListMorph 
@@ -3133,7 +3162,7 @@ topicListMorph
 		indexSetter: #topicIndex: ::
 		autoDeselect: false.! !
 
-!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 12/12/2024 19:44:03'!
+!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 12/Dec/2024 19:44:03'!
 initialize
 	super initialize.
 	classGroupIndex :=  self classGroups ifNotEmpty: [1] ifEmpty: [0].
@@ -3144,7 +3173,7 @@ initialize
 	self addMorphUseAll: self documentsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 1/4/2025 10:22:04'!
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 4/Jan/2025 10:22:04'!
 updateDocumentPreviews
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
@@ -3163,46 +3192,46 @@ updateDocumentPreviews
 				into: [:row :document | row addMorph: (self previewFor: document) ]) ].
 	^ previewPanel ! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:59'!
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 21:38:59'!
 adoptWidgetsColor: aColor 
 	super adoptWidgetsColor: aColor.
 	color := Theme current paneBackgroundFrom: aColor.! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:31'!
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 21:38:31'!
 defaultBorderColor
 	^ Theme current transcript! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/28/2023 21:38:23'!
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 21:38:23'!
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 9/5/2024 11:14:05'!
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 11:14:05'!
 presenter
 	^ presenter! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/15/2023 20:52:33'!
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 15/Aug/2023 20:52:33'!
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 8/29/2024 11:58:28'!
+!DynabookView methodsFor: 'accessing' stamp: 'hlsf 29/Aug/2024 11:58:28'!
 windowColor
 	^ Theme current workspace! !
 
-!DynabookView class methodsFor: 'instance creation' stamp: 'hlsf 8/15/2023 20:51:48'!
+!DynabookView class methodsFor: 'instance creation' stamp: 'hlsf 15/Aug/2023 20:51:48'!
 for: aPresenter
 	^ self new ::
 		presenter: aPresenter;
 		yourself! !
 
-!DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 12/5/2024 23:15:26'!
+!DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 5/Dec/2024 23:15:26'!
 setUp
 	domain := self resources anyOne current domain! !
 
-!DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/28/2023 21:28:52'!
+!DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 28/Sep/2023 21:28:52'!
 tearDown
 	self tearDownResources! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:16:53'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:16:53'!
 testAgenda
 	self assert: self data agenda start = '2023-08-21' asDate.
 	self assert: self data agenda end = '2024-06-28' asDate.
@@ -3217,7 +3246,7 @@ testAgenda
 	self deny: (self data agenda isDayOff: '2024-05-16' asDate)
 	! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:03'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:17:03'!
 testAsCourseIn	
 	| school course courseHour | 
 	school := self data schools first.
@@ -3235,7 +3264,7 @@ testAsCourseIn
 	courseHour timeSlots do: [:each |
 	self assert: (school timeSlots includes: each) ]! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:10'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:17:10'!
 testClassGroupCourse
 	| school group course | 
 	school := self data schools first.
@@ -3247,7 +3276,7 @@ testClassGroupCourse
 	self assert: course subject equals: 'Histoire'
 	! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:14'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:17:14'!
 testCourseAgendaAccess
 	| school group course agenda | 
 	school := self data schools first.
@@ -3257,7 +3286,7 @@ testCourseAgendaAccess
 	self assert: agenda start = '2023-08-21' asDate.
 	self assert: agenda end = '2024-06-28' asDate! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:45'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:17:45'!
 testCourseAt
 	| courseH courseM courseI classGroup dateAndTime | 
 	classGroup := self data schools first classGroups first.
@@ -3288,7 +3317,7 @@ testCourseAt
 	self assert: (domain courseAt: dateAndTime) equals: courseI.
 	! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:17:52'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:17:52'!
 testCourseHours
 	| school group courseHours | 
 	school := self data schools first.
@@ -3307,7 +3336,7 @@ testCourseHours
 		aCourseHour timeSlots do: [:aTimeSlot | 		self assert: school timeSlots includes: aTimeSlot ] ]
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:01'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:18:01'!
 testFutureDates
 	| course date futureDates| 
 	date := (DateAndTime fromString: '2023-09-05 10:45') date . "Tuesday"
@@ -3325,7 +3354,7 @@ testFutureDates
 	self assert: futureDates third first timeSlots first = 'P4 10:25 11:10' asTimeSlot.
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:06'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:18:06'!
 testFutureDatesNoCourseThisDay
 	| course date futureDates| 
 	date := (DateAndTime fromString: '2023-09-12 10:45') date . "Tuesday"
@@ -3343,7 +3372,7 @@ testFutureDatesNoCourseThisDay
 	self assert: futureDates third first timeSlots first = 'P7 13:35 14:20' asTimeSlot.
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:11'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:18:11'!
 testIsDuring
 	| courseHours classGroup dateAndTime | 
 	classGroup := self data schools first classGroups first.
@@ -3367,7 +3396,7 @@ A course hour with 2 periods, isDuring: tested between the two period timeslots,
 	dateAndTime := DateAndTime fromString: '2023-09-12 11:12'. 
 	self assert: (courseHours second isDuring: dateAndTime).! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:19:31'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:19:31'!
 testNextCourseHourAfter
 	| nextCourse dateAndTime | 
 	dateAndTime := DateAndTime fromString: '2023-09-11 9:00'. "Monday"
@@ -3398,7 +3427,7 @@ testNextCourseHourAfter
 	self assert: nextCourse first timeSlots first = 'P2 8:35 9:20' asTimeSlot.
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:38'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:18:38'!
 testNextCourseHourAfterWithDaysOff
 	| nextCourse dateAndTime | 
 	dateAndTime := DateAndTime fromString: '2023-09-05 10:45'. "Tuesday"
@@ -3425,12 +3454,12 @@ testNextCourseHourAfterWithDaysOff
 	self assert: nextCourse isNil
 ! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:46'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:18:46'!
 testSchoolsExist
 	self assert: self data schools notEmpty.
 	self assert: (self data schools anySatisfy: [:aSchool | aSchool schoolName = 'CO Foron'])! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:54:42'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 14/Sep/2023 15:54:42'!
 testTimeSlotCompare
 	| t1 t2 t3 t4| 
 	t1 := 'P4 10:05 11:30' asTimeSlot.
@@ -3445,7 +3474,7 @@ testTimeSlotCompare
 	self assert: t3 > t1.
 	self assert: (t2 between: t1 and: t3)! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 9/14/2023 15:42:10'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 14/Sep/2023 15:42:10'!
 testTimeSlotInstance
 	| t | 
 	t := 'P4 10:05 11:30' asTimeSlot.
@@ -3453,7 +3482,7 @@ testTimeSlotInstance
 	self assert: t start equals: (Time fromString: '10:05').
 	self assert: t end equals: (Time fromString: '11:30')! !
 
-!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 12/5/2024 23:18:53'!
+!DyboTestCase methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 23:18:53'!
 testTimeSlotsOrder
 	| t | 
 	t := self data schools first timeSlots.
@@ -3461,19 +3490,19 @@ testTimeSlotsOrder
 	self assert: t third slotName equals: 'P3'.
 	self assert: t last slotName equals: 'P9'! !
 
-!DyboTestCase methodsFor: 'as yet unclassified' stamp: 'hlsf 12/5/2024 23:15:53'!
+!DyboTestCase methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Dec/2024 23:15:53'!
 data
 	^ domain userData ! !
 
-!DyboTestCase class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/6/2024 19:12:53'!
+!DyboTestCase class methodsFor: 'as yet unclassified' stamp: 'hlsf 6/Nov/2024 19:12:53'!
 resources
 	^{DyboTestResource }! !
 
-!DyboTestCase class methodsFor: 'nil' stamp: 'hlsf 9/28/2023 12:52:19'!
+!DyboTestCase class methodsFor: 'nil' stamp: 'hlsf 28/Sep/2023 12:52:19'!
 tearDownResources
 	self halt! !
 
-!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 10/28/2024 22:23:00'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 28/Oct/2024 22:23:00'!
 classGroup932in: school
 	| group course |
 	group := DyClassGroup number: '932' in: school.
@@ -3506,7 +3535,7 @@ classGroup932in: school
 		
 	^ group! !
 
-!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/24/2023 14:04:47'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 24/Sep/2023 14:04:47'!
 daysOff
 	^{ 
 		DyDayInterval start: '2023-10-23' end: '2023-10-27'.
@@ -3518,7 +3547,7 @@ daysOff
 		DyDayInterval start: '2024-05-01' end: '2024-05-01'		.
 		DyDayInterval start: '2024-05-20' end: '2024-05-20'	 }! !
 
-!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 9/23/2023 10:57:04'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 23/Sep/2023 10:57:04'!
 schoolA
 	| school  |
 	school := DySchool new schoolName: 'CO Foron'.
@@ -3534,42 +3563,42 @@ schoolA
 	school classGroups add: (self classGroup932in: school).
 	^ school! !
 
-!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 12/5/2024 12:14:48'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 5/Dec/2024 12:14:48'!
 setUp
 	domain := DyDomain new.
 	self data user: (DyTeacher new lastName: 'Dupont'; firstName: 'Eric').
 	self setUpAgenda.
 	self data schools add: (self schoolA owner: self data; yourself)! !
 
-!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 12/5/2024 23:11:39'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 5/Dec/2024 23:11:39'!
 setUpAgenda
 	self data agenda
 		start: '2023-08-21' asDate;
 		end: '2024-06-28' asDate.
 	self data agenda daysOff addAll: self daysOff ! !
 
-!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 12/5/2024 23:12:25'!
+!DyboTestResource methodsFor: 'setUp/tearDown' stamp: 'hlsf 5/Dec/2024 23:12:25'!
 tearDown
 	DyUserData reset.
 	domain := nil.! !
 
-!DyboTestResource methodsFor: 'testing' stamp: 'hlsf 12/5/2024 12:12:07'!
+!DyboTestResource methodsFor: 'testing' stamp: 'hlsf 5/Dec/2024 12:12:07'!
 isAvailable 
 	^ domain data notNil! !
 
-!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 23:16:02'!
+!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 5/Dec/2024 23:16:02'!
 data
 	^ domain userData! !
 
-!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 12/5/2024 23:14:33'!
+!DyboTestResource methodsFor: 'accessing' stamp: 'hlsf 5/Dec/2024 23:14:33'!
 domain
 	^ domain! !
 
-!DyboTestResource class methodsFor: 'testing' stamp: 'hlsf 9/28/2023 12:28:49'!
+!DyboTestResource class methodsFor: 'testing' stamp: 'hlsf 28/Sep/2023 12:28:49'!
 isAvailable
 	^ true! !
 
-!ProtoObject methodsFor: '*Dybo' stamp: 'hlsf 7/1/2023 12:19:17'!
+!ProtoObject methodsFor: '*Dybo' stamp: 'hlsf 1/Jul/2023 12:19:17'!
 treePointsTo: anObject
 " Are my instances and sub instances hold a reference of anObject"
 	^ (self statePointsTo: anObject) or: [ |attributesToVisit |
@@ -3579,7 +3608,7 @@ treePointsTo: anObject
 		attributesToVisit anySatisfy: [:attribute | 
 			attribute == anObject or: [attribute treePointsTo: anObject		] 		] ]! !
 
-!Object methodsFor: '*Dybo-object serialization' stamp: 'hlsf 12/18/2024 21:42:12'!
+!Object methodsFor: '*Dybo-object serialization' stamp: 'hlsf 18/Dec/2024 21:42:12'!
 backupThenNilAttributes
 "Make a backup of unsaved attributed then Nil-ified them.
 Return the backup "
@@ -3589,29 +3618,29 @@ Return the backup "
 	self unsavedAttributes do: [:attr | 	self instVarNamed: attr put: nil].
 	^ backup! !
 
-!Object methodsFor: '*Dybo' stamp: 'hlsf 8/20/2023 16:05:49'!
+!Object methodsFor: '*Dybo' stamp: 'hlsf 20/Aug/2023 16:05:49'!
 registerEvents! !
 
-!Object methodsFor: '*Dybo-object serialization' stamp: 'hlsf 12/18/2024 21:43:17'!
+!Object methodsFor: '*Dybo-object serialization' stamp: 'hlsf 18/Dec/2024 21:43:17'!
 restoreAttributes: backup
 "Restore the unsaved attributes from a backup collection "
 	self unsavedAttributes withIndexDo: [:attr :index | 		
 		self instVarNamed: attr put: (backup at: index)]! !
 
-!Object methodsFor: '*Dybo-object serialization' stamp: 'hlsf 12/18/2024 21:43:56'!
+!Object methodsFor: '*Dybo-object serialization' stamp: 'hlsf 18/Dec/2024 21:43:56'!
 unsavedAttributes
 "In the context for save in a DataStream, return a symbol collection of unsaved attributes"
 	^ #()! !
 
-!Date methodsFor: '*Dybo-printing' stamp: 'hlsf 7/29/2023 15:51:19'!
+!Date methodsFor: '*Dybo-printing' stamp: 'hlsf 29/Jul/2023 15:51:19'!
 ddmmyy
 	^ self printFormat: #(1 2 3 $/ 1 2 1)! !
 
-!Date methodsFor: '*Dybo-printing' stamp: 'hlsf 7/29/2023 15:48:49'!
+!Date methodsFor: '*Dybo-printing' stamp: 'hlsf 29/Jul/2023 15:48:49'!
 ddmmyyyy
 	^ self printFormat: #(1 2 3 $/ 1 1 1)! !
 
-!String methodsFor: '*Dybo' stamp: 'hlsf 9/13/2023 23:17:33'!
+!String methodsFor: '*Dybo' stamp: 'hlsf 13/Sep/2023 23:17:33'!
 asCourseHourIn: aCourse
 " room day timeSlotName1 timeSlotName2 ... "
 	| timeSlots elements |
@@ -3623,7 +3652,7 @@ asCourseHourIn: aCourse
 		timeSlots: ( (elements allButFirst: 2) collect: [:timeSlotName |
 			timeSlots at: timeSlotName] )! !
 
-!String methodsFor: '*Dybo' stamp: 'hlsf 9/13/2023 21:51:32'!
+!String methodsFor: '*Dybo' stamp: 'hlsf 13/Sep/2023 21:51:32'!
 asTimeSlot
 | elements|
 	elements := self substrings.

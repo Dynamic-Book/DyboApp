@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7835] on 9 February 2026 at 3:58:12 pm'!
+'From Cuis7.7 [latest update: #7835] on 9 February 2026 at 7:12:39 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 179!
+!provides: 'DyboDoc' 1 180!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2211,8 +2211,9 @@ for: aPresenterClass
 	^ self new ::
 		presenter: aPresenterClass ! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 15:34:37'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 18:56:20'!
 headerFrom: fileEntry
+"	Reader the header of this script, and scan its metadata "
 	| data |
 	data := Dictionary new.
 	data at: #file put: fileEntry pathName.
@@ -2226,8 +2227,9 @@ headerFrom: fileEntry
 	data at: #category ifAbsentPut: [Array with: fileEntry parent baseName].
 	^ data! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 15:35:51'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 18:55:56'!
 metadataFrom: line
+"	Read *one* metadata "
 	| str key data |
 	str  := ReadStream on: line.
 	str next = $@ ifFalse: [^ nil].
@@ -2236,12 +2238,18 @@ metadataFrom: line
 	(#(tags category) includes: key) ifTrue: [data := data findTokens: ';'].
 	^ key -> data! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 15:36:56'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 18:55:13'!
 scanDirectory: dirEnrty
 	dirEnrty 
-		allFilesDo:  [:file | scripts add: (self metadataFrom: file)]
-		matches: [:file | file extension = 'st']
-! !
+		allFilesDo:  [:file | scripts add: (self headerFrom: file)]
+		matches: [:file | file extension = 'st'].
+	dirEnrty 	allDirectoriesDo: [:aChildDir | self scanDirectory: aChildDir]! !
+
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 18:53:13'!
+scanForScripts
+	scripts := OrderedCollection new.
+	self scanDirectory: DySystem scriptsPath.
+	self scanDirectory: DySystem myScriptsPath ! !
 
 !CommandStack methodsFor: 'private' stamp: 'hlsf 10/Sep/2024 21:00:31'!
 truncate
