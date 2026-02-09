@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7827] on 8 February 2026 at 12:16:47 pm'!
+'From Cuis7.7 [latest update: #7835] on 9 February 2026 at 3:58:12 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 178!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!provides: 'DyboDoc' 1 179!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -348,14 +348,24 @@ PageToolState subclass: #PointerToolStateNeutral
 PointerToolStateNeutral class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyboScript category: #'DyboDoc-Script'!
-Object subclass: #DyboScript
+!classDefinition: #DKMScript category: #'DyboDoc-Script'!
+Object subclass: #DKMScript
 	instanceVariableNames: 'presenter icon code'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Script'!
-!classDefinition: 'DyboScript class' category: #'DyboDoc-Script'!
-DyboScript class
+!classDefinition: 'DKMScript class' category: #'DyboDoc-Script'!
+DKMScript class
+	instanceVariableNames: ''!
+
+!classDefinition: #DKMScriptLibrary category: #'DyboDoc-Script'!
+Object subclass: #DKMScriptLibrary
+	instanceVariableNames: 'scripts'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Script'!
+!classDefinition: 'DKMScriptLibrary class' category: #'DyboDoc-Script'!
+DKMScriptLibrary class
 	instanceVariableNames: ''!
 
 !classDefinition: #CommandStack category: #'DyboDoc-Presenter-Command'!
@@ -508,14 +518,14 @@ LinearLayoutMorph subclass: #DocumentView
 DocumentView class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyboScriptEditor category: #'DyboDoc-Script'!
-DialogPanel subclass: #DyboScriptEditor
+!classDefinition: #DKMScriptEditor category: #'DyboDoc-Script'!
+DialogPanel subclass: #DKMScriptEditor
 	instanceVariableNames: 'annotator plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Script'!
-!classDefinition: 'DyboScriptEditor class' category: #'DyboDoc-Script'!
-DyboScriptEditor class
+!classDefinition: 'DKMScriptEditor class' category: #'DyboDoc-Script'!
+DKMScriptEditor class
 	instanceVariableNames: ''!
 
 
@@ -635,13 +645,18 @@ to grab the morphs to select.!
 We arrive at this state once the user press the pointer.
 We are either dragging the whole page or a grabbed annotator!
 
-!DyboScript commentStamp: '<historical>' prior: 0!
+!DKMScript commentStamp: '<historical>' prior: 0!
 My subclasses are interfaces to specific Dynamic Knowledge Models (DKM).
 My class side expose the dependency and the description to a specific DKM.
 My instances are particular use cases of the described DKM, it is done through a script (code variable).
-Therefore each instance of the same DyboScript subclass uses the same DKM but with a different 
+Therefore each instance of the same DKMScript subclass uses the same DKM but with a different 
 code to produce a different view. The code us a DSL specific to the DKM.
 Each script returns a View inserted in an Annotator itself added to a Document.!
+
+!DKMScriptLibrary commentStamp: '<historical>' prior: 0!
+I scan for the existing DKM scripts on the host, to present them to the user:
+ - I scan in Dybo system place and user place
+ - I categorize the scripts by parsing its file headers (in comment)!
 
 !CommandStack commentStamp: '<historical>' prior: 0!
 I am stack of command to execute or to unexecute user action in a Document!
@@ -724,11 +739,11 @@ A document view comes with:
 - at the bottom, a status bar
 - at the center, the page cover all the remaining area!
 
-!DyboScriptEditor commentStamp: '<historical>' prior: 0!
-An editor to edit Dybo script. 
+!DKMScriptEditor commentStamp: '<historical>' prior: 0!
+An editor to edit DKM script. 
 - At the left, the view to edit the Smalltalk script and at the right a receptacle to plug the view resulting of the compilation and execution of the script.
 - There is a toolbar to keep and execute the code.
-- model : a DyboScript instance 
+- model : a DKMScript instance 
 - annotator : the AnnotatorMorph instance the script is attached to
 - plugView : a morph where to plug the view of the compiled model
 - codeView : editor of the model
@@ -2119,25 +2134,25 @@ handlePress: localPosition in: paper
 		handlePress: localPosition in: paper
 	! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 16:00:40'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 16:00:40'!
 code
 	^ code ifNil: [code := presenter codeSample]! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 16:00:18'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 16:00:18'!
 code: aUnicodeString 
 	code := aUnicodeString ! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:35'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:35'!
 description
 	^ presenter description ! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:50'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:50'!
 icon
 	^ icon ifNil: [
 		self icon: presenter svgIcon.
 		icon]! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 4/Feb/2026 16:12:43'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 4/Feb/2026 16:12:43'!
 icon: svgDescription
 	| svg iconExtent |
 	svg := [SVGMainMorph fromStream: (ReadStream on: svgDescription)] 
@@ -2147,54 +2162,86 @@ icon: svgDescription
 	icon := svg imageForm: (iconExtent normalized * 64) rounded depth: 32
 		! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026 10:52:41'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026 10:52:41'!
 presenter
 	^ presenter! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:51:46'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:51:46'!
 presenter: aPresenterClass
 	presenter := aPresenterClass ! !
 
-!DyboScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:25'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:25'!
 title
 	^ presenter title! !
 
-!DyboScript methodsFor: 'updating' stamp: 'hlsf 12/Oct/2025 15:59:09'!
+!DKMScript methodsFor: 'updating' stamp: 'hlsf 9/Feb/2026 12:22:16'!
 execute
 	| scriptView |
 	scriptView :=  Compiler evaluate: self code.
-	DyboScript triggerEvent: #compiledDyboScript with: scriptView.
+	DKMScript triggerEvent: #compiledDKMScript with: scriptView.
 	^ scriptView! !
 
-!DyboScript methodsFor: 'menu' stamp: 'hlsf 12/Oct/2025 16:14:15'!
+!DKMScript methodsFor: 'menu' stamp: 'hlsf 12/Oct/2025 16:14:15'!
 addCustomMenuItems: menu annoted: view
 	(presenter respondsTo: #pragmaMenu) 
 		ifTrue: [(CommandBuilder on: presenter pragmaMenu with: view) addToMenu: menu]! !
 
-!DyboScript methodsFor: 'testing' stamp: 'hlsf 7/Sep/2025 11:04:48'!
+!DKMScript methodsFor: 'testing' stamp: 'hlsf 9/Feb/2026 12:21:19'!
 is: aSymbol
-	^ aSymbol == #DyboScript or: [super is: aSymbol ]! !
+	^ aSymbol == #DKMScript or: [super is: aSymbol ]! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 16/Feb/2025 16:30:08'!
+!DKMScript class methodsFor: 'DKM' stamp: 'hlsf 16/Feb/2025 16:30:08'!
 dependency
 	^ nil! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 12/Oct/2025 13:00:04'!
+!DKMScript class methodsFor: 'DKM' stamp: 'hlsf 12/Oct/2025 13:00:04'!
 description
 	^ nil! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 8/Mar/2025 11:12:19'!
+!DKMScript class methodsFor: 'DKM' stamp: 'hlsf 8/Mar/2025 11:12:19'!
 svgIcon
 	^ '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m255.9 120.9 9.1-15.7c5.6-9.8 18.1-13.1 27.9-7.5s13.1 18.1 7.5 27.9l-87.5 151.5h63.3c20.5 0 32 24.1 23.1 40.8h-185.5c-11.3 0-20.4-9.1-20.4-20.4s9.1-20.4 20.4-20.4h52l66.6-115.4-20.8-36.1c-5.6-9.8-2.3-22.2 7.5-27.9 9.8-5.6 22.2-2.3 27.9 7.5l8.9 15.7zm-78.7 218-19.6 34c-5.6 9.8-18.1 13.1-27.9 7.5s-13.1-18.1-7.5-27.9l14.6-25.2c16.4-5.1 29.8-1.2 40.4 11.6zm168.9-61.7h53.1c11.3 0 20.4 9.1 20.4 20.4s-9.1 20.4-20.4 20.4h-29.5l19.9 34.5c5.6 9.8 2.3 22.2-7.5 27.9-9.8 5.6-22.2 2.3-27.9-7.5-33.5-58.1-58.7-101.6-75.4-130.6-17.1-29.5-4.9-59.1 7.2-69.1 13.4 23 33.4 57.7 60.1 104zm-90.1-269.2c-137 0-248 111-248 248s111 248 248 248 248-111 248-248-111-248-248-248zm216 248c0 118.7-96.1 216-216 216-118.7 0-216-96.1-216-216 0-118.7 96.1-216 216-216 118.7 0 216 96.1 216 216z"/></svg>'! !
 
-!DyboScript class methodsFor: 'DKM' stamp: 'hlsf 16/Feb/2025 17:03:01'!
+!DKMScript class methodsFor: 'DKM' stamp: 'hlsf 16/Feb/2025 17:03:01'!
 title
 	^ 'A generic script' translated! !
 
-!DyboScript class methodsFor: 'instance creation' stamp: 'hlsf 12/Oct/2025 15:51:16'!
+!DKMScript class methodsFor: 'instance creation' stamp: 'hlsf 12/Oct/2025 15:51:16'!
 for: aPresenterClass
 	^ self new ::
 		presenter: aPresenterClass ! !
+
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 15:34:37'!
+headerFrom: fileEntry
+	| data |
+	data := Dictionary new.
+	data at: #file put: fileEntry pathName.
+	fileEntry readStreamDo: [:read |
+		read next = Character doubleQuote ifTrue: [ | header |
+			header := read upTo: Character doubleQuote.
+			header linesDo: [:headerLine | 
+				(self metadataFrom: headerLine) ifNotNil: [:someData | data add: someData] ] ] ].
+"	Ensure minimum metadata, make assumptions if needed "
+	data at: #title ifAbsentPut: [fileEntry baseName].
+	data at: #category ifAbsentPut: [Array with: fileEntry parent baseName].
+	^ data! !
+
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 15:35:51'!
+metadataFrom: line
+	| str key data |
+	str  := ReadStream on: line.
+	str next = $@ ifFalse: [^ nil].
+	key := (str upTo: $:) asSymbol.
+	data := str upToEnd.
+	(#(tags category) includes: key) ifTrue: [data := data findTokens: ';'].
+	^ key -> data! !
+
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 15:36:56'!
+scanDirectory: dirEnrty
+	dirEnrty 
+		allFilesDo:  [:file | scripts add: (self metadataFrom: file)]
+		matches: [:file | file extension = 'st']
+! !
 
 !CommandStack methodsFor: 'private' stamp: 'hlsf 10/Sep/2024 21:00:31'!
 truncate
@@ -2638,10 +2685,10 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 4/Feb/2026 16:19:28'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/Feb/2026 12:21:19'!
 acceptDroppingMorph: flapItem event: dropEvent
 	| dropMorph |
-	dropMorph := (flapItem object is: #DyboScript) 
+	dropMorph := (flapItem object is: #DKMScript) 
 		ifTrue:  [presenter pointerTool.
 			AnnotatorMorph newOn: presenter for: flapItem object copy]
 		ifFalse: [flapItem object copy].
@@ -3114,10 +3161,10 @@ topLeftCorner
 	^ corner - self frameWidth
 	! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 11/Oct/2025 18:50:48'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 9/Feb/2026 12:22:31'!
 editAnnoted
 	| editor | 
-	editor := DyboScriptEditor open: script label: script title ::
+	editor := DKMScriptEditor open: script label: script title ::
 		annotator: self.
 	editor resize: presenter window fullBoundsInOwner.
 	self removeHalo.
@@ -3516,15 +3563,15 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 4/Feb/2026 15:54:41'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/Feb/2026 12:21:19'!
 installScriptsFlap
 	| flap items |
 	items := Array 
-		with: (DyboScript for: TextModelMorph)
-		with: (DyboScript  for: Timeline)
-		with: (DyboScript  for: GasSimulation )
-		with: (DyboScript  for: InteractiveGeometry)
-		with: (DyboScript for: Workspace).
+		with: (DKMScript for: TextModelMorph)
+		with: (DKMScript  for: Timeline)
+		with: (DKMScript  for: GasSimulation )
+		with: (DKMScript  for: InteractiveGeometry)
+		with: (DKMScript for: Workspace).
 	flap := Flap label: ' Test Scripts ' scripts: items.
 	container addMorph: flap.
 	flap target: PageMorph.
@@ -3947,7 +3994,7 @@ presenter: aPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 21/Jul/2024 23:00:38'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 21/Jul/2024 23:00:38'!
 buildMorphicWindow
 	super buildMorphicWindow.
 	titleMorph showButtonsNamed: #(close collapse expand).
@@ -3955,7 +4002,7 @@ buildMorphicWindow
 	self activeHand newKeyboardFocus: codeView scroller.
 	layoutMorph adoptWidgetsColor: self widgetsColor! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025 19:38:38'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025 19:38:38'!
 button: iconSymbol action: actionSelector help: helpString
 	^ (ButtonMorph model: self action: actionSelector)
 			icon: (DySystem icons getForm: iconSymbol ofSize: DySystem iconToolbarSize);
@@ -3967,7 +4014,7 @@ button: iconSymbol action: actionSelector help: helpString
 			morphExtent: (DySystem iconToolbarSize * 1.3) rounded asPoint;
 			yourself! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025 19:39:59'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025 19:39:59'!
 button: iconSymbol action: actionSelector state: getStateSel help: helpString
 	^ (ButtonMorph model: self stateGetter: getStateSel action: actionSelector)
 			icon: (DySystem icons getForm: iconSymbol ofSize: DySystem iconToolbarSize);
@@ -3979,7 +4026,7 @@ button: iconSymbol action: actionSelector state: getStateSel help: helpString
 			morphExtent: (DySystem iconToolbarSize * 1.3) rounded asPoint;
 			yourself! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 8/Mar/2025 18:18:06'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 8/Mar/2025 18:18:06'!
 newButtonArea
 	buttonArea := LayoutMorph newRow 
 		axisEdgeWeight: #rowRight;
@@ -3993,7 +4040,7 @@ newButtonArea
 			label: 'Cancel' translated).
 	^ buttonArea! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025 19:46:36'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025 19:46:36'!
 newCodeAndView
 	^ LayoutMorph newRow
 		separation: self defaultSeparation;
@@ -4006,7 +4053,7 @@ newCodeAndView
 		addMorph: plugView proportionalWidth: 0.5;
 		yourself! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 19/Oct/2022 21:31:20'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 19/Oct/2022 21:31:20'!
 newPane
 	^ LayoutMorph newColumn
 		separation: self defaultSeparation ;
@@ -4014,7 +4061,7 @@ newPane
 		addMorphUseAll: self newCodeAndView;
 		yourself! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 5/Feb/2026 10:50:02'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 5/Feb/2026 10:50:02'!
 newToolbar
 	^ LayoutMorph newRow
 		separation: 5@0 ;
@@ -4026,20 +4073,20 @@ newToolbar
 		addMorph: (self button: #doc action: #toggleHelp state: #isDocVisible help: 'Script help' translated)
 		yourself! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 1/May/2024 11:08:16'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 1/May/2024 11:08:16'!
 plugDebugger
 " Install the debugger window at the place of the code viewer "
 	debugger layoutMorph borderWidth: 1.
 	codeAndViewPanel replaceSubmorph: codeView by: debugger layoutMorph.			
 	debugger model when: #closeViews send: #stopDebbuger to: self.! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 9/May/2024 11:20:31'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 9/May/2024 11:20:31'!
 plugDebugger: aDebugger
 	self stopDebbuger.
 	debugger := aDebugger.
 	self plugDebugger ! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 6/Mar/2025 20:28:07'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 6/Mar/2025 20:28:07'!
 switchToPauseButton
 " 
 Switch to pause sketch action 
@@ -4050,7 +4097,7 @@ Switch to pause sketch action
 		setBalloonText: 'Pause the Smalltalk sketch.' translated;
 		redrawNeeded ! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 6/Mar/2025 20:27:45'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 6/Mar/2025 20:27:45'!
 switchToPlayButton
 " 
 Switch to play sketch action 
@@ -4061,7 +4108,7 @@ Switch to play sketch action
 		setBalloonText: 'Play the Smalltalk sketch.' translated;
 		redrawNeeded.! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 6/Mar/2025 20:28:34'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 6/Mar/2025 20:28:34'!
 switchToResumeButton
 " 
 Switch to resume sketch action
@@ -4072,25 +4119,25 @@ Switch to resume sketch action
 		setBalloonText: 'Resume the Smalltalk sketch.' translated;
 		redrawNeeded ! !
 
-!DyboScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 18/Sep/2024 21:03:16'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 18/Sep/2024 21:03:16'!
 transparentMorph
 	^ ColoredBoxMorph new 
 		color: Color transparent; 
 		yourself! !
 
-!DyboScriptEditor methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2025 19:30:33'!
+!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2025 19:30:33'!
 buttonColor
 	^ Theme current buttonColorFrom: self defaultColor ! !
 
-!DyboScriptEditor methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2025 19:28:34'!
+!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2025 19:28:34'!
 defaultBorderColor
 	^self defaultColor darker! !
 
-!DyboScriptEditor methodsFor: 'initialization' stamp: 'hlsf 28/Jul/2024 10:25:47'!
+!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 28/Jul/2024 10:25:47'!
 defaultColor
 	^ Theme current workspace ! !
 
-!DyboScriptEditor methodsFor: 'initialization' stamp: 'hlsf 6/Mar/2025 20:21:50'!
+!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 6/Mar/2025 20:21:50'!
 initialize
 	| book |
 	super initialize.
@@ -4109,39 +4156,39 @@ initialize
 		borderWidth: 1;
 		layoutSpec: LayoutSpec useAll! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:23:24'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:23:24'!
 annotator: anAnnotatorMorph
 	annotator := anAnnotatorMorph ! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 30/Oct/2022 20:39:21'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 30/Oct/2022 20:39:21'!
 isDocVisible
 	^ docView visible! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 4/Mar/2025 20:17:18'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 4/Mar/2025 20:17:18'!
 model: aDyboScript
 " Set the DyboScript we are operating on "
 	model := aDyboScript 
 ! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:24:24'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:24:24'!
 script
 	^ model! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:20:08'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:20:08'!
 scriptName
 	^ self script title! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 30/Oct/2022 20:45:35'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 30/Oct/2022 20:45:35'!
 separator
 "The adjuster/separator between the codeView and docView"
 	^ codeView owner submorphs second
 ! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:19:39'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:19:39'!
 sourceCode
 	^ self script code! !
 
-!DyboScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:19:57'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:19:57'!
 sourceCode: aText
 	self script code: aText asString.
 	self changed: #clearUserEdits.
@@ -4150,52 +4197,52 @@ sourceCode: aText
 	plugView removeAllMorphs
 ! !
 
-!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 15/Apr/2022 15:12:50'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 15/Apr/2022 15:12:50'!
 autoCompleterClassFor: textGetter
 	^SmalltalkCompleter! !
 
-!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:45:04'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:45:04'!
 computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofBlockArgNamed: aString 
 	aDynamicTypingSmalltalkCompleter 
 		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
 
-!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:45:36'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:45:36'!
 computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofBlockTempVarNamed: aString 
 	aDynamicTypingSmalltalkCompleter 
 		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
 
-!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:45:25'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:45:25'!
 computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofInstVarNamed: aString 
 	aDynamicTypingSmalltalkCompleter 
 		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
 
-!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:40:20'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:40:20'!
 computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofTempVarNamed: aString 
 	aDynamicTypingSmalltalkCompleter 
 		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
 
-!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 15/Apr/2022 15:10:56'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 15/Apr/2022 15:10:56'!
 editorClassFor: textGetter
     ^SmalltalkEditor! !
 
-!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 14/Apr/2022 16:40:23'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 14/Apr/2022 16:40:23'!
 shouldStyle: aText with: aSHTextStylerST80 
 	
 	^true! !
 
-!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 23/Nov/2023 17:27:30'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 23/Nov/2023 17:27:30'!
 styleByParagraphs
 	^ false! !
 
-!DyboScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 14/Apr/2022 16:40:27'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 14/Apr/2022 16:40:27'!
 textStylerClassFor: object
 	^ SHTextStylerST80 ! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 5/Feb/2026 10:53:04'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 5/Feb/2026 10:53:04'!
 copyAIprompt
 	Clipboard storeObject: model presenter promptForAI ! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 18:24:45'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 18:24:45'!
 debugScript
 " Execute the sketch step by step in a debugger "
 	model ifNil: [^ self].
@@ -4216,12 +4263,12 @@ debugScript
 				self plugDebugger ]]
 		ifFail: []! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 18:10:06'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 9/Feb/2026 12:22:10'!
 executeScript
 	self stopScript.
 	codeView scroller acceptContents.
 	self switchToPauseButton.
-	DyboScript when: #compiledDyboScript send: #scriptView: to: self.
+	DKMScript when: #compiledDKMScript send: #scriptView: to: self.
 	scriptProcess := [ | t |
 		t := DateAndTime now.
 		false "(DrGeoSystem preferences at: #advancedDebugger) "
@@ -4250,7 +4297,7 @@ Script stopped' translated.
 		name: '[Dybo] Smalltalk Script execution';
 		resume.! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 11:34:53'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 11:34:53'!
 keepScript
 	| scriptView |
 	codeView scroller acceptContents.
@@ -4258,7 +4305,7 @@ keepScript
 	annotator annotate: scriptView.
 	self delete! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 4/Mar/2025 19:54:47'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 4/Mar/2025 19:54:47'!
 pauseScript
     scriptProcess isTerminated ifTrue: [
         self stopScript.
@@ -4266,19 +4313,19 @@ pauseScript
     scriptProcess suspend.
     self switchToResumeButton.! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 4/Mar/2025 19:54:33'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 4/Mar/2025 19:54:33'!
 resumeScript
 	scriptProcess resume.
 	self switchToPauseButton! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 12:14:23'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 12:14:23'!
 scriptView: aView
 	self releaseMiniView.
 	plugView 
 		removeAllMorphs;
 		addMorph: aView ! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 9/May/2024 11:26:05'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 9/May/2024 11:26:05'!
 stopDebbuger
 	debugger ifNotNil: [
 		codeAndViewPanel replaceSubmorph: debugger layoutMorph by: codeView.
@@ -4288,7 +4335,7 @@ stopDebbuger
 		
 		! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 11/Oct/2025 13:46:27'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 11/Oct/2025 13:46:27'!
 stopScript
 	ActiveModel flushEventSystem.
 	scriptProcess ifNotNil: [
@@ -4298,7 +4345,7 @@ stopScript
 	self stopDebbuger 
 	! !
 
-!DyboScriptEditor methodsFor: 'actions' stamp: 'hlsf 2/Nov/2022 19:48:07'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 2/Nov/2022 19:48:07'!
 toggleHelp
 "Show/unshow the doc pane"
 	debugger ifNotNil: [^ self]. "No doc while debugging, the pane does not like it"
@@ -4315,53 +4362,53 @@ toggleHelp
 	self changed: #isDocVisible
 ! !
 
-!DyboScriptEditor methodsFor: 'geometry' stamp: 'hlsf 23/Apr/2022 14:19:25'!
+!DKMScriptEditor methodsFor: 'geometry' stamp: 'hlsf 23/Apr/2022 14:19:25'!
 expand
 	super expand.
 	self fullScreen! !
 
-!DyboScriptEditor methodsFor: 'geometry' stamp: 'hlsf 6/Mar/2025 20:22:56'!
+!DKMScriptEditor methodsFor: 'geometry' stamp: 'hlsf 6/Mar/2025 20:22:56'!
 minimumExtent
 	^ 800@600! !
 
-!DyboScriptEditor methodsFor: 'testing' stamp: 'hlsf 18/May/2023 17:07:27'!
+!DKMScriptEditor methodsFor: 'testing' stamp: 'hlsf 18/May/2023 17:07:27'!
 shouldAutoHighlight
 	^ false! !
 
-!DyboScriptEditor methodsFor: 'testing' stamp: 'hlsf 18/May/2023 17:09:35'!
+!DKMScriptEditor methodsFor: 'testing' stamp: 'hlsf 18/May/2023 17:09:35'!
 shoutMustKeepContentsSize
 	^ true! !
 
-!DyboScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 4/Mar/2025 19:54:47'!
+!DKMScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 4/Mar/2025 19:54:47'!
 delete
 	self stopScript .
 	super delete.
 	self releaseMiniView ! !
 
-!DyboScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 8/Mar/2025 18:12:05'!
+!DKMScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 8/Mar/2025 18:12:05'!
 releaseMiniView
 	plugView submorphCount = 1 ifTrue: [
 		plugView firstSubmorph ifNotNil: [:miniView| miniView delete]]! !
 
-!DyboScriptEditor methodsFor: 'label' stamp: 'hlsf 4/Mar/2025 19:56:17'!
+!DKMScriptEditor methodsFor: 'label' stamp: 'hlsf 4/Mar/2025 19:56:17'!
 restoreLabel
 	| defaultLabel |
 	defaultLabel := self scriptName ifEmpty: ['Edit Smalltalk Script' translated].
 	self label == defaultLabel ifFalse: [self setLabel: defaultLabel]! !
 
-!DyboScriptEditor methodsFor: 'shout' stamp: 'hlsf 8/Sep/2024 19:55:01'!
+!DKMScriptEditor methodsFor: 'shout' stamp: 'hlsf 8/Sep/2024 19:55:01'!
 aboutToStyleWith: aSHTextStylerST80 
 	! !
 
-!DyboScriptEditor methodsFor: 'shout' stamp: 'hlsf 8/Sep/2024 19:54:15'!
+!DKMScriptEditor methodsFor: 'shout' stamp: 'hlsf 8/Sep/2024 19:54:15'!
 allowsStylingFor: aSymbol isTextDirty: aFalse 
 	^ true! !
 
-!DyboScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 12/Jan/2025 13:10:44'!
+!DKMScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 12/Jan/2025 13:10:44'!
 doItContext
 	^ nil! !
 
-!DyboScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 12/Jan/2025 13:09:57'!
+!DKMScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 12/Jan/2025 13:09:57'!
 doItReceiver
 	^ nil! !
 
