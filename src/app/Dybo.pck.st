@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7835] on 9 February 2026 at 7:12:36 pm'!
+'From Cuis7.7 [latest update: #7839] on 12 February 2026 at 12:13:12 pm'!
 'Description '!
-!provides: 'Dybo' 1 146!
+!provides: 'Dybo' 1 147!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1671,9 +1671,9 @@ rootPath
 "dynabook/ directory"
 	^ DirectoryEntry smalltalkImageDirectory parent / 'DyboApp'! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 20/Aug/2023 21:48:08'!
-userDataPath
-	^ self rootPath / 'resources' / 'data'! !
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 11/Feb/2026 18:07:25'!
+userPath
+	^ self rootPath / 'resources'! !
 
 !DySystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication
@@ -1706,9 +1706,9 @@ miniToolbarSize
 screenSize
 	^ self runningWorld morphExtent! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:30:32'!
+!DySystem class methodsFor: 'path' stamp: 'hlsf 11/Feb/2026 18:11:45'!
 iconsPath
-	^ platform rootPath / 'icons'! !
+	^ platform iconsPath! !
 
 !DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:28:17'!
 myResourcesPath
@@ -1903,7 +1903,7 @@ handStroke: squareWidth width: width color: color
 	^ aForm
 ! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 24/Dec/2024 15:39:24'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/Feb/2026 09:35:49'!
 highlighterColorTools
 " Data to build the circular sub toolbar of highlighter colors "
 	| size help |
@@ -1913,9 +1913,9 @@ highlighterColorTools
 	'yellow' translated. " Other colors marked for translation in penColorToolsOn: method "
 	^ #('yellow' 'red' 'blue' 'green') collect: [:aColor | 
 		Array 
-			with:	(#highlighter, aColor capitalized) asSymbol
-			with: (	DySystem icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
-			with: (help format: {aColor translated})		 	]! !
+			with: (#highlighter, aColor capitalized) asSymbol
+			with: (DySystem icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (help format: {aColor translated})]! !
 
 !DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 16/Oct/2024 22:56:48'!
 highligtherSizeTools
@@ -1941,7 +1941,7 @@ nibSizeTools
 			with: (self handStroke: size width: nibSize color: Color black)
 			with: (help format: {nibSize })		 	]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 24/Dec/2024 15:39:32'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/Feb/2026 09:35:59'!
 penColorTools
 " Data to build the circular sub toolbar of pen colors "
 	| size help |
@@ -1951,9 +1951,9 @@ penColorTools
 	'black' translated. 'blue' translated. 	'green' translated. 'red' translated. 'white' translated.
 	^ #('black' 'blue' 'green' 'red' 'white') collect: [:aColor | 
 		Array 
-			with:	(#pen, aColor capitalized) asSymbol
-			with: (	DySystem icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
-			with: (help format: {aColor translated})		 	]! !
+			with: (#pen, aColor capitalized) asSymbol
+			with: (DySystem icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (help format: {aColor translated})]! !
 
 !DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 15/Oct/2024 21:10:56'!
 tile: squareWidth width: width color: color

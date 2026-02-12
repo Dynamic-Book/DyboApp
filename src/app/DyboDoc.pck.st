@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7835] on 9 February 2026 at 7:12:39 pm'!
+'From Cuis7.7 [latest update: #7839] on 12 February 2026 at 12:13:16 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 180!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 181!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
-!requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -520,7 +520,7 @@ DocumentView class
 
 !classDefinition: #DKMScriptEditor category: #'DyboDoc-Script'!
 DialogPanel subclass: #DKMScriptEditor
-	instanceVariableNames: 'annotator plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView'
+	instanceVariableNames: 'annotator plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView file'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Script'!
@@ -2162,6 +2162,10 @@ icon: svgDescription
 	icon := svg imageForm: (iconExtent normalized * 64) rounded depth: 32
 		! !
 
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 10:04:43'!
+myPath
+	^ (DySystem myScriptsPath / self title asFileName) assureExistence ! !
+
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026 10:52:41'!
 presenter
 	^ presenter! !
@@ -2211,15 +2215,15 @@ for: aPresenterClass
 	^ self new ::
 		presenter: aPresenterClass ! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 18:56:20'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 12/Feb/2026 10:59:30'!
 headerFrom: fileEntry
-"	Reader the header of this script, and scan its metadata "
+"	Read the header of this script, and scan its metadata "
 	| data |
 	data := Dictionary new.
 	data at: #file put: fileEntry pathName.
 	fileEntry readStreamDo: [:read |
 		read next = Character doubleQuote ifTrue: [ | header |
-			header := read upTo: Character doubleQuote.
+			header := read upTo: Character doubleQuote.			
 			header linesDo: [:headerLine | 
 				(self metadataFrom: headerLine) ifNotNil: [:someData | data add: someData] ] ] ].
 "	Ensure minimum metadata, make assumptions if needed "
@@ -2227,15 +2231,15 @@ headerFrom: fileEntry
 	data at: #category ifAbsentPut: [Array with: fileEntry parent baseName].
 	^ data! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 18:55:56'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 12/Feb/2026 10:57:46'!
 metadataFrom: line
 "	Read *one* metadata "
 	| str key data |
 	str  := ReadStream on: line.
 	str next = $@ ifFalse: [^ nil].
 	key := (str upTo: $:) asSymbol.
-	data := str upToEnd.
-	(#(tags category) includes: key) ifTrue: [data := data findTokens: ';'].
+	data := str upToEnd withBlanksTrimmed.
+	(#(tags) includes: key) ifTrue: [data := (data findTokens: ';') "collect: [:each | each withBlanksTrimmed]"].
 	^ key -> data! !
 
 !DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 18:55:13'!
@@ -3571,29 +3575,29 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 9/Feb/2026 12:21:19'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/Feb/2026 11:32:06'!
 installScriptsFlap
 	| flap items |
 	items := Array 
 		with: (DKMScript for: TextModelMorph)
-		with: (DKMScript  for: Timeline)
-		with: (DKMScript  for: GasSimulation )
-		with: (DKMScript  for: InteractiveGeometry)
+		with: (DKMScript for: Timeline)
+		with: (DKMScript for: GasSimulation )
+		with: (DKMScript for: InteractiveGeometry)
 		with: (DKMScript for: Workspace).
-	flap := Flap label: ' Test Scripts ' scripts: items.
+	flap := Flap label: ' Knowledge Models ' translated scripts: items.
 	container addMorph: flap.
 	flap target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Sep/2025 21:34:06'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/Feb/2026 11:31:02'!
 installToolsFlap
 	| flap tools |
 	tools := Array 
-		with: (Ruler new length: 5 :: name: 'A ruler to measure and to draw straight lines.')
-		with: (SetSquare new length: 3@5 :: name: 'A set square to construct right angles.')
-		with: (Protractor new :: name: 'A protractor to measure angles.')
-		with: (Compass new :: name: 'A compass to construct arcs and circles.').
-	flap := Flap label: ' Geometry Tools ' objects: tools.
+		with: (Ruler new length: 5 )
+		with: (SetSquare new length: 3@5)
+		with: Protractor new 
+		with: Compass new.
+	flap := Flap label: ' Geometry Tools ' translated objects: tools.
 	container addMorph: flap.
 	flap borderColor: Color blue;
 		target: PageMorph.
@@ -3635,13 +3639,13 @@ miniToolbarSpec
 	blank
 	pointer group)! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 4/Jan/2025 18:46:51'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/Feb/2026 11:55:53'!
 toolbarSpec
 	^ #(saveDoc
 	blank
 	pen eraser highlighter undo redo 
 	blank
-	pointer group 
+	pointer group dkm
 	blank
 	firstPage previousPage insertPage deletePage nextPage lastPage)! !
 
@@ -3863,6 +3867,14 @@ deletePageButtonData
 	#deletePage . 
 	'Delete the current page.' translated  }! !
 
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/Feb/2026 11:54:29'!
+dkmButtonData
+" label - iconName - callback - description "
+	^ {'DKM' translated . 
+	#dkm . 
+	#browseDKM . 
+	'Browse the Dynamic Knowledge Models from the system and your personnal collection, then insert one in your current document.' translated }! !
+
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:20:12'!
 eraserButtonData
 	^ {EraserTool title. 
@@ -4069,10 +4081,11 @@ newPane
 		addMorphUseAll: self newCodeAndView;
 		yourself! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 5/Feb/2026 10:50:02'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 12/Feb/2026 09:22:11'!
 newToolbar
 	^ LayoutMorph newRow
 		separation: 5@0 ;
+		addMorph: (playButton := self button: #keep action: #saveScript help: 'Save the script in my library.' translated);
 		addMorph: (playButton := self button: #play action: #executeScript help: 'Play the script.' translated);
 		addMorph: (self button: #debug action: #debugScript help: 'Debug the Smalltalk sketch.' translated);
 		addMorph: (self button: #stop action: #stopScript help: 'Stop the execution of the Script.' translated);
@@ -4191,6 +4204,10 @@ separator
 "The adjuster/separator between the codeView and docView"
 	^ codeView owner submorphs second
 ! !
+
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 10:00:48'!
+sketchName
+	^ file ifNil: [''] ifNotNil: [file baseName]! !
 
 !DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:19:39'!
 sourceCode
@@ -4326,6 +4343,20 @@ resumeScript
 	scriptProcess resume.
 	self switchToPauseButton! !
 
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 12/Feb/2026 12:13:00'!
+saveScript
+	| modelName |
+	codeView scroller acceptContents.
+	modelName := (ValueHolder with: (file ifNil: [''] ifNotNil: [file baseName]))
+	action: [:aString | | cleaned |
+		cleaned := aString withBlanksCondensed.
+		self setLabel: cleaned . 
+		file := model myPath // (cleaned, '.st').
+		file < self sourceCode].
+	(StringEntryPanel openWide: modelName label: 'Name the script to keep.' translated)
+		morphCenter: self fullBoundsInOwner center;
+		setProperty: #layerNumber toValue: self layerNumber - 1! !
+
 !DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 12:14:23'!
 scriptView: aView
 	self releaseMiniView.
@@ -4398,10 +4429,10 @@ releaseMiniView
 	plugView submorphCount = 1 ifTrue: [
 		plugView firstSubmorph ifNotNil: [:miniView| miniView delete]]! !
 
-!DKMScriptEditor methodsFor: 'label' stamp: 'hlsf 4/Mar/2025 19:56:17'!
+!DKMScriptEditor methodsFor: 'label' stamp: 'hlsf 12/Feb/2026 10:18:38'!
 restoreLabel
 	| defaultLabel |
-	defaultLabel := self scriptName ifEmpty: ['Edit Smalltalk Script' translated].
+	defaultLabel := self scriptName ifEmpty: ['Edit Script' translated].
 	self label == defaultLabel ifFalse: [self setLabel: defaultLabel]! !
 
 !DKMScriptEditor methodsFor: 'shout' stamp: 'hlsf 8/Sep/2024 19:55:01'!
