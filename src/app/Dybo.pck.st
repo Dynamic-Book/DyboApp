@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 12 February 2026 at 12:13:12 pm'!
+'From Cuis7.7 [latest update: #7839] on 12 February 2026 at 9:18:25 pm'!
 'Description '!
-!provides: 'Dybo' 1 147!
+!provides: 'Dybo' 1 148!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -181,7 +181,7 @@ Dybo class
 
 !classDefinition: #DyPlatform category: #'Dybo-System'!
 Object subclass: #DyPlatform
-	instanceVariableNames: 'preferences icons'
+	instanceVariableNames: 'preferences icons scriptLibrary'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-System'!
@@ -1662,6 +1662,10 @@ reset
 icons
 	^ icons ifNil: [icons := IconImporter path: DySystem iconsPath]! !
 
+!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:20:29'!
+scriptLibrary
+	^ scriptLibrary ifNil: [scriptLibrary := DKMScript new scanForScripts]! !
+
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 13/Aug/2023 16:31:47'!
 iconsPath
 	^ self rootPath / 'resources' / 'graphics' / 'icons'! !
@@ -1735,18 +1739,6 @@ userDataPath
 " the location of the user data and documents "
 	^ (platform userPath / 'data') assureExistence ! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Aug/2024 10:47:46'!
-rename: oldName to: newName in: parentDir
-	| dir |
-	oldName = newName ifTrue: [^ self].
-	oldName 
-		ifNil: [" folder does not exist yet, create it "
-			(parentDir / newName asFileName ) assureExistence ]
-	 	ifNotNil: [ " folder exists, rename it "
-			(dir := parentDir / oldName asFileName) exists 
-				ifTrue: [dir rename: newName asFileName ] 
-				ifFalse: [(parentDir / newName asFileName ) assureExistence]						]! !
-
 !DySystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:58:55'!
 renameClassGroup: aClassGroup from: prevName to: newName
 	self rename: prevName to: newName in: aClassGroup directory parent! !
@@ -1764,14 +1756,25 @@ renameSchool: aSchool from: prevName to: newName
 renameTopic: aTopic from: prevName to: newName
 	self rename: prevName to: newName in: aTopic directory parent! !
 
-!DySystem class methodsFor: 'cleaning' stamp: 'hlsf 22/Aug/2023 20:57:02'!
-removeUserData
-	#(renamedSchool renamedClassGroup renamedCourse renamedTopic) do: [:anEvent |
-		self removeActionsForEvent: anEvent].
-	self userDataPath childrenDo: [:each | each recursiveDelete ].
-	! !
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:58:37'!
+defaultPaperSize
+" Its width fill the screen, according to its default ratio "
+	
+	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 4/Sep/2025 10:55:39'!
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:41'!
+paperBackground
+	^ self preferences at: #paperBackground! !
+
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:23'!
+paperRatio
+	^ self preferences at: #paperRatio! !
+
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 09:38:35'!
+preferences
+	^ platform preferences! !
+
+!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Sep/2025 10:55:39'!
 convert: destEntry pages: interval dpi: integer
 " 
 	In destEntry, convert the doc.pdf interval pages at interger resolution	   
@@ -1787,13 +1790,7 @@ convert: destEntry pages: interval dpi: integer
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:58:37'!
-defaultPaperSize
-" Its width fill the screen, according to its default ratio "
-	
-	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
-
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 4/Sep/2025 10:55:03'!
+!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Sep/2025 10:55:03'!
 import: pdfEntry to: destEntry pages: interval
 "
 	In our destEntry, generate a doc.pdf document with the selected pages interval, if fany ;
@@ -1811,19 +1808,26 @@ import: pdfEntry to: destEntry pages: interval
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
 	^ self convert: destEntry pages: interval dpi: 150.! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:41'!
-paperBackground
-	^ self preferences at: #paperBackground! !
+!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 22/Aug/2023 20:57:02'!
+removeUserData
+	#(renamedSchool renamedClassGroup renamedCourse renamedTopic) do: [:anEvent |
+		self removeActionsForEvent: anEvent].
+	self userDataPath childrenDo: [:each | each recursiveDelete ].
+	! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:23'!
-paperRatio
-	^ self preferences at: #paperRatio! !
+!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 12/Feb/2026 20:31:19'!
+rename: oldName to: newName in: parentDir
+	| dir |
+	oldName = newName ifTrue: [^ self].
+	oldName 
+		ifNil: [" folder does not exist yet, create it "
+			(parentDir / newName asFileName ) assureExistence ]
+	 	ifNotNil: [ " folder exists, rename it "
+			(dir := parentDir / oldName asFileName) exists 
+				ifTrue: [dir rename: newName asFileName ] 
+				ifFalse: [(parentDir / newName asFileName ) assureExistence]]! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 09:38:35'!
-preferences
-	^ platform preferences! !
-
-!DySystem class methodsFor: 'as yet unclassified' stamp: 'hlsf 18/Dec/2024 16:38:51'!
+!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 18/Dec/2024 16:38:51'!
 saveData
 	ReferenceStream 
 		dumpOnFile: (DySystem userDataPath // 'data.obj') 

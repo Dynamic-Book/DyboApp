@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 12 February 2026 at 12:13:16 pm'!
+'From Cuis7.7 [latest update: #7839] on 12 February 2026 at 9:18:29 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 181!
+!provides: 'DyboDoc' 1 182!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -2249,11 +2249,40 @@ scanDirectory: dirEnrty
 		matches: [:file | file extension = 'st'].
 	dirEnrty 	allDirectoriesDo: [:aChildDir | self scanDirectory: aChildDir]! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 18:53:13'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 12/Feb/2026 20:42:23'!
 scanForScripts
 	scripts := OrderedCollection new.
 	self scanDirectory: DySystem scriptsPath.
-	self scanDirectory: DySystem myScriptsPath ! !
+	self scanDirectory: DySystem myScriptsPath.
+	^ scripts ! !
+
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 12/Feb/2026 21:15:58'!
+browse
+" Open a menu to browse the scripts "
+	| mainMenu subMenu categories |
+	mainMenu := MenuMorph entitled: 'Knowledge Models' translated.
+	categories := self categories.
+	self categories keys sorted do: [:aCategory |
+		subMenu := mainMenu add: aCategory capitalized subMenu: (self tagsMenuIn: (categories at: aCategory))
+		]! !
+
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 12/Feb/2026 21:18:11'!
+tagsMenuIn: categoryScripts
+" menu with script (of the same category) grouped by tag "! !
+
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:54:42'!
+categories
+	^ self scripts groupBy: [:aScript | aScript at: #category]
+	! !
+
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:41:57'!
+scripts
+	^ scripts ifNil: [self scanForScripts]! !
+
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:43:28'!
+tagsIn: category
+	^ (self scripts collect: [:aScript | aScript at: #category]) sorted.
+	! !
 
 !CommandStack methodsFor: 'private' stamp: 'hlsf 10/Sep/2024 21:00:31'!
 truncate
