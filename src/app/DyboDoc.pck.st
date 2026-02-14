@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 14 February 2026 at 3:16:28 pm'!
+'From Cuis7.7 [latest update: #7839] on 14 February 2026 at 5:56:54 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 184!
+!provides: 'DyboDoc' 1 185!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -2277,7 +2277,7 @@ browseFor: currentPage
 			subMenu: (self tagMenuFor: (categories at: aCategory))].
 	mainMenu popUpInWorld ! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 12:06:28'!
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 17:08:17'!
 tagMenuFor: scriptsByCategory
 	| tags tagMenu |
 	tagMenu := MenuMorph new.
@@ -2292,7 +2292,7 @@ tagMenuFor: scriptsByCategory
 			(scriptsMenu 
 				add: (aScript at: #title) capitalized 
 				action: #openScript: 
-				argument: (aScript at: #file)) 
+				argument: aScript) 
 					setBalloonText: (self descriptionOf: aScript)] ].
 	^ tagMenu
 
@@ -2315,8 +2315,13 @@ descriptionOf: aScript
 scripts
 	^ scripts ifNil: [self scanForScripts]! !
 
-!DKMScriptLibrary methodsFor: 'as yet unclassified' stamp: 'hlsf 14/Feb/2026 15:07:53'!
-openScript: script! !
+!DKMScriptLibrary methodsFor: 'as yet unclassified' stamp: 'hlsf 14/Feb/2026 17:37:21'!
+openScript: script
+	| dkmScript annotator |
+	dkmScript := DKMScript for: (script at: #class).
+	dkmScript code: (script at: #file) asFileEntry textContents.
+	annotator := AnnotatorMorph newOn: targetPage presenter for: dkmScript.
+	annotator openInHand.! !
 
 !CommandStack methodsFor: 'private' stamp: 'hlsf 10/Sep/2024 21:00:31'!
 truncate
@@ -2760,26 +2765,38 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/Feb/2026 12:21:19'!
-acceptDroppingMorph: flapItem event: dropEvent
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026 17:47:04'!
+acceptDroppingAnnotator: annotator event: dropEvent
+	presenter pointerTool.
+	self addMorphFront: annotator.
+	annotator fullBoundsInOwner extent print.
+	annotator morphPosition:  (self internalizeFromWorld: dropEvent eventPosition) - annotator annotated fullBoundsInOwner center
+! !
+
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026 17:27:50'!
+acceptDroppingFromFlap: flapItem event: dropEvent
 	| dropMorph |
 	dropMorph := (flapItem object is: #DKMScript) 
 		ifTrue:  [presenter pointerTool.
 			AnnotatorMorph newOn: presenter for: flapItem object copy]
 		ifFalse: [flapItem object copy].
-	self 
-		addMorphFront: dropMorph 
-		position: (self internalizeFromWorld: dropEvent eventPosition - dropMorph fullBoundsInOwner center).
-	"dropMorph adjustBounds."
+	self 	addMorphFront: dropMorph.
+	dropMorph morphPosition: (self internalizeFromWorld: dropEvent eventPosition) - dropMorph fullBoundsInOwner center.
 	flapItem flap fold! !
+
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026 17:05:58'!
+acceptDroppingMorph: aMorph event: dropEvent
+	(aMorph is: #FlapItem) ifTrue: [self acceptDroppingFromFlap: aMorph event: dropEvent].
+	(aMorph is: #AnnotatorMorph) ifTrue: [self acceptDroppingAnnotator: aMorph event: dropEvent]! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/Feb/2025 18:15:45'!
 allowsMorphDrop
 	^ true! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/Feb/2025 18:16:25'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026 17:37:18'!
 wantsDroppedMorph: aMorph event: evt
-	^ aMorph is: #FlapItem! !
+	^ (aMorph is: #FlapItem)
+	or: [aMorph is: #AnnotatorMorph]! !
 
 !PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2024 11:00:10'!
 newOn: documentPresenter model: aPageModel
