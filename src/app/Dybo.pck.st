@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 12 February 2026 at 9:18:25 pm'!
+'From Cuis7.7 [latest update: #7839] on 14 February 2026 at 12:17:07 pm'!
 'Description '!
-!provides: 'Dybo' 1 148!
+!provides: 'Dybo' 1 149!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1654,17 +1654,20 @@ setPreferences
 		
 	^ preferences! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 24/Dec/2024 15:36:28'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 14/Feb/2026 12:13:35'!
 reset
-	icons := preferences := nil! !
+	icons := preferences := scriptLibrary := nil! !
 
 !DyPlatform methodsFor: 'accessing' stamp: 'hlsf 24/Dec/2024 15:38:10'!
 icons
 	^ icons ifNil: [icons := IconImporter path: DySystem iconsPath]! !
 
-!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:20:29'!
+!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 14/Feb/2026 12:13:12'!
 scriptLibrary
-	^ scriptLibrary ifNil: [scriptLibrary := DKMScript new scanForScripts]! !
+	^ scriptLibrary ifNil: [
+		scriptLibrary := DKMScriptLibrary new 
+			scanForScripts;
+			yourself]! !
 
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 13/Aug/2023 16:31:47'!
 iconsPath
@@ -1773,6 +1776,10 @@ paperRatio
 !DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 09:38:35'!
 preferences
 	^ platform preferences! !
+
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 14/Feb/2026 12:11:56'!
+scriptLibarary
+	^ platform scriptLibrary ! !
 
 !DySystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Sep/2025 10:55:39'!
 convert: destEntry pages: interval dpi: integer

@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 12 February 2026 at 9:18:29 pm'!
+'From Cuis7.7 [latest update: #7839] on 14 February 2026 at 12:17:11 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 182!
+!provides: 'DyboDoc' 1 183!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -1121,6 +1121,10 @@ zoomPageTo100
 		morphPosition: 0@0;
 		scale: 1.001! !
 
+!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Feb/2026 12:12:13'!
+browseDKM
+	DySystem scriptLibarary browse! !
+
 !Document methodsFor: 'callback ui' stamp: 'hlsf 16/Oct/2024 19:28:13'!
 eraserSize: aNumber
 	self eraserTool.
@@ -2231,7 +2235,7 @@ headerFrom: fileEntry
 	data at: #category ifAbsentPut: [Array with: fileEntry parent baseName].
 	^ data! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 12/Feb/2026 10:57:46'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 11:56:55'!
 metadataFrom: line
 "	Read *one* metadata "
 	| str key data |
@@ -2239,50 +2243,71 @@ metadataFrom: line
 	str next = $@ ifFalse: [^ nil].
 	key := (str upTo: $:) asSymbol.
 	data := str upToEnd withBlanksTrimmed.
-	(#(tags) includes: key) ifTrue: [data := (data findTokens: ';') "collect: [:each | each withBlanksTrimmed]"].
+	(#(tags) includes: key) ifTrue: [data := (data findTokens: ';') collect: [:each | each withBlanksTrimmed]].
 	^ key -> data! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 9/Feb/2026 18:55:13'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 10:35:52'!
 scanDirectory: dirEnrty
 	dirEnrty 
 		allFilesDo:  [:file | scripts add: (self headerFrom: file)]
-		matches: [:file | file extension = 'st'].
-	dirEnrty 	allDirectoriesDo: [:aChildDir | self scanDirectory: aChildDir]! !
+		matches: [:file | file extension = #st]! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 12/Feb/2026 20:42:23'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 10:29:14'!
 scanForScripts
 	scripts := OrderedCollection new.
 	self scanDirectory: DySystem scriptsPath.
 	self scanDirectory: DySystem myScriptsPath.
 	^ scripts ! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 12/Feb/2026 21:15:58'!
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 11:55:33'!
 browse
 " Open a menu to browse the scripts "
 	| mainMenu subMenu categories |
 	mainMenu := MenuMorph entitled: 'Knowledge Models' translated.
 	categories := self categories.
 	self categories keys sorted do: [:aCategory |
-		subMenu := mainMenu add: aCategory capitalized subMenu: (self tagsMenuIn: (categories at: aCategory))
-		]! !
+		subMenu := mainMenu 
+			add: aCategory capitalized 
+			subMenu: (self tagMenuFor: (categories at: aCategory))].
+	mainMenu popUpInWorld ! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 12/Feb/2026 21:18:11'!
-tagsMenuIn: categoryScripts
-" menu with script (of the same category) grouped by tag "! !
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 12:06:28'!
+tagMenuFor: scriptsByCategory
+	| tags tagMenu |
+	tagMenu := MenuMorph new.
+	tags := Set new.
+	scriptsByCategory do: [:aScript | tags addAll: (aScript at: #tags)].
+	tags sorted do: [:aTag | | scriptsByTag scriptsMenu|
+		scriptsMenu := MenuMorph new defaultTarget: self.
+		tagMenu add: aTag capitalized subMenu: scriptsMenu.
+		scriptsByTag := scriptsByCategory select: [:aScript | (aScript at: #tags) includes: aTag].
+		scriptsByTag := scriptsByTag sorted: [:scriptA :scriptB | (scriptA at: #title) < (scriptA at: #title)].
+		scriptsByTag do: [:aScript |
+			(scriptsMenu 
+				add: (aScript at: #title) capitalized 
+				action: #openScript: 
+				argument: (aScript at: #file)) 
+					setBalloonText: (self descriptionOf: aScript)] ].
+	^ tagMenu
+
+	! !
 
 !DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:54:42'!
 categories
 	^ self scripts groupBy: [:aScript | aScript at: #category]
 	! !
 
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 14/Feb/2026 12:07:02'!
+descriptionOf: aScript
+	^ Text streamContents: [:str |
+		str nextPutAll: (aScript at: #title) capitalized bold; lf.
+		aScript at: #description ifPresent: [:description | str nextPutAll: description capitalized; lf].
+		aScript at: #author ifPresent: [:description | str nextPutAll: description italic] ]
+	! !
+
 !DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:41:57'!
 scripts
 	^ scripts ifNil: [self scanForScripts]! !
-
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:43:28'!
-tagsIn: category
-	^ (self scripts collect: [:aScript | aScript at: #category]) sorted.
-	! !
 
 !CommandStack methodsFor: 'private' stamp: 'hlsf 10/Sep/2024 21:00:31'!
 truncate
