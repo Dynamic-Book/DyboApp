@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 14 February 2026 at 12:17:11 pm'!
+'From Cuis7.7 [latest update: #7839] on 14 February 2026 at 3:16:28 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 183!
+!provides: 'DyboDoc' 1 184!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -360,7 +360,7 @@ DKMScript class
 
 !classDefinition: #DKMScriptLibrary category: #'DyboDoc-Script'!
 Object subclass: #DKMScriptLibrary
-	instanceVariableNames: 'scripts'
+	instanceVariableNames: 'scripts targetPage'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Script'!
@@ -1121,9 +1121,9 @@ zoomPageTo100
 		morphPosition: 0@0;
 		scale: 1.001! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Feb/2026 12:12:13'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Feb/2026 15:16:21'!
 browseDKM
-	DySystem scriptLibarary browse! !
+	DySystem scriptLibarary browseFor: self currentPage! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 16/Oct/2024 19:28:13'!
 eraserSize: aNumber
@@ -2235,7 +2235,7 @@ headerFrom: fileEntry
 	data at: #category ifAbsentPut: [Array with: fileEntry parent baseName].
 	^ data! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 11:56:55'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 15:07:08'!
 metadataFrom: line
 "	Read *one* metadata "
 	| str key data |
@@ -2243,7 +2243,8 @@ metadataFrom: line
 	str next = $@ ifFalse: [^ nil].
 	key := (str upTo: $:) asSymbol.
 	data := str upToEnd withBlanksTrimmed.
-	(#(tags) includes: key) ifTrue: [data := (data findTokens: ';') collect: [:each | each withBlanksTrimmed]].
+	key = #tags ifTrue: [data := (data findTokens: ';') collect: [:each | each withBlanksTrimmed]].
+	key = #class ifTrue: [data := Smalltalk at: data asSymbol ifAbsent: [DKMPresenter]].
 	^ key -> data! !
 
 !DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 10:35:52'!
@@ -2259,10 +2260,15 @@ scanForScripts
 	self scanDirectory: DySystem myScriptsPath.
 	^ scripts ! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 11:55:33'!
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 15:16:02'!
 browse
-" Open a menu to browse the scripts "
+	self browseFor: nil! !
+
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 15:15:37'!
+browseFor: currentPage
+" Open a menu to browse the scripts and drop any selected on in the currentPage"
 	| mainMenu subMenu categories |
+	targetPage := currentPage.
 	mainMenu := MenuMorph entitled: 'Knowledge Models' translated.
 	categories := self categories.
 	self categories keys sorted do: [:aCategory |
@@ -2308,6 +2314,9 @@ descriptionOf: aScript
 !DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:41:57'!
 scripts
 	^ scripts ifNil: [self scanForScripts]! !
+
+!DKMScriptLibrary methodsFor: 'as yet unclassified' stamp: 'hlsf 14/Feb/2026 15:07:53'!
+openScript: script! !
 
 !CommandStack methodsFor: 'private' stamp: 'hlsf 10/Sep/2024 21:00:31'!
 truncate
