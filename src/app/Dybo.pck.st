@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 14 February 2026 at 12:17:07 pm'!
+'From Cuis7.7 [latest update: #7839] on 15 February 2026 at 3:20:10 pm'!
 'Description '!
-!provides: 'Dybo' 1 149!
+!provides: 'Dybo' 1 150!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1777,8 +1777,8 @@ paperRatio
 preferences
 	^ platform preferences! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 14/Feb/2026 12:11:56'!
-scriptLibarary
+!DySystem class methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:13:37'!
+scriptLibrary
 	^ platform scriptLibrary ! !
 
 !DySystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Sep/2025 10:55:39'!

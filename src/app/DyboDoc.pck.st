@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 15 February 2026 at 1:22:38 pm'!
+'From Cuis7.7 [latest update: #7839] on 15 February 2026 at 3:20:14 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 187!
+!provides: 'DyboDoc' 1 188!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -350,7 +350,7 @@ PointerToolStateNeutral class
 
 !classDefinition: #DKMScript category: #'DyboDoc-Script'!
 Object subclass: #DKMScript
-	instanceVariableNames: 'presenter icon code description title'
+	instanceVariableNames: 'presenter icon code description title file'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Script'!
@@ -520,7 +520,7 @@ DocumentView class
 
 !classDefinition: #DKMScriptEditor category: #'DyboDoc-Script'!
 DialogPanel subclass: #DKMScriptEditor
-	instanceVariableNames: 'annotator plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView file'
+	instanceVariableNames: 'annotator plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Script'!
@@ -1121,9 +1121,9 @@ zoomPageTo100
 		morphPosition: 0@0;
 		scale: 1.001! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Feb/2026 15:16:21'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 15/Feb/2026 15:13:37'!
 browseDKM
-	DySystem scriptLibarary browseFor: self currentPage! !
+	DySystem scriptLibrary browseFor: self currentPage! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 16/Oct/2024 19:28:13'!
 eraserSize: aNumber
@@ -2154,6 +2154,14 @@ description
 description: aText
 	description := aText! !
 
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:02:30'!
+file
+	^ file! !
+
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:03:04'!
+file: aFileEntry
+	file := aFileEntry ! !
+
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:50'!
 icon
 	^ icon ifNil: [
@@ -2170,9 +2178,9 @@ icon: svgDescription
 	icon := svg imageForm: (iconExtent normalized * 64) rounded depth: 32
 		! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 10:04:43'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:00:50'!
 myPath
-	^ (DySystem myScriptsPath / self title asFileName) assureExistence ! !
+	^ (DySystem myScriptsPath / presenter title asFileName) assureExistence ! !
 
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026 10:52:41'!
 presenter
@@ -2205,6 +2213,14 @@ addCustomMenuItems: menu annoted: view
 !DKMScript methodsFor: 'testing' stamp: 'hlsf 9/Feb/2026 12:21:19'!
 is: aSymbol
 	^ aSymbol == #DKMScript or: [super is: aSymbol ]! !
+
+!DKMScript methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 15:09:19'!
+header
+" Read the header from the edited code "
+	| data |
+	data := Dictionary new.
+	DKMScript headerFrom: code readStream into: data.
+	^ data! !
 
 !DKMScript class methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:12:19'!
 svgIcon
@@ -2321,7 +2337,7 @@ descriptionOf: aScript
 scripts
 	^ scripts ifNil: [self scanForScripts]! !
 
-!DKMScriptLibrary methodsFor: 'as yet unclassified' stamp: 'hlsf 15/Feb/2026 10:40:41'!
+!DKMScriptLibrary methodsFor: 'action' stamp: 'hlsf 15/Feb/2026 10:40:41'!
 openScript: script
 	| dkmScript annotator |
 	dkmScript := DKMScript for: (script at: #class).
@@ -4292,9 +4308,9 @@ separator
 	^ codeView owner submorphs second
 ! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 10:00:48'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:05:35'!
 sketchName
-	^ file ifNil: [''] ifNotNil: [file baseName]! !
+	^ model file ifNil: [''] ifNotNil: [model file baseName]! !
 
 !DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:56:04'!
 sourceCode
@@ -4430,16 +4446,19 @@ resumeScript
 	scriptProcess resume.
 	self switchToPauseButton! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 12/Feb/2026 12:13:00'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 15:13:37'!
 saveScript
 	| modelName |
 	codeView scroller acceptContents.
-	modelName := (ValueHolder with: (file ifNil: [''] ifNotNil: [file baseName]))
+	modelName := (ValueHolder with: self sketchName )
 	action: [:aString | | cleaned |
 		cleaned := aString withBlanksCondensed.
 		self setLabel: cleaned . 
-		file := model myPath // (cleaned, '.st').
-		file < self sourceCode].
+		model file: model myPath // (cleaned, '.st').
+		model file < self sourceCode.
+		" Inform the script library we save a script "
+		DySystem scriptLibrary scriptSaved: self.
+		].
 	(StringEntryPanel openWide: modelName label: 'Name the script to keep.' translated)
 		morphCenter: self fullBoundsInOwner center;
 		setProperty: #layerNumber toValue: self layerNumber - 1! !
