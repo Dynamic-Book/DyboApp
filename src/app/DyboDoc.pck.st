@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 15 February 2026 at 3:20:14 pm'!
+'From Cuis7.7 [latest update: #7839] on 15 February 2026 at 8:16:10 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 188!
+!provides: 'DyboDoc' 1 189!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -2252,7 +2252,7 @@ for: aPresenterClass
 	^ self new ::
 		presenter: aPresenterClass ! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 13:12:49'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 19:01:51'!
 headerFrom: fileEntry
 "	Read the header of this script, and scan its metadata "
 	| data |
@@ -2261,7 +2261,7 @@ headerFrom: fileEntry
 	fileEntry readStreamDo: [:read | DKMScript headerFrom: read into: data].
 "	Ensure minimum metadata, make assumptions if needed "
 	data at: #title ifAbsentPut: [fileEntry baseName].
-	data at: #category ifAbsentPut: [Array with: fileEntry parent baseName].
+	data at: #category ifAbsentPut: [fileEntry parent baseName].
 	^ data! !
 
 !DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 10:35:52'!
@@ -2294,7 +2294,7 @@ browseFor: currentPage
 			subMenu: (self tagMenuFor: (categories at: aCategory))].
 	mainMenu popUpInWorld ! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 17:08:17'!
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 15/Feb/2026 19:24:35'!
 tagMenuFor: scriptsByCategory
 	| tags tagMenu |
 	tagMenu := MenuMorph new.
@@ -2305,12 +2305,12 @@ tagMenuFor: scriptsByCategory
 		tagMenu add: aTag capitalized subMenu: scriptsMenu.
 		scriptsByTag := scriptsByCategory select: [:aScript | (aScript at: #tags) includes: aTag].
 		scriptsByTag := scriptsByTag sorted: [:scriptA :scriptB | (scriptA at: #title) < (scriptA at: #title)].
-		scriptsByTag do: [:aScript |
+		scriptsByTag do: [:metadataScript |
 			(scriptsMenu 
-				add: (aScript at: #title) capitalized 
+				add: (metadataScript at: #title) capitalized 
 				action: #openScript: 
-				argument: aScript) 
-					setBalloonText: (self descriptionOf: aScript)] ].
+				argument: metadataScript) 
+					setBalloonText: (self descriptionOf: metadataScript)] ].
 	^ tagMenu
 
 	! !
@@ -2320,31 +2320,51 @@ categories
 	^ self scripts groupBy: [:aScript | aScript at: #category]
 	! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:58:41'!
-descriptionOf: aScript
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 19:22:11'!
+descriptionOf: metadata
 	^ Text streamContents: [:str |
-		str nextPutAll: (aScript at: #title) capitalized bold; lf.
-		aScript at: #description ifPresent: [:description | str nextPutAll: description capitalized; lf].
-		aScript at: #tags ifPresent: [:tags |
+		str nextPutAll: (metadata at: #title) capitalized bold; lf.
+		metadata at: #description ifPresent: [:description | str nextPutAll: description capitalized; lf].
+		metadata at: #tags ifPresent: [:tags |
 			tags do: [:tag | str nextPutAll: ((tag uncapitalized pointSize: 9) 
 					addAttribute: (TextBackgroundColor color: Color yellow darker))] 
 				separatedBy: [str space].
 			str lf].
-		aScript at: #author ifPresent: [:description | str nextPutAll: description italic] ]
+		metadata at: #author ifPresent: [:description | str nextPutAll: description italic] ]
 	! !
 
 !DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:41:57'!
 scripts
 	^ scripts ifNil: [self scanForScripts]! !
 
-!DKMScriptLibrary methodsFor: 'action' stamp: 'hlsf 15/Feb/2026 10:40:41'!
-openScript: script
+!DKMScriptLibrary methodsFor: 'updating' stamp: 'hlsf 15/Feb/2026 19:41:34'!
+scriptSaved: dkmScript
+"	We are informed a script has just been saved on disk.
+	Decide what to do with this information"
+	| file metadata | 
+	file := dkmScript file pathName.
+	metadata := dkmScript header.
+	scripts 
+		detect:  [:aScript | (aScript at: #file) = file]
+		ifFound: [:prevMetadata | 
+			'Updating existing script in ScriptLibrary.' print.
+			metadata associationsDo: [:assoc | prevMetadata at: assoc key put: assoc value]]			
+		ifNone: [
+			'Adding new script to ScriptLibrary.' print.
+			metadata at: #title ifAbsentPut: [dkmScript file baseName].
+			metadata at: #category ifAbsentPut: [dkmScript file parent baseName].
+			scripts add: metadata]
+	! !
+
+!DKMScriptLibrary methodsFor: 'action' stamp: 'hlsf 15/Feb/2026 19:22:48'!
+openScript: scriptMetadata
 	| dkmScript annotator |
-	dkmScript := DKMScript for: (script at: #class).
+	dkmScript := DKMScript for: (scriptMetadata at: #class).
 	dkmScript 
-		title: (script at: #title) capitalized ;
-		description: (self descriptionOf: script);
-		code: (script at: #file) asFileEntry textContents.
+		title: (scriptMetadata at: #title) capitalized ;
+		description: (self descriptionOf: scriptMetadata);
+		file: (scriptMetadata at: #file) asFileEntry;
+		code: dkmScript file textContents.
 	annotator := AnnotatorMorph newOn: targetPage presenter for: dkmScript.
 	annotator openInHand.! !
 
@@ -2790,11 +2810,10 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026 17:47:04'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 15/Feb/2026 19:11:31'!
 acceptDroppingAnnotator: annotator event: dropEvent
 	presenter pointerTool.
 	self addMorphFront: annotator.
-	annotator fullBoundsInOwner extent print.
 	annotator morphPosition:  (self internalizeFromWorld: dropEvent eventPosition) - annotator annotated fullBoundsInOwner center
 ! !
 
@@ -4425,11 +4444,14 @@ Script stopped' translated.
 		name: '[Dybo] Smalltalk Script execution';
 		resume.! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 11:55:50'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 19:25:51'!
 keepScript
-	| scriptView |
+	| scriptView metadata |
 	codeView scroller acceptContents.
 	scriptView := model execute.
+	metadata := model header.
+	model title: (metadata at: #title) capitalized ;
+		description: (DySystem scriptLibrary descriptionOf: metadata).
 	annotator annotate: scriptView.
 	self delete! !
 
@@ -4446,19 +4468,17 @@ resumeScript
 	scriptProcess resume.
 	self switchToPauseButton! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 15:13:37'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 19:34:53'!
 saveScript
 	| modelName |
 	codeView scroller acceptContents.
 	modelName := (ValueHolder with: self sketchName )
 	action: [:aString | | cleaned |
 		cleaned := aString withBlanksCondensed.
-		self setLabel: cleaned . 
+		model header at: #title ifPresent: [:value | self setLabel: value capitalized].
 		model file: model myPath // (cleaned, '.st').
 		model file < self sourceCode.
-		" Inform the script library we save a script "
-		DySystem scriptLibrary scriptSaved: self.
-		].
+		DySystem scriptLibrary scriptSaved: model].
 	(StringEntryPanel openWide: modelName label: 'Name the script to keep.' translated)
 		morphCenter: self fullBoundsInOwner center;
 		setProperty: #layerNumber toValue: self layerNumber - 1! !
