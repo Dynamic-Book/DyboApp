@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 14 February 2026 at 5:56:54 pm'!
+'From Cuis7.7 [latest update: #7839] on 15 February 2026 at 1:22:38 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 185!
+!provides: 'DyboDoc' 1 187!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -350,7 +350,7 @@ PointerToolStateNeutral class
 
 !classDefinition: #DKMScript category: #'DyboDoc-Script'!
 Object subclass: #DKMScript
-	instanceVariableNames: 'presenter icon code'
+	instanceVariableNames: 'presenter icon code description title'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Script'!
@@ -1416,7 +1416,7 @@ modified
 	view currentPage paper redrawNeeded 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 24/Dec/2024 17:03:08'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 15/Feb/2026 11:32:34'!
 objectForDataStream: str
 " We have two states when saving a document.
 1. When serialized from the data tree model -> respond a diskproxy, it is the default state saveReal == false
@@ -2138,17 +2138,21 @@ handlePress: localPosition in: paper
 		handlePress: localPosition in: paper
 	! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 16:00:40'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 12:04:20'!
 code
-	^ code ifNil: [code := presenter codeSample]! !
+	^ code ifNil: [code := presenter codeSampleWithHeader ]! !
 
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 16:00:18'!
 code: aUnicodeString 
 	code := aUnicodeString ! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:35'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:38:58'!
 description
-	^ presenter description ! !
+	^ description ifNil: [presenter description]! !
+
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:38:46'!
+description: aText
+	description := aText! !
 
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:50'!
 icon
@@ -2178,9 +2182,13 @@ presenter
 presenter: aPresenterClass
 	presenter := aPresenterClass ! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:25'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:39:28'!
 title
-	^ presenter title! !
+	^ title ifNil: [presenter title]! !
+
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:39:10'!
+title: aText
+	title := aText ! !
 
 !DKMScript methodsFor: 'updating' stamp: 'hlsf 9/Feb/2026 12:22:16'!
 execute
@@ -2198,44 +2206,20 @@ addCustomMenuItems: menu annoted: view
 is: aSymbol
 	^ aSymbol == #DKMScript or: [super is: aSymbol ]! !
 
-!DKMScript class methodsFor: 'DKM' stamp: 'hlsf 16/Feb/2025 16:30:08'!
-dependency
-	^ nil! !
-
-!DKMScript class methodsFor: 'DKM' stamp: 'hlsf 12/Oct/2025 13:00:04'!
-description
-	^ nil! !
-
-!DKMScript class methodsFor: 'DKM' stamp: 'hlsf 8/Mar/2025 11:12:19'!
+!DKMScript class methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:12:19'!
 svgIcon
 	^ '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m255.9 120.9 9.1-15.7c5.6-9.8 18.1-13.1 27.9-7.5s13.1 18.1 7.5 27.9l-87.5 151.5h63.3c20.5 0 32 24.1 23.1 40.8h-185.5c-11.3 0-20.4-9.1-20.4-20.4s9.1-20.4 20.4-20.4h52l66.6-115.4-20.8-36.1c-5.6-9.8-2.3-22.2 7.5-27.9 9.8-5.6 22.2-2.3 27.9 7.5l8.9 15.7zm-78.7 218-19.6 34c-5.6 9.8-18.1 13.1-27.9 7.5s-13.1-18.1-7.5-27.9l14.6-25.2c16.4-5.1 29.8-1.2 40.4 11.6zm168.9-61.7h53.1c11.3 0 20.4 9.1 20.4 20.4s-9.1 20.4-20.4 20.4h-29.5l19.9 34.5c5.6 9.8 2.3 22.2-7.5 27.9-9.8 5.6-22.2 2.3-27.9-7.5-33.5-58.1-58.7-101.6-75.4-130.6-17.1-29.5-4.9-59.1 7.2-69.1 13.4 23 33.4 57.7 60.1 104zm-90.1-269.2c-137 0-248 111-248 248s111 248 248 248 248-111 248-248-111-248-248-248zm216 248c0 118.7-96.1 216-216 216-118.7 0-216-96.1-216-216 0-118.7 96.1-216 216-216 118.7 0 216 96.1 216 216z"/></svg>'! !
 
-!DKMScript class methodsFor: 'DKM' stamp: 'hlsf 16/Feb/2025 17:03:01'!
-title
-	^ 'A generic script' translated! !
+!DKMScript class methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 13:12:34'!
+headerFrom: stream into: data
+"	Read the header of this code stream, and install the metadata into the data dictionary"
+	stream next = Character doubleQuote ifTrue: [ | header |
+		header := stream upTo: Character doubleQuote.			
+		header linesDo: [:headerLine | 
+			(self metadataFrom: headerLine) ifNotNil: [:someData | data add: someData] ] ]
+! !
 
-!DKMScript class methodsFor: 'instance creation' stamp: 'hlsf 12/Oct/2025 15:51:16'!
-for: aPresenterClass
-	^ self new ::
-		presenter: aPresenterClass ! !
-
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 12/Feb/2026 10:59:30'!
-headerFrom: fileEntry
-"	Read the header of this script, and scan its metadata "
-	| data |
-	data := Dictionary new.
-	data at: #file put: fileEntry pathName.
-	fileEntry readStreamDo: [:read |
-		read next = Character doubleQuote ifTrue: [ | header |
-			header := read upTo: Character doubleQuote.			
-			header linesDo: [:headerLine | 
-				(self metadataFrom: headerLine) ifNotNil: [:someData | data add: someData] ] ] ].
-"	Ensure minimum metadata, make assumptions if needed "
-	data at: #title ifAbsentPut: [fileEntry baseName].
-	data at: #category ifAbsentPut: [Array with: fileEntry parent baseName].
-	^ data! !
-
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 15:07:08'!
+!DKMScript class methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 13:13:05'!
 metadataFrom: line
 "	Read *one* metadata "
 	| str key data |
@@ -2246,6 +2230,23 @@ metadataFrom: line
 	key = #tags ifTrue: [data := (data findTokens: ';') collect: [:each | each withBlanksTrimmed]].
 	key = #class ifTrue: [data := Smalltalk at: data asSymbol ifAbsent: [DKMPresenter]].
 	^ key -> data! !
+
+!DKMScript class methodsFor: 'instance creation' stamp: 'hlsf 12/Oct/2025 15:51:16'!
+for: aPresenterClass
+	^ self new ::
+		presenter: aPresenterClass ! !
+
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 13:12:49'!
+headerFrom: fileEntry
+"	Read the header of this script, and scan its metadata "
+	| data |
+	data := Dictionary new.
+	data at: #file put: fileEntry pathName.
+	fileEntry readStreamDo: [:read | DKMScript headerFrom: read into: data].
+"	Ensure minimum metadata, make assumptions if needed "
+	data at: #title ifAbsentPut: [fileEntry baseName].
+	data at: #category ifAbsentPut: [Array with: fileEntry parent baseName].
+	^ data! !
 
 !DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 10:35:52'!
 scanDirectory: dirEnrty
@@ -2303,11 +2304,16 @@ categories
 	^ self scripts groupBy: [:aScript | aScript at: #category]
 	! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 14/Feb/2026 12:07:02'!
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:58:41'!
 descriptionOf: aScript
 	^ Text streamContents: [:str |
 		str nextPutAll: (aScript at: #title) capitalized bold; lf.
 		aScript at: #description ifPresent: [:description | str nextPutAll: description capitalized; lf].
+		aScript at: #tags ifPresent: [:tags |
+			tags do: [:tag | str nextPutAll: ((tag uncapitalized pointSize: 9) 
+					addAttribute: (TextBackgroundColor color: Color yellow darker))] 
+				separatedBy: [str space].
+			str lf].
 		aScript at: #author ifPresent: [:description | str nextPutAll: description italic] ]
 	! !
 
@@ -2315,11 +2321,14 @@ descriptionOf: aScript
 scripts
 	^ scripts ifNil: [self scanForScripts]! !
 
-!DKMScriptLibrary methodsFor: 'as yet unclassified' stamp: 'hlsf 14/Feb/2026 17:37:21'!
+!DKMScriptLibrary methodsFor: 'as yet unclassified' stamp: 'hlsf 15/Feb/2026 10:40:41'!
 openScript: script
 	| dkmScript annotator |
 	dkmScript := DKMScript for: (script at: #class).
-	dkmScript code: (script at: #file) asFileEntry textContents.
+	dkmScript 
+		title: (script at: #title) capitalized ;
+		description: (self descriptionOf: script);
+		code: (script at: #file) asFileEntry textContents.
 	annotator := AnnotatorMorph newOn: targetPage presenter for: dkmScript.
 	annotator openInHand.! !
 
@@ -2397,9 +2406,9 @@ a topic path looks like School/Class/Course/topic/,  a task path is just topics/
 path
 	^ DySystem userDataPath / self relPath ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 22/Dec/2024 11:41:08'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:32:18'!
 relPath
-	^ ownerPath, '/', self dirName! !
+	^ ownerPath ifNotNil: [ownerPath, '/', self dirName] ifNil: ['']! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:51:46'!
 color
@@ -3319,10 +3328,8 @@ addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 		addUpdating: #frozenString 
 		action: #freezeUnfreezeMorph) setBalloonText: 'When "frozen", I am inert to all user interactions.' translated! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 31/Aug/2025 11:25:11'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 15/Feb/2026 11:36:30'!
 buildHandleMenu: aHand
-	"Build the morph menu for the given morph's halo's menu handle. This menu has two sections. The first section contains commands that are interpreted by the hand; the second contains commands provided by the target morph. This method allows the morph to decide which items should be included in the hand's section of the menu."
-
 	| menu |
 	menu := MenuMorph new defaultTarget: self.
 	menu addStayUpIcons.
@@ -3377,6 +3384,10 @@ initialize
 !AnnotatorMorph methodsFor: 'submorphs-accessing' stamp: 'hlsf 7/Sep/2025 11:08:13'!
 noteNewOwner: newOwner
 	self adjustBounds ! !
+
+!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 15/Feb/2026 10:37:52'!
+balloonText
+	^ script description ! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 26/Sep/2024 11:33:10'!
 newOn: aPresenter
@@ -4271,13 +4282,9 @@ model: aDyboScript
 	model := aDyboScript 
 ! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:24:24'!
-script
-	^ model! !
-
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:20:08'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:55:58'!
 scriptName
-	^ self script title! !
+	^ model title! !
 
 !DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 30/Oct/2022 20:45:35'!
 separator
@@ -4289,13 +4296,13 @@ separator
 sketchName
 	^ file ifNil: [''] ifNotNil: [file baseName]! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:19:39'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:56:04'!
 sourceCode
-	^ self script code! !
+	^ model code! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:19:57'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:56:10'!
 sourceCode: aText
-	self script code: aText asString.
+	model code: aText asString.
 	self changed: #clearUserEdits.
 	self changed: #acceptedContents.
 	self releaseMiniView.
@@ -4368,7 +4375,7 @@ debugScript
 				self plugDebugger ]]
 		ifFail: []! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 9/Feb/2026 12:22:10'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 11:57:13'!
 executeScript
 	self stopScript.
 	codeView scroller acceptContents.
@@ -4377,9 +4384,9 @@ executeScript
 	scriptProcess := [ | t |
 		t := DateAndTime now.
 		false "(DrGeoSystem preferences at: #advancedDebugger) "
-			ifTrue: [self script execute]
+			ifTrue: [model execute]
 			ifFalse: [
-				[self script execute] 
+				[model execute] 
 					on: Error, Halt
 					do: [:ex | 
 						self setLabel: ex description.
@@ -4402,11 +4409,11 @@ Script stopped' translated.
 		name: '[Dybo] Smalltalk Script execution';
 		resume.! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 11:34:53'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 11:55:50'!
 keepScript
 	| scriptView |
 	codeView scroller acceptContents.
-	scriptView := self script execute.
+	scriptView := model execute.
 	annotator annotate: scriptView.
 	self delete! !
 
