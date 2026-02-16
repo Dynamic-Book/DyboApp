@@ -1,23 +1,24 @@
 #!/bin/bash
 #
-# Build iStao image and package bundle
+# Build DyboApp image and package bundle
 #
-# Link the iStoa's app repository in the Cuis release folder.
-# Execute the script from Cuis release folder.
-# If necessary, in the Path section below, adjust istoaRepo, vmExec variables.
-# Adjust below the rel variable to the wished iStoa release number
+# Link the dyboapp repository in the Cuis release folder.  Execute the
+# script from Cuis release folder.  If necessary, in the Path section
+# below, adjust dyboAppRepo, vmExec variables.  Adjust below the rel
+# variable to the wished DyboApp release number
 
-# iStoa release number
+# DyboApp release number
 rel="26.02a"
 
 # Path
-istoaRepo=`echo "$0" | cut -d / -f 2`
-buildPath="$istoaRepo/build"
+dyboAppRepo=`echo "$0" | cut -d / -f 2`
+iStoaRepo=./iStoa
+buildPath="$dyboAppRepo/build"
 bundlesPath="$buildPath/bundles"
 imagePath=./CuisImage
 
 # Cuis release
-release=`cat $istoaRepo/cuisRelease`
+release=`cat $dyboAppRepo/cuisRelease`
 # version number, when dealing with rolling release
 version=`ls $imagePath/Cuis$release-????.image | cut -d - -f 2 | cut -d . -f 1`
 if [ -z "$version" ]
@@ -28,31 +29,31 @@ else
 fi
 smalltalkSources=`ls CuisImage/Cuis?.?.sources | cut -d / -f2`
 
-# To build iStoa we need:
+# To build DyboApp we need:
 # A Cuis image, its source, the virtual machine,
-# the Smalltalk installation script and the iStoa source
+# the Smalltalk installation script and the DyboApp and iStoa/app source
 
 vmExec=CuisVM.app/Contents/Linux-x86_64/squeak
-installScript="$istoaRepo/src/install-istoa-workstation.st"
+installScript="$dyboAppRepo/src/install-dyboapp-workstation.st"
 
 buildImage () {
     # INSTALL PACKAGE
-    # prepare the istoa image
-    rm $imagePath/istoa.*
-    cp $imagePath/$smalltalk.image $imagePath/istoa.image
-    cp $imagePath/$smalltalk.changes $imagePath/istoa.changes
-    # install source code in the istoa image and configure it
-    $vmExec $imagePath/istoa.image -s $installScript
-    ls -lh $imagePath/istoa.image
-    echo "--== DONE building iStoa image ==--"    
+    # prepare the dybo image
+    rm $imagePath/dybo.*
+    cp $imagePath/$smalltalk.image $imagePath/dybo.image
+    cp $imagePath/$smalltalk.changes $imagePath/dybo.changes
+    # install source code in the dybo image and configure it
+    $vmExec $imagePath/dybo.image -s $installScript
+    ls -lh $imagePath/dybo.image
+    echo "--== DONE building DyboApp image ==--"    
 }
 
 copyToBundle () {
     # copy a built image to an existing gnulinux bundle (for quick testing)
     bundlePath="$bundlesPath/gnulinux"
-    bundleApp="$bundlePath/iStoa"
+    bundleApp="$bundlePath/DyboApp"
     bundleResources="$bundleApp/Resources"
-    rsync -av $imagePath/istoa.{image,changes} $bundleResources/image
+    rsync -av $imagePath/dybo.{image,changes} $bundleResources/image
 }
 
 makeBundle () {
@@ -64,17 +65,17 @@ makeBundle () {
     cuisVMPath="CuisVM.app/Contents"
     case "$1" in
 	gnulinux)
-	    bundleApp="$bundlePath/iStoa"
+	    bundleApp="$bundlePath/DyboApp"
 	    cuisVM="Linux-x86_64"
 	    destVM="VM"
 	;;
 	windows)
-	    bundleApp="$bundlePath/iStoa"
+	    bundleApp="$bundlePath/DyboApp"
 	    cuisVM="Windows-x86_64"
 	    destVM="VM"
 	;;
 	mac)
-	    bundleApp="$bundlePath/iStoa.app"
+	    bundleApp="$bundlePath/Dybo.app"
 	    cuisVM="MacOS Resources"
 	    # Subfolder Resources to be considered as well
 	    destVM="Contents"
@@ -89,7 +90,7 @@ makeBundle () {
     for dkm in `find $istoaRepo/src/dkm/* -maxdepth 1 -type d -printf "%f "`
     do
 	mkdir -p $bundleResources/dkm/$dkm
-	cp $istoaRepo/src/dkm/$dkm/License* $bundleResources/dkm/$dkm
+	cp $iStoa/src/dkm/$dkm/License* $bundleResources/dkm/$dkm
     done
     echo "Installing OpenSmalltalk VM..."
     for i in $cuisVM
@@ -97,13 +98,13 @@ makeBundle () {
 	rsync -a $cuisVMPath/$i $bundleApp/$destVM/
     done
     echo "Installing Smalltalk image and changes..."
-    rsync -a $imagePath/istoa.{image,changes} $bundleResources/image
+    rsync -a $imagePath/dybo.{image,changes} $bundleResources/image
     echo "Installing Smalltalk source..."
     rsync -a $imagePath/$smalltalkSources $bundleResources/image
     echo "Set exec flag and any additional specific files installation..."
     case "$1" in
 	gnulinux)
-	    chmod +x $bundleApp/iStoa.sh
+	    chmod +x $bundleApp/DyboApp.sh
 	    chmod +x $bundleApp/VM/$cuisVM/squeak
 	    ;;
 	mac)
@@ -114,11 +115,11 @@ makeBundle () {
     echo "Preparing to build archive..."
     cd $bundlePath
     echo "Archiving the bundle..."
-    zip -r --symlinks -qdgds 5m iStoa-$1-$rel.zip "`basename $bundleApp`" -x \*~
-    ls -sh iStoa-$1-$rel.zip
-    echo "--== DONE packaging iStoa for $1 ==--"
+    zip -r --symlinks -qdgds 5m DyboApp-$1-$rel.zip "`basename $bundleApp`" -x \*~
+    ls -sh DyboApp-$1-$rel.zip
+    echo "--== DONE packaging DyboApp for $1 ==--"
     echo -n "Signing..."
-    gpg --armor --sign --detach-sign iStoa-$1-$rel.zip
+    gpg --armor --sign --detach-sign DyboApp-$1-$rel.zip
     echo "...DONE."
     cd -
 }
@@ -165,10 +166,10 @@ case "$1" in
 	copyToBundle
 	;;
     --help|*)
-	echo "Usage: makeiStoa [OPTION] [ARGUMENT]"
+	echo "Usage: makeDyboApp [OPTION] [ARGUMENT]"
 	echo
-	echo -e "--build\t\t\t\t\tBuild iStoa image"
-	echo -e "--package all|gnulinux|windows|mac\tPackage iStoa with an already built image"
+	echo -e "--build\t\t\t\t\tBuild DyboApp image"
+	echo -e "--package all|gnulinux|windows|mac\tPackage DyboApp with an already built image"
 	echo -e "--all\t\t\t\t\tBuild image and package for all OS"
 	echo -e "--copy\t\t\t\t\\tCopy a built image to an existing gnulinux bundle"
 	;;

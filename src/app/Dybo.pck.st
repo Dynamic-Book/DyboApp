@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 15 February 2026 at 3:20:10 pm'!
+'From Cuis7.7 [latest update: #7839] on 16 February 2026 at 10:00:12 pm'!
 'Description '!
-!provides: 'Dybo' 1 150!
+!provides: 'Dybo' 1 151!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1586,10 +1586,10 @@ view
 isTool: aToolName
 	^ controlsManager docPresenter isTool: aToolName ! !
 
-!Dybo class methodsFor: 'as yet unclassified' stamp: 'hlsf 6/Nov/2024 19:31:50'!
+!Dybo class methodsFor: 'as yet unclassified' stamp: 'hlsf 16/Feb/2026 21:54:01'!
 load
 " load the user data in a new Dybo window "
-	self basicNew
+	^ self basicNew
 		load! !
 
 !DyPlatform methodsFor: 'user interface' stamp: 'hlsf 29/Aug/2024 11:50:31'!
@@ -1839,6 +1839,49 @@ saveData
 	ReferenceStream 
 		dumpOnFile: (DySystem userDataPath // 'data.obj') 
 		object: DyUserData current! !
+
+!DySystem class methodsFor: 'system-support' stamp: 'hlsf 16/Feb/2026 21:57:24'!
+install
+	| world   |
+	"Report by any mean installation and run time"
+	Transcript
+		showOnDisplay: false;
+		logToFile: true;
+		logToStdout: true.
+	Smalltalk at: #LogStartupDebugAids put: true.
+	'Installing updates...' print.
+	Smalltalk condenseChanges.
+	"Focus does follow mouse, it is usefull to delete genereated morph in Workspace "
+	Preferences at: #focusFollowsMouse put: true.
+	"Adjust font size"
+	Preferences at: #defaultFontSize put: 12.
+	'Font preferences set' print.
+	"Preferences at: #logDebuggerStackToFile put: true."
+	Preferences at: #warnAndOfferLastUserChanges put: false.
+	Preferences at: #autoNumberUserChanges put: false.
+	"We do code style for a whole workspace, not by paragraph"
+	Preferences at: #workspacesStyleByParagraphs put: false.
+	"Set a default name for authoring"
+	Utilities setAuthorName: 'Dybo App User' initials: 'dau'.
+	DySystem beApplication.
+
+	'Finalizing installation...' print.
+	world := UISupervisor ui.
+[
+	(Delay forSeconds: 1) wait.
+	UISupervisor whenUIinSafeState: 	[
+		world hideTaskbar.
+		Display fullScreenMode: true.
+		"Remove all morphs"
+		world submorphs do: [:each | each delete].
+		'Morphs deleted' print.
+		'Cleaning image...' print.
+		Smalltalk garbageCollect.
+		'Installation ended' print.
+		'Saving image...' print.
+		Smalltalk saveAndQuit ]
+] fork
+! !
 
 !DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 13/Oct/2024 17:11:46'!
 addChevron: data to: aToolbar
