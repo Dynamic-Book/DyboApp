@@ -1,0 +1,18 @@
+WARNING
+----------------------------------------------------------------------
+The user DKM scripts are saved within the iStoaApp folder, upgrading
+to a newer version may result in the lost of user files.
+
+Before installing newer iStoaApp version, the user should make a
+backup of its script saved in the iStoaApp/ folder.
+
+When installing newer version from the iStoaApp ZIP archive, the user
+should request a merging installation, this operation depends on the Archive
+software used to install iStoaApp.
+
+
+HOW TO START
+----------------------------------------------------------------------
+To start iStoaApp double click on the file iStoa.sh.
+Check the iStoa.sh file has the execution flag set.
+
