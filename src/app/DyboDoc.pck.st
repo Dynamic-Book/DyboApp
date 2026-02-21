@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7839] on 15 February 2026 at 8:16:10 pm'!
+'From Cuis7.7 [latest update: #7840] on 21 February 2026 at 11:16:27 am'!
 'Description '!
-!provides: 'DyboDoc' 1 189!
-!requires: 'DyboTools-Geometry' 1 26 nil!
+!provides: 'DyboDoc' 1 190!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -2281,7 +2281,7 @@ scanForScripts
 browse
 	self browseFor: nil! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 15:15:37'!
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 21/Feb/2026 11:14:54'!
 browseFor: currentPage
 " Open a menu to browse the scripts and drop any selected on in the currentPage"
 	| mainMenu subMenu categories |
@@ -2292,6 +2292,9 @@ browseFor: currentPage
 		subMenu := mainMenu 
 			add: aCategory capitalized 
 			subMenu: (self tagMenuFor: (categories at: aCategory))].
+	mainMenu addLine.
+	(mainMenu add: 'Scan again' translated target: self action: #resetScripts icon: Theme current refreshIcon)
+		setBalloonText: 'Scan again the existing model on the disks, in your "myDybo/myScripts directory". Necessary when manually adding models from external sources.'. 
 	mainMenu popUpInWorld ! !
 
 !DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 15/Feb/2026 19:24:35'!
@@ -2320,18 +2323,22 @@ categories
 	^ self scripts groupBy: [:aScript | aScript at: #category]
 	! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 19:22:11'!
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 21/Feb/2026 10:46:56'!
 descriptionOf: metadata
 	^ Text streamContents: [:str |
 		str nextPutAll: (metadata at: #title) capitalized bold; lf.
 		metadata at: #description ifPresent: [:description | str nextPutAll: description capitalized; lf].
 		metadata at: #tags ifPresent: [:tags |
-			tags do: [:tag | str nextPutAll: ((tag uncapitalized pointSize: 9) 
+			tags do: [:tag | str nextPutAll: ((tag asLowercase pointSize: 9) 
 					addAttribute: (TextBackgroundColor color: Color yellow darker))] 
 				separatedBy: [str space].
 			str lf].
 		metadata at: #author ifPresent: [:description | str nextPutAll: description italic] ]
 	! !
+
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 21/Feb/2026 11:03:07'!
+resetScripts
+	scripts := nil! !
 
 !DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:41:57'!
 scripts
