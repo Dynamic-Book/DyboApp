@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 16 February 2026 at 10:00:12 pm'!
+'From Cuis7.7 [latest update: #7840] on 22 February 2026 at 12:04:18 pm'!
 'Description '!
-!provides: 'Dybo' 1 151!
+!provides: 'Dybo' 1 152!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -9,6 +9,7 @@
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
+!requires: 'Commander' 1 9 nil!
 SystemOrganization addCategory: #Dybo!
 SystemOrganization addCategory: #'Dybo-Model'!
 SystemOrganization addCategory: #'Dybo-Model-Business'!
@@ -199,14 +200,14 @@ DyPlatform subclass: #DyDevelopment
 DyDevelopment class
 	instanceVariableNames: ''!
 
-!classDefinition: #DySystem category: #'Dybo-System'!
-Object subclass: #DySystem
+!classDefinition: #DyboSystem category: #'Dybo-System'!
+Object subclass: #DyboSystem
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-System'!
-!classDefinition: 'DySystem class' category: #'Dybo-System'!
-DySystem class
+!classDefinition: 'DyboSystem class' category: #'Dybo-System'!
+DyboSystem class
 	instanceVariableNames: 'platform'!
 
 !classDefinition: #DyControlsManager category: #'Dybo-View'!
@@ -375,7 +376,7 @@ Pattern: strategy!
 !DyDevelopment commentStamp: '<historical>' prior: 0!
 Access to preferences, path, information in development mode.!
 
-!DySystem commentStamp: '<historical>' prior: 0!
+!DyboSystem commentStamp: '<historical>' prior: 0!
 I map settings/preferences to the underneath hardware/os plateform
 Pattern: strategy!
 
@@ -419,15 +420,15 @@ deleteDocument: aDocument from: topic
 	topic documents remove: aDocument.
 	(topic directory / aDocument model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:43:05'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 deleteTask: aTask
 	userData agenda tasks remove: aTask.
-	(DySystem userDataPath / DySystem tasksRelPath / aTask document model dirName) recursiveDelete! !
+	(DyboSystem userDataPath / DyboSystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 24/Dec/2024 16:43:42'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 newTask: aTask
 	userData agenda tasks add: aTask.
-	aTask document model ownerPath: DySystem tasksRelPath.
+	aTask document model ownerPath: DyboSystem tasksRelPath.
 		"Save the empty document in case the user does not do it after editing"
 	aTask document
 		modified;
@@ -441,9 +442,9 @@ userData
 initialize
 	DyUserData current: (userData := DyUserData new)! !
 
-!DyDomain methodsFor: 'initialization' stamp: 'hlsf 19/Dec/2024 11:00:19'!
+!DyDomain methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 load
-	userData := ReferenceStream restoreFromFile: DySystem userDataPath // 'data.obj'.
+	userData := ReferenceStream restoreFromFile: DyboSystem userDataPath // 'data.obj'.
 	DyUserData current: userData.! !
 
 !DyDomain methodsFor: 'dangerous' stamp: 'hlsf 14/Dec/2024 11:18:47'!
@@ -506,10 +507,10 @@ daysOfWeek
 agenda
 	^ agenda ifNil: [agenda := DyAgenda new]! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:19:32'!
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 directory
 " Mydirectory entry "
-	^ DySystem userDataPath ! !
+	^ DyboSystem userDataPath ! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:45:36'!
 relPath
@@ -929,9 +930,9 @@ initialize
 	students := SortedCollection new.
 	number := 'Unknown class' translated! !
 
-!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 20/Aug/2023 16:52:38'!
+!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 registerEvents
-	self when: #renamedClassGroup send: #renameClassGroup:from:to: to: DySystem! !
+	self when: #renamedClassGroup send: #renameClassGroup:from:to: to: DyboSystem! !
 
 !DyClassGroup methodsFor: 'visiting' stamp: 'hlsf 30/Jun/2023 22:01:43'!
 accept: aVisitor 
@@ -959,9 +960,9 @@ initialize
 	teacher := DyTeacher new.
 	subject := 'Unnamed course' translated! !
 
-!DyCourse methodsFor: 'initialization' stamp: 'hlsf 20/Aug/2023 16:52:51'!
+!DyCourse methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 registerEvents
-	self when: #renamedCourse send: #renameCourse:from:to: to: DySystem! !
+	self when: #renamedCourse send: #renameCourse:from:to: to: DyboSystem! !
 
 !DyCourse methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:30:36'!
 mold
@@ -1100,9 +1101,9 @@ initialize
 	classGroups := OrderedCollection new.
 	name := 'Unknown school' translated! !
 
-!DySchool methodsFor: 'initialization' stamp: 'hlsf 20/Aug/2023 17:09:33'!
+!DySchool methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 registerEvents
-	self when: #renamedSchool send: #renameSchool:from:to: to: DySystem! !
+	self when: #renamedSchool send: #renameSchool:from:to: to: DyboSystem! !
 
 !DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:49:32'!
 classGroups
@@ -1226,9 +1227,9 @@ initialize
 	resources := OrderedCollection new.
 	title := 'Unnamed topic' translated! !
 
-!DyTopic methodsFor: 'initialization' stamp: 'hlsf 20/Aug/2023 17:09:11'!
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 registerEvents
-	self when: #renamedTopic send: #renameTopic:from:to: to: DySystem! !
+	self when: #renamedTopic send: #renameTopic:from:to: to: DyboSystem! !
 
 !DyTopic methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:37:49'!
 mold
@@ -1398,7 +1399,7 @@ printOn: aStream
 restoreDocumentFromDisk
 	document := document loadFromDisk! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 23/Dec/2024 10:42:15'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 deleteDocument: aDocument 
  | topic binderView |
 	binderView := controlsManager activeView.
@@ -1411,14 +1412,14 @@ in the topic: {2}?' translated
 			ifFalse: [^ self].
 	domain deleteDocument: aDocument from: topic.
 	binderView updateDocumentPreviews.
-	DySystem saveData 
+	DyboSystem saveData 
 	! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 26/Dec/2024 12:54:38'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 importPDF
 	| newDoc answer |
 	answer := (StandardFileMenu  new 
-		oldFileFrom:  DySystem myResourcesPath 
+		oldFileFrom:  DyboSystem myResourcesPath 
 		withPattern:  '*.pdf'
 		excludePattern: '.*') startUpWithCaption: 'Import a PDF document.' translated.
 	answer ifNil: [^ self].
@@ -1433,12 +1434,12 @@ importPDF
 		deletePage.		
 	^ newDoc! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 31/Dec/2024 12:34:39'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 newDocument
 	| newDoc |
 	currentTopic ifNil: [^ self].
 	newDoc := domain addDocument: self goDocument to: currentTopic.
-	DySystem saveData.
+	DyboSystem saveData.
 	^ newDoc ! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 31/Dec/2024 12:35:33'!
@@ -1451,16 +1452,16 @@ saveDocument: aDocument
 	binderView := controlsManager activeView.
 	aDocument saveDocument ifTrue: [	binderView updateDocumentPreviews]! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 14/Dec/2024 11:27:57'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 deleteTask: aDyTask 
 	(PopUpMenu 
 		confirm: ('Delete the task at {1}?' translated format: {aDyTask})
 		trueChoice: 'Yes' translated falseChoice: 'No' translated) ifFalse: [^ self].
 	domain deleteTask: aDyTask.
-	DySystem saveData.
+	DyboSystem saveData.
 	self activeView resetTask.! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 19/Dec/2024 11:48:54'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
 	| task agendaView |
@@ -1472,11 +1473,11 @@ saveCurrentTask
 	" Was the task's course hour date modified? "
 	agendaView courseHourDate = task courseHourDate ifFalse: [	
 		task courseHourDate: agendaView courseHourDate .
-		DySystem saveData.
+		DyboSystem saveData.
 		agendaView changedFutureTasks]
 	! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/Dec/2024 21:09:47'!
+!Dybo methodsFor: 'callback-task' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 saveNewTask
 	| taskView task |
 	taskView := self activeView.
@@ -1485,7 +1486,7 @@ saveNewTask
 		courseHourDate: taskView courseHourDate;
 		document: controlsManager docPresenter.		
 	domain newTask: task.
-	DySystem saveData.
+	DyboSystem saveData.
 	taskView resetTask 
 	! !
 
@@ -1586,6 +1587,117 @@ view
 isTool: aToolName
 	^ controlsManager docPresenter isTool: aToolName ! !
 
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:33:07'!
+about
+	UISupervisor whenUIinSafeState: [
+		(PopUpMenu labels: ' Ok ') 
+			startUpNonModalWithCaption:  self informationString ]! !
+
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 10:59:35'!
+copyright
+	^ 'Source code application: Copyright 2023-2026 Hilaire Fernandes'! !
+
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 10:59:50'!
+cuisVersion
+	^ SystemVersion current versionString, ' #', SystemVersion current highestUpdate printString! !
+
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:34:47'!
+informationString
+	|text |
+	text := 'The Dybo application for educators and learners to manage their job. 
+{1}
+
+{2}
+LICENSES: 
+ - Dybo App LGPL
+ - Each DKM is released under the terms of its specific license 
+     with possible restrictions.' translated format: {self version. self copyright}.
+	^ text! !
+
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:32:22'!
+quit
+	(self confirm: 'You may have unsaved data!! 
+Are you sure to quit the Dybo application?' translated) ifFalse: [ ^ self].
+	Smalltalk quitPrimitive! !
+
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 12:00:09'!
+toolsMenu: builder
+	<dyboWorldMenu>
+	(builder newEntry: 'System Browser' translated in: 'Tools' translated)
+		icon: #developmentIcon;
+		action: [HierarchyBrowserWindow onClass: Dybo selector: nil];
+		help:'A source code browser to view, edit and save Dybo code. Hacker only!!' translated;
+		order: 40.
+
+	(builder newEntry: 'Workspace' translated in: 'Tools' translated)
+		icon: #terminalIcon;
+		action: [Workspace open ];
+		help: 'A window used as a scratchpad area where fragments of Cuis-Smalltalk code can be entered, stored, edited, and evaluated. ' translated;
+		order: 30.
+
+	(builder newEntry: 'Transcript' translated in: 'Tools' translated)
+		icon: #printerIcon;
+		action: [Transcript open ];
+		help: 'A window used to print information from the code - text output. Any object receiving the message #print is output in the Transcript: ''hello'' print, (k * 5) print. Use the Transcript class for more elaborated output.' 	translated;
+		order: 35.
+		
+	(builder newEntry: 'Open a file' translated in: 'Tools' translated)
+		icon: #systemFileManagerIcon;
+		action: [FileList open];
+		help: 'Open the filer on your personal models collection.' translated;
+		order: 50.
+		
+	(builder newEntry: 'Save session' translated in: 'Tools' translated)
+		order: 999;
+		action: [Smalltalk saveImage];
+		icon: #saveIcon;
+		help: 'Save this Dybo application as it is right now.' translated! !
+
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:35:21'!
+version
+	^ 'release ' translated, 
+		'26.02a beta', 
+		(String streamContents: [:str | 
+			str nextPut: Character lf; nextPut: Character lf.
+			str nextPutAll: self cuisVersion; nextPut: Character lf.
+			#('Dybo' 'DyboDoc' 'DyboTools-Geometry') 
+				do: [:each | 
+					str nextPutAll: each; nextPut: Character space.
+					(CodePackage installedPackages at: each) featureSpec provides printVersionRevisionOn: str.
+					str nextPut: Character lf].
+			(CodePackage installedPackages select: [:each | 'DKM-*' match: each packageName]) 
+				do:  [:package |
+					str nextPutAll: package packageName; nextPut: Character space.
+					package featureSpec provides printVersionRevisionOn: str]
+				separatedBy: [str nextPut: Character lf]
+			])! !
+
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:56:47'!
+worldMenu: builder
+	<dyboWorldMenu>
+	(builder newEntry: 'Open Dybo' translated)
+		icon: #openIcon;
+		action: [Dybo load];
+		order: 0.
+	(builder newEntry: 'Open a new Dybo' translated)
+		icon: #newIcon;
+		action: [Dybo new];
+		order: 1.
+	(builder newEntry: 'Toggle full screen mode' translated)
+		icon: #viewFullscreenIcon;
+		action: [DyboSystem toggleFullscreen];
+		help: 'Turn full screen mode on when it is off, off when it is on.' translated;
+		order: 3.
+	(builder newEntry: 'Tools' translated)
+		icon: #systemIcon.
+	(builder newEntry: 'About' translated)
+		action: [ Dybo about ];
+		order: 7.
+	(builder newEntry:  'Quit' translated)
+		action: [ Dybo quit ];
+		icon: #quitIcon;
+		order: 999! !
+
 !Dybo class methodsFor: 'as yet unclassified' stamp: 'hlsf 16/Feb/2026 21:54:01'!
 load
 " load the user data in a new Dybo window "
@@ -1654,13 +1766,23 @@ setPreferences
 		
 	^ preferences! !
 
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 22/Feb/2026 11:55:23'!
+launch
+"	
+	Set a default name for authoring "
+	Transcript show: '[Dybo] Author set to "Dybo App User" (dau)'; cr.
+	Utilities setAuthorName: 'Dybo App User' initials: 'dau'.
+	Transcript show: '[Dybo] Fullscreen from preference'; cr.
+	Display fullScreenMode: (Preferences at: #fullscreen)
+	! !
+
 !DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 14/Feb/2026 12:13:35'!
 reset
 	icons := preferences := scriptLibrary := nil! !
 
-!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 24/Dec/2024 15:38:10'!
+!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 icons
-	^ icons ifNil: [icons := IconImporter path: DySystem iconsPath]! !
+	^ icons ifNil: [icons := IconImporter path: DyboSystem iconsPath]! !
 
 !DyPlatform methodsFor: 'accessing' stamp: 'hlsf 14/Feb/2026 12:13:12'!
 scriptLibrary
@@ -1682,106 +1804,111 @@ rootPath
 userPath
 	^ self rootPath / 'resources'! !
 
-!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
+!DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication
 	platform := DyPlatform new! !
 
-!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:41:14'!
+!DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:41:14'!
 beDevelopment
 	platform := DyDevelopment new! !
 
-!DySystem class methodsFor: 'class initialization' stamp: 'hlsf 12/Oct/2024 10:50:25'!
+!DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 12/Oct/2024 10:50:25'!
 reset
 	platform reset! !
 
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 14/Aug/2023 22:11:06'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 14/Aug/2023 22:11:06'!
 iconToolbarSize
 " Size of the squared icons in the top toolbar"
 	^ platform iconToolbarSize ! !
 
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 24/Dec/2024 15:38:43'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 24/Dec/2024 15:38:43'!
 icons
 " Access to the icons manager"
 	^ platform icons! !
 
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 13/Aug/2023 17:16:57'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 13/Aug/2023 17:16:57'!
 miniToolbarSize
 " Size of the squared icons in the secondary toolbar"
 	^ platform miniToolbarSize ! !
 
-!DySystem class methodsFor: 'user interface' stamp: 'hlsf 12/Oct/2024 09:40:04'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 12/Oct/2024 09:40:04'!
 screenSize
 	^ self runningWorld morphExtent! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 11/Feb/2026 18:11:45'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 22/Feb/2026 11:56:04'!
+toggleFullscreen
+	Preferences at: #fullscreen put: (Preferences at: #fullscreen) not.
+	Display fullScreenMode: (Preferences at: #fullscreen) ! !
+
+!DyboSystem class methodsFor: 'path' stamp: 'hlsf 11/Feb/2026 18:11:45'!
 iconsPath
 	^ platform iconsPath! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:28:17'!
+!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:28:17'!
 myResourcesPath
 " the location of the user resources as PDF or other media files "
 	^ (platform userPath/ 'myResources') assureExistence ! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:34:11'!
+!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:34:11'!
 myScriptsPath
 " the location of the user DKM scripts "
 	^ (platform userPath/ 'myScripts') assureExistence ! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:37:22'!
+!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:37:22'!
 scriptsPath
 " the location of the DKM scripts shipped with DyboApp"
 	^ platform resourcesPath / 'scripts'! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 16/Dec/2024 21:43:05'!
+!DyboSystem class methodsFor: 'path' stamp: 'hlsf 16/Dec/2024 21:43:05'!
 tasksRelPath
 " the location of the user documents "
 	^ 'tasks'! !
 
-!DySystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:28:41'!
+!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:28:41'!
 userDataPath
 " the location of the user data and documents "
 	^ (platform userPath / 'data') assureExistence ! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:58:55'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:58:55'!
 renameClassGroup: aClassGroup from: prevName to: newName
 	self rename: prevName to: newName in: aClassGroup directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:02'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:02'!
 renameCourse: aCourse from: prevName to: newName
 	self rename: prevName to: newName in: aCourse directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:07'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:07'!
 renameSchool: aSchool from: prevName to: newName
 "Should use a data manager facade at some point "
 	self rename: prevName to: newName in: aSchool directory parent! !
 
-!DySystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:12'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:12'!
 renameTopic: aTopic from: prevName to: newName
 	self rename: prevName to: newName in: aTopic directory parent! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:58:37'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:58:37'!
 defaultPaperSize
 " Its width fill the screen, according to its default ratio "
 	
 	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:41'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:41'!
 paperBackground
 	^ self preferences at: #paperBackground! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:23'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:23'!
 paperRatio
 	^ self preferences at: #paperRatio! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 09:38:35'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 09:38:35'!
 preferences
 	^ platform preferences! !
 
-!DySystem class methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:13:37'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:13:37'!
 scriptLibrary
 	^ platform scriptLibrary ! !
 
-!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Sep/2025 10:55:39'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Sep/2025 10:55:39'!
 convert: destEntry pages: interval dpi: integer
 " 
 	In destEntry, convert the doc.pdf interval pages at interger resolution	   
@@ -1797,7 +1924,7 @@ convert: destEntry pages: interval dpi: integer
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
-!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Sep/2025 10:55:03'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Sep/2025 10:55:03'!
 import: pdfEntry to: destEntry pages: interval
 "
 	In our destEntry, generate a doc.pdf document with the selected pages interval, if fany ;
@@ -1815,14 +1942,14 @@ import: pdfEntry to: destEntry pages: interval
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
 	^ self convert: destEntry pages: interval dpi: 150.! !
 
-!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 22/Aug/2023 20:57:02'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 22/Aug/2023 20:57:02'!
 removeUserData
 	#(renamedSchool renamedClassGroup renamedCourse renamedTopic) do: [:anEvent |
 		self removeActionsForEvent: anEvent].
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
-!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 12/Feb/2026 20:31:19'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 12/Feb/2026 20:31:19'!
 rename: oldName to: newName in: parentDir
 	| dir |
 	oldName = newName ifTrue: [^ self].
@@ -1834,16 +1961,16 @@ rename: oldName to: newName in: parentDir
 				ifTrue: [dir rename: newName asFileName ] 
 				ifFalse: [(parentDir / newName asFileName ) assureExistence]]! !
 
-!DySystem class methodsFor: 'disk operations' stamp: 'hlsf 18/Dec/2024 16:38:51'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 saveData
 	ReferenceStream 
-		dumpOnFile: (DySystem userDataPath // 'data.obj') 
+		dumpOnFile: (DyboSystem userDataPath // 'data.obj') 
 		object: DyUserData current! !
 
-!DySystem class methodsFor: 'system-support' stamp: 'hlsf 16/Feb/2026 21:57:24'!
+!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 22/Feb/2026 11:52:28'!
 install
 	| world   |
-	"Report by any mean installation and run time"
+" Report by any mean installation and run time "
 	Transcript
 		showOnDisplay: false;
 		logToFile: true;
@@ -1851,19 +1978,27 @@ install
 	Smalltalk at: #LogStartupDebugAids put: true.
 	'Installing updates...' print.
 	Smalltalk condenseChanges.
-	"Focus does follow mouse, it is usefull to delete genereated morph in Workspace "
+
+" Set some preferences "
 	Preferences at: #focusFollowsMouse put: true.
-	"Adjust font size"
 	Preferences at: #defaultFontSize put: 12.
 	'Font preferences set' print.
-	"Preferences at: #logDebuggerStackToFile put: true."
+"	Preferences at: #logDebuggerStackToFile put: true. "
 	Preferences at: #warnAndOfferLastUserChanges put: false.
 	Preferences at: #autoNumberUserChanges put: false.
-	"We do code style for a whole workspace, not by paragraph"
+	Preferences name: #fullscreen category: #gui value: true.
+
+" We do code style for a whole workspace, not by paragraph "
 	Preferences at: #workspacesStyleByParagraphs put: false.
-	"Set a default name for authoring"
-	Utilities setAuthorName: 'Dybo App User' initials: 'dau'.
-	DySystem beApplication.
+
+" Set Locale and text domains "
+	Preferences at: #useLocale put: true.
+	TextDomainManager registerCategoryPrefix: 'Dybo' domain: 'dybo'.
+	TextDomainManager registerCategoryPrefix: 'DyboDoc' domain: 'dybodoc'.
+	TextDomainManager registerCategoryPrefix: 'DyboTools' domain: 'dybotools'.
+	TextDomainManager registerCategoryPrefix: 'cuis' domain: 'cuis'.	
+
+	DyboSystem beApplication.
 
 	'Finalizing installation...' print.
 	world := UISupervisor ui.
@@ -1872,9 +2007,13 @@ install
 	UISupervisor whenUIinSafeState: 	[
 		world hideTaskbar.
 		Display fullScreenMode: true.
-		"Remove all morphs"
+		
 		world submorphs do: [:each | each delete].
 		'Morphs deleted' print.
+
+		'Installing App launch sequence...' print.
+		Smalltalk at: #dyboApp put: DyboSystem.
+		AppLauncher appGlobalName: #dyboApp appSelector: #launch.
 		'Cleaning image...' print.
 		Smalltalk garbageCollect.
 		'Installation ended' print.
@@ -1882,6 +2021,13 @@ install
 		Smalltalk saveAndQuit ]
 ] fork
 ! !
+
+!DyboSystem class methodsFor: 'system startup' stamp: 'hlsf 22/Feb/2026 10:01:43'!
+launch
+	Transcript show: '[Dybo] launching started'; cr.
+	platform launch.
+	Transcript show: '[Dybo] launching ended'; cr.
+	! !
 
 !DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 13/Oct/2024 17:11:46'!
 addChevron: data to: aToolbar
@@ -1895,7 +2041,7 @@ addChevron: data to: aToolbar
 		setBalloonText: data third ;
 		yourself	! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 18/Dec/2024 21:56:47'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 documentCircularToolbar
 	| toolsData circularToolbar |
 	toolsData := OrderedCollection 
@@ -1908,7 +2054,7 @@ documentCircularToolbar
 		color: dyboView defaultColor ;
 		selectedColor: dyboView buttonColor;
 		extent: 180;
-		buttonSize: DySystem iconToolbarSize + 8;
+		buttonSize: DyboSystem iconToolbarSize + 8;
 		dropDownHeight: 15.
 	toolsData do: [:subToolsData | | dropDown |
 		dropDown := (self addChevron: subToolsData first to: circularToolbar) addDropDown .
@@ -1930,11 +2076,11 @@ eraser: squareWidth width: width
 	^ aForm eraseShape: (mask asFormOfDepth: 1)
 ! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 16/Oct/2024 22:56:53'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 eraserSizeTools
 " Data to build the circular sub toolbar of nib size "
 	| size help |
-	size := DySystem iconToolbarSize.
+	size := DyboSystem iconToolbarSize.
 	help := 'Erase with a width of {1} pixels.' translated.
 	^ #(4 8 16 ) collect: [:eraserSize | 
 		Array 
@@ -1957,25 +2103,25 @@ handStroke: squareWidth width: width color: color
 	^ aForm
 ! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/Feb/2026 09:35:49'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 highlighterColorTools
 " Data to build the circular sub toolbar of highlighter colors "
 	| size help |
-	size := DySystem iconToolbarSize .
+	size := DyboSystem iconToolbarSize .
 	help := 'Highlight with a {1} color.' translated.
 	" XXX any other idea to get the color strings taken in consideration for translation? "	
 	'yellow' translated. " Other colors marked for translation in penColorToolsOn: method "
 	^ #('yellow' 'red' 'blue' 'green') collect: [:aColor | 
 		Array 
 			with: (#highlighter, aColor capitalized) asSymbol
-			with: (DySystem icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (DyboSystem icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
 			with: (help format: {aColor translated})]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 16/Oct/2024 22:56:48'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 highligtherSizeTools
 " Data to build the circular sub toolbar of highligther size "
 	| size help |
-	size := DySystem iconToolbarSize.
+	size := DyboSystem iconToolbarSize.
 	help := 'Highlit with a width of {1} pixels.' translated.
 	^ #(10 20 40) collect: [:nibSize | 
 		Array 
@@ -1983,11 +2129,11 @@ highligtherSizeTools
 			with: (self tile: size width: nibSize / 2.0 color: (Color black))
 			with: (help format: {nibSize })		 	]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 15/Oct/2024 18:31:39'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 nibSizeTools
 " Data to build the circular sub toolbar of nib size "
 	| size help |
-	size := DySystem iconToolbarSize.
+	size := DyboSystem iconToolbarSize.
 	help := 'Write with a width of {1} pixel(s).' translated.
 	^ #(0.5 0.8 1 2 4 6 8 ) collect: [:nibSize | 
 		Array 
@@ -1995,18 +2141,18 @@ nibSizeTools
 			with: (self handStroke: size width: nibSize color: Color black)
 			with: (help format: {nibSize })		 	]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 12/Feb/2026 09:35:59'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 penColorTools
 " Data to build the circular sub toolbar of pen colors "
 	| size help |
-	size := DySystem iconToolbarSize.
+	size := DyboSystem iconToolbarSize.
 	help := 'Write with a {1} color.' translated.
 	" XXX any other idea to get the color strings taken in consideration for translation? "	
 	'black' translated. 'blue' translated. 	'green' translated. 'red' translated. 'white' translated.
 	^ #('black' 'blue' 'green' 'red' 'white') collect: [:aColor | 
 		Array 
 			with: (#pen, aColor capitalized) asSymbol
-			with: (DySystem icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (DyboSystem icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
 			with: (help format: {aColor translated})]! !
 
 !DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 15/Oct/2024 21:10:56'!
@@ -2097,12 +2243,12 @@ defaultColor
 		ifNotNil: [:v | v defaultColor] 
 		ifNil: [Theme current paneBackgroundFrom: Theme current transcript ]! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 1/Dec/2024 17:03:09'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 installDyboView: aPresenter
 	dyboView := DynabookView for: aPresenter.
 	dyboView 
 		addMorph: self dyboToolbar 
-		layoutSpec: (LayoutSpec fixedHeight: DySystem iconToolbarSize + 4).
+		layoutSpec: (LayoutSpec fixedHeight: DyboSystem iconToolbarSize + 4).
 	self plugStart! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 14/Dec/2024 15:21:49'!
@@ -2150,11 +2296,11 @@ plugStart
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 4/Mar/2025 20:17:50'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 dyboToolbar
 	| toolbar buttonWidth|
 	toolbar := LayoutMorph newRow separation: 5.
-	buttonWidth := DySystem iconToolbarSize.
+	buttonWidth := DyboSystem iconToolbarSize.
 	self dyboToolbarSpec do: [:aTool | 
 		aTool 
 			caseOf: {
@@ -2169,7 +2315,7 @@ dyboToolbar
 dyboToolbarSpec
 	^ #(start tasks binder page spacer settings)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 24/Dec/2024 15:39:28'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 on: aPresenter button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
@@ -2182,7 +2328,7 @@ on: aPresenter button: symbol state: stateGetter size: size
 		stateGetter: stateGetter
 		action: array third ::
 		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
-		icon: (DySystem icons getForm: array second ofSize: size);
+		icon: (DyboSystem icons getForm: array second ofSize: size);
 		setBalloonText: array fourth;
 		color: self defaultColor ;
 		selectedColor: self buttonColor ;
@@ -2524,7 +2670,7 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 	attributeView morphWidth: scroller viewableExtent x.
 	^ DecoratedPane open: scroller label: aTitle ! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 1/Dec/2024 18:44:42'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 plugView: aMorph
 " Add an Edit button to this contents "
 	| viewer |
@@ -2536,7 +2682,7 @@ plugView: aMorph
 			viewer owner 
 				replaceView: viewer 
 				byView: (visitedModel accept: DyEditorVisitor new)			] 
-		altAction: [DySystem saveData] 
+		altAction: [DyboSystem saveData] 
 		::
 		buttonLabel: 'Edit' translated;
 		altButtonLabel: 'Save' translated;

@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 21 February 2026 at 11:16:27 am'!
+'From Cuis7.7 [latest update: #7840] on 22 February 2026 at 12:04:24 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 190!
+!provides: 'DyboDoc' 1 191!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1121,9 +1121,9 @@ zoomPageTo100
 		morphPosition: 0@0;
 		scale: 1.001! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 15/Feb/2026 15:13:37'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 browseDKM
-	DySystem scriptLibrary browseFor: self currentPage! !
+	DyboSystem scriptLibrary browseFor: self currentPage! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 16/Oct/2024 19:28:13'!
 eraserSize: aNumber
@@ -1180,10 +1180,10 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 31/Dec/2024 19:15:56'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 importPDF: aFileEntry
 	| process |
-	process := DySystem 
+	process := DyboSystem 
 		import: aFileEntry
 		to: model path
 		pages: nil.
@@ -1459,13 +1459,13 @@ printOn: aStream
 		nextPutAll: model dirName;
 		nextPut: $)! !
 
-!Document class methodsFor: 'object serialization' stamp: 'hlsf 22/Dec/2024 11:42:32'!
+!Document class methodsFor: 'object serialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 loadDocument: relativePath
 "
 	Once restored, the controlManager needs to be associated back and 
 	the view plug in the dynamic book main view
 "
-	^ ReferenceStream restoreFromFile: DySystem userDataPath / relativePath // 'doc.obj'! !
+	^ ReferenceStream restoreFromFile: DyboSystem userDataPath / relativePath // 'doc.obj'! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024 21:05:57'!
 execute
@@ -2178,9 +2178,9 @@ icon: svgDescription
 	icon := svg imageForm: (iconExtent normalized * 64) rounded depth: 32
 		! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:00:50'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 myPath
-	^ (DySystem myScriptsPath / presenter title asFileName) assureExistence ! !
+	^ (DyboSystem myScriptsPath / presenter title asFileName) assureExistence ! !
 
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026 10:52:41'!
 presenter
@@ -2270,11 +2270,11 @@ scanDirectory: dirEnrty
 		allFilesDo:  [:file | scripts add: (self headerFrom: file)]
 		matches: [:file | file extension = #st]! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 10:29:14'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 scanForScripts
 	scripts := OrderedCollection new.
-	self scanDirectory: DySystem scriptsPath.
-	self scanDirectory: DySystem myScriptsPath.
+	self scanDirectory: DyboSystem scriptsPath.
+	self scanDirectory: DyboSystem myScriptsPath.
 	^ scripts ! !
 
 !DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 15:16:02'!
@@ -2445,9 +2445,9 @@ ownerPath: aString
 a topic path looks like School/Class/Course/topic/,  a task path is just topics/ "
 	ownerPath := aString! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 22/Dec/2024 11:41:20'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 path
-	^ DySystem userDataPath / self relPath ! !
+	^ DyboSystem userDataPath / self relPath ! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:32:18'!
 relPath
@@ -3451,9 +3451,9 @@ newOn: documentPresenter for: aDyboScript
 		initialize;
 		yourself! !
 
-!PageModel methodsFor: 'initialization' stamp: 'hlsf 15/Nov/2024 22:10:49'!
+!PageModel methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 defaultExtent
-	^ DySystem defaultPaperSize ! !
+	^ DyboSystem defaultPaperSize ! !
 
 !PageModel methodsFor: 'as yet unclassified' stamp: 'hlsf 15/Nov/2024 22:33:03'!
 documentModel
@@ -3552,10 +3552,10 @@ resampleFrom: oldScale to: newScale in: documentPath
 		extent := form extent.
 		dpi := newDpi ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 30/Nov/2024 13:07:48'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 sampleAt: newDpi in: documentPath
 	| process |
-	process := DySystem 
+	process := DyboSystem 
 		convert:  documentPath 
 		pages:  (pageNumber to: pageNumber)
 		dpi: newDpi .
@@ -3697,13 +3697,13 @@ initialize
 	pages add: currentPage.
 ! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 24/Dec/2024 16:30:29'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 installMiniView
 	viewType := #mini.
 	presenter view: self.
 	self 
 		addMorph: (self toolbarWith: self miniToolbarSpec)
-		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
+		layoutSpec: (LayoutSpec fixedHeight: DyboSystem miniToolbarSize + 4).
 	self	addMorphUseAll: container.
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
@@ -3736,19 +3736,19 @@ installToolsFlap
 		target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 27/Sep/2025 10:06:10'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 installView
 	| row col |
 	viewType := #full.
 	presenter view: self.
 	self 	addMorph: (self toolbarWith: self toolbarSpec)
-		layoutSpec: (LayoutSpec fixedHeight: DySystem miniToolbarSize + 4).
+		layoutSpec: (LayoutSpec fixedHeight: DyboSystem miniToolbarSize + 4).
 	row := LayoutMorph newRow addMorphUseAll: container.
 	" vertical and zoom wheels at the right "
 	col := LayoutMorph newColumn name: #wheelsYZ.
 	col addMorph: self zoomWheel layoutSpec: (LayoutSpec fixedExtent: 24@120).
 	#(zoom100 fitWidth fitScreen) do: [:aZoomTool | col addMorph: 
-		(self button: aZoomTool state: #isTool: size: DySystem miniToolbarSize)].	
+		(self button: aZoomTool state: #isTool: size: DyboSystem miniToolbarSize)].	
 	col	addMorphUseAll: DyControlsManager spacer;
 		addMorph: self verticalWheel layoutSpec: (LayoutSpec fixedExtent: 24@	120).
 	row addMorph: col  layoutSpec: (LayoutSpec fixedWidth: 24 + 1 proportionalHeight: 1).
@@ -3884,7 +3884,7 @@ storeDataOn: aDataStream
 unsavedAttributes
 	^# (submorphs statusBar pageCount)! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Dec/2024 15:40:39'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
@@ -3897,7 +3897,7 @@ button: symbol state: stateGetter size: size
 		stateGetter: stateGetter
 		action: array third ::
 		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
-		icon: (DySystem icons getForm: array second ofSize: size);
+		icon: (DyboSystem icons getForm: array second ofSize: size);
 		setBalloonText: array fourth;
 		color: self defaultColor ;
 		selectedColor: self buttonColor ;
@@ -3955,11 +3955,11 @@ statusBarInScroller
 		color: Color transparent;
 		yourself! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 4/Jan/2025 18:43:18'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 toolbarWith: aSpec
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow separation: 2.
-	buttonWidth := DySystem miniToolbarSize.
+	buttonWidth := DyboSystem miniToolbarSize.
 	aSpec do: [:aTool | 
 		aTool 
 			caseOf: {
@@ -4155,28 +4155,28 @@ buildMorphicWindow
 	self activeHand newKeyboardFocus: codeView scroller.
 	layoutMorph adoptWidgetsColor: self widgetsColor! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025 19:38:38'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 button: iconSymbol action: actionSelector help: helpString
 	^ (ButtonMorph model: self action: actionSelector)
-			icon: (DySystem icons getForm: iconSymbol ofSize: DySystem iconToolbarSize);
+			icon: (DyboSystem icons getForm: iconSymbol ofSize: DyboSystem iconToolbarSize);
 			setBalloonText: helpString ;
 			color: self defaultColor;
 			selectedColor: self buttonColor ;
 			borderColor: self defaultBorderColor ;
 			borderWidth: 2;
-			morphExtent: (DySystem iconToolbarSize * 1.3) rounded asPoint;
+			morphExtent: (DyboSystem iconToolbarSize * 1.3) rounded asPoint;
 			yourself! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025 19:39:59'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 button: iconSymbol action: actionSelector state: getStateSel help: helpString
 	^ (ButtonMorph model: self stateGetter: getStateSel action: actionSelector)
-			icon: (DySystem icons getForm: iconSymbol ofSize: DySystem iconToolbarSize);
+			icon: (DyboSystem icons getForm: iconSymbol ofSize: DyboSystem iconToolbarSize);
 			setBalloonText: helpString ;
 			color: self defaultColor ;
 			selectedColor: self buttonColor ;
 			borderColor: self defaultBorderColor ;
 			borderWidth: 2;
-			morphExtent: (DySystem iconToolbarSize * 1.3) rounded asPoint;
+			morphExtent: (DyboSystem iconToolbarSize * 1.3) rounded asPoint;
 			yourself! !
 
 !DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 8/Mar/2025 18:18:06'!
@@ -4240,35 +4240,35 @@ plugDebugger: aDebugger
 	debugger := aDebugger.
 	self plugDebugger ! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 6/Mar/2025 20:28:07'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 switchToPauseButton
 " 
 Switch to pause sketch action 
 "
 	playButton 
-		icon: (DySystem icons getForm: #pause ofSize: DySystem iconToolbarSize);
+		icon: (DyboSystem icons getForm: #pause ofSize: DyboSystem iconToolbarSize);
 		action: #pauseScript;
 		setBalloonText: 'Pause the Smalltalk sketch.' translated;
 		redrawNeeded ! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 6/Mar/2025 20:27:45'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 switchToPlayButton
 " 
 Switch to play sketch action 
 "
 	playButton 
-		icon: (DySystem icons getForm: #play ofSize: DySystem iconToolbarSize);
+		icon: (DyboSystem icons getForm: #play ofSize: DyboSystem iconToolbarSize);
 		action: #executeScript;
 		setBalloonText: 'Play the Smalltalk sketch.' translated;
 		redrawNeeded.! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 6/Mar/2025 20:28:34'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 switchToResumeButton
 " 
 Switch to resume sketch action
 "
 	playButton 
-		icon: (DySystem icons getForm: #resume ofSize: DySystem iconToolbarSize);
+		icon: (DyboSystem icons getForm: #resume ofSize: DyboSystem iconToolbarSize);
 		action: #resumeScript;
 		setBalloonText: 'Resume the Smalltalk sketch.' translated;
 		redrawNeeded ! !
@@ -4451,14 +4451,14 @@ Script stopped' translated.
 		name: '[Dybo] Smalltalk Script execution';
 		resume.! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 19:25:51'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 keepScript
 	| scriptView metadata |
 	codeView scroller acceptContents.
 	scriptView := model execute.
 	metadata := model header.
 	model title: (metadata at: #title) capitalized ;
-		description: (DySystem scriptLibrary descriptionOf: metadata).
+		description: (DyboSystem scriptLibrary descriptionOf: metadata).
 	annotator annotate: scriptView.
 	self delete! !
 
@@ -4475,7 +4475,7 @@ resumeScript
 	scriptProcess resume.
 	self switchToPauseButton! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 19:34:53'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 saveScript
 	| modelName |
 	codeView scroller acceptContents.
@@ -4485,7 +4485,7 @@ saveScript
 		model header at: #title ifPresent: [:value | self setLabel: value capitalized].
 		model file: model myPath // (cleaned, '.st').
 		model file < self sourceCode.
-		DySystem scriptLibrary scriptSaved: model].
+		DyboSystem scriptLibrary scriptSaved: model].
 	(StringEntryPanel openWide: modelName label: 'Name the script to keep.' translated)
 		morphCenter: self fullBoundsInOwner center;
 		setProperty: #layerNumber toValue: self layerNumber - 1! !
@@ -4703,67 +4703,67 @@ startScaleAnnotated: evt with: scaleHandle
 	self removeAllHandlesBut: scaleHandle.  "remove all other handles"
 	scaleOffset := target scale / (evt eventPosition - target annotated positionInWorld) rho.! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/Feb/2025 17:57:36'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 haloAnnDismissIcon
 	^ self icons
 		at: #haloDismissAnnIcon
 		ifAbsentPut: [ (
-			DySystem icons 
+			DyboSystem icons 
 				getForm: #discard
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/Feb/2025 16:47:50'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 haloAnnDragIcon
 	^ self icons
 		at: #haloAnnDragIcon
 		ifAbsentPut: [ (
-			DySystem icons 
+			DyboSystem icons 
 				getForm: #drag
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/Feb/2025 17:52:21'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 haloAnnEditIcon
 "Edit annoted document "
 	^ self icons
 		at: #haloEditAnnIcon
 		ifAbsentPut: [ (
-			DySystem icons 
+			DyboSystem icons 
 				getForm: #edit
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/Feb/2025 17:42:16'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 haloAnnHelpIcon
 	^ self icons
 		at: #haloAnnHelpIcon
 		ifAbsentPut: [ (
-			DySystem icons 
+			DyboSystem icons 
 				getForm: #help
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/Feb/2025 17:32:32'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 haloAnnInspectIcon
 	^ self icons
 		at: #haloAnnInspectIcon
 		ifAbsentPut: [ (
-			DySystem icons 
+			DyboSystem icons 
 				getForm: #inspect
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/Feb/2025 17:17:32'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 haloAnnResizeIcon
 	^ self icons
 		at: #haloAnnResizeIcon
 		ifAbsentPut: [ (
-			DySystem icons 
+			DyboSystem icons 
 				getForm: #resize
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 2/Feb/2025 17:36:42'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 haloAnnRotateIcon
 	^ self icons
 		at: #haloAnnRotateIcon
 		ifAbsentPut: [ (
-			DySystem icons 
+			DyboSystem icons 
 				getForm: #rotate
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 

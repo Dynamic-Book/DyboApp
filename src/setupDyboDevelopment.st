@@ -47,12 +47,22 @@ world := UISupervisor ui.
 		"Open a Workspace with some default contents"
 		morph := Workspace open.
 		morph model actualContents: 'ChangeSet installNewUpdates.
-DySystem beDevelopment. 
-DySystem beApplication.
+DyboSystem beDevelopment. 
+DyboSystem beApplication.
 Dybo new.
 Dybo load.
 DyboTestResource new data.
-DyUserData reset.'.
+DyUserData reset.
+"
+	Gettext 
+"
+NaturalLanguageTranslator privateStartUp .
+TextDomainManager registerCategoryPrefix: ''Dybo'' domain: ''dybo''.
+TextDomainManager registerCategoryPrefix: ''DyboDoc'' domain: ''dybodoc''.
+TextDomainManager registerCategoryPrefix: ''DyboTools'' domain: ''dybotools''.
+TextDomainManager allKnownDomains.
+GetTextExporter exportTemplate.
+'.
 		morph 
 			morphPosition: 0 @ (area height // 2);
 			morphExtent: extent x @ (2 / 3 * extent y).
