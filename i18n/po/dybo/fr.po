@@ -1,0 +1,530 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Cuis\n"
+"POT-Creation-Date: 2026-02-23 16:52-0000\n"
+"PO-Revision-Date: 2026-02-23 19:48+0100\n"
+"Last-Translator: Hilaire Fernandes <hilaire@gnu.org>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ascii\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Cuis-SystemVersion: Cuis7.7 update 7840\n"
+"X-Cuis-Domain: dybo\n"
+
+#: Dybo-Model,DyUserData>>printOn:
+msgid "{1}'s Dynabook"
+msgstr "Le Dynabook de {1}"
+
+#: Dybo-Model-Business,DyAgenda>>mold
+msgid "Back-to-school day"
+msgstr "Rentrée scolaire"
+
+#: Dybo-Model-Business,DyAgenda>>mold
+msgid "End of school year"
+msgstr "Fin des cours"
+
+#: Dybo-Model-Business,DyAgenda>>printOn:
+msgid "Unspecified agenda"
+msgstr "Agenda non spécifié"
+
+#: Dybo-Model-Business,DyAgenda>>printOn:
+msgid "{1} to {2}"
+msgstr "{1} à {2}"
+
+#: Dybo-Model-Business,DyClassGroup_class>>label
+msgid "class"
+msgstr "classe"
+
+#: Dybo-Model-Business,DyClassGroup_class>>pluralLabel,DyViewerVisitor>>visitSchool:
+msgid "Classes"
+msgstr "Classes"
+
+#: Dybo-Model-Business,DyClassGroup>>initialize
+msgid "Unknown class"
+msgstr "Classe inconnue"
+
+#: Dybo-Model-Business,DyClassGroup>>mold
+msgid "Number"
+msgstr "Numéro"
+
+#: Dybo-Model-Business,DyCourse_class>>label
+msgid "lesson"
+msgstr "leçon"
+
+#: Dybo-Model-Business,DyCourse_class>>pluralLabel,DyViewerVisitor>>visitClassGroup:
+msgid "Lessons"
+msgstr "Leçons"
+
+#: Dybo-Model-Business,DyCourse>>initialize
+msgid "Unnamed course"
+msgstr "Cours sans nom"
+
+#: Dybo-Model-Business,DyCourse>>mold
+msgid "Subject"
+msgstr "Sujet"
+
+#: Dybo-Model-Business,DyCourseHour_class>>label
+msgid "period"
+msgstr "période"
+
+#: Dybo-Model-Business,DyCourseHour_class>>pluralLabel,DyViewerVisitor>>visitCourse:
+msgid "Periods"
+msgstr "Périodes"
+
+#: Dybo-Model-Business,DyCourseHour>>mold:
+msgid "Day"
+msgstr "Jour"
+
+#: Dybo-Model-Business,DyCourseHour>>mold:,DyViewerVisitor>>visitCourseHour:
+msgid "Period(s)"
+msgstr "Période(s)"
+
+#: Dybo-Model-Business,DyCourseHour>>mold:
+msgid "Room"
+msgstr "Salle"
+
+#: Dybo-Model-Business,DyDayInterval_class>>label
+msgid "day off"
+msgstr "jour férié"
+
+#: Dybo-Model-Business,DyDayInterval_class>>pluralLabel,DyViewerVisitor>>visitAgenda:
+msgid "Days off"
+msgstr "Jours fériés"
+
+#: Dybo-Model-Business,DyDayInterval>>mold
+msgid "End"
+msgstr "Fin"
+
+#: Dybo-Model-Business,DyDayInterval>>printOn:
+msgid "days inteval"
+msgstr "intervalle de jours"
+
+#: Dybo-Model-Business,DyPerson>>initialize
+msgid "Unknown person"
+msgstr "Personne inconnue"
+
+#: Dybo-Model-Business,DyPerson>>mold
+msgid "Email"
+msgstr "Email"
+
+#: Dybo-Model-Business,DyPerson>>mold
+msgid "Firstname"
+msgstr "Prénom"
+
+#: Dybo-Model-Business,DyPerson>>mold
+msgid "Lastname"
+msgstr "Nom de famille"
+
+#: Dybo-Model-Business,DySchool_class>>label
+msgid "school"
+msgstr "école"
+
+#: Dybo-Model-Business,DySchool_class>>pluralLabel,DyViewerVisitor>>visitUserData:
+msgid "Schools"
+msgstr "Ecoles"
+
+#: Dybo-Model-Business,DySchool>>initialize
+msgid "Unknown school"
+msgstr "Ecole inconnue"
+
+#: Dybo-Model-Business,DySchool>>mold
+msgid "School name"
+msgstr "Nom d'école"
+
+#: Dybo-Model-Business,DyStudent_class>>label
+msgid "student"
+msgstr "étudiant"
+
+#: Dybo-Model-Business,DyStudent_class>>pluralLabel,DyViewerVisitor>>visitClassGroup:
+msgid "Students"
+msgstr "Etudiants"
+
+#: Dybo-Model-Business,DyTimeSlot_class>>label
+msgid "time slot"
+msgstr "créneau horaire"
+
+#: Dybo-Model-Business,DyTimeSlot_class>>pluralLabel,DyViewerVisitor>>visitSchool:
+msgid "Time slots"
+msgstr "Créneaux horaires"
+
+#: Dybo-Model-Business,DyTimeSlot>>mold
+msgid "End time"
+msgstr "Fin de période"
+
+# Fin de période avant début de période
+#: Dybo-Model-Business,DyTimeSlot>>mold
+msgid "End time can't preced start time."
+msgstr "Fin de période avant début de période"
+
+#: Dybo-Model-Business,DyTimeSlot>>mold
+msgid "Name"
+msgstr "Nom"
+
+#: Dybo-Model-Business,DyTimeSlot>>mold
+msgid "Start time"
+msgstr "Début de période"
+
+#: Dybo-Model-Business,DyTopic_class>>label
+msgid "topic"
+msgstr "thème"
+
+#: Dybo-Model-Business,DyTopic_class>>pluralLabel,DyViewerVisitor>>visitCourse:
+msgid "Topics"
+msgstr "Thèmes"
+
+#: Dybo-Model-Business,DyTopic>>initialize
+msgid "Unnamed topic"
+msgstr "Thème sans nom"
+
+#: Dybo-Model-Business,DyTopic>>mold
+msgid "Title"
+msgstr "Ttire"
+
+#: Dybo-Presenter,Dybo_class>>getMenuIn:at:
+msgid "System menu"
+msgstr "Menu système"
+
+#: Dybo-Presenter,Dybo_class>>informationString
+msgid ""
+"The Dybo application for educators and learners to manage their job. \n"
+"{1}\n"
+"\n"
+"{2}\n"
+"LICENSES: \n"
+" - Dybo packages LGPL\n"
+" - Each DKM package is released under the terms of its specific license \n"
+"     with possible restrictions."
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>quit
+msgid ""
+"You may have unsaved data! \n"
+"Are you sure to quit the Dybo application?"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "A source code browser to view, edit and save Dybo code. Hacker only!"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "A window used as a scratchpad area where fragments of Cuis-Smalltalk code can be entered, stored, edited, and evaluated. "
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "A window used to print information from the code - text output. Any object receiving the message #print is output in the Transcript: 'hello' print, (k * 5) print. Use the Transcript class for more elaborated output."
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "Open a file"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "Open the filer on your personal models collection."
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "Save session"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "Save this Dybo application as it is right now."
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "System Browser"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:,Dybo_class>>toolsMenu:,Dybo_class>>toolsMenu:,Dybo_class>>toolsMenu:,Dybo_class>>toolsMenu:,Dybo_class>>worldMenu:
+msgid "Tools"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "Transcript"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>toolsMenu:
+msgid "Workspace"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>version
+msgid "Release "
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>worldMenu:
+msgid "About"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>worldMenu:
+msgid "New Dybo environment"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>worldMenu:
+msgid "Open Dybo environent"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>worldMenu:
+msgid "Quit"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>worldMenu:
+msgid "Toggle full screen mode"
+msgstr ""
+
+#: Dybo-Presenter,Dybo_class>>worldMenu:
+msgid "Turn full screen mode on when it is off, off when it is on."
+msgstr ""
+
+#: Dybo-Presenter,Dybo>>deleteDocument:
+msgid ""
+"Delete the document: {1}\n"
+"in the topic: {2}?"
+msgstr ""
+
+#: Dybo-Presenter,Dybo>>deleteDocument:
+msgid "No, keep it."
+msgstr ""
+
+#: Dybo-Presenter,Dybo>>deleteDocument:
+msgid "Yes, I want to delete it."
+msgstr ""
+
+#: Dybo-Presenter,Dybo>>deleteTask:
+msgid "Delete the task at {1}?"
+msgstr ""
+
+#: Dybo-Presenter,Dybo>>deleteTask:
+msgid "No"
+msgstr ""
+
+#: Dybo-Presenter,Dybo>>deleteTask:
+msgid "Yes"
+msgstr ""
+
+#: Dybo-Presenter,Dybo>>importPDF
+msgid "Import a PDF document."
+msgstr ""
+
+#: Dybo-System,DyPlatform>>setPreferences
+msgid "The default model for a new page in a document."
+msgstr ""
+
+#: Dybo-System,DyPlatform>>setPreferences
+msgid "The default ratio of a page document expressed with two numbers in width and ehight."
+msgstr ""
+
+#: Dybo-View,DyAgendaView>>incomingTasksPanel
+msgid "Future tasks"
+msgstr ""
+
+#: Dybo-View,DyAgendaView>>newTaskPanel
+msgid " at "
+msgstr ""
+
+#: Dybo-View,DyAgendaView>>newTaskPanel
+msgid "New task in "
+msgstr ""
+
+#: Dybo-View,DyAgendaView>>newTaskPanel,DyViewerVisitor>>plugView:
+msgid "Save"
+msgstr ""
+
+#: Dybo-View,DyAgendaView>>tasksWidget
+msgid "Delete the task {1}?"
+msgstr ""
+
+#: Dybo-View,DyBinderView>>documentsPanel
+msgid "Create a new document in the selected topic."
+msgstr ""
+
+#: Dybo-View,DyBinderView>>documentsPanel
+msgid "Import a PDF document in the selected topic."
+msgstr ""
+
+#: Dybo-View,DyBinderView>>documentsPanel
+msgid "My documents"
+msgstr ""
+
+#: Dybo-View,DyBinderView>>previewFor:
+msgid "Delete this document"
+msgstr ""
+
+#: Dybo-View,DyBinderView>>previewFor:
+msgid "Edit this document"
+msgstr ""
+
+#: Dybo-View,DyBinderView>>previewFor:
+msgid "Save this document"
+msgstr ""
+
+#: Dybo-View,DyBinderView>>sortOptions
+msgid "By name"
+msgstr ""
+
+#: Dybo-View,DyBinderView>>sortOptions
+msgid "Newer first"
+msgstr ""
+
+#: Dybo-View,DyBinderView>>sortOptions
+msgid "Older first"
+msgstr ""
+
+#: Dybo-View,DyControlsManager_class>>horizontalWheel
+msgid "Scroll the document to the left or right."
+msgstr ""
+
+#: Dybo-View,DyControlsManager_class>>verticalWheel
+msgid "Scroll the document up or down."
+msgstr ""
+
+#: Dybo-View,DyControlsManager_class>>zoomWheel
+msgid "Zoom in or out the document."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>binderButtonData
+msgid "Binders"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>binderButtonData
+msgid "In the Binders, find the documents of your courses and start a new one."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>eraserSizeTools
+msgid "Erase with a width of {1} pixels."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>highlighterColorTools
+msgid "Highlight with a {1} color."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>highlighterColorTools
+msgid "yellow"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>highligtherSizeTools
+msgid "Highlit with a width of {1} pixels."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>nibSizeTools
+msgid "Write with a width of {1} pixel(s)."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>pageButtonData
+msgid "Open a blank document to start writing."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>pageButtonData
+msgid "Open document"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>penColorTools
+msgid "Write with a {1} color."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>penColorTools
+msgid "black"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>penColorTools
+msgid "blue"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>penColorTools
+msgid "green"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>penColorTools
+msgid "red"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>penColorTools
+msgid "white"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>settingsButtonData
+msgid "In the Settings, edit your course and student lists."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>settingsButtonData
+msgid "Settings"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>startButtonData
+msgid "In Start, review and search for the recent activities."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>startButtonData,DyDayInterval>>mold
+msgid "Start"
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>tasksButtonData
+msgid "In the Tasks, review forthcoming tasks and assign a new one."
+msgstr ""
+
+#: Dybo-View,DyControlsManager>>tasksButtonData
+msgid "Tasks"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>editorsFor:ofType:in:
+msgid "Add a new {1}"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>editorsFor:ofType:in:
+msgid "Delete the selected {1}"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>editorsFor:ofType:in:
+msgid "Edit the selected {1}"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>editorsFor:ofType:in:
+msgid "Export to a file"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>editorsFor:ofType:in:
+msgid "Import from a file"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>quickExport:
+msgid "CSV file to export"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>quickImport:
+msgid "CSV file to import"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>visitAgenda:,DyEditorVisitor>>visitClassGroup:,DyEditorVisitor>>visitCourse:,DyEditorVisitor>>visitCourseHour:,DyEditorVisitor>>visitSchool:
+msgid "Information"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>visitClassGroup:,DyViewerVisitor>>visitClassGroup:
+msgid "Head teacher"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>visitCourse:,DyEditorVisitor>>visitTeacher:,DyViewerVisitor>>visitCourse:
+msgid "Teacher"
+msgstr ""
+
+#: Dybo-View-Business,DyEditorVisitor>>visitUserData:
+msgid "Owner"
+msgstr ""
+
+#: Dybo-View-Business,DyViewerVisitor>>plugView:
+msgid "Edit"
+msgstr ""
+
+#: Dybo-View-Business,DyViewerVisitor>>viewFor:browse:
+msgid "Click to browse \"{1}\"."
+msgstr ""
+
+#: Dybo-View-Business,DyViewerVisitor>>visitAgenda:
+msgid "School year period"
+msgstr ""
+
+#: Dybo-View-Business,DyViewerVisitor>>visitTeacher:
+msgid "Classes "
+msgstr ""
+
+#: Dybo-View-Business,DyViewerVisitor>>visitUserData:
+msgid "Agenda"
+msgstr ""
+
