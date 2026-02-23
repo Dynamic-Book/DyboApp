@@ -1,0 +1,299 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Cuis\n"
+"POT-Creation-Date: 2026-02-23 16:52-0000\n"
+"PO-Revision-Date: 2026-02-23 16:52-0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ascii\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Cuis-SystemVersion: Cuis7.7 update 7840\n"
+"X-Cuis-Domain: dybodoc\n"
+
+#: DyboDoc-Presenter-Tool,EraserTool_class>>description
+msgid "An eraser to delete some of your handwriting."
+msgstr ""
+
+#: DyboDoc-Presenter-Tool,EraserTool_class>>title
+msgid "Eraser"
+msgstr ""
+
+#: DyboDoc-Presenter-Tool,GroupTool_class>>description
+msgid "Select a group of objects and drag them around."
+msgstr ""
+
+#: DyboDoc-Presenter-Tool,GroupTool_class>>title
+msgid "Group"
+msgstr ""
+
+#: DyboDoc-Presenter-Tool,HighlighterTool_class>>description
+msgid "A highlighter to emphasis some of your handwritings."
+msgstr ""
+
+#: DyboDoc-Presenter-Tool,HighlighterTool_class>>title
+msgid "Highlighter"
+msgstr ""
+
+#: DyboDoc-Presenter-Tool,PenTool_class>>description
+msgid "A pen for your handwriting."
+msgstr ""
+
+#: DyboDoc-Presenter-Tool,PenTool_class>>title
+msgid "Pencil"
+msgstr ""
+
+#: DyboDoc-Presenter-Tool,PointerTool_class>>description
+msgid "Drag and interact with objects."
+msgstr ""
+
+#: DyboDoc-Presenter-Tool,PointerTool_class>>title
+msgid "Interact"
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>executeScript
+msgid ""
+"Too many errors. Fix it!\n"
+"Script stopped"
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>newButtonArea
+msgid "Cancel"
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>newButtonArea
+msgid "Keep it"
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>newButtonArea
+msgid "Keep this modified script and update its view."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>newToolbar
+msgid "Debug the Smalltalk sketch."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>newToolbar
+msgid "Generate a prompt for AI and copy it in the host clipboard."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>newToolbar
+msgid "Play the script."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>newToolbar
+msgid "Save the script in my library."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>newToolbar
+msgid "Script help"
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>newToolbar
+msgid "Stop the execution of the Script."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>restoreLabel
+msgid "Edit Script"
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>saveScript
+msgid "Name the script to keep."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>switchToPauseButton
+msgid "Pause the Smalltalk sketch."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>switchToPlayButton
+msgid "Play the Smalltalk sketch."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptEditor>>switchToResumeButton
+msgid "Resume the Smalltalk sketch."
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptLibrary>>browseFor:
+msgid "Knowledge Models"
+msgstr ""
+
+#: DyboDoc-Script,DKMScriptLibrary>>browseFor:
+msgid "Scan again"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>addStandardHaloMenuItemsTo:hand:
+msgid "Bring to front"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>addStandardHaloMenuItemsTo:hand:
+msgid "Send to back"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>addStandardHaloMenuItemsTo:hand:
+msgid "When \"frozen\", I am inert to all user interactions."
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>frozenString
+msgid "Be frozen"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>haloSpecifications
+msgid "Change size"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>haloSpecifications
+msgid "Edit"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>haloSpecifications
+msgid "Help"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>haloSpecifications
+msgid "Inspect"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>haloSpecifications
+msgid "Menu"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>haloSpecifications
+msgid "Move"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>haloSpecifications
+msgid "Remove"
+msgstr ""
+
+#: DyboDoc-View,AnnotatorMorph>>haloSpecifications
+msgid "Rotate"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>deletePageButtonData
+msgid "Delete page"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>deletePageButtonData
+msgid "Delete the current page."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>dkmButtonData
+msgid "Browse the Dynamic Knowledge Models from the system and your personnal collection, then insert one in your current document."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>dkmButtonData
+msgid "DKM"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>firstPageButtonData
+msgid "First page"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>firstPageButtonData
+msgid "Go to the FIRST page of the document."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>fitScreenButtonData
+msgid "Fit screen"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>fitScreenButtonData
+msgid "Scale the page to make it entirely visible."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>fitWidthButtonData
+msgid "Fit width"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>fitWidthButtonData
+msgid "Scale the page to fit the window width."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>horizontalWheel
+msgid "Scroll the document to the left or the right."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>insertPageButtonData
+msgid "Insert a new page after the current one."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>insertPageButtonData
+msgid "New page"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>installScriptsFlap
+msgid " Knowledge Models "
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>installToolsFlap
+msgid " Geometry Tools "
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>lastPageButtonData
+msgid "Go to the LAST page of the document."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>lastPageButtonData
+msgid "Last page"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>loadDocButtonData
+msgid "Load a document from my data."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>loadDocButtonData,DocumentView>>saveDocButtonData
+msgid "Save document"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>nextPageButtonData
+msgid "Go to the next page of the document."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>nextPageButtonData
+msgid "Next page"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>previousPageButtonData
+msgid "Go to the previous page of the document."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>previousPageButtonData
+msgid "Previous page"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>redoButtonData
+msgid "Redo"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>redoButtonData
+msgid "Redo your last undone action."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>saveDocButtonData
+msgid "Save the current document in my data."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>undoButtonData
+msgid "Undo"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>undoButtonData
+msgid "Undo your last action."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>verticalWheel
+msgid "Scroll the document up or down."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>zoom100ButtonData
+msgid "Zoom 100%"
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>zoom100ButtonData
+msgid "Zoom the page to its natural scale of 1:1 or 100%."
+msgstr ""
+
+#: DyboDoc-View,DocumentView>>zoomWheel
+msgid "Zoom in or out the document."
+msgstr ""
+

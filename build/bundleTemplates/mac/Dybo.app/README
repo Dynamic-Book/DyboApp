@@ -1,16 +1,16 @@
 WARNING
 ----------------------------------------------------------------------
-The user DKM scripts are saved within the iStoaApp folder, upgrading
-to a newer version may result in the lost of user files.
+The user data are saved within the DyboApp Resources folder, upgrading
+to a newer version may result in the lost of user data.
 
-Before installing newer iStoaApp version, the user should make a
-backup of its script saved in the iStoaApp/ folder.
+Before installing a newer DyboApp version, the user should make a
+backup of its Resources folder.
 
-When installing newer version from the iStoaApp ZIP archive, the user
-should request a merging installation, this operation depends on the Archive
-software used to install iStoaApp.
+When installing newer version from the DyboApp ZIP archive, the user
+should request a merging installation, this operation depends on the
+Archive software used to install the DyboApp.
 
 
 HOW TO START
 ----------------------------------------------------------------------
-To start iStoaApp, double click on the file iStoa.app.
+To start the DyboApp, double click on the file Dybo.app.

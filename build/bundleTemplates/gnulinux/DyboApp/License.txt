@@ -1,13 +1,13 @@
 # Licenses
 
-* Copyright 2025-2026 Hilaire Fernandes
+* Copyright 2023-2026 Hilaire Fernandes
 
-* The iStoa source code `iStoaApp.pck.st` is released under the terms of
-  the MIT license.
+* The DyboApp source code packages `Dybo-*.pck.st` are released under the terms of
+  the LGPL license.
 
 * Each DKM source code is released under the terms of its specific
   license, as specified in their [source code
   folder](https://github.com/istoa-eu/app/tree/main/src/dkm)
 
 License restrictions may apply to the whole application built from the
-iStoaApp source code and DKMs source codes.
+DyboApp source codes and DKMs source codes.

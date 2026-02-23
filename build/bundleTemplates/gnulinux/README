@@ -1,6 +1,6 @@
-Install into the iStoaApp/VM folder the content of a Linux OpenSmalltalk virtual
+Install into the DyboApp/VM folder the content of a Linux OpenSmalltalk virtual
 machine.
 
-The folder iStoaApp/VM should contain:
+The folder DyboApp/VM should contain:
     - bin and lib folders
     - squeak start up script

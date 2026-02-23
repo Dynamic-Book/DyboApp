@@ -356,7 +356,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>5.20231218.1441</string>
 	<key>CFBundleIconFile</key>
-	<string>istoa.icns</string>
+	<string>dyboapp.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.squeak.Squeak</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -524,7 +524,7 @@
 	<key>SqueakExplicitWindowOpenNeeded</key>
 	<false/>
 	<key>SqueakImageName</key>
-	<string>iStoa.app/Resources/image/istoa.image</string>
+	<string>Dybo.app/Resources/image/dybo.image</string>
 <!-- Uncomment and set this if you want to restrict the maximum heap size
 	<key>SqueakMaxHeapSize</key>
 	<integer>536870912</integer>
