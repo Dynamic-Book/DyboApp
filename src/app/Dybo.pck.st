@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 22 February 2026 at 12:04:18 pm'!
+'From Cuis7.7 [latest update: #7840] on 23 February 2026 at 3:53:21 pm'!
 'Description '!
-!provides: 'Dybo' 1 152!
+!provides: 'Dybo' 1 153!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1415,11 +1415,11 @@ in the topic: {2}?' translated
 	DyboSystem saveData 
 	! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 23/Feb/2026 12:39:30'!
 importPDF
 	| newDoc answer |
 	answer := (StandardFileMenu  new 
-		oldFileFrom:  DyboSystem myResourcesPath 
+		oldFileFrom:  DyboSystem myPDFPath 
 		withPattern:  '*.pdf'
 		excludePattern: '.*') startUpWithCaption: 'Import a PDF document.' translated.
 	answer ifNil: [^ self].
@@ -1601,7 +1601,15 @@ copyright
 cuisVersion
 	^ SystemVersion current versionString, ' #', SystemVersion current highestUpdate printString! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:34:47'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 23/Feb/2026 11:31:44'!
+getMenuIn: aWorld at: aHand
+	| menu |
+	menu :=  (CommandBuilder on: #dyboWorldMenu) getMenu.
+	menu addStayUpIcons ;
+		addTitle: 'System menu' translated.
+	^ menu! !
+
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 23/Feb/2026 11:40:01'!
 informationString
 	|text |
 	text := 'The Dybo application for educators and learners to manage their job. 
@@ -1609,8 +1617,8 @@ informationString
 
 {2}
 LICENSES: 
- - Dybo App LGPL
- - Each DKM is released under the terms of its specific license 
+ - Dybo packages LGPL
+ - Each DKM package is released under the terms of its specific license 
      with possible restrictions.' translated format: {self version. self copyright}.
 	^ text! !
 
@@ -1653,9 +1661,9 @@ toolsMenu: builder
 		icon: #saveIcon;
 		help: 'Save this Dybo application as it is right now.' translated! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:35:21'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 23/Feb/2026 11:33:37'!
 version
-	^ 'release ' translated, 
+	^ 'Release ' translated, 
 		'26.02a beta', 
 		(String streamContents: [:str | 
 			str nextPut: Character lf; nextPut: Character lf.
@@ -1672,33 +1680,34 @@ version
 				separatedBy: [str nextPut: Character lf]
 			])! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:56:47'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 23/Feb/2026 11:36:19'!
 worldMenu: builder
 	<dyboWorldMenu>
-	(builder newEntry: 'Open Dybo' translated)
+	(builder newEntry: 'Open Dybo environent' translated)
 		icon: #openIcon;
 		action: [Dybo load];
-		order: 0.
-	(builder newEntry: 'Open a new Dybo' translated)
+		order: 20.
+	(builder newEntry: 'New Dybo environment' translated)
 		icon: #newIcon;
 		action: [Dybo new];
-		order: 1.
+		order: 10.
 	(builder newEntry: 'Toggle full screen mode' translated)
 		icon: #viewFullscreenIcon;
 		action: [DyboSystem toggleFullscreen];
 		help: 'Turn full screen mode on when it is off, off when it is on.' translated;
-		order: 3.
+		order: 30.
 	(builder newEntry: 'Tools' translated)
+		order: 40;
 		icon: #systemIcon.
 	(builder newEntry: 'About' translated)
 		action: [ Dybo about ];
-		order: 7.
+		order: 100.
 	(builder newEntry:  'Quit' translated)
 		action: [ Dybo quit ];
 		icon: #quitIcon;
 		order: 999! !
 
-!Dybo class methodsFor: 'as yet unclassified' stamp: 'hlsf 16/Feb/2026 21:54:01'!
+!Dybo class methodsFor: 'instance creation' stamp: 'hlsf 16/Feb/2026 21:54:01'!
 load
 " load the user data in a new Dybo window "
 	^ self basicNew
@@ -1728,7 +1737,7 @@ userPath
 Global variable userPath may be set by Dybo start-up script "
 	^ Smalltalk at: #userPath ifAbsent: [self userPathPreference]! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:26:02'!
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 23/Feb/2026 12:35:48'!
 userPathPreference
 "	Is there a user prefrerence where to save user data ?"
 	^ (self preferences at: #userPath) 
@@ -1741,7 +1750,7 @@ userPathPreference
 					Smalltalk at: #home 
 						ifPresent: [:home | home / userPath]
 						ifAbsent: [userDirectoryEntry ] ] ]
-		ifEmpty: [self rootPath]
+		ifEmpty: [self resourcesPath ]
 		! !
 
 !DyPlatform methodsFor: 'preferences' stamp: 'hlsf 12/Oct/2024 10:09:22'!
@@ -1765,6 +1774,12 @@ setPreferences
 		value: PageModelHL.
 		
 	^ preferences! !
+
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 23/Feb/2026 11:28:58'!
+initialize
+	Preferences 
+		at: #worldMenu put: Dybo;
+		at: #fullScreenLeavesDeskMargins put: false.! !
 
 !DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 22/Feb/2026 11:55:23'!
 launch
@@ -1803,6 +1818,12 @@ rootPath
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 11/Feb/2026 18:07:25'!
 userPath
 	^ self rootPath / 'resources'! !
+
+!DyDevelopment methodsFor: 'as yet unclassified' stamp: 'hlsf 23/Feb/2026 11:30:04'!
+initialize
+	Preferences 
+		at: #fullScreenLeavesDeskMargins put: true;
+		at: #worldMenu put: TheWorldMenu. ! !
 
 !DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication
@@ -1844,10 +1865,10 @@ toggleFullscreen
 iconsPath
 	^ platform iconsPath! !
 
-!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:28:17'!
-myResourcesPath
+!DyboSystem class methodsFor: 'path' stamp: 'hlsf 23/Feb/2026 12:39:37'!
+myPDFPath
 " the location of the user resources as PDF or other media files "
-	^ (platform userPath/ 'myResources') assureExistence ! !
+	^ (platform userPath/ 'myPDF') assureExistence ! !
 
 !DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:34:11'!
 myScriptsPath
