@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 22 February 2026 at 12:04:24 pm'!
+'From Cuis7.7 [latest update: #7840] on 24 February 2026 at 9:06:18 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 191!
+!provides: 'DyboDoc' 1 192!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2344,7 +2344,7 @@ resetScripts
 scripts
 	^ scripts ifNil: [self scanForScripts]! !
 
-!DKMScriptLibrary methodsFor: 'updating' stamp: 'hlsf 15/Feb/2026 19:41:34'!
+!DKMScriptLibrary methodsFor: 'updating' stamp: 'hlsf 24/Feb/2026 21:05:59'!
 scriptSaved: dkmScript
 "	We are informed a script has just been saved on disk.
 	Decide what to do with this information"
@@ -2358,6 +2358,7 @@ scriptSaved: dkmScript
 			metadata associationsDo: [:assoc | prevMetadata at: assoc key put: assoc value]]			
 		ifNone: [
 			'Adding new script to ScriptLibrary.' print.
+			metadata at: #file put: dkmScript file pathName.
 			metadata at: #title ifAbsentPut: [dkmScript file baseName].
 			metadata at: #category ifAbsentPut: [dkmScript file parent baseName].
 			scripts add: metadata]
