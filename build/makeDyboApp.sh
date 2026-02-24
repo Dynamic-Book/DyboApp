@@ -88,9 +88,10 @@ makeBundle () {
     rsync -a  --exclude '*~' $bundleTemplate $bundlesPath
     
     echo "Installing user directories and files, icons"
-    rsync -a "$resources/scripts" $bundleResources
+    rsync -a $dyboAppRepo/resources/scripts $bundleResources
+    rsync -a $dyboAppRepo/resources/graphics/icons $bundleResources
     mkdir  $bundleResources/myPDF $bundleResources/myScripts $bundleResources/data
-    rsync -a "$resources/graphics/icons" $bundleResources
+
     
     echo "Copy license terms of each dkm..."
     for dkm in `find $iStoaRepo/src/dkm/* -maxdepth 1 -type d -printf "%f "`

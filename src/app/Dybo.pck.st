@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 24 February 2026 at 9:49:22 am'!
+'From Cuis7.7 [latest update: #7840] on 24 February 2026 at 3:05:09 pm'!
 'Description '!
-!provides: 'Dybo' 1 155!
+!provides: 'Dybo' 1 156!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -182,7 +182,7 @@ Dybo class
 
 !classDefinition: #DyPlatform category: #'Dybo-System'!
 Object subclass: #DyPlatform
-	instanceVariableNames: 'preferences icons scriptLibrary'
+	instanceVariableNames: 'preferences icons scriptLibrary fullscreen'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-System'!
@@ -1721,6 +1721,11 @@ iconToolbarSize
 miniToolbarSize
 	^ self iconToolbarSize // 2! !
 
+!DyPlatform methodsFor: 'user interface' stamp: 'hlsf 24/Feb/2026 15:04:06'!
+toggleFullscreen
+	fullscreen := fullscreen not.
+	Display fullScreenMode: fullscreen ! !
+
 !DyPlatform methodsFor: 'path' stamp: 'hlsf 24/Feb/2026 09:46:14'!
 iconsPath
 	^ self resourcesPath / 'icons'! !
@@ -1785,20 +1790,21 @@ setPreferences
 		
 	^ preferences! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 23/Feb/2026 11:28:58'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 24/Feb/2026 15:02:06'!
 initialize
+	fullscreen := true.
 	Preferences 
 		at: #worldMenu put: Dybo;
 		at: #fullScreenLeavesDeskMargins put: false.! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 22/Feb/2026 11:55:23'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 24/Feb/2026 15:02:44'!
 launch
 "	
 	Set a default name for authoring "
 	Transcript show: '[Dybo] Author set to "Dybo App User" (dau)'; cr.
 	Utilities setAuthorName: 'Dybo App User' initials: 'dau'.
 	Transcript show: '[Dybo] Fullscreen from preference'; cr.
-	Display fullScreenMode: (Preferences at: #fullscreen)
+	Display fullScreenMode: fullscreen
 	! !
 
 !DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 14/Feb/2026 12:13:35'!
@@ -1833,8 +1839,9 @@ rootPath
 userPath
 	^ self rootPath / 'resources'! !
 
-!DyDevelopment methodsFor: 'as yet unclassified' stamp: 'hlsf 23/Feb/2026 11:30:04'!
+!DyDevelopment methodsFor: 'initialize-release' stamp: 'hlsf 24/Feb/2026 15:02:16'!
 initialize
+	fullscreen := false.
 	Preferences 
 		at: #fullScreenLeavesDeskMargins put: true;
 		at: #worldMenu put: TheWorldMenu. ! !
@@ -1870,10 +1877,9 @@ miniToolbarSize
 screenSize
 	^ self runningWorld morphExtent! !
 
-!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 22/Feb/2026 11:56:04'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 24/Feb/2026 15:03:05'!
 toggleFullscreen
-	Preferences at: #fullscreen put: (Preferences at: #fullscreen) not.
-	Display fullScreenMode: (Preferences at: #fullscreen) ! !
+	platform toggleFullscreen ! !
 
 !DyboSystem class methodsFor: 'path' stamp: 'hlsf 11/Feb/2026 18:11:45'!
 iconsPath
