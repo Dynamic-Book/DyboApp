@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 24 February 2026 at 9:10:22 am'!
+'From Cuis7.7 [latest update: #7840] on 24 February 2026 at 9:49:22 am'!
 'Description '!
-!provides: 'Dybo' 1 154!
+!provides: 'Dybo' 1 155!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1721,6 +1721,10 @@ iconToolbarSize
 miniToolbarSize
 	^ self iconToolbarSize // 2! !
 
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 24/Feb/2026 09:46:14'!
+iconsPath
+	^ self resourcesPath / 'icons'! !
+
 !DyPlatform methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:36:05'!
 resourcesPath
 	^ self rootPath / 'Resources'
@@ -1757,7 +1761,7 @@ userPathPreference
 preferences
 	^ preferences ifNil: [self setPreferences ]! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 24/Feb/2026 08:47:59'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 24/Feb/2026 09:42:47'!
 setPreferences
 	preferences := PreferenceSet new.
 	preferences 
@@ -1771,7 +1775,13 @@ setPreferences
 		description: 'The default model for a new page in a document.' translated
 		category: #dybo
 		type: {PageModelHL}
-		value: PageModelHL.
+		value: PageModelHL;
+
+		name: #userPath
+		description:  'Path for user data as documents, PDF, knowledge models. An empty path locates these resources in the Dybo application folder. Relative path accepted, home/user directory is then prepended' translated
+		category:  #dybo
+		type:  nil
+		value: ''.
 		
 	^ preferences! !
 
@@ -1806,9 +1816,13 @@ scriptLibrary
 			scanForScripts;
 			yourself]! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 13/Aug/2023 16:31:47'!
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 24/Feb/2026 09:47:20'!
 iconsPath
-	^ self rootPath / 'resources' / 'graphics' / 'icons'! !
+	^ self resourcesPath / 'graphics' / 'icons'! !
+
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 24/Feb/2026 09:47:06'!
+resourcesPath
+	^ self rootPath / 'resources'! !
 
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 10/Oct/2024 10:18:28'!
 rootPath

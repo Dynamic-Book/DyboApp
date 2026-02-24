@@ -1,3 +1,3 @@
 ChangeSet installNewUpdates.
-Feature require: #'iStoaApp'.
-(Smalltalk at: #Stoa) perform: #install.
+Feature require: #'Dybo'.
+(Smalltalk at: #DyboSystem) perform: #install.
