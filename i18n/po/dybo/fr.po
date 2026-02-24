@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cuis\n"
 "POT-Creation-Date: 2026-02-23 16:52-0000\n"
-"PO-Revision-Date: 2026-02-23 19:48+0100\n"
+"PO-Revision-Date: 2026-02-24 09:10+0100\n"
 "Last-Translator: Hilaire Fernandes <hilaire@gnu.org>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -195,182 +195,195 @@ msgid ""
 " - Each DKM package is released under the terms of its specific license \n"
 "     with possible restrictions."
 msgstr ""
+"L'application Dybo pour enseignants et apprenant pour gérer leurs tâches.\n"
+"{1}\n"
+"\n"
+"{2}\n"
+"\n"
+"LICENCES :\n"
+" - Paquets Dybo LGPL\n"
+" - Chaque paquets DKM est sous sa propre licence\n"
+"     avec de possibles restrictions"
 
 #: Dybo-Presenter,Dybo_class>>quit
 msgid ""
 "You may have unsaved data! \n"
 "Are you sure to quit the Dybo application?"
 msgstr ""
+"Vous pourriez avoir des données non sauvegardées !\n"
+"Voulez-vous vraiment quitter l'application Dybo ?"
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "A source code browser to view, edit and save Dybo code. Hacker only!"
-msgstr ""
+msgstr "Un navigateur de code source pour voir, éditer et sauver le code de Dybo. Bidouilleur seulement !"
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "A window used as a scratchpad area where fragments of Cuis-Smalltalk code can be entered, stored, edited, and evaluated. "
-msgstr ""
+msgstr "Une fenêtre utilisée comme une zone de bloc-notes où des fragments de code Cuis-Smalltalk peuvent être entrés, stockés, édités et évalués."
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "A window used to print information from the code - text output. Any object receiving the message #print is output in the Transcript: 'hello' print, (k * 5) print. Use the Transcript class for more elaborated output."
-msgstr ""
+msgstr "Une fenêtre utilisée pour afficher des informations depuis le code - sortie texte. N'importe quel objet recevant le message #print est affiché dans le Transcript : ''hello'' print, (k * 5 ) print. Utiliser la classe Transcript pour des sorties texte plus élaborée."
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "Open a file"
-msgstr ""
+msgstr "Ouvrir un fichier"
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "Open the filer on your personal models collection."
-msgstr ""
+msgstr "Ouvrez un fichier de votre collection personnelle de modèles."
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "Save session"
-msgstr ""
+msgstr "Enregister la session"
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "Save this Dybo application as it is right now."
-msgstr ""
+msgstr "Enregistrer l'application Dybo telle qu'elle se présente maintenant."
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "System Browser"
-msgstr ""
+msgstr "Navigateur système"
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:,Dybo_class>>toolsMenu:,Dybo_class>>toolsMenu:,Dybo_class>>toolsMenu:,Dybo_class>>toolsMenu:,Dybo_class>>worldMenu:
 msgid "Tools"
-msgstr ""
+msgstr "Outils"
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "Transcript"
-msgstr ""
+msgstr "Transcript"
 
 #: Dybo-Presenter,Dybo_class>>toolsMenu:
 msgid "Workspace"
-msgstr ""
+msgstr "Espace de travail"
 
 #: Dybo-Presenter,Dybo_class>>version
 msgid "Release "
-msgstr ""
+msgstr "Version logiciel"
 
 #: Dybo-Presenter,Dybo_class>>worldMenu:
 msgid "About"
-msgstr ""
+msgstr "A-propos"
 
 #: Dybo-Presenter,Dybo_class>>worldMenu:
 msgid "New Dybo environment"
-msgstr ""
+msgstr "Nouvel environnement Dybo"
 
 #: Dybo-Presenter,Dybo_class>>worldMenu:
 msgid "Open Dybo environent"
-msgstr ""
+msgstr "Ouvrir l'environnement Dybo"
 
 #: Dybo-Presenter,Dybo_class>>worldMenu:
 msgid "Quit"
-msgstr ""
+msgstr "Qutter"
 
 #: Dybo-Presenter,Dybo_class>>worldMenu:
 msgid "Toggle full screen mode"
-msgstr ""
+msgstr "Basculer en plein écran"
 
 #: Dybo-Presenter,Dybo_class>>worldMenu:
 msgid "Turn full screen mode on when it is off, off when it is on."
-msgstr ""
+msgstr "Basculer entre les modes plein écran et fenêtré, et vis-versa."
 
 #: Dybo-Presenter,Dybo>>deleteDocument:
 msgid ""
 "Delete the document: {1}\n"
 "in the topic: {2}?"
 msgstr ""
+"Supprimer le document : {1}\n"
+"du thème : {2}"
 
 #: Dybo-Presenter,Dybo>>deleteDocument:
 msgid "No, keep it."
-msgstr ""
+msgstr "Non, le garder."
 
 #: Dybo-Presenter,Dybo>>deleteDocument:
 msgid "Yes, I want to delete it."
-msgstr ""
+msgstr "Oui, je veux l'effacer."
 
 #: Dybo-Presenter,Dybo>>deleteTask:
 msgid "Delete the task at {1}?"
-msgstr ""
+msgstr "Supprimer la tâche à {1} ?"
 
 #: Dybo-Presenter,Dybo>>deleteTask:
 msgid "No"
-msgstr ""
+msgstr "Non"
 
 #: Dybo-Presenter,Dybo>>deleteTask:
 msgid "Yes"
-msgstr ""
+msgstr "Oui"
 
 #: Dybo-Presenter,Dybo>>importPDF
 msgid "Import a PDF document."
-msgstr ""
+msgstr "Importer un document PDF."
 
 #: Dybo-System,DyPlatform>>setPreferences
 msgid "The default model for a new page in a document."
-msgstr ""
+msgstr "Le model par défaut d'une nouvelle page d'un document."
 
 #: Dybo-System,DyPlatform>>setPreferences
 msgid "The default ratio of a page document expressed with two numbers in width and ehight."
-msgstr ""
+msgstr "La proportion par défaut d'une page définie par deux nombres, largeur et hauteur."
 
 #: Dybo-View,DyAgendaView>>incomingTasksPanel
 msgid "Future tasks"
-msgstr ""
+msgstr "Tâches futures"
 
 #: Dybo-View,DyAgendaView>>newTaskPanel
 msgid " at "
-msgstr ""
+msgstr " à "
 
 #: Dybo-View,DyAgendaView>>newTaskPanel
 msgid "New task in "
-msgstr ""
+msgstr "Nouvelle tâche dans "
 
 #: Dybo-View,DyAgendaView>>newTaskPanel,DyViewerVisitor>>plugView:
 msgid "Save"
-msgstr ""
+msgstr "Enregistrer"
 
 #: Dybo-View,DyAgendaView>>tasksWidget
 msgid "Delete the task {1}?"
-msgstr ""
+msgstr "Supprimer la tâche {1} ?"
 
 #: Dybo-View,DyBinderView>>documentsPanel
 msgid "Create a new document in the selected topic."
-msgstr ""
+msgstr "Créer un nouveau document dans le thème sélectionné."
 
 #: Dybo-View,DyBinderView>>documentsPanel
 msgid "Import a PDF document in the selected topic."
-msgstr ""
+msgstr "Importer un document PDF dans le thème sélectionné."
 
 #: Dybo-View,DyBinderView>>documentsPanel
 msgid "My documents"
-msgstr ""
+msgstr "Mes documents"
 
 #: Dybo-View,DyBinderView>>previewFor:
 msgid "Delete this document"
-msgstr ""
+msgstr "Supprimer ce document"
 
 #: Dybo-View,DyBinderView>>previewFor:
 msgid "Edit this document"
-msgstr ""
+msgstr "Editer ce document"
 
 #: Dybo-View,DyBinderView>>previewFor:
 msgid "Save this document"
-msgstr ""
+msgstr "Enregistrer ce document"
 
 #: Dybo-View,DyBinderView>>sortOptions
 msgid "By name"
-msgstr ""
+msgstr "Par nom"
 
 #: Dybo-View,DyBinderView>>sortOptions
 msgid "Newer first"
-msgstr ""
+msgstr "Récent"
 
 #: Dybo-View,DyBinderView>>sortOptions
 msgid "Older first"
-msgstr ""
+msgstr "Ancien"
 
 #: Dybo-View,DyControlsManager_class>>horizontalWheel
 msgid "Scroll the document to the left or right."
-msgstr ""
+msgstr "Faire défiler la page à gauche ou à droite."
 
 #: Dybo-View,DyControlsManager_class>>verticalWheel
 msgid "Scroll the document up or down."
@@ -382,71 +395,71 @@ msgstr ""
 
 #: Dybo-View,DyControlsManager>>binderButtonData
 msgid "Binders"
-msgstr ""
+msgstr "Classeurs"
 
 #: Dybo-View,DyControlsManager>>binderButtonData
 msgid "In the Binders, find the documents of your courses and start a new one."
-msgstr ""
+msgstr "Dans les classeurs, parcourir les documents de tes cours ou en créer un nouveau."
 
 #: Dybo-View,DyControlsManager>>eraserSizeTools
 msgid "Erase with a width of {1} pixels."
-msgstr ""
+msgstr "Gommer avec une largeur de {1} points."
 
 #: Dybo-View,DyControlsManager>>highlighterColorTools
 msgid "Highlight with a {1} color."
-msgstr ""
+msgstr "Mettre en évidence avec la couleur {1}."
 
 #: Dybo-View,DyControlsManager>>highlighterColorTools
 msgid "yellow"
-msgstr ""
+msgstr "jaune"
 
 #: Dybo-View,DyControlsManager>>highligtherSizeTools
 msgid "Highlit with a width of {1} pixels."
-msgstr ""
+msgstr "Mettre en évidence avec une largeur de {1} points."
 
 #: Dybo-View,DyControlsManager>>nibSizeTools
 msgid "Write with a width of {1} pixel(s)."
-msgstr ""
+msgstr "Ecrire avec une épaisseur de {1} point(s)."
 
 #: Dybo-View,DyControlsManager>>pageButtonData
 msgid "Open a blank document to start writing."
-msgstr ""
+msgstr "Créer un nouveau document et commencer à écrire."
 
 #: Dybo-View,DyControlsManager>>pageButtonData
 msgid "Open document"
-msgstr ""
+msgstr "Créer un document"
 
 #: Dybo-View,DyControlsManager>>penColorTools
 msgid "Write with a {1} color."
-msgstr ""
+msgstr "Ecrire avec la couleur {1}."
 
 #: Dybo-View,DyControlsManager>>penColorTools
 msgid "black"
-msgstr ""
+msgstr "noire"
 
 #: Dybo-View,DyControlsManager>>penColorTools
 msgid "blue"
-msgstr ""
+msgstr "bleue"
 
 #: Dybo-View,DyControlsManager>>penColorTools
 msgid "green"
-msgstr ""
+msgstr "verte"
 
 #: Dybo-View,DyControlsManager>>penColorTools
 msgid "red"
-msgstr ""
+msgstr "rouge"
 
 #: Dybo-View,DyControlsManager>>penColorTools
 msgid "white"
-msgstr ""
+msgstr "blanche"
 
 #: Dybo-View,DyControlsManager>>settingsButtonData
 msgid "In the Settings, edit your course and student lists."
-msgstr ""
+msgstr "Dans les réglages, éditer les listes de vos cours et de vos élèves."
 
 #: Dybo-View,DyControlsManager>>settingsButtonData
 msgid "Settings"
-msgstr ""
+msgstr "Réglages"
 
 #: Dybo-View,DyControlsManager>>startButtonData
 msgid "In Start, review and search for the recent activities."

@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 23 February 2026 at 3:53:21 pm'!
+'From Cuis7.7 [latest update: #7840] on 24 February 2026 at 9:10:22 am'!
 'Description '!
-!provides: 'Dybo' 1 153!
+!provides: 'Dybo' 1 154!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1757,12 +1757,12 @@ userPathPreference
 preferences
 	^ preferences ifNil: [self setPreferences ]! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 15/Nov/2024 20:01:24'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 24/Feb/2026 08:47:59'!
 setPreferences
 	preferences := PreferenceSet new.
 	preferences 
 		name: #paperRatio
-		description: 'The default ratio of a page document expressed with two numbers in width and ehight.' translated
+		description: 'The default ratio of a page defined by two numbers, width and height.' translated
 		category: #dybo 
 		type: {4@3 . 16@9 . 210@297} 
 		value: 16@9;
@@ -2212,18 +2212,18 @@ dyboPresenter
 dyboView
 	^ dyboView! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 5/Sep/2024 11:11:00'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 24/Feb/2026 09:04:37'!
 binderButtonData
 " label - iconName - callback - description "
 	^ {'Binders' translated . 
 	#binder . 
 	#goBinder . 
-	'In the Binders, find the documents of your courses and start a new one.' translated }! !
+	'In the binders, browse the documents of your courses or start a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 15:09:41'!
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 24/Feb/2026 09:08:24'!
 pageButtonData
 " label - iconName - callback - description "
-	^ {'Open document' translated . 
+	^ {'New document' translated . 
 	#document . 
 	#goDocument . 
 	'Open a blank document to start writing.' translated }! !
@@ -2367,40 +2367,6 @@ spacer: size
 	^ ColoredBoxMorph new 
 		color: Color transparent; 
 		morphWidth: size;
-		yourself! !
-
-!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 23/Dec/2024 21:06:46'!
-horizontalWheel 
-	^ (WheelMorph target: self docPresenter actionSelector: #moveOXAction:)
-		beHorizontal; 
-		factor: 1; 
-		setBalloonText: 'Scroll the document to the left or right.' translated;
-		borderWidth: 3;
-		color: Color orange;
-		borderColor: Color black;
-		yourself! !
-
-!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 23/Dec/2024 21:06:41'!
-verticalWheel 
-	^  (WheelMorph target: self docPresenter actionSelector: #moveOYAction:)
-		beVertical; 
-		factor: 1; 
-		setBalloonText: 'Scroll the document up or down.' translated; 
-		borderWidth: 3;
-		color: Color orange;
-		borderColor: Color  black ;
-		yourself		
-		! !
-
-!DyControlsManager class methodsFor: 'Doc-widget' stamp: 'hlsf 23/Dec/2024 21:06:33'!
-zoomWheel 
-	^  (WheelMorph target: self docPresenter actionSelector: #zoomAction:)
-		beVertical; 
-		factor: 0.005; 
-		setBalloonText: 'Zoom in or out the document.' translated; 
-		borderWidth: 3;
-		color: Color gray;
-		borderColor: Color black;
 		yourself! !
 
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 10:25:09'!
