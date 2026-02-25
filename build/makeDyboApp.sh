@@ -89,7 +89,7 @@ makeBundle () {
     
     echo "Installing user directories and files, icons"
     rsync -a $dyboAppRepo/resources/scripts $bundleResources
-    rsync -a $dyboAppRepo/resources/graphics/icons $bundleResources
+    rsync -a $dyboAppRepo/resources/graphics/icons $bundleResources/graphics
     mkdir  $bundleResources/myPDF $bundleResources/myScripts $bundleResources/data
 
     

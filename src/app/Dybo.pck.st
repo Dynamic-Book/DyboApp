@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 25 February 2026 at 10:11:00 am'!
+'From Cuis7.7 [latest update: #7840] on 25 February 2026 at 3:28:28 pm'!
 'Description '!
-!provides: 'Dybo' 1 157!
+!provides: 'Dybo' 1 158!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1738,9 +1738,9 @@ toggleFullscreen
 	fullscreen := fullscreen not.
 	Display fullScreenMode: fullscreen ! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 24/Feb/2026 09:46:14'!
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 25/Feb/2026 15:26:47'!
 iconsPath
-	^ self resourcesPath / 'icons'! !
+	^ self resourcesPath / 'graphics' / 'icons'! !
 
 !DyPlatform methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:36:05'!
 resourcesPath
@@ -1837,10 +1837,6 @@ scriptLibrary
 !DyPlatform methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 09:13:33'!
 isDeployment
 	^ true! !
-
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 24/Feb/2026 09:47:20'!
-iconsPath
-	^ self resourcesPath / 'graphics' / 'icons'! !
 
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 24/Feb/2026 09:47:06'!
 resourcesPath
