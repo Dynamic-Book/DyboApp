@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 24 February 2026 at 3:05:09 pm'!
+'From Cuis7.7 [latest update: #7840] on 25 February 2026 at 10:11:00 am'!
 'Description '!
-!provides: 'Dybo' 1 156!
+!provides: 'Dybo' 1 157!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -280,14 +280,24 @@ DyView subclass: #DyBinderView
 DyBinderView class
 	instanceVariableNames: ''!
 
-!classDefinition: #DynabookView category: #'Dybo-View'!
-SystemWindow subclass: #DynabookView
+!classDefinition: #DyboFullscreenView category: #'Dybo-View'!
+LinearLayoutMorph subclass: #DyboFullscreenView
 	instanceVariableNames: 'presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-View'!
-!classDefinition: 'DynabookView class' category: #'Dybo-View'!
-DynabookView class
+!classDefinition: 'DyboFullscreenView class' category: #'Dybo-View'!
+DyboFullscreenView class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyboWindow category: #'Dybo-View'!
+SystemWindow subclass: #DyboWindow
+	instanceVariableNames: 'presenter'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-View'!
+!classDefinition: 'DyboWindow class' category: #'Dybo-View'!
+DyboWindow class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyboTestCase category: #'Dybo-Test'!
@@ -403,7 +413,7 @@ My model is a DyAgenda instance, to access the agenda and the class group!
 !DyBinderView commentStamp: '<historical>' prior: 0!
 I am a view to browse the past document, depending on the class groups, courses and topics.!
 
-!DynabookView commentStamp: '<historical>' prior: 0!
+!DyboWindow commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 26/Dec/2024 11:15:54'!
@@ -1547,10 +1557,12 @@ initialize
 	domain := DyDomain new.
 	self installComponents ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 1/Dec/2024 17:03:09'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:52:08'!
 installComponents
 	controlsManager := DyControlsManager new.
-	controlsManager installDyboView: self.
+	DyboSystem isDeployment 
+		ifTrue:  [controlsManager installDyboFullscreenView: self]
+		ifFalse: [	controlsManager installDyboWindow: self].
 	self goStart.
 	self view openInWorld ! !
 
@@ -1822,6 +1834,10 @@ scriptLibrary
 			scanForScripts;
 			yourself]! !
 
+!DyPlatform methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 09:13:33'!
+isDeployment
+	^ true! !
+
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 24/Feb/2026 09:47:20'!
 iconsPath
 	^ self resourcesPath / 'graphics' / 'icons'! !
@@ -1845,6 +1861,10 @@ initialize
 	Preferences 
 		at: #fullScreenLeavesDeskMargins put: true;
 		at: #worldMenu put: TheWorldMenu. ! !
+
+!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 10:09:25'!
+isDeployment
+	^ true ! !
 
 !DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication
@@ -2070,6 +2090,10 @@ launch
 	Transcript show: '[Dybo] launching ended'; cr.
 	! !
 
+!DyboSystem class methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 09:14:16'!
+isDeployment
+	^ platform isDeployment ! !
+
 !DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 13/Oct/2024 17:11:46'!
 addChevron: data to: aToolbar
 	"data first = action selector
@@ -2284,13 +2308,21 @@ defaultColor
 		ifNotNil: [:v | v defaultColor] 
 		ifNil: [Theme current paneBackgroundFrom: Theme current transcript ]! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
-installDyboView: aPresenter
-	dyboView := DynabookView for: aPresenter.
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:51:55'!
+installDyboFullscreenView: aPresenter
+	self installDyboView: aPresenter in: DyboFullscreenView ! !
+
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:49:23'!
+installDyboView: aPresenter in: aDyboViewClass
+	dyboView := aDyboViewClass for: aPresenter.
 	dyboView 
 		addMorph: self dyboToolbar 
 		layoutSpec: (LayoutSpec fixedHeight: DyboSystem iconToolbarSize + 4).
 	self plugStart! !
+
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:49:51'!
+installDyboWindow: aPresenter
+	self installDyboView: aPresenter in: DyboWindow ! !
 
 !DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 14/Dec/2024 15:21:49'!
 activeView
@@ -3399,32 +3431,117 @@ updateDocumentPreviews
 				into: [:row :document | row addMorph: (self previewFor: document) ]) ].
 	^ previewPanel ! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 21:38:59'!
+!DyboFullscreenView methodsFor: 'accessing' stamp: 'hlsf 25/Feb/2026 09:29:30'!
 adoptWidgetsColor: aColor 
 	super adoptWidgetsColor: aColor.
 	color := Theme current paneBackgroundFrom: aColor.! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 21:38:31'!
-defaultBorderColor
-	^ Theme current transcript! !
+!DyboFullscreenView methodsFor: 'accessing' stamp: 'hlsf 25/Feb/2026 09:46:07'!
+layoutMorph
+"	I am the layout morph"
+	^ self! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 21:38:23'!
-defaultColor
-	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
-
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 11:14:05'!
+!DyboFullscreenView methodsFor: 'accessing' stamp: 'hlsf 25/Feb/2026 09:53:02'!
 presenter
-	^ presenter! !
+	^ presenter ! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 15/Aug/2023 20:52:33'!
+!DyboFullscreenView methodsFor: 'accessing' stamp: 'hlsf 25/Feb/2026 09:52:55'!
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DynabookView methodsFor: 'accessing' stamp: 'hlsf 29/Aug/2024 11:58:28'!
+!DyboFullscreenView methodsFor: 'GUI building' stamp: 'hlsf 25/Feb/2026 09:30:56'!
+buttonColor
+
+	^Theme current buttonColorFrom: self windowColor! !
+
+!DyboFullscreenView methodsFor: 'GUI building' stamp: 'hlsf 25/Feb/2026 09:41:22'!
+textBackgroundColor
+
+	^Theme current paneBackgroundFrom: self widgetsColor! !
+
+!DyboFullscreenView methodsFor: 'GUI building' stamp: 'hlsf 25/Feb/2026 09:29:20'!
 windowColor
 	^ Theme current workspace! !
 
-!DynabookView class methodsFor: 'instance creation' stamp: 'hlsf 15/Aug/2023 20:51:48'!
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:33:22'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:33:39'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:37:12'!
+initialize
+	super initialize.
+	adoptsWidgetsColor := true.
+	self beColumn! !
+
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:40:12'!
+openInWorld
+	"Ensure all widgets have proper colors before opening"
+	Theme current widgetsColorFromToolColor ifTrue: [
+		self widgetsColor: self windowColor ].
+	super openInWorld! !
+
+!DyboFullscreenView methodsFor: 'panes' stamp: 'hlsf 25/Feb/2026 09:41:48'!
+widgetsColor
+	^ borderColor! !
+
+!DyboFullscreenView methodsFor: 'panes' stamp: 'hlsf 25/Feb/2026 09:41:14'!
+widgetsColor: aColor
+	"aColor will be used for titles, borders, etc.
+	A variation of it, #paneColorFrom:, will be used for panes background"
+
+	borderColor := aColor.
+	self color: self textBackgroundColor.
+	self adoptWidgetsColor: borderColor! !
+
+!DyboFullscreenView methodsFor: 'as yet unclassified' stamp: 'hlsf 25/Feb/2026 10:02:21'!
+step
+	self morphPosition: 0@0;
+		morphExtent: Display extent! !
+
+!DyboFullscreenView methodsFor: 'as yet unclassified' stamp: 'hlsf 25/Feb/2026 09:59:57'!
+stepTime
+	^ 500 ! !
+
+!DyboFullscreenView methodsFor: 'as yet unclassified' stamp: 'hlsf 25/Feb/2026 10:00:41'!
+wantsSteps
+	^ true! !
+
+!DyboFullscreenView class methodsFor: 'instance creation' stamp: 'hlsf 25/Feb/2026 09:25:52'!
+for: aPresenter
+	^ self new ::
+		presenter: aPresenter;
+		yourself! !
+
+!DyboWindow methodsFor: 'initialization' stamp: 'hlsf 28/Sep/2023 21:38:31'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DyboWindow methodsFor: 'initialization' stamp: 'hlsf 28/Sep/2023 21:38:23'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DyboWindow methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 21:38:59'!
+adoptWidgetsColor: aColor 
+	super adoptWidgetsColor: aColor.
+	color := Theme current paneBackgroundFrom: aColor.! !
+
+!DyboWindow methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 11:14:05'!
+presenter
+	^ presenter! !
+
+!DyboWindow methodsFor: 'accessing' stamp: 'hlsf 15/Aug/2023 20:52:33'!
+presenter: aPresenter
+	presenter := aPresenter ! !
+
+!DyboWindow methodsFor: 'GUI building' stamp: 'hlsf 29/Aug/2024 11:58:28'!
+windowColor
+	^ Theme current workspace! !
+
+!DyboWindow class methodsFor: 'instance creation' stamp: 'hlsf 15/Aug/2023 20:51:48'!
 for: aPresenter
 	^ self new ::
 		presenter: aPresenter;
