@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 15 February 2026 at 12:47:12 pm'!
+'From Cuis7.7 [latest update: #7840] on 25 February 2026 at 10:27:30 am'!
 'Description '!
-!provides: 'DKM-Extention' 1 3!
+!provides: 'DKM-Extention' 1 4!
 SystemOrganization addCategory: #'DKM-Extention'!
 
 
@@ -37,9 +37,9 @@ svgIcon
 title
 	^ 'Workspace' translated! !
 
-!TextModelMorph class methodsFor: '*DKM-Extention' stamp: 'hlsf 15/Feb/2026 12:37:54'!
+!TextModelMorph class methodsFor: '*DKM-Extention' stamp: 'hlsf 25/Feb/2026 10:23:15'!
 codeSample
-	^ 'DKMTextEditor withText: ''Write your text here.'''! !
+	^ 'TextModelMorph withText: ''Write your text here.'''! !
 
 !TextModelMorph class methodsFor: '*DKM-Extention' stamp: 'hlsf 15/Feb/2026 12:38:23'!
 description
