@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 26 February 2026 at 10:08:36 am'!
+'From Cuis7.7 [latest update: #7840] on 26 February 2026 at 11:22:55 am'!
 'Description '!
-!provides: 'Dybo' 1 160!
+!provides: 'Dybo' 1 161!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1858,9 +1858,9 @@ initialize
 		at: #fullScreenLeavesDeskMargins put: true;
 		at: #worldMenu put: TheWorldMenu. ! !
 
-!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 15:29:22'!
+!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 26/Feb/2026 11:17:21'!
 isDeployment
-	^ false ! !
+	^ true ! !
 
 !DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication
@@ -3496,18 +3496,34 @@ widgetsColor: aColor
 	self color: self textBackgroundColor.
 	self adoptWidgetsColor: borderColor! !
 
-!DyboFullscreenView methodsFor: 'as yet unclassified' stamp: 'hlsf 25/Feb/2026 10:02:21'!
+!DyboFullscreenView methodsFor: 'stepping' stamp: 'hlsf 25/Feb/2026 10:02:21'!
 step
 	self morphPosition: 0@0;
 		morphExtent: Display extent! !
 
-!DyboFullscreenView methodsFor: 'as yet unclassified' stamp: 'hlsf 25/Feb/2026 09:59:57'!
+!DyboFullscreenView methodsFor: 'stepping' stamp: 'hlsf 25/Feb/2026 09:59:57'!
 stepTime
 	^ 500 ! !
 
-!DyboFullscreenView methodsFor: 'as yet unclassified' stamp: 'hlsf 25/Feb/2026 10:00:41'!
+!DyboFullscreenView methodsFor: 'stepping' stamp: 'hlsf 25/Feb/2026 10:00:41'!
 wantsSteps
 	^ true! !
+
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 11:14:07'!
+addCustomMenuItems: aMenu hand: aHand
+	aMenu addUpdating: #fullscreenString action: #toggleFullscreen! !
+
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 11:18:12'!
+fullscreenString
+	^ self isStepping asMenuItemTextPrefix , 'fullscreen'! !
+
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 11:16:51'!
+morphExtent: newExtent
+	super morphExtent: Display extent x @ newExtent y! !
+
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 11:15:00'!
+toggleFullscreen
+	self isStepping ifTrue: [self stopStepping] ifFalse: [self startStepping]! !
 
 !DyboFullscreenView class methodsFor: 'instance creation' stamp: 'hlsf 25/Feb/2026 09:25:52'!
 for: aPresenter
@@ -3983,3 +3999,11 @@ asTimeSlot
 		slotName: elements first;
 		start: (Time fromString: elements second);
 		end: (Time fromString: elements third)! !
+
+!Morph methodsFor: '*Dybo' stamp: 'hlsf 26/Feb/2026 11:09:19'!
+isStepping
+	^ self world ifNotNil: [ :w | w isStepping: self]! !
+
+!WorldMorph methodsFor: '*Dybo' stamp: 'hlsf 26/Feb/2026 11:10:57'!
+isStepping: aMorph
+	^ stepList anySatisfy: [:stepMsg | stepMsg receiver == aMorph]! !
