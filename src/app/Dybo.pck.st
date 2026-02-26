@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 26 February 2026 at 9:22:43 am'!
+'From Cuis7.7 [latest update: #7840] on 26 February 2026 at 10:08:36 am'!
 'Description '!
-!provides: 'Dybo' 1 159!
+!provides: 'Dybo' 1 160!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -2339,7 +2339,7 @@ plugBinder
 				self activeView updateDocumentPreviews]	].
 	self runningWorld doOneCycleNow.! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 31/Dec/2024 11:08:55'!
+!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 26/Feb/2026 09:56:30'!
 plugInDyboView: aView
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout |
@@ -2347,6 +2347,7 @@ plugInDyboView: aView
 	activeView ifNotNil: [layout removeMorph: activeView].
 	activeView := aView.
 	layout addMorphUseAll: aView .
+	aView adoptWidgetsColor: activeView borderColor.
 	dyboView changed.
 	self triggerEvent: #switchView! !
 
@@ -2707,7 +2708,7 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 	attributeView morphWidth: scroller viewableExtent x.
 	^ DecoratedPane open: scroller label: aTitle ! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 26/Feb/2026 09:54:10'!
 plugView: aMorph
 " Add an Edit button to this contents "
 	| viewer |
@@ -2718,7 +2719,7 @@ plugView: aMorph
 		action: 	["Edit me" 
 			viewer owner 
 				replaceView: viewer 
-				byView: (visitedModel accept: DyEditorVisitor new)			] 
+				byView: (visitedModel accept: DyEditorVisitor new)] 
 		altAction: [DyboSystem saveData] 
 		::
 		buttonLabel: 'Edit' translated;
