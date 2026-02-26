@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7840] on 24 February 2026 at 9:06:18 pm'!
+'From Cuis7.7 [latest update: #7840] on 26 February 2026 at 10:16:54 am'!
 'Description '!
-!provides: 'DyboDoc' 1 192!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 193!
+!requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'SimplifiedDebugger' 1 0 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -3428,9 +3428,13 @@ initialize
 noteNewOwner: newOwner
 	self adjustBounds ! !
 
-!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 15/Feb/2026 10:37:52'!
+!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 15/Feb/2026 10:37:52'!
 balloonText
 	^ script description ! !
+
+!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 26/Feb/2026 10:16:13'!
+wantsToBeDroppedInto: aMorph 
+	^ aMorph is: #PageMorph ! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 26/Sep/2024 11:33:10'!
 newOn: aPresenter
