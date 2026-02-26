@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 25 February 2026 at 3:28:28 pm'!
+'From Cuis7.7 [latest update: #7840] on 26 February 2026 at 9:22:43 am'!
 'Description '!
-!provides: 'Dybo' 1 158!
+!provides: 'Dybo' 1 159!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1858,9 +1858,9 @@ initialize
 		at: #fullScreenLeavesDeskMargins put: true;
 		at: #worldMenu put: TheWorldMenu. ! !
 
-!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 10:09:25'!
+!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 15:29:22'!
 isDeployment
-	^ true ! !
+	^ false ! !
 
 !DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication
@@ -2552,7 +2552,7 @@ newColumnWith: morphs
 	column morphExtent: column minimumExtent.
 	^ column ! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 21/Sep/2023 10:55:12'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 26/Feb/2026 09:18:38'!
 quickAdd: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
@@ -2591,6 +2591,7 @@ quickAdd: args
 			decorator replaceSubmorph: objectPane by: listMorph.
 			quickButtons submorphsDo: #lockUnlockMorph]; 
 		buildMorphicWindow.
+	objectPane adoptWidgetsColor: decorator borderColor.
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
@@ -2623,7 +2624,7 @@ quickDelete: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 27/Aug/2023 15:34:57'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 26/Feb/2026 09:18:11'!
 quickEdit: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
@@ -2655,6 +2656,7 @@ quickEdit: args
 			decorator replaceSubmorph: objectPane by: listMorph.
 			quickButtons submorphsDo: #lockUnlockMorph]; 
 		buildMorphicWindow.
+	objectPane adoptWidgetsColor: decorator borderColor.
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
