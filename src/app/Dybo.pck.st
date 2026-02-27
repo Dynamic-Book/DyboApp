@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 26 February 2026 at 11:22:55 am'!
+'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 8:23:31 am'!
 'Description '!
-!provides: 'Dybo' 1 161!
+!provides: 'Dybo' 1 162!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1547,6 +1547,10 @@ goTasks
 	controlsManager plugTask.
 	self changed: #isView:! !
 
+!Dybo methodsFor: 'callback' stamp: 'hlsf 26/Feb/2026 14:51:18'!
+toggleFullscreen
+	DyboSystem toggleFullscreen ! !
+
 !Dybo methodsFor: 'testing' stamp: 'hlsf 1/Dec/2024 17:18:51'!
 isView: aSymbolView
 " We have the start, tasks, binder, and settings views "
@@ -1858,9 +1862,9 @@ initialize
 		at: #fullScreenLeavesDeskMargins put: true;
 		at: #worldMenu put: TheWorldMenu. ! !
 
-!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 26/Feb/2026 11:17:21'!
+!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 15:29:22'!
 isDeployment
-	^ true ! !
+	^ false ! !
 
 !DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication
@@ -2260,6 +2264,14 @@ binderButtonData
 	#goBinder . 
 	'In the binders, browse the documents of your courses or start a new one.' translated }! !
 
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 26/Feb/2026 14:53:38'!
+fullscreenButtonData
+" label - iconName - callback - description "
+	^ {'Fullscreen' translated . 
+	#fitScreen  . 
+	#toggleFullscreen . 
+	'Toggle between fullscreen and window views.' translated }! !
+
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 24/Feb/2026 09:08:24'!
 pageButtonData
 " label - iconName - callback - description "
@@ -2381,9 +2393,9 @@ dyboToolbar
 					self on: self dyboPresenter  button: aTool state: #isView: size: buttonWidth )] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 1/Dec/2024 17:01:30'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 26/Feb/2026 14:47:18'!
 dyboToolbarSpec
-	^ #(start tasks binder page spacer settings)! !
+	^ #(start tasks binder page spacer settings fullscreen)! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 on: aPresenter button: symbol state: stateGetter size: size
@@ -3509,20 +3521,20 @@ stepTime
 wantsSteps
 	^ true! !
 
-!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 11:14:07'!
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 14:45:03'!
 addCustomMenuItems: aMenu hand: aHand
-	aMenu addUpdating: #fullscreenString action: #toggleFullscreen! !
+	aMenu addUpdating: #fullscreenString action: #toggleFullextent! !
 
-!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 11:18:12'!
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 14:44:32'!
 fullscreenString
-	^ self isStepping asMenuItemTextPrefix , 'fullscreen'! !
+	^ self isStepping asMenuItemTextPrefix , 'full extent'! !
 
 !DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 11:16:51'!
 morphExtent: newExtent
 	super morphExtent: Display extent x @ newExtent y! !
 
-!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 11:15:00'!
-toggleFullscreen
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 14:45:27'!
+toggleFullextent
 	self isStepping ifTrue: [self stopStepping] ifFalse: [self startStepping]! !
 
 !DyboFullscreenView class methodsFor: 'instance creation' stamp: 'hlsf 25/Feb/2026 09:25:52'!
