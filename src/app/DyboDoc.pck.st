@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 9:40:23 am'!
+'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 10:56:31 am'!
 'Description '!
-!provides: 'DyboDoc' 1 194!
+!provides: 'DyboDoc' 1 195!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -3407,10 +3407,10 @@ goBehind
 isFrozen
 	^ self valueOfProperty: #frozen ifAbsent: [ false ]! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 31/Aug/2025 11:25:11'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/Feb/2026 09:47:07'!
 reconcileToFrozeenState
 " 	Annotator may freeze the annoted object. 
-	Frozen state is necessary additional state to distingish from the low lover lock property 
+	Frozen state is a necessary additional state to distingish from the lower lock property 
 "
 	annotatedMorph lock: self isFrozen! !
 
@@ -3570,15 +3570,15 @@ sampleAt: newDpi in: documentPath
 prepareToBeSaved
 	form := nil! !
 
-!PageBackgroundPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Jan/2025 14:46:25'!
+!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025 14:46:25'!
 knowsOwnLocalBounds
 	^ true! !
 
-!PageBackgroundPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Jan/2025 14:47:10'!
+!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025 14:47:10'!
 requiresVectorCanvas
 	^ false! !
 
-!PageBackgroundPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Jan/2025 14:47:55'!
+!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025 14:47:55'!
 wantsContour
 	^ false! !
 

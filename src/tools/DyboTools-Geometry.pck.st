@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7839] on 12 February 2026 at 12:13:21 pm'!
+'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 10:56:37 am'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 53!
+!provides: 'DyboTools-Geometry' 1 54!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -101,10 +101,10 @@ paper
 	" The paper I may hand stroke into "
 	^ owner paper! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2025 09:11:02'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026 10:17:01'!
 ppcm
 " pixels per cm "
-	^ 50.0! !
+	^ 59.0! !
 
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 09:53:57'!
 writingTool
@@ -308,9 +308,9 @@ positioningButtons
 yAxisPointsUp
 	^ true ! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 23/Sep/2025 21:58:14'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 27/Feb/2026 10:22:30'!
 drawCompassPoint
-" the user should now where is the center of the sketched arc or circle "
+" the user should know where is the center of the sketched arc or circle "
 	| pen altPen event compassPoint |
 	pen := owner presenter writingTool ifNil: [^ self].
 	altPen := Pen new
@@ -330,7 +330,7 @@ drawCompassPoint
 	pen become: altPen 
 	! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 25/Sep/2025 10:01:56'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 27/Feb/2026 10:41:01'!
 drawOn: canvas
 	| symmetricLeg |
 	self legVertices.
@@ -338,6 +338,8 @@ drawOn: canvas
 	canvas strokeWidth: 1.5 color: `Color black` fillColor: `Color yellow` do: [canvas polyLine: (legVertices allButLast)].
 	" Pen "
 	canvas fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
+	" Aperture "
+	canvas drawString: (self aperture printStringFractionDigits: 1) at: legVertices fifth + (10@0) font: font color: `Color black`.
 	symmetricLeg := legVertices * (-1 @ 1).
 	" Leg holding the compass point "
 	canvas strokeWidth: 1.5 color: `Color black` fillColor:`Color yellow` do: [canvas polyLine: symmetricLeg allButLast ].
@@ -345,6 +347,10 @@ drawOn: canvas
 	canvas strokeWidth: 1 color: `Color white` fillColor: `Color grey` do: [canvas polyLine: (symmetricLeg last: 3)].
 	" Handle "
 	canvas strokeWidth: 1.5 color: `Color black` fillColor: `Color yellow` do: [ canvas polyLine: self handleZone ]! !
+
+!Compass methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026 10:30:34'!
+aperture
+	^ self legVertices fifth x * 2 / self ppcm ! !
 
 !Compass methodsFor: 'geometry' stamp: 'hlsf 21/Sep/2025 21:06:56'!
 constrainToDirection: localHandPosition
@@ -354,6 +360,10 @@ constrainToDirection: localHandPosition
 rotationCenter
 	^ self legVertices fifth * (-1 @ 0)! !
 
+!Compass methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026 10:25:05'!
+writingPosition
+	^ self legVertices fifth! !
+
 !Compass methodsFor: 'testing' stamp: 'hlsf 21/Sep/2025 11:09:13'!
 inStrokeZone: localPosition
 	 ^ localPosition 
@@ -361,12 +371,12 @@ inStrokeZone: localPosition
 		with: legVertices fourth 
 		with: legVertices fifth ! !
 
-!Compass methodsFor: 'actions' stamp: 'hlsf 21/Sep/2025 22:26:05'!
+!Compass methodsFor: 'actions' stamp: 'hlsf 27/Feb/2026 10:52:08'!
 adjustExtent
 	| event compassPoint pen newPen newExtent p1 v1 v2 |
 	"any thing new to do?"
 	event := self activeHand lastMouseEvent.
-	event isMouseMove 
+	(event isMouseMove and: [lastHandPosition notNil])
 		ifTrue: [
 			pen := self externalizeToWorld: self legVertices fifth.
 			compassPoint := self externalizeToWorld: legVertices fifth * (-1 @ 0).

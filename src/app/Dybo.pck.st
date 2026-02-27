@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 9:40:16 am'!
+'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 10:56:26 am'!
 'Description '!
-!provides: 'Dybo' 1 162!
+!provides: 'Dybo' 1 163!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -182,7 +182,7 @@ Dybo class
 
 !classDefinition: #DyPlatform category: #'Dybo-System'!
 Object subclass: #DyPlatform
-	instanceVariableNames: 'preferences icons scriptLibrary fullscreen'
+	instanceVariableNames: 'preferences icons scriptLibrary fullscreen ppcm'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-System'!
@@ -1806,9 +1806,10 @@ setPreferences
 		
 	^ preferences! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 24/Feb/2026 15:02:06'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 27/Feb/2026 10:21:12'!
 initialize
 	fullscreen := true.
+	ppcm := 59.0.
 	Preferences 
 		at: #worldMenu put: Dybo;
 		at: #fullScreenLeavesDeskMargins put: false.! !
@@ -1830,6 +1831,11 @@ reset
 !DyPlatform methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 icons
 	^ icons ifNil: [icons := IconImporter path: DyboSystem iconsPath]! !
+
+!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026 10:20:55'!
+ppcm
+" Pixel per cm, user can adjust it with the etalon.png"
+	^ ppcm! !
 
 !DyPlatform methodsFor: 'accessing' stamp: 'hlsf 14/Feb/2026 12:13:12'!
 scriptLibrary
