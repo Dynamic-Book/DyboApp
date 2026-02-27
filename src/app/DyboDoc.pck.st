@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 26 February 2026 at 10:16:54 am'!
+'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 9:40:23 am'!
 'Description '!
-!provides: 'DyboDoc' 1 193!
+!provides: 'DyboDoc' 1 194!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -430,7 +430,7 @@ StrokeGroupMorph class
 
 !classDefinition: #PageMorph category: #'DyboDoc-View'!
 BoxMorph subclass: #PageMorph
-	instanceVariableNames: 'pageModel paper presenter'
+	instanceVariableNames: 'pageBackground paper presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-View'!
@@ -458,44 +458,44 @@ PaperMorph subclass: #AnnotatorMorph
 AnnotatorMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageModel category: #'DyboDoc-Model'!
-ColoredBoxMorph subclass: #PageModel
+!classDefinition: #PageBackground category: #'DyboDoc-Model'!
+ColoredBoxMorph subclass: #PageBackground
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageModel class' category: #'DyboDoc-Model'!
-PageModel class
+!classDefinition: 'PageBackground class' category: #'DyboDoc-Model'!
+PageBackground class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageModelHL category: #'DyboDoc-Model'!
-PageModel subclass: #PageModelHL
+!classDefinition: #PageBackgroundHL category: #'DyboDoc-Model'!
+PageBackground subclass: #PageBackgroundHL
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageModelHL class' category: #'DyboDoc-Model'!
-PageModelHL class
+!classDefinition: 'PageBackgroundHL class' category: #'DyboDoc-Model'!
+PageBackgroundHL class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageModelGrid category: #'DyboDoc-Model'!
-PageModelHL subclass: #PageModelGrid
+!classDefinition: #PageBackgroundGrid category: #'DyboDoc-Model'!
+PageBackgroundHL subclass: #PageBackgroundGrid
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageModelGrid class' category: #'DyboDoc-Model'!
-PageModelGrid class
+!classDefinition: 'PageBackgroundGrid class' category: #'DyboDoc-Model'!
+PageBackgroundGrid class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageModelPdf category: #'DyboDoc-Model'!
-PageModel subclass: #PageModelPdf
+!classDefinition: #PageBackgroundPdf category: #'DyboDoc-Model'!
+PageBackground subclass: #PageBackgroundPdf
 	instanceVariableNames: 'form pageNumber dpi'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageModelPdf class' category: #'DyboDoc-Model'!
-PageModelPdf class
+!classDefinition: 'PageBackgroundPdf class' category: #'DyboDoc-Model'!
+PageBackgroundPdf class
 	instanceVariableNames: ''!
 
 !classDefinition: #PageContainer category: #'DyboDoc-View'!
@@ -690,7 +690,7 @@ In some circumstance, I reveal my submorphs and then I do not draw them directly
 !PageMorph commentStamp: '<historical>' prior: 0!
 The view of a Page. A page is a unit of a Document.
 I always contain these two morphs of the same extent as me:
- - a page model providing the extent and the background
+ - a page background providing the page extent and the background
  - a paper morph covering all its extent
  - a collection of annotator morph!
 
@@ -713,19 +713,18 @@ My extent expands to enclosed new handwritings. It shrinks when handwritings are
 - script: instance of a DyboScript. An executed script return a view referenced by the annotedMorph
 - annotedMorph:  the view returned by the script when executed, it is then inserted in me!
 
-!PageModel commentStamp: '<historical>' prior: 0!
-An abstract model for a page.
-In essence a Page model provides the extent and the background of a PageMorph.
-It is a Morph too so it draws the background and it is owned by a PageMorph
-IT IS NOT a model as understood in MVC!
+!PageBackground commentStamp: '<historical>' prior: 0!
+An abstract model for page background
+In essence it provides the extent and the background of a PageMorph.
+It is a Morph too so it draws the background and it is owned by a PageMorph!
 
-!PageModelHL commentStamp: '<historical>' prior: 0!
+!PageBackgroundHL commentStamp: '<historical>' prior: 0!
 A white background with blue horizontal lines!
 
-!PageModelGrid commentStamp: '<historical>' prior: 0!
+!PageBackgroundGrid commentStamp: '<historical>' prior: 0!
 A white background with blue grids!
 
-!PageModelPdf commentStamp: '<historical>' prior: 0!
+!PageBackgroundPdf commentStamp: '<historical>' prior: 0!
 - pageNumber : integer, the page number of the PDF page I represent!
 
 !PageContainer commentStamp: '<historical>' prior: 0!
@@ -1180,7 +1179,7 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 27/Feb/2026 09:02:47'!
 importPDF: aFileEntry
 	| process |
 	process := DyboSystem 
@@ -1188,8 +1187,8 @@ importPDF: aFileEntry
 		to: model path
 		pages: nil.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
-	1 to: model pdfNumberOfPage do: [:index | | newPage |
-		newPage := PageMorph newOn: self model: (self model newPdfPageModel: index).
+	1 to: model pdfNumberOfPages do: [:index | | newPage |
+		newPage := PageMorph newOn: self background: (self model pdfBackgroundForPage: index).
 		self view insertPage: newPage 	]
 	! !
 
@@ -2406,29 +2405,29 @@ reset
 new
 	^self on: Array new! !
 
-!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 16/Nov/2024 11:05:18'!
+!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 27/Feb/2026 08:43:25'!
 initialize
 	super initialize.
 	timeStamp := DateAndTime now.
-	pageModel := PageModelHL ! !
+	pageModel := PageBackgroundHL ! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 16/Nov/2024 11:27:20'!
-newPdfPageModel: aPageNumber
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:46:02'!
+pdfBackgroundForPage: aPageNumber
 	| pdfPageModel |
-	pdfPageModel := PageModelPdf newOn: (self pdfFormPage: aPageNumber).
+	pdfPageModel := PageBackgroundPdf newOn: (self pdfFormAtPage: aPageNumber).
 	pdfPageModel pageNumber: aPageNumber.
 	^ pdfPageModel ! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 16/Nov/2024 10:28:22'!
-pdfFormPage: integer
-	^ ImageReadWriter formFromFileEntry: (self pdfPages at: integer)! !
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:35:35'!
+pdfFormAtPage: integer
+	^ ImageReadWriter formFromFileEntry: (self pdfPageJpegs at: integer)! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 16/Nov/2024 10:56:10'!
-pdfNumberOfPage
-	^ self pdfPages size! !
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:46:31'!
+pdfNumberOfPages
+	^ self pdfPageJpegs size! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 31/Dec/2024 19:18:28'!
-pdfPages
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:34:27'!
+pdfPageJpegs
 	^ (self path children select: [:each | each extension = 'jpg'])
 		sort: [:f1 :f2 | f1 name < f2 name]! !
 
@@ -2719,15 +2718,19 @@ initialize
 includeInNewMorphMenu
 	^ false! !
 
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 18/Dec/2024 15:33:55'!
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026 08:48:31'!
 scale: newScale
-	(pageModel is: #PageModelPdf) ifTrue: [
-		pageModel resampleFrom: self scale to: newScale in: self documentModel path].
+	(pageBackground is: #PageBackgroundPdf) ifTrue: [
+		pageBackground resampleFrom: self scale to: newScale in: self documentModel path].
 	super scale: newScale! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2024 11:35:01'!
 annotators
 	^submorphs select: [:morph | morph is: #AnnotatorMorph]! !
+
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026 08:50:11'!
+background: aPageBackground
+	pageBackground := aPageBackground ! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:27:26'!
 documentModel
@@ -2743,10 +2746,6 @@ grabAnnotatorsAt: localPosition
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 24/Jan/2025 19:49:55'!
 lockAnnoted
 	self annotators do: #lockAnnoted ! !
-
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024 11:03:58'!
-model: aPageModel
-	pageModel := aPageModel ! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 11:17:04'!
 pageContainer
@@ -2769,15 +2768,15 @@ unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2025 23:16:32'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 27/Feb/2026 08:48:31'!
 initialize
 	super initialize.
 	paper := PaperMorph newOn: presenter.
 	paper stroker: StrokerBezier2XP.
-	self addMorphBack: pageModel position: 0@0;
+	self addMorphBack: pageBackground position: 0@0;
 		addMorphFront: paper position: 0@0.
-	self morphExtent: pageModel morphExtent.
-	paper morphExtent: pageModel morphExtent! !
+	self morphExtent: pageBackground morphExtent.
+	paper morphExtent: pageBackground morphExtent! !
 
 !PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025 17:14:50'!
 clipsSubmorphs
@@ -2850,10 +2849,10 @@ wantsDroppedMorph: aMorph event: evt
 	^ (aMorph is: #FlapItem)
 	or: [aMorph is: #AnnotatorMorph]! !
 
-!PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2024 11:00:10'!
-newOn: documentPresenter model: aPageModel
+!PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 27/Feb/2026 09:24:08'!
+newOn: documentPresenter background: aPageBackground
 	^ self basicNew
-		model: aPageModel;
+		background: aPageBackground ;
 		presenter: documentPresenter ;
 		initialize;
 		yourself! !
@@ -3456,23 +3455,23 @@ newOn: documentPresenter for: aDyboScript
 		initialize;
 		yourself! !
 
-!PageModel methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!PageBackground methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 defaultExtent
 	^ DyboSystem defaultPaperSize ! !
 
-!PageModel methodsFor: 'as yet unclassified' stamp: 'hlsf 15/Nov/2024 22:33:03'!
+!PageBackground methodsFor: 'as yet unclassified' stamp: 'hlsf 15/Nov/2024 22:33:03'!
 documentModel
 	^ owner documentModel ! !
 
-!PageModel class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:34:58'!
+!PageBackground class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:34:58'!
 includeInNewMorphMenu
 	^ false! !
 
-!PageModelHL methodsFor: 'initialization' stamp: 'hlsf 12/Sep/2024 12:04:49'!
+!PageBackgroundHL methodsFor: 'initialization' stamp: 'hlsf 12/Sep/2024 12:04:49'!
 defaultColor
 	^ Color white! !
 
-!PageModelHL methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:46:53'!
+!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:46:53'!
 drawOn: canvas 
 	| y  step width |
 	super drawOn: canvas.
@@ -3485,15 +3484,15 @@ drawOn: canvas
 				lineTo: extent x @ y ].
             y := y + step ]   ! !
 
-!PageModelHL methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:46:42'!
+!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:46:42'!
 lineWidth
 	^  0.8 / owner scale min: 0.8! !
 
-!PageModelHL methodsFor: 'geometry testing' stamp: 'hlsf 12/Sep/2024 12:10:57'!
+!PageBackgroundHL methodsFor: 'geometry testing' stamp: 'hlsf 12/Sep/2024 12:10:57'!
 requiresVectorCanvas
 	^ true! !
 
-!PageModelGrid methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:48:40'!
+!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:48:40'!
 drawOn: canvas 
 	| x  step width |
 	super drawOn: canvas.
@@ -3507,36 +3506,36 @@ drawOn: canvas
 			x := x + step ]
 		]! !
 
-!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024 13:31:16'!
+!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024 13:31:16'!
 dpi
 	^ dpi ifNil: [dpi := 150]! !
 
-!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024 13:02:00'!
+!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026 08:35:35'!
 form
-	^ form ifNil: [form := self documentModel pdfFormPage: pageNumber ]! !
+	^ form ifNil: [form := self documentModel pdfFormAtPage: pageNumber ]! !
 
-!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:50:23'!
+!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:50:23'!
 form: aForm
 	form := aForm ! !
 
-!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:50:11'!
+!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:50:11'!
 pageNumber: integer
 	pageNumber := integer! !
 
-!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 24/Nov/2024 17:36:44'!
+!PageBackgroundPdf methodsFor: 'initialization' stamp: 'hlsf 24/Nov/2024 17:36:44'!
 defaultExtent
 	^ self form extent! !
 
-!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 4/Jan/2025 11:02:33'!
+!PageBackgroundPdf methodsFor: 'drawing' stamp: 'hlsf 4/Jan/2025 11:02:33'!
 drawOn: canvas
   "   Display reverse: canvas clipRect."
 	canvas image: self form at: 0@0! !
 
-!PageModelPdf methodsFor: 'testing' stamp: 'hlsf 16/Nov/2024 12:37:49'!
+!PageBackgroundPdf methodsFor: 'testing' stamp: 'hlsf 27/Feb/2026 08:44:01'!
 is: aSymbol
-	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
+	^ aSymbol == #PageBackgroundPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 4/Jan/2025 18:16:57'!
+!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 4/Jan/2025 18:16:57'!
 resampleFrom: oldScale to: newScale in: documentPath
 	" Do I need to be resampled "
 	| newDpi |
@@ -3557,7 +3556,7 @@ resampleFrom: oldScale to: newScale in: documentPath
 		extent := form extent.
 		dpi := newDpi ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 27/Feb/2026 08:35:35'!
 sampleAt: newDpi in: documentPath
 	| process |
 	process := DyboSystem 
@@ -3565,29 +3564,29 @@ sampleAt: newDpi in: documentPath
 		pages:  (pageNumber to: pageNumber)
 		dpi: newDpi .
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
-	form := self documentModel pdfFormPage: pageNumber! !
+	form := self documentModel pdfFormAtPage: pageNumber! !
 
-!PageModelPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024 19:09:38'!
+!PageBackgroundPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024 19:09:38'!
 prepareToBeSaved
 	form := nil! !
 
-!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Jan/2025 14:46:25'!
+!PageBackgroundPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Jan/2025 14:46:25'!
 knowsOwnLocalBounds
 	^ true! !
 
-!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Jan/2025 14:47:10'!
+!PageBackgroundPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Jan/2025 14:47:10'!
 requiresVectorCanvas
 	^ false! !
 
-!PageModelPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Jan/2025 14:47:55'!
+!PageBackgroundPdf methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Jan/2025 14:47:55'!
 wantsContour
 	^ false! !
 
-!PageModelPdf class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2024 11:15:42'!
+!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2024 11:15:42'!
 new
 	self error: 'Use #newOn: to create new instance'! !
 
-!PageModelPdf class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2024 11:16:04'!
+!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2024 11:16:04'!
 newOn: aForm
 	^ self basicNew
 		form: aForm;
@@ -3690,12 +3689,12 @@ deleteBitMasks
 	pages do: [:aPage |
 		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 6/Sep/2025 16:34:19'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 27/Feb/2026 09:02:47'!
 initialize
 	super initialize.
 	self beColumn.
 	pages := OrderedCollection new.
-	currentPage := PageMorph newOn: presenter model: self model newPageModel .
+	currentPage := PageMorph newOn: presenter background: self model newPageModel .
 	container := PageContainer for: currentPage.
 	self installScriptsFlap;
 		installToolsFlap.
@@ -3819,9 +3818,9 @@ goPage: aPage
 		presenter resetTool].
 	^ currentPage! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 16/Nov/2024 11:22:32'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 27/Feb/2026 09:02:47'!
 insertPage
-	self insertPage: (PageMorph newOn: presenter model: self model newPageModel)! !
+	self insertPage: (PageMorph newOn: presenter background: self model newPageModel)! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 16/Nov/2024 11:22:11'!
 insertPage: aPage

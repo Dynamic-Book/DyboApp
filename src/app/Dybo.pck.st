@@ -1,4 +1,4 @@
-'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 8:23:31 am'!
+'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 9:40:16 am'!
 'Description '!
 !provides: 'Dybo' 1 162!
 !requires: 'DyboDoc' 1 5 nil!
@@ -1782,7 +1782,7 @@ userPathPreference
 preferences
 	^ preferences ifNil: [self setPreferences ]! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 24/Feb/2026 09:42:47'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 27/Feb/2026 08:43:26'!
 setPreferences
 	preferences := PreferenceSet new.
 	preferences 
@@ -1795,8 +1795,8 @@ setPreferences
 		name: #paperModel
 		description: 'The default model for a new page in a document.' translated
 		category: #dybo
-		type: {PageModelHL}
-		value: PageModelHL;
+		type: {PageBackgroundHL}
+		value: PageBackgroundHL;
 
 		name: #userPath
 		description:  'Path for user data as documents, PDF, knowledge models. An empty path locates these resources in the Dybo application folder. Relative path accepted, home/user directory is then prepended' translated
