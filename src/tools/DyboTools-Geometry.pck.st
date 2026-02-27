@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 10:56:37 am'!
+'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 11:40:25 am'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 54!
+!provides: 'DyboTools-Geometry' 1 55!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -330,7 +330,7 @@ drawCompassPoint
 	pen become: altPen 
 	! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 27/Feb/2026 10:41:01'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 27/Feb/2026 11:29:24'!
 drawOn: canvas
 	| symmetricLeg |
 	self legVertices.
@@ -339,7 +339,7 @@ drawOn: canvas
 	" Pen "
 	canvas fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
 	" Aperture "
-	canvas drawString: (self aperture printStringFractionDigits: 1) at: legVertices fifth + (10@0) font: font color: `Color black`.
+	canvas drawString: (self aperture printStringFractionDigits: 2) at: legVertices fifth + (10@0) font: font color: `Color black`.
 	symmetricLeg := legVertices * (-1 @ 1).
 	" Leg holding the compass point "
 	canvas strokeWidth: 1.5 color: `Color black` fillColor:`Color yellow` do: [canvas polyLine: symmetricLeg allButLast ].
