@@ -1,13 +1,13 @@
-'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 11:40:25 am'!
+'From Cuis7.7 [latest update: #7840] on 1 March 2026 at 6:35:12 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 55!
+!provides: 'DyboTools-Geometry' 1 56!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
 
 !classDefinition: #GeometryTool category: #'DyboTools-Geometry'!
 PlacedMorph subclass: #GeometryTool
-	instanceVariableNames: 'font extent lastHandPosition length'
+	instanceVariableNames: 'font extent lastHandPosition length ppcm'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
@@ -55,6 +55,16 @@ GeometryTool subclass: #SetSquare
 SetSquare class
 	instanceVariableNames: ''!
 
+!classDefinition: #CalibratorMorph category: #'DyboTools-Geometry'!
+BoxMorph subclass: #CalibratorMorph
+	instanceVariableNames: 'etalon ruler ppcm step'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'CalibratorMorph class' category: #'DyboTools-Geometry'!
+CalibratorMorph class
+	instanceVariableNames: ''!
+
 
 !GeometryTool commentStamp: 'hlsf 9/16/2025 21:21:36' prior: 0!
 Abstract class for tools with straight linear metric graduation. 
@@ -84,6 +94,9 @@ A leg has a rectangular shape.
 !SetSquare commentStamp: '<historical>' prior: 0!
 A set square with two sensible zones to draw straight lines!
 
+!CalibratorMorph commentStamp: '<historical>' prior: 0!
+A tool to calibrate manually screen and metric units.!
+
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025 22:00:16'!
 detectNearby: toolSymbol
 | myBounds |
@@ -101,20 +114,26 @@ paper
 	" The paper I may hand stroke into "
 	^ owner paper! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026 10:17:01'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026 15:07:51'!
 ppcm
 " pixels per cm "
-	^ 59.0! !
+	^ ppcm! !
+
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026 17:21:09'!
+ppcm: aNumber
+" pixels per cm "
+	ppcm := aNumber asFloat! !
 
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 09:53:57'!
 writingTool
 
 	^ self paper writingTool! !
 
-!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025 13:10:00'!
+!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 17:49:01'!
 initialize
 	super initialize.
 	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
+	ppcm := 59
 ! !
 
 !GeometryTool methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025 09:11:59'!
@@ -131,10 +150,6 @@ constrainToDirection: localHandPosition
 !GeometryTool methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025 09:13:42'!
 rotationCenter
 	^ `0@0`! !
-
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 11/Sep/2025 09:13:57'!
-handlesMouseDown: event
-	^ true! !
 
 !GeometryTool methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025 09:53:57'!
 mouseButton1Down: event localPosition: localPosition
@@ -215,6 +230,10 @@ rotateMe
 			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition]! !
+
+!GeometryTool methodsFor: 'event handling testing' stamp: 'hlsf 1/Mar/2026 17:47:30'!
+handlesMouseDown: evt
+	^ true! !
 
 !Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 15:55:14'!
 extent: newExtent
@@ -966,3 +985,64 @@ resizeOY
 !SetSquare methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026 11:35:13'!
 name
 	^  'Set square' translated! !
+
+!CalibratorMorph methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026 15:04:16'!
+etalon: form
+	etalon := form! !
+
+!CalibratorMorph methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026 15:04:41'!
+ppcm
+	^ ppcm ! !
+
+!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 18:03:57'!
+initialize
+	super initialize.
+	ppcm := 50.
+	step := 0.2.
+	self morphExtent: 700@180.
+	ruler := Ruler new 
+		length: 10;
+		ppcm: ppcm;
+		lock.
+	self	addMorph: ruler position: 23@80.
+	self insertButtons! !
+
+!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 18:00:16'!
+insertButtons
+	| btn buttonExtent |
+	buttonExtent := Theme current listAddIcon extent * 1.5. 
+	btn := ButtonMorph model: self action: #increasePPCM ::
+		actWhen: #buttonStillDown;
+		icon: Theme current listAddIcon ;
+		morphExtent: buttonExtent.
+	self addMorph: btn position: 290@150.
+	
+	btn := ButtonMorph model: self action: #decreasePPCM ::
+		actWhen: #buttonStillDown;
+		icon: Theme current listRemoveIcon ;
+		morphExtent: buttonExtent.
+	self addMorph: btn position: (295 + buttonExtent x) @150
+! !
+
+!CalibratorMorph methodsFor: 'drawing' stamp: 'hlsf 1/Mar/2026 17:53:39'!
+drawOn: canvas
+	canvas
+		fillRectangle: self localBounds
+		color: `Color white`.
+	canvas image: etalon at: 0@0.! !
+
+!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026 18:06:00'!
+decreasePPCM
+	ppcm < 20 ifTrue: [^ self].
+	ppcm := ppcm - step.
+	ruler ppcm: ppcm;
+		length: 10.
+	self redrawNeeded ! !
+
+!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026 18:06:14'!
+increasePPCM
+	ppcm > 100 ifTrue: [^ self].
+	ppcm := ppcm + step.
+	ruler ppcm: ppcm;
+		length: 10.
+	self redrawNeeded ! !
