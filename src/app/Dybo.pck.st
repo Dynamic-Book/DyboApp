@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 10:56:26 am'!
+'From Cuis7.7 [latest update: #7840] on 1 March 2026 at 11:46:44 am'!
 'Description '!
-!provides: 'Dybo' 1 163!
+!provides: 'Dybo' 1 164!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1507,6 +1507,10 @@ saveTask
 		ifNil: [self saveNewTask]
 	! !
 
+!Dybo methodsFor: 'callback' stamp: 'hlsf 27/Feb/2026 11:21:51'!
+calibrateMetric
+	! !
+
 !Dybo methodsFor: 'callback' stamp: 'hlsf 31/Dec/2024 11:07:16'!
 goBinder
 	activeViewType := #binder.
@@ -2270,6 +2274,13 @@ binderButtonData
 	#goBinder . 
 	'In the binders, browse the documents of your courses or start a new one.' translated }! !
 
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 1/Mar/2026 11:46:25'!
+calibrateButtonData
+	^ {'Calibrate' translated . 
+	#calibrate . 
+	#calibrateMetric . 
+	'Calibrate the application to your screen configuration to accurately represent the metric unit. This is necessary for measuring length with geometric tools.' translated }! !
+
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 26/Feb/2026 14:53:38'!
 fullscreenButtonData
 " label - iconName - callback - description "
@@ -2399,9 +2410,9 @@ dyboToolbar
 					self on: self dyboPresenter  button: aTool state: #isView: size: buttonWidth )] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 26/Feb/2026 14:47:18'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 27/Feb/2026 11:15:33'!
 dyboToolbarSpec
-	^ #(start tasks binder page spacer settings fullscreen)! !
+	^ #(start tasks binder page spacer fullscreen calibrate settings)! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 on: aPresenter button: symbol state: stateGetter size: size
