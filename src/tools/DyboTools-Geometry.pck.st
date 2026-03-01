@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 1 March 2026 at 6:35:12 pm'!
+'From Cuis7.7 [latest update: #7840] on 1 March 2026 at 10:11:09 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 56!
+!provides: 'DyboTools-Geometry' 1 57!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -129,12 +129,11 @@ writingTool
 
 	^ self paper writingTool! !
 
-!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 17:49:01'!
+!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 22:04:18'!
 initialize
 	super initialize.
 	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
-	ppcm := 59
-! !
+	ppcm := DyboSystem ppcm! !
 
 !GeometryTool methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025 09:11:59'!
 insertButtons
@@ -994,17 +993,16 @@ etalon: form
 ppcm
 	^ ppcm ! !
 
-!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 18:03:57'!
+!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 22:02:15'!
 initialize
 	super initialize.
-	ppcm := 50.
-	step := 0.2.
-	self morphExtent: 700@180.
+	ppcm := DyboSystem ppcm.
+	step := 0.1.
 	ruler := Ruler new 
-		length: 10;
 		ppcm: ppcm;
+		length: 10;
 		lock.
-	self	addMorph: ruler position: 23@80.
+	self	addMorph: ruler position: 22.5@80.
 	self insertButtons! !
 
 !CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 18:00:16'!
@@ -1039,10 +1037,18 @@ decreasePPCM
 		length: 10.
 	self redrawNeeded ! !
 
-!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026 18:06:14'!
+!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026 22:06:18'!
 increasePPCM
-	ppcm > 100 ifTrue: [^ self].
+	ppcm > 70 ifTrue: [^ self].
 	ppcm := ppcm + step.
 	ruler ppcm: ppcm;
 		length: 10.
 	self redrawNeeded ! !
+
+!CalibratorMorph methodsFor: 'geometry testing' stamp: 'hlsf 1/Mar/2026 22:06:01'!
+clipsSubmorphs
+	^ true! !
+
+!CalibratorMorph methodsFor: 'geometry' stamp: 'hlsf 1/Mar/2026 22:08:29'!
+minimumExtent
+	^ `700@180`! !
