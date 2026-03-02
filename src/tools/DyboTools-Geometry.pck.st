@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 1 March 2026 at 10:11:09 pm'!
+'From Cuis7.7 [latest update: #7840] on 2 March 2026 at 10:28:26 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 57!
+!provides: 'DyboTools-Geometry' 1 58!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -233,6 +233,10 @@ rotateMe
 !GeometryTool methodsFor: 'event handling testing' stamp: 'hlsf 1/Mar/2026 17:47:30'!
 handlesMouseDown: evt
 	^ true! !
+
+!GeometryTool methodsFor: 'as yet unclassified' stamp: 'hlsf 2/Mar/2026 22:20:44'!
+postCopy
+	ppcm := DyboSystem ppcm.! !
 
 !Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 15:55:14'!
 extent: newExtent
@@ -737,8 +741,13 @@ resizeMe
 			self length: length + (lastHandPosition x - prev x / self ppcm)] 
 		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
 
-!Ruler methodsFor: 'copying' stamp: 'hlsf 7/Sep/2025 13:37:58'!
+!Ruler methodsFor: 'copying' stamp: 'hlsf 2/Mar/2026 22:08:57'!
+copy
+	^ super copy postCopy! !
+
+!Ruler methodsFor: 'copying' stamp: 'hlsf 2/Mar/2026 22:21:00'!
 postCopy
+	super postCopy.
 	self length: length! !
 
 !Ruler methodsFor: 'testing' stamp: 'hlsf 11/Sep/2025 09:32:55'!
