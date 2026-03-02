@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 1 March 2026 at 11:46:44 am'!
+'From Cuis7.7 [latest update: #7840] on 2 March 2026 at 7:45:30 pm'!
 'Description '!
-!provides: 'Dybo' 1 164!
+!provides: 'Dybo' 1 168!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -10,6 +10,7 @@
 !requires: 'UI-Mold' 1 13 nil!
 !requires: 'UI-Panel' 1 91 nil!
 !requires: 'Commander' 1 9 nil!
+SystemOrganization addCategory: #'Dybo-Morph'!
 SystemOrganization addCategory: #Dybo!
 SystemOrganization addCategory: #'Dybo-Model'!
 SystemOrganization addCategory: #'Dybo-Model-Business'!
@@ -32,7 +33,7 @@ DyDomain class
 
 !classDefinition: #DyUserData category: #'Dybo-Model'!
 Object subclass: #DyUserData
-	instanceVariableNames: 'user schools agenda'
+	instanceVariableNames: 'user schools agenda ppcm'
 	classVariableNames: 'Current'
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
@@ -182,7 +183,7 @@ Dybo class
 
 !classDefinition: #DyPlatform category: #'Dybo-System'!
 Object subclass: #DyPlatform
-	instanceVariableNames: 'preferences icons scriptLibrary fullscreen ppcm'
+	instanceVariableNames: 'preferences icons scriptLibrary fullscreen'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-System'!
@@ -298,6 +299,16 @@ SystemWindow subclass: #DyboWindow
 	category: 'Dybo-View'!
 !classDefinition: 'DyboWindow class' category: #'Dybo-View'!
 DyboWindow class
+	instanceVariableNames: ''!
+
+!classDefinition: #CalibratorPanel category: #'Dybo-View'!
+DialogPanel subclass: #CalibratorPanel
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-View'!
+!classDefinition: 'CalibratorPanel class' category: #'Dybo-View'!
+CalibratorPanel class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyboTestCase category: #'Dybo-Test'!
@@ -522,6 +533,14 @@ directory
 " Mydirectory entry "
 	^ DyboSystem userDataPath ! !
 
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 2/Mar/2026 19:38:19'!
+ppcm
+	^ ppcm! !
+
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 2/Mar/2026 19:38:29'!
+ppcm: aNumber
+	ppcm := aNumber asFloat! !
+
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:45:36'!
 relPath
 	^ ''! !
@@ -538,12 +557,13 @@ user
 user: aPerson
 	user := aPerson ! !
 
-!DyUserData methodsFor: 'initialization' stamp: 'hlsf 24/Sep/2023 14:38:24'!
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 2/Mar/2026 19:38:09'!
 initialize
 	super initialize.
 	schools := OrderedCollection new.
 	user := DyTeacher new.
-	agenda := DyAgenda new owner: self! !
+	agenda := DyAgenda new owner: self.
+	ppcm := 59.! !
 
 !DyUserData methodsFor: 'printing' stamp: 'hlsf 28/Jun/2023 00:09:47'!
 printOn: str
@@ -1507,9 +1527,17 @@ saveTask
 		ifNil: [self saveNewTask]
 	! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 27/Feb/2026 11:21:51'!
+!Dybo methodsFor: 'callback' stamp: 'hlsf 1/Mar/2026 22:31:05'!
 calibrateMetric
-	! !
+	| panel | 
+	panel := nil.
+	panel := PluggableDialogPanel 
+		open: controlsManager 
+		label: 'Calibrate Metric Unit' translated
+		view: #calibratorView
+		action: [
+			DyboSystem ppcm: panel pane ppcm.
+			panel delete]! !
 
 !Dybo methodsFor: 'callback' stamp: 'hlsf 31/Dec/2024 11:07:16'!
 goBinder
@@ -1810,10 +1838,9 @@ setPreferences
 		
 	^ preferences! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 27/Feb/2026 10:21:12'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 2/Mar/2026 19:38:53'!
 initialize
 	fullscreen := true.
-	ppcm := 59.0.
 	Preferences 
 		at: #worldMenu put: Dybo;
 		at: #fullScreenLeavesDeskMargins put: false.! !
@@ -1835,11 +1862,6 @@ reset
 !DyPlatform methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 icons
 	^ icons ifNil: [icons := IconImporter path: DyboSystem iconsPath]! !
-
-!DyPlatform methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026 10:20:55'!
-ppcm
-" Pixel per cm, user can adjust it with the etalon.png"
-	^ ppcm! !
 
 !DyPlatform methodsFor: 'accessing' stamp: 'hlsf 14/Feb/2026 12:13:12'!
 scriptLibrary
@@ -1865,7 +1887,7 @@ rootPath
 userPath
 	^ self rootPath / 'resources'! !
 
-!DyDevelopment methodsFor: 'initialize-release' stamp: 'hlsf 24/Feb/2026 15:02:16'!
+!DyDevelopment methodsFor: 'initialize-release' stamp: 'hlsf 2/Mar/2026 19:38:59'!
 initialize
 	fullscreen := false.
 	Preferences 
@@ -1902,6 +1924,15 @@ icons
 miniToolbarSize
 " Size of the squared icons in the secondary toolbar"
 	^ platform miniToolbarSize ! !
+
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 2/Mar/2026 19:40:23'!
+ppcm
+	^ DyUserData current ppcm! !
+
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 2/Mar/2026 19:41:07'!
+ppcm: number
+	DyUserData current ppcm: number.
+	self saveData.! !
 
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 12/Oct/2024 09:40:04'!
 screenSize
@@ -2349,7 +2380,7 @@ installDyboView: aPresenter in: aDyboViewClass
 installDyboWindow: aPresenter
 	self installDyboView: aPresenter in: DyboWindow ! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 14/Dec/2024 15:21:49'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 14/Dec/2024 15:21:49'!
 activeView
 " 	The active view is the view where the user operates. It is a subview in the Dybo view.
 	It can be the Home, the Task, the Binder, the Document or the Settings view 
@@ -2357,7 +2388,12 @@ activeView
  "
 	^ activeView! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 4/Jan/2025 10:30:30'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 1/Mar/2026 22:07:32'!
+calibratorView
+	^ CalibratorMorph new
+		etalon: (ImageReadWriter formFromFileEntry: DyboSystem iconsPath // 'etalon.png')! !
+
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 4/Jan/2025 10:30:30'!
 plugBinder
 	self plugInDyboView: (DyBinderView presenter: self dyboPresenter).
 	self dyboPresenter currentTopic "Any previously selected topic? "
@@ -2368,7 +2404,7 @@ plugBinder
 				self activeView updateDocumentPreviews]	].
 	self runningWorld doOneCycleNow.! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 26/Feb/2026 09:56:30'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 26/Feb/2026 09:56:30'!
 plugInDyboView: aView
 " plug in the dynabook main view this morph, below its toolbar "
 	| layout |
@@ -2380,18 +2416,18 @@ plugInDyboView: aView
 	dyboView changed.
 	self triggerEvent: #switchView! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 1/Dec/2024 17:02:37'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 1/Dec/2024 17:02:37'!
 plugSettings
 	self plugInDyboView: (
 		BreadcrumbsPane 
 			on: self dyboPresenter domain userData 
 			with: DyViewerVisitor )! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 1/Dec/2024 10:32:31'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 1/Dec/2024 10:32:31'!
 plugStart
 ! !
 
-!DyControlsManager methodsFor: 'plugging view' stamp: 'hlsf 1/Dec/2024 17:02:37'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 1/Dec/2024 17:02:37'!
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
 
@@ -2758,7 +2794,7 @@ plugView: aMorph
 		yourself.
 	^ viewer ! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 12/Aug/2023 13:58:45'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 1/Mar/2026 17:29:26'!
 viewFor: anAttribute browse: canBeBrowsed
 " Present a text view of an attribute."
 	| aTextView |
@@ -2771,7 +2807,7 @@ viewFor: anAttribute browse: canBeBrowsed
 		aTextView 
 			setBalloonText: 
 				('Click to browse "{1}".' translated format: {anAttribute printString});			
-			setProperty: #'handlesMouseDown:' 					toValue: [ :ignored | true ];
+			setProperty: #'handlesMouseDown:' toValue: true;
 			setProperty: #'mouseButton1Up:localPosition:'
 			toValue: [ :event :position | visitedModel triggerEvent: #browseTo with: anAttribute]].
 	^ aTextView ! !
@@ -3590,6 +3626,26 @@ for: aPresenter
 	^ self new ::
 		presenter: aPresenter;
 		yourself! !
+
+!CalibratorPanel methodsFor: 'as yet unclassified' stamp: 'hlsf 1/Mar/2026 18:20:56'!
+newButtonArea
+	| area |
+	area := LayoutMorph newRow 
+		axisEdgeWeight: #rowRight;
+		addMorph: (PluggableButtonMorph
+			model: self
+			action: #accept
+			label: 'Accept' translated :: setBalloonText: 'I am done calibrating the ruler to the grid.' translated);
+		addMorph: (PluggableButtonMorph
+			model: self
+			action: #cancel
+			label: 'Cancel' translated).
+	^ area ! !
+
+!CalibratorPanel methodsFor: 'as yet unclassified' stamp: 'hlsf 1/Mar/2026 18:17:52'!
+newPane
+	^ CalibratorMorph new
+		etalon: (ImageReadWriter formFromFileEntry: DyboSystem iconsPath // 'etalon.png')! !
 
 !DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 5/Dec/2024 23:15:26'!
 setUp
