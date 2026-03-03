@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7840] on 27 February 2026 at 10:56:31 am'!
+'From Cuis7.7 [latest update: #7840] on 3 March 2026 at 5:34:12 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 195!
-!requires: 'SimplifiedDebugger' 1 0 nil!
+!provides: 'DyboDoc' 1 196!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
+!requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -380,7 +380,7 @@ CommandStack class
 
 !classDefinition: #DocumentModel category: #'DyboDoc-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'timeStamp pageModel ownerPath'
+	instanceVariableNames: 'timeStamp pageBackground ownerPath'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
@@ -460,12 +460,32 @@ AnnotatorMorph class
 
 !classDefinition: #PageBackground category: #'DyboDoc-Model'!
 ColoredBoxMorph subclass: #PageBackground
-	instanceVariableNames: ''
+	instanceVariableNames: 'step'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
 !classDefinition: 'PageBackground class' category: #'DyboDoc-Model'!
 PageBackground class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageBackgroundBlank category: #'DyboDoc-Model'!
+PageBackground subclass: #PageBackgroundBlank
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Model'!
+!classDefinition: 'PageBackgroundBlank class' category: #'DyboDoc-Model'!
+PageBackgroundBlank class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageBackgroundGrid category: #'DyboDoc-Model'!
+PageBackground subclass: #PageBackgroundGrid
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Model'!
+!classDefinition: 'PageBackgroundGrid class' category: #'DyboDoc-Model'!
+PageBackgroundGrid class
 	instanceVariableNames: ''!
 
 !classDefinition: #PageBackgroundHL category: #'DyboDoc-Model'!
@@ -476,16 +496,6 @@ PageBackground subclass: #PageBackgroundHL
 	category: 'DyboDoc-Model'!
 !classDefinition: 'PageBackgroundHL class' category: #'DyboDoc-Model'!
 PageBackgroundHL class
-	instanceVariableNames: ''!
-
-!classDefinition: #PageBackgroundGrid category: #'DyboDoc-Model'!
-PageBackgroundHL subclass: #PageBackgroundGrid
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'DyboDoc-Model'!
-!classDefinition: 'PageBackgroundGrid class' category: #'DyboDoc-Model'!
-PageBackgroundGrid class
 	instanceVariableNames: ''!
 
 !classDefinition: #PageBackgroundPdf category: #'DyboDoc-Model'!
@@ -661,12 +671,12 @@ I scan for the existing DKM scripts on the host, to present them to the user:
 !CommandStack commentStamp: '<historical>' prior: 0!
 I am stack of command to execute or to unexecute user action in a Document!
 
-!DocumentModel commentStamp: '<historical>' prior: 0!
+!DocumentModel commentStamp: 'hlsf 3/Mar/2026 17:05:34' prior: 0!
 - timeStamp : creation time of a Document. An unique identifier. It is used to create a dedicated directory on disk in the tasks or topic directory
 - relPath, the path my folder is saved in with my associate data, relatively to userDataPath. Those my fullPath is userDataPath / relPath / dirName
-- pageModel can be either 
+- pageBackground can be either 
  1. a path to a pdf document used as a model for PageModelPdf. Each page of the Document use a PDF page as its model
- 2. a class in the  PageModel hierachy, the default model for each page of the Document
+ 2. a class in the  PageBackground hierachy, the default background for each page of the Document
 !
 
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
@@ -718,11 +728,11 @@ An abstract model for page background
 In essence it provides the extent and the background of a PageMorph.
 It is a Morph too so it draws the background and it is owned by a PageMorph!
 
-!PageBackgroundHL commentStamp: '<historical>' prior: 0!
-A white background with blue horizontal lines!
-
 !PageBackgroundGrid commentStamp: '<historical>' prior: 0!
 A white background with blue grids!
+
+!PageBackgroundHL commentStamp: '<historical>' prior: 0!
+A white background with blue horizontal lines!
 
 !PageBackgroundPdf commentStamp: '<historical>' prior: 0!
 - pageNumber : integer, the page number of the PDF page I represent!
@@ -1037,6 +1047,18 @@ newStroke
 	
 	! !
 
+!Document methodsFor: 'callback pages' stamp: 'hlsf 3/Mar/2026 17:24:09'!
+chooseBackground
+	| menu |
+	menu := MenuMorph entitled: 'Type of background' translated.
+	{PageBackgroundBlank . PageBackgroundHL . PageBackgroundGrid} do: [:aBackground |
+		menu 
+			addUpdating: #pageBackgroundString: 
+			target: self 
+			action: #switchToPageBackground: 
+			argumentList: {aBackground }].
+	menu popUpInWorld ! !
+
 !Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 16:04:43'!
 deletePage
 	self view deletePage! !
@@ -1082,6 +1104,10 @@ moveOYAction: increment
 !Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 15:46:24'!
 nextPage
 	self view nextPage! !
+
+!Document methodsFor: 'callback pages' stamp: 'hlsf 3/Mar/2026 17:23:28'!
+pageBackgroundString: pageBackground
+	^ (self currentPage isBackground: pageBackground) asMenuItemTextPrefix , pageBackground title! !
 
 !Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 14:28:44'!
 pageFitScreen
@@ -1263,6 +1289,10 @@ saveDocument
 	isSaved := true.
 	self currentPage redrawNeeded.
 	^ true! !
+
+!Document methodsFor: 'callback ui' stamp: 'hlsf 3/Mar/2026 17:27:42'!
+switchToPageBackground: aClass
+	self currentPage replaceBackgroundBy: aClass new! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 24/Dec/2024 17:12:27'!
 undoAction
@@ -2405,11 +2435,11 @@ reset
 new
 	^self on: Array new! !
 
-!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 27/Feb/2026 08:43:25'!
+!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 17:05:50'!
 initialize
 	super initialize.
 	timeStamp := DateAndTime now.
-	pageModel := PageBackgroundHL ! !
+	pageBackground := PageBackgroundHL ! !
 
 !DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:46:02'!
 pdfBackgroundForPage: aPageNumber
@@ -2435,9 +2465,9 @@ pdfPageJpegs
 dirName
 	^ String streamContents: [:s | timeStamp filenamePrintOn: s] ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024 11:17:03'!
-newPageModel
-	^ pageModel new! !
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 3/Mar/2026 17:06:49'!
+newPageBackground
+	^ pageBackground new! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 22/Dec/2024 11:40:27'!
 ownerPath: aString
@@ -2778,6 +2808,11 @@ initialize
 	self morphExtent: pageBackground morphExtent.
 	paper morphExtent: pageBackground morphExtent! !
 
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 17:28:05'!
+replaceBackgroundBy: newPageBackground
+	self replaceSubmorph: pageBackground by: newPageBackground.
+	pageBackground := newPageBackground ! !
+
 !PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025 17:14:50'!
 clipsSubmorphs
 	^ false! !
@@ -2788,6 +2823,10 @@ drawOn: canvas! !
 !PageMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024 10:25:19'!
 is: aSymbol
 	^ aSymbol == #PageMorph or: [super is: aSymbol ]! !
+
+!PageMorph methodsFor: 'testing' stamp: 'hlsf 3/Mar/2026 17:22:24'!
+isBackground: aClass
+	^ pageBackground class = aClass ! !
 
 !PageMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024 10:08:01'!
 clearSelection
@@ -3455,27 +3494,81 @@ newOn: documentPresenter for: aDyboScript
 		initialize;
 		yourself! !
 
+!PageBackground methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 15:54:12'!
+defaultColor
+	^ Color white! !
+
 !PageBackground methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 defaultExtent
 	^ DyboSystem defaultPaperSize ! !
 
-!PageBackground methodsFor: 'as yet unclassified' stamp: 'hlsf 15/Nov/2024 22:33:03'!
+!PageBackground methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:33:03'!
 documentModel
 	^ owner documentModel ! !
+
+!PageBackground methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 16:02:35'!
+lineWidth
+
+	self subclassResponsibility! !
+
+!PageBackground methodsFor: 'geometry testing' stamp: 'hlsf 3/Mar/2026 16:01:25'!
+requiresVectorCanvas
+	^ true! !
 
 !PageBackground class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:34:58'!
 includeInNewMorphMenu
 	^ false! !
 
-!PageBackgroundHL methodsFor: 'initialization' stamp: 'hlsf 12/Sep/2024 12:04:49'!
-defaultColor
-	^ Color white! !
+!PageBackground class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 16:08:05'!
+title
+	self subclassResponsibility ! !
 
-!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:46:53'!
+!PageBackgroundBlank class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 17:08:40'!
+title
+	^ 'A blank background' translated! !
+
+!PageBackgroundGrid methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 15:57:11'!
+initialize
+	super initialize.
+	step := DyboSystem ppcm / 2  "5 mm"! !
+
+!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 15:59:30'!
 drawOn: canvas 
-	| y  step width |
+	| x y   width |
 	super drawOn: canvas.
-	step := 50.
+	x := step.
+	width := self lineWidth.
+	[ x < extent x ] whileTrue: [
+		canvas strokeWidth: width color: `Color blue` do: [
+			canvas moveTo: x @ 0;
+				lineTo: x @ extent y.
+			x := x + step ]
+		].
+	
+	y := step.
+ 	[ y < extent y ] whileTrue: [
+		canvas strokeWidth: width color: `Color blue` do: [
+			canvas moveTo: 0 @ y;
+				lineTo: extent x @ y ].
+            y := y + step ]   ! !
+
+!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 16:02:45'!
+lineWidth
+	^  0.5 / owner scale min: 0.5! !
+
+!PageBackgroundGrid class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 15:47:29'!
+title
+	^ 'Millimeter grid (5x5)' translated! !
+
+!PageBackgroundHL methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 15:58:21'!
+initialize
+	super initialize.
+	step := DyboSystem ppcm.! !
+
+!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 15:57:59'!
+drawOn: canvas 
+	| y  width |
+	super drawOn: canvas.
 	width := self lineWidth.
 	y := step.
  	[ y < extent y ] whileTrue: [
@@ -3484,27 +3577,13 @@ drawOn: canvas
 				lineTo: extent x @ y ].
             y := y + step ]   ! !
 
-!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:46:42'!
+!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 16:02:35'!
 lineWidth
 	^  0.8 / owner scale min: 0.8! !
 
-!PageBackgroundHL methodsFor: 'geometry testing' stamp: 'hlsf 12/Sep/2024 12:10:57'!
-requiresVectorCanvas
-	^ true! !
-
-!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:48:40'!
-drawOn: canvas 
-	| x  step width |
-	super drawOn: canvas.
-	step := 50.
-	x := step.
-	width := self lineWidth.
-	[ x < extent x ] whileTrue: [
-		canvas strokeWidth: width color: `Color blue` do: [
-			canvas moveTo: x @ 0;
-				lineTo: x @ extent y.
-			x := x + step ]
-		]! !
+!PageBackgroundHL class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 15:44:25'!
+title
+	^ 'Horizontal line' translated! !
 
 !PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024 13:31:16'!
 dpi
@@ -3530,6 +3609,10 @@ defaultExtent
 drawOn: canvas
   "   Display reverse: canvas clipRect."
 	canvas image: self form at: 0@0! !
+
+!PageBackgroundPdf methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 16:02:35'!
+lineWidth
+	^  0.8 / owner scale min: 0.8! !
 
 !PageBackgroundPdf methodsFor: 'testing' stamp: 'hlsf 27/Feb/2026 08:44:01'!
 is: aSymbol
@@ -3689,12 +3772,12 @@ deleteBitMasks
 	pages do: [:aPage |
 		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 27/Feb/2026 09:02:47'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 17:06:49'!
 initialize
 	super initialize.
 	self beColumn.
 	pages := OrderedCollection new.
-	currentPage := PageMorph newOn: presenter background: self model newPageModel .
+	currentPage := PageMorph newOn: presenter background: self model newPageBackground .
 	container := PageContainer for: currentPage.
 	self installScriptsFlap;
 		installToolsFlap.
@@ -3776,7 +3859,7 @@ miniToolbarSpec
 	blank
 	pointer group)! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/Feb/2026 11:55:53'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 14:16:56'!
 toolbarSpec
 	^ #(saveDoc
 	blank
@@ -3784,7 +3867,7 @@ toolbarSpec
 	blank
 	pointer group dkm
 	blank
-	firstPage previousPage insertPage deletePage nextPage lastPage)! !
+	firstPage previousPage insertPage deletePage nextPage lastPage background)! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 14:34:50'!
 currentPage
@@ -3818,9 +3901,9 @@ goPage: aPage
 		presenter resetTool].
 	^ currentPage! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 27/Feb/2026 09:02:47'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 3/Mar/2026 17:06:49'!
 insertPage
-	self insertPage: (PageMorph newOn: presenter background: self model newPageModel)! !
+	self insertPage: (PageMorph newOn: presenter background: self model newPageBackground)! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 16/Nov/2024 11:22:11'!
 insertPage: aPage
@@ -3996,6 +4079,13 @@ zoomWheel
 		color: Color gray;
 		borderColor: Color black;
 		yourself! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 3/Mar/2026 14:16:13'!
+backgroundButtonData
+	^ {'Background' translated . 
+	#background . 
+	#chooseBackground . 
+	'Select the type of page background for the current page.' translated }! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:20:03'!
 deletePageButtonData
