@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 4 March 2026 at 7:39:51 pm'!
+'From Cuis7.7 [latest update: #7840] on 4 March 2026 at 9:06:09 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 197!
+!provides: 'DyboDoc' 1 198!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2807,6 +2807,11 @@ presenter: documentPresenter
 unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
+
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 4/Mar/2026 21:04:41'!
+viewport
+" I represent my visible surface to the user "
+	^ (self internalize: 0@0) corner: (self internalize: owner morphExtent)! !
 
 !PageMorph methodsFor: 'initialization' stamp: 'hlsf 27/Feb/2026 08:48:31'!
 initialize
