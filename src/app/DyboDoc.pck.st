@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 3 March 2026 at 5:34:12 pm'!
+'From Cuis7.7 [latest update: #7840] on 4 March 2026 at 7:39:51 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 196!
+!provides: 'DyboDoc' 1 197!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -496,6 +496,16 @@ PageBackground subclass: #PageBackgroundHL
 	category: 'DyboDoc-Model'!
 !classDefinition: 'PageBackgroundHL class' category: #'DyboDoc-Model'!
 PageBackgroundHL class
+	instanceVariableNames: ''!
+
+!classDefinition: #PageBackgroundMillimeter category: #'DyboDoc-Model'!
+PageBackground subclass: #PageBackgroundMillimeter
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Model'!
+!classDefinition: 'PageBackgroundMillimeter class' category: #'DyboDoc-Model'!
+PageBackgroundMillimeter class
 	instanceVariableNames: ''!
 
 !classDefinition: #PageBackgroundPdf category: #'DyboDoc-Model'!
@@ -1047,11 +1057,11 @@ newStroke
 	
 	! !
 
-!Document methodsFor: 'callback pages' stamp: 'hlsf 3/Mar/2026 17:24:09'!
+!Document methodsFor: 'callback pages' stamp: 'hlsf 4/Mar/2026 16:00:03'!
 chooseBackground
 	| menu |
 	menu := MenuMorph entitled: 'Type of background' translated.
-	{PageBackgroundBlank . PageBackgroundHL . PageBackgroundGrid} do: [:aBackground |
+	{PageBackgroundBlank . PageBackgroundHL . PageBackgroundGrid. PageBackgroundMillimeter } do: [:aBackground |
 		menu 
 			addUpdating: #pageBackgroundString: 
 			target: self 
@@ -3494,9 +3504,9 @@ newOn: documentPresenter for: aDyboScript
 		initialize;
 		yourself! !
 
-!PageBackground methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 15:54:12'!
+!PageBackground methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026 19:13:36'!
 defaultColor
-	^ Color white! !
+	^ Color blue! !
 
 !PageBackground methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 defaultExtent
@@ -3506,10 +3516,15 @@ defaultExtent
 documentModel
 	^ owner documentModel ! !
 
-!PageBackground methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 16:02:35'!
-lineWidth
+!PageBackground methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 19:13:08'!
+drawOn: canvas
+	canvas
+		fillRectangle: self localBounds
+		color: `Color white`.! !
 
-	self subclassResponsibility! !
+!PageBackground methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 15:53:28'!
+lineWidth: cmNumber
+	^  cmNumber / owner scale min: cmNumber ! !
 
 !PageBackground methodsFor: 'geometry testing' stamp: 'hlsf 3/Mar/2026 16:01:25'!
 requiresVectorCanvas
@@ -3532,29 +3547,23 @@ initialize
 	super initialize.
 	step := DyboSystem ppcm / 2  "5 mm"! !
 
-!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 15:59:30'!
+!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 19:14:02'!
 drawOn: canvas 
 	| x y   width |
 	super drawOn: canvas.
 	x := step.
-	width := self lineWidth.
-	[ x < extent x ] whileTrue: [
-		canvas strokeWidth: width color: `Color blue` do: [
-			canvas moveTo: x @ 0;
-				lineTo: x @ extent y.
-			x := x + step ]
-		].
+	width := self lineWidth: 0.5.
+	canvas strokeWidth: width color: color do: [
+		[ x < extent x ] whileTrue: [
+			canvas moveTo: x @ 0; lineTo: x @ extent y.
+			x := x + step ] ].
 	
 	y := step.
- 	[ y < extent y ] whileTrue: [
-		canvas strokeWidth: width color: `Color blue` do: [
-			canvas moveTo: 0 @ y;
-				lineTo: extent x @ y ].
-            y := y + step ]   ! !
-
-!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 16:02:45'!
-lineWidth
-	^  0.5 / owner scale min: 0.5! !
+	canvas strokeWidth: width color: color do: [
+ 		[ y < extent y ] whileTrue: [
+			canvas moveTo: 0 @ y;lineTo: extent x @ y.
+	            y := y + step ] ]
+	! !
 
 !PageBackgroundGrid class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 15:47:29'!
 title
@@ -3565,25 +3574,87 @@ initialize
 	super initialize.
 	step := DyboSystem ppcm.! !
 
-!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 15:57:59'!
+!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 19:14:10'!
 drawOn: canvas 
 	| y  width |
 	super drawOn: canvas.
-	width := self lineWidth.
+	width := self lineWidth: 0.8.
 	y := step.
- 	[ y < extent y ] whileTrue: [
-		canvas strokeWidth: width color: `Color blue` do: [
-			canvas moveTo: 0 @ y;
-				lineTo: extent x @ y ].
-            y := y + step ]   ! !
-
-!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 16:02:35'!
-lineWidth
-	^  0.8 / owner scale min: 0.8! !
+	canvas strokeWidth: width color: color do: [
+	 	[ y < extent y ] whileTrue: [
+			canvas moveTo: 0 @ y; lineTo: extent x @ y.
+			y := y + step ]   
+	]! !
 
 !PageBackgroundHL class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 15:44:25'!
 title
 	^ 'Horizontal line' translated! !
+
+!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 19:14:43'!
+drawOn: canvas 
+	| x y width subStep |
+	super drawOn: canvas.
+"
+	10 mm grid
+"
+	x := step.
+	width := self lineWidth: 1.
+	canvas strokeWidth: width color: color do: [
+		[ x < extent x ] whileTrue: [
+			canvas moveTo: x @ 0; lineTo: x @ extent y.
+			x := x + step ] ].
+	y := step.
+	canvas strokeWidth: width color: color do: [
+ 		[ y < extent y ] whileTrue: [
+			canvas moveTo: 0 @ y;lineTo: extent x @ y.
+	            y := y + step ] ].
+"
+	5 mm grid
+"
+	x := step / 2.
+	width := self lineWidth: 0.5.
+	canvas strokeWidth: width color: color do: [
+		[ x < extent x ] whileTrue: [
+			canvas moveTo: x @ 0; lineTo: x @ extent y.
+			x := x + step ] ].
+	y := step / 2.
+	canvas strokeWidth: width color: color do: [
+ 		[ y < extent y ] whileTrue: [
+			canvas moveTo: 0 @ y;lineTo: extent x @ y.
+	            y := y + step ] ].
+"
+	1 mm grid
+"
+	subStep := step / 10.
+	x := subStep.
+	width := self lineWidth: 0.2.
+	canvas strokeWidth: width color: color do: [
+		[ x < extent x ] whileTrue: [
+			4 timesRepeat: [
+				canvas moveTo: x @ 0; lineTo: x @ extent y.
+				x := x + subStep ] .
+				x := x + subStep] ].
+	y := subStep.
+	width := self lineWidth: 0.2.
+	canvas strokeWidth: width color: color do: [
+		[ y < extent y ] whileTrue: [
+			4 timesRepeat: [
+				canvas moveTo: 0 @ y; lineTo: extent x @ y.
+				y := y + subStep ] .
+				y := y + subStep] ]! !
+
+!PageBackgroundMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026 19:19:28'!
+defaultColor
+	^ Color fromHexString: '#FF9E7D'! !
+
+!PageBackgroundMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026 15:51:45'!
+initialize
+	super initialize.
+	step := DyboSystem ppcm	! !
+
+!PageBackgroundMillimeter class methodsFor: 'as yet unclassified' stamp: 'hlsf 4/Mar/2026 15:55:33'!
+title
+	^ 'Graph paper' translated! !
 
 !PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024 13:31:16'!
 dpi
@@ -3609,10 +3680,6 @@ defaultExtent
 drawOn: canvas
   "   Display reverse: canvas clipRect."
 	canvas image: self form at: 0@0! !
-
-!PageBackgroundPdf methodsFor: 'drawing' stamp: 'hlsf 3/Mar/2026 16:02:35'!
-lineWidth
-	^  0.8 / owner scale min: 0.8! !
 
 !PageBackgroundPdf methodsFor: 'testing' stamp: 'hlsf 27/Feb/2026 08:44:01'!
 is: aSymbol
