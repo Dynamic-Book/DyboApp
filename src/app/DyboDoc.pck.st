@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 4 March 2026 at 9:06:09 pm'!
+'From Cuis7.7 [latest update: #7840] on 5 March 2026 at 12:10:38 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 198!
+!provides: 'DyboDoc' 1 199!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -460,7 +460,7 @@ AnnotatorMorph class
 
 !classDefinition: #PageBackground category: #'DyboDoc-Model'!
 ColoredBoxMorph subclass: #PageBackground
-	instanceVariableNames: 'step'
+	instanceVariableNames: 'step viewport'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
@@ -2808,10 +2808,10 @@ unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 4/Mar/2026 21:04:41'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 5/Mar/2026 11:28:58'!
 viewport
 " I represent my visible surface to the user "
-	^ (self internalize: 0@0) corner: (self internalize: owner morphExtent)! !
+	^ ((self internalize: 0@0) max: 0@0) corner: ((self internalize: owner morphExtent) min: extent)! !
 
 !PageMorph methodsFor: 'initialization' stamp: 'hlsf 27/Feb/2026 08:48:31'!
 initialize
@@ -3521,10 +3521,11 @@ defaultExtent
 documentModel
 	^ owner documentModel ! !
 
-!PageBackground methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 19:13:08'!
+!PageBackground methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 11:27:01'!
 drawOn: canvas
+	viewport := owner viewport.
 	canvas
-		fillRectangle: self localBounds
+		fillRectangle: viewport "self localBounds"
 		color: `Color white`.! !
 
 !PageBackground methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 15:53:28'!
@@ -3552,21 +3553,21 @@ initialize
 	super initialize.
 	step := DyboSystem ppcm / 2  "5 mm"! !
 
-!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 19:14:02'!
+!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 11:38:16'!
 drawOn: canvas 
-	| x y   width |
+	| x y width |
 	super drawOn: canvas.
-	x := step.
+	x := (viewport origin x roundDownTo: step) + step.
 	width := self lineWidth: 0.5.
 	canvas strokeWidth: width color: color do: [
 		[ x < extent x ] whileTrue: [
-			canvas moveTo: x @ 0; lineTo: x @ extent y.
+			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y.
 			x := x + step ] ].
 	
-	y := step.
+	y := (viewport origin y roundDownTo: step) + step.
 	canvas strokeWidth: width color: color do: [
  		[ y < extent y ] whileTrue: [
-			canvas moveTo: 0 @ y;lineTo: extent x @ y.
+			canvas moveTo: viewport origin x@ y; lineTo: viewport corner x @ y.
 	            y := y + step ] ]
 	! !
 
@@ -3579,15 +3580,15 @@ initialize
 	super initialize.
 	step := DyboSystem ppcm.! !
 
-!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 19:14:10'!
+!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 11:36:00'!
 drawOn: canvas 
 	| y  width |
 	super drawOn: canvas.
 	width := self lineWidth: 0.8.
-	y := step.
+	y := (viewport origin y roundDownTo: step) + step.
 	canvas strokeWidth: width color: color do: [
 	 	[ y < extent y ] whileTrue: [
-			canvas moveTo: 0 @ y; lineTo: extent x @ y.
+			canvas moveTo: viewport origin x @ y; lineTo: viewport corner x @ y.
 			y := y + step ]   
 	]! !
 
@@ -3595,56 +3596,59 @@ drawOn: canvas
 title
 	^ 'Horizontal line' translated! !
 
-!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 19:14:43'!
+!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 12:01:55'!
 drawOn: canvas 
-	| x y width subStep |
+	| x y width subStep startX startY |
 	super drawOn: canvas.
+	
+	startX := (viewport origin x roundDownTo: step).
+	startY := (viewport origin y roundDownTo: step).
 "
 	10 mm grid
 "
-	x := step.
+	x := startX + step.
 	width := self lineWidth: 1.
 	canvas strokeWidth: width color: color do: [
 		[ x < extent x ] whileTrue: [
-			canvas moveTo: x @ 0; lineTo: x @ extent y.
+			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y.
 			x := x + step ] ].
-	y := step.
+	y := startY + step.
 	canvas strokeWidth: width color: color do: [
  		[ y < extent y ] whileTrue: [
-			canvas moveTo: 0 @ y;lineTo: extent x @ y.
+			canvas moveTo: viewport origin x @ y;lineTo: viewport corner x @ y.
 	            y := y + step ] ].
 "
 	5 mm grid
 "
-	x := step / 2.
+	x := startX + (step / 2).
 	width := self lineWidth: 0.5.
 	canvas strokeWidth: width color: color do: [
 		[ x < extent x ] whileTrue: [
-			canvas moveTo: x @ 0; lineTo: x @ extent y.
+			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y.
 			x := x + step ] ].
-	y := step / 2.
+	y := startY + (step / 2).
 	canvas strokeWidth: width color: color do: [
  		[ y < extent y ] whileTrue: [
-			canvas moveTo: 0 @ y;lineTo: extent x @ y.
+			canvas moveTo: viewport origin x @ y;lineTo: viewport corner x @ y.
 	            y := y + step ] ].
 "
 	1 mm grid
 "
 	subStep := step / 10.
-	x := subStep.
+	x := startX + subStep.
 	width := self lineWidth: 0.2.
 	canvas strokeWidth: width color: color do: [
 		[ x < extent x ] whileTrue: [
 			4 timesRepeat: [
-				canvas moveTo: x @ 0; lineTo: x @ extent y.
+				canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y.
 				x := x + subStep ] .
 				x := x + subStep] ].
-	y := subStep.
+	y := startY + subStep.
 	width := self lineWidth: 0.2.
 	canvas strokeWidth: width color: color do: [
 		[ y < extent y ] whileTrue: [
 			4 timesRepeat: [
-				canvas moveTo: 0 @ y; lineTo: extent x @ y.
+				canvas moveTo: viewport origin x @ y; lineTo: viewport corner x @ y.
 				y := y + subStep ] .
 				y := y + subStep] ]! !
 
