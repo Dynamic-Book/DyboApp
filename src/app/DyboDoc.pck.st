@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 5 March 2026 at 12:10:38 pm'!
+'From Cuis7.7 [latest update: #7840] on 6 March 2026 at 8:27:28 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 199!
+!provides: 'DyboDoc' 1 200!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2362,10 +2362,10 @@ categories
 	^ self scripts groupBy: [:aScript | aScript at: #category]
 	! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 21/Feb/2026 10:46:56'!
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 6/Mar/2026 20:09:46'!
 descriptionOf: metadata
 	^ Text streamContents: [:str |
-		str nextPutAll: (metadata at: #title) capitalized bold; lf.
+		str nextPutAll: (metadata at: #title ifAbsent: ['no description' translated]) capitalized bold; lf.
 		metadata at: #description ifPresent: [:description | str nextPutAll: description capitalized; lf].
 		metadata at: #tags ifPresent: [:tags |
 			tags do: [:tag | str nextPutAll: ((tag asLowercase pointSize: 9) 
@@ -3553,22 +3553,22 @@ initialize
 	super initialize.
 	step := DyboSystem ppcm / 2  "5 mm"! !
 
-!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 11:38:16'!
+!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 20:23:26'!
 drawOn: canvas 
 	| x y width |
 	super drawOn: canvas.
 	x := (viewport origin x roundDownTo: step) + step.
 	width := self lineWidth: 0.5.
-	canvas strokeWidth: width color: color do: [
-		[ x < extent x ] whileTrue: [
-			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y.
-			x := x + step ] ].
+	[ x < extent x ] whileTrue: [
+		canvas strokeWidth: width color: color do: [
+			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y].
+		x := x + step ] .
 	
 	y := (viewport origin y roundDownTo: step) + step.
-	canvas strokeWidth: width color: color do: [
- 		[ y < extent y ] whileTrue: [
-			canvas moveTo: viewport origin x@ y; lineTo: viewport corner x @ y.
-	            y := y + step ] ]
+	[ y < extent y ] whileTrue: [
+		canvas strokeWidth: width color: color do: [
+			canvas moveTo: viewport origin x@ y; lineTo: viewport corner x @ y].
+		y := y + step ] 
 	! !
 
 !PageBackgroundGrid class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 15:47:29'!
@@ -3580,23 +3580,22 @@ initialize
 	super initialize.
 	step := DyboSystem ppcm.! !
 
-!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 11:36:00'!
+!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 20:22:14'!
 drawOn: canvas 
 	| y  width |
 	super drawOn: canvas.
 	width := self lineWidth: 0.8.
 	y := (viewport origin y roundDownTo: step) + step.
-	canvas strokeWidth: width color: color do: [
-	 	[ y < extent y ] whileTrue: [
-			canvas moveTo: viewport origin x @ y; lineTo: viewport corner x @ y.
-			y := y + step ]   
-	]! !
+	[ y < extent y ] whileTrue: [
+		canvas strokeWidth: width color: color do: [
+			canvas moveTo: viewport origin x @ y; lineTo: viewport corner x @ y].
+		y := y + step ]! !
 
 !PageBackgroundHL class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 15:44:25'!
 title
 	^ 'Horizontal line' translated! !
 
-!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 12:01:55'!
+!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 20:21:12'!
 drawOn: canvas 
 	| x y width subStep startX startY |
 	super drawOn: canvas.
@@ -3608,49 +3607,49 @@ drawOn: canvas
 "
 	x := startX + step.
 	width := self lineWidth: 1.
-	canvas strokeWidth: width color: color do: [
-		[ x < extent x ] whileTrue: [
-			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y.
-			x := x + step ] ].
+	[ x < extent x ] whileTrue: [
+		canvas strokeWidth: width color: color do: [
+			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y].
+		x := x + step ] .
 	y := startY + step.
-	canvas strokeWidth: width color: color do: [
- 		[ y < extent y ] whileTrue: [
-			canvas moveTo: viewport origin x @ y;lineTo: viewport corner x @ y.
-	            y := y + step ] ].
+	[ y < extent y ] whileTrue: [
+		canvas strokeWidth: width color: color do: [
+			canvas moveTo: viewport origin x @ y;lineTo: viewport corner x @ y].
+		y := y + step ].
 "
 	5 mm grid
 "
 	x := startX + (step / 2).
 	width := self lineWidth: 0.5.
-	canvas strokeWidth: width color: color do: [
-		[ x < extent x ] whileTrue: [
-			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y.
-			x := x + step ] ].
+	[ x < extent x ] whileTrue: [
+		canvas strokeWidth: width color: color do: [
+			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y].
+		x := x + step ] .
 	y := startY + (step / 2).
-	canvas strokeWidth: width color: color do: [
- 		[ y < extent y ] whileTrue: [
-			canvas moveTo: viewport origin x @ y;lineTo: viewport corner x @ y.
-	            y := y + step ] ].
+	[ y < extent y ] whileTrue: [
+		canvas strokeWidth: width color: color do: [
+			canvas moveTo: viewport origin x @ y;lineTo: viewport corner x @ y].
+		y := y + step ] .
 "
 	1 mm grid
 "
 	subStep := step / 10.
 	x := startX + subStep.
 	width := self lineWidth: 0.2.
-	canvas strokeWidth: width color: color do: [
-		[ x < extent x ] whileTrue: [
+	[ x < extent x ] whileTrue: [
+		canvas strokeWidth: width color: color do: [
 			4 timesRepeat: [
 				canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y.
-				x := x + subStep ] .
-				x := x + subStep] ].
+				x := x + subStep ] ].
+		x := x + subStep] .
 	y := startY + subStep.
 	width := self lineWidth: 0.2.
-	canvas strokeWidth: width color: color do: [
-		[ y < extent y ] whileTrue: [
+	[ y < extent y ] whileTrue: [
+		canvas strokeWidth: width color: color do: [
 			4 timesRepeat: [
 				canvas moveTo: viewport origin x @ y; lineTo: viewport corner x @ y.
-				y := y + subStep ] .
-				y := y + subStep] ]! !
+				y := y + subStep ] ].
+		y := y + subStep] ! !
 
 !PageBackgroundMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026 19:19:28'!
 defaultColor
@@ -4621,13 +4620,13 @@ Script stopped' translated.
 		name: '[Dybo] Smalltalk Script execution';
 		resume.! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 6/Mar/2026 20:08:57'!
 keepScript
 	| scriptView metadata |
 	codeView scroller acceptContents.
 	scriptView := model execute.
 	metadata := model header.
-	model title: (metadata at: #title) capitalized ;
+	model title: (metadata at: #title ifAbsent: ['no title' translated]) capitalized ;
 		description: (DyboSystem scriptLibrary descriptionOf: metadata).
 	annotator annotate: scriptView.
 	self delete! !

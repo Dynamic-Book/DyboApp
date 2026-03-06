@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 3 March 2026 at 5:33:55 pm'!
+'From Cuis7.7 [latest update: #7840] on 5 March 2026 at 8:36:30 pm'!
 'Description '!
-!provides: 'Dybo' 1 169!
+!provides: 'Dybo' 1 170!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1894,9 +1894,9 @@ initialize
 		at: #fullScreenLeavesDeskMargins put: true;
 		at: #worldMenu put: TheWorldMenu. ! !
 
-!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 15:29:22'!
+!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 5/Mar/2026 19:59:17'!
 isDeployment
-	^ false ! !
+	^ true ! !
 
 !DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication
@@ -2026,11 +2026,11 @@ convert: destEntry pages: interval dpi: integer
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Sep/2025 10:55:03'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Mar/2026 15:06:43'!
 import: pdfEntry to: destEntry pages: interval
 "
 	In our destEntry, generate a doc.pdf document with the selected pages interval, if fany ;
-	then in destEntry, convert the doc.pdf interval pages at interger resolution	
+	then in destEntry, convert the doc.pdf interval pages at integer resolution	
 "
 	| importCommand process |
 	destEntry assureExistence.
