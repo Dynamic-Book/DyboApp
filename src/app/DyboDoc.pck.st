@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 6 March 2026 at 8:27:28 pm'!
+'From Cuis7.7 [latest update: #7840] on 8 March 2026 at 9:49:21 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 200!
+!provides: 'DyboDoc' 1 201!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -726,12 +726,15 @@ I always contain these two morphs of the same extent as me:
 (PaperMorph new stroker: StrokerBezier3XP ) openInWorld. "Cubic Bézier, expend out the control point"
 !
 
-!AnnotatorMorph commentStamp: '<historical>' prior: 0!
-My goal is to annotate with handwriting a placed morph (annotatedMorph). 
-My extent is adjusted to cover my annotated object and also the user handwriting. 
-My extent expands to enclosed new handwritings. It shrinks when handwritings are deleted.
-- script: instance of a DyboScript. An executed script return a view referenced by the annotedMorph
-- annotedMorph:  the view returned by the script when executed, it is then inserted in me!
+!AnnotatorMorph commentStamp: 'hlsf 8/Mar/2026 21:31:16' prior: 0!
+mouseEnter: evt
+	| myInnerFrame |
+	myInnerFrame := (self externalizeBoundsToWorld: self localBounds) insetBy: 20.
+	(myInnerFrame containsPoint: evt eventPosition) ifTrue: [^ self].
+	self removeAlarm: #removeHalo.
+	self show.
+	self addHalo.
+	self triggerEvent: #enterAnnotated!
 
 !PageBackground commentStamp: '<historical>' prior: 0!
 An abstract model for page background
@@ -3235,7 +3238,7 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/Oct/2025 11:48:54'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2026 21:48:22'!
 annotate: aPlacedMorph
 | annotedExtent formerExtent |
 	annotatedMorph ifNotNil: [
@@ -3294,18 +3297,20 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 5/Feb/2026 12:03:54'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 8/Mar/2026 21:31:35'!
 mouseEnter: evt
 	| myInnerFrame |
 	myInnerFrame := (self externalizeBoundsToWorld: self localBounds) insetBy: 20.
 	(myInnerFrame containsPoint: evt eventPosition) ifTrue: [^ self].
 	self removeAlarm: #removeHalo.
 	self show.
-	self addHalo! !
+	self addHalo.
+	self triggerEvent: #enterAnnotated! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 11/Oct/2025 17:31:41'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 8/Mar/2026 21:32:26'!
 mouseLeave: evt
-	self addAlarm: #removeHalo after: 2000! !
+	self addAlarm: #removeHalo after: 2000.
+	self triggerEvent: #leaveAnnotated! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 31/Aug/2025 11:25:31'!
 adjustBounds
@@ -3485,7 +3490,7 @@ noteNewOwner: newOwner
 balloonText
 	^ script description ! !
 
-!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 26/Feb/2026 10:16:13'!
+!AnnotatorMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 26/Feb/2026 10:16:13'!
 wantsToBeDroppedInto: aMorph 
 	^ aMorph is: #PageMorph ! !
 
