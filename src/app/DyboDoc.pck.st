@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7840] on 9 March 2026 at 9:53:53 pm'!
+'From Cuis7.7 [latest update: #7840] on 9 March 2026 at 10:26:50 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 203!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
+!provides: 'DyboDoc' 1 204!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -3242,7 +3242,7 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/Mar/2026 21:43:04'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/Mar/2026 22:20:19'!
 annotate: aPlacedMorph
 | annotedExtent formerExtent |
 	annotatedMorph ifNotNil: [
@@ -3257,8 +3257,8 @@ annotate: aPlacedMorph
 	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
 	self addMorphBack: annotatedMorph position: self frameWidth asPoint.
 "	Need to think on that"
-	self when: #haloAdded send: #haloAdded to: annotatedMorph presenter.
-	self when: #haloRemoved send: #haloRemoved to: annotatedMorph presenter
+	self when: #haloAdded evaluate: [annotatedMorph triggerEvent: #haloAdded].
+	self when: #haloRemoved evaluate: [annotatedMorph triggerEvent: #haloRemoved]
 ! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025 11:26:04'!
