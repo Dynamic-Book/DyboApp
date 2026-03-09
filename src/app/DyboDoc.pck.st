@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 9 March 2026 at 9:37:52 pm'!
+'From Cuis7.7 [latest update: #7840] on 9 March 2026 at 9:53:53 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 202!
+!provides: 'DyboDoc' 1 203!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -3242,7 +3242,7 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/Mar/2026 21:36:24'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/Mar/2026 21:43:04'!
 annotate: aPlacedMorph
 | annotedExtent formerExtent |
 	annotatedMorph ifNotNil: [
@@ -3256,10 +3256,10 @@ annotate: aPlacedMorph
 	annotatedMorph removeProperty: #bitMask.
 	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
 	self addMorphBack: annotatedMorph position: self frameWidth asPoint.
-"	Need to think on that
-	self when: #haloAdded send: #haloAdded to: script presenter.
-	self when: #haloRemoved send: #haloRemoved to: script presenter
-"! !
+"	Need to think on that"
+	self when: #haloAdded send: #haloAdded to: annotatedMorph presenter.
+	self when: #haloRemoved send: #haloRemoved to: annotatedMorph presenter
+! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025 11:26:04'!
 annotated
