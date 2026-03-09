@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 5 March 2026 at 8:36:30 pm'!
+'From Cuis7.7 [latest update: #7840] on 9 March 2026 at 9:37:38 pm'!
 'Description '!
-!provides: 'Dybo' 1 170!
+!provides: 'Dybo' 1 171!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -1894,9 +1894,9 @@ initialize
 		at: #fullScreenLeavesDeskMargins put: true;
 		at: #worldMenu put: TheWorldMenu. ! !
 
-!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 5/Mar/2026 19:59:17'!
+!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 9/Mar/2026 21:21:34'!
 isDeployment
-	^ true ! !
+	^ false ! !
 
 !DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 9/Aug/2023 14:40:44'!
 beApplication

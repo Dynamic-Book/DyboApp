@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7840] on 8 March 2026 at 9:49:21 pm'!
+'From Cuis7.7 [latest update: #7840] on 9 March 2026 at 9:37:52 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 201!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 202!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -666,15 +666,23 @@ We arrive at this state once the user press the pointer.
 We are either dragging the whole page or a grabbed annotator!
 
 !DKMScript commentStamp: '<historical>' prior: 0!
-My subclasses are interfaces to specific Dynamic Knowledge Models (DKM).
-My class side expose the dependency and the description to a specific DKM.
-My instances are particular use cases of the described DKM, it is done through a script (code variable).
-Therefore each instance of the same DKMScript subclass uses the same DKM but with a different 
-code to produce a different view. The code us a DSL specific to the DKM.
-Each script returns a View inserted in an Annotator itself added to a Document.!
+My instances represent each particular instance of a DKM, described with a specific code.
+Each instance of the same DKM are different by the code. 
+My metadata si extracted from my code, see class side.
+I am also the model in the DKMScriptEditor.
+All my instances are collected in the DKMScriptLibrary, for reuse by the user.
+Each script returns a View inserted in an Annotator itself added to a Document.
 
-!DKMScriptLibrary commentStamp: '<historical>' prior: 0!
-I scan for the existing DKM scripts on the host, to present them to the user:
+- presenter : the presenter class of a specific DKM
+- code: the script expressing a specific instance of the DKM
+
+!
+
+!DKMScriptLibrary commentStamp: 'hlsf 9/Mar/2026 21:07:00' prior: 0!
+I am a light libray of existing DKMScript instances on disk. These instances on disk are Smalltalk scripts coming with a header (in comment) with title, description, tags, author and its presenter class (a DKMPresenter subclass)
+
+I am light because I don't create instance of DKMScript for each representative in disk. Instead, I group the information about the scripts in a dictionary. Therefore, I scan for the existing files (DKM scripts) on the host by reading their file header, then I present them to the user in a hierarchy of menus
+
  - I scan in Dybo system place and user place
  - I categorize the scripts by parsing its file headers (in comment)!
 
@@ -2264,10 +2272,6 @@ header
 	DKMScript headerFrom: code readStream into: data.
 	^ data! !
 
-!DKMScript class methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:12:19'!
-svgIcon
-	^ '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="m255.9 120.9 9.1-15.7c5.6-9.8 18.1-13.1 27.9-7.5s13.1 18.1 7.5 27.9l-87.5 151.5h63.3c20.5 0 32 24.1 23.1 40.8h-185.5c-11.3 0-20.4-9.1-20.4-20.4s9.1-20.4 20.4-20.4h52l66.6-115.4-20.8-36.1c-5.6-9.8-2.3-22.2 7.5-27.9 9.8-5.6 22.2-2.3 27.9 7.5l8.9 15.7zm-78.7 218-19.6 34c-5.6 9.8-18.1 13.1-27.9 7.5s-13.1-18.1-7.5-27.9l14.6-25.2c16.4-5.1 29.8-1.2 40.4 11.6zm168.9-61.7h53.1c11.3 0 20.4 9.1 20.4 20.4s-9.1 20.4-20.4 20.4h-29.5l19.9 34.5c5.6 9.8 2.3 22.2-7.5 27.9-9.8 5.6-22.2 2.3-27.9-7.5-33.5-58.1-58.7-101.6-75.4-130.6-17.1-29.5-4.9-59.1 7.2-69.1 13.4 23 33.4 57.7 60.1 104zm-90.1-269.2c-137 0-248 111-248 248s111 248 248 248 248-111 248-248-111-248-248-248zm216 248c0 118.7-96.1 216-216 216-118.7 0-216-96.1-216-216 0-118.7 96.1-216 216-216 118.7 0 216 96.1 216 216z"/></svg>'! !
-
 !DKMScript class methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 13:12:34'!
 headerFrom: stream into: data
 "	Read the header of this code stream, and install the metadata into the data dictionary"
@@ -3238,7 +3242,7 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2026 21:48:22'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/Mar/2026 21:36:24'!
 annotate: aPlacedMorph
 | annotedExtent formerExtent |
 	annotatedMorph ifNotNil: [
@@ -3251,8 +3255,11 @@ annotate: aPlacedMorph
 		ifNotNil: [annotatedMorph displayBounds extent].		
 	annotatedMorph removeProperty: #bitMask.
 	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
-	self addMorphBack: annotatedMorph position: self frameWidth asPoint
-	! !
+	self addMorphBack: annotatedMorph position: self frameWidth asPoint.
+"	Need to think on that
+	self when: #haloAdded send: #haloAdded to: script presenter.
+	self when: #haloRemoved send: #haloRemoved to: script presenter
+"! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025 11:26:04'!
 annotated
@@ -3297,7 +3304,7 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 8/Mar/2026 21:31:35'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/Mar/2026 21:19:24'!
 mouseEnter: evt
 	| myInnerFrame |
 	myInnerFrame := (self externalizeBoundsToWorld: self localBounds) insetBy: 20.
@@ -3305,12 +3312,12 @@ mouseEnter: evt
 	self removeAlarm: #removeHalo.
 	self show.
 	self addHalo.
-	self triggerEvent: #enterAnnotated! !
+	self triggerEvent: #haloAdded! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 8/Mar/2026 21:32:26'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/Mar/2026 21:19:32'!
 mouseLeave: evt
 	self addAlarm: #removeHalo after: 2000.
-	self triggerEvent: #leaveAnnotated! !
+	self triggerEvent: #haloRemoved! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 31/Aug/2025 11:25:31'!
 adjustBounds
