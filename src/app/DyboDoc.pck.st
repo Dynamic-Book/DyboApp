@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 10 March 2026 at 7:21:53 pm'!
+'From Cuis7.7 [latest update: #7840] on 10 March 2026 at 8:04:09 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 205!
+!provides: 'DyboDoc' 1 206!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -188,6 +188,16 @@ PageTool subclass: #EraserTool
 EraserTool class
 	instanceVariableNames: ''!
 
+!classDefinition: #GeometricTool category: #'DyboDoc-Presenter-Tool'!
+PageTool subclass: #GeometricTool
+	instanceVariableNames: 'shape'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'GeometricTool class' category: #'DyboDoc-Presenter-Tool'!
+GeometricTool class
+	instanceVariableNames: ''!
+
 !classDefinition: #GroupTool category: #'DyboDoc-Presenter-Tool'!
 PageTool subclass: #GroupTool
 	instanceVariableNames: 'corner selection paper'
@@ -256,6 +266,26 @@ PageToolState subclass: #EraserToolStateNeutral
 	category: 'DyboDoc-Presenter-Tool'!
 !classDefinition: 'EraserToolStateNeutral class' category: #'DyboDoc-Presenter-Tool'!
 EraserToolStateNeutral class
+	instanceVariableNames: ''!
+
+!classDefinition: #GeometricToolStateDrawing category: #'DyboDoc-Presenter-Tool'!
+PageToolState subclass: #GeometricToolStateDrawing
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'GeometricToolStateDrawing class' category: #'DyboDoc-Presenter-Tool'!
+GeometricToolStateDrawing class
+	instanceVariableNames: ''!
+
+!classDefinition: #GeometricToolStateNeutral category: #'DyboDoc-Presenter-Tool'!
+PageToolState subclass: #GeometricToolStateNeutral
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Presenter-Tool'!
+!classDefinition: 'GeometricToolStateNeutral class' category: #'DyboDoc-Presenter-Tool'!
+GeometricToolStateNeutral class
 	instanceVariableNames: ''!
 
 !classDefinition: #GroupToolStateDragging category: #'DyboDoc-Presenter-Tool'!
@@ -627,9 +657,13 @@ An abstraction of a tool to operate on a Page. Subclasses implement Pen, Eraser,
 With the EraserTool the users deletes handwriten notes, highlit zones.
 - bounds: when erasing on a AnnotatorMoprh, we need to know about its former bounds prior to erasing!
 
+!GeometricTool commentStamp: '<historical>' prior: 0!
+Let the user draw quickly basic geometric shape as line, (circle, rectangle to be implemented)
+- shape: a Morph class representing the type of shape I will draw!
+
 !GroupTool commentStamp: '<historical>' prior: 0!
 With the GroupTool the user defined a rectangle area to grab objects and to move them around
-- origin : the origin of the selection rectangle
+- corner : a corner of the selection rectangle, the first selected one
 - selection: a collection of moved morph
 - paper: in which paper did the action occured. We need to remember about it because the user can decide without prior notice to select and drag morphs from different papers (paper to annotator, annotator to another annotater, annotator to paper), in that case we need to reset the selection process!
 
@@ -1846,6 +1880,13 @@ iconName
 title
 	^ 'Eraser' translated! !
 
+!GeometricTool methodsFor: 'initialization' stamp: 'hlsf 10/Mar/2026 20:02:37'!
+initialize
+	super initialize.
+	self currentPage lockAnnoted.
+	self switchState: GeometricToolStateNeutral.
+	shape := LineMorph.! !
+
 !GroupTool methodsFor: 'accessing' stamp: 'hlsf 18/Oct/2024 21:18:31'!
 corner
 	^ corner! !
@@ -2091,7 +2132,7 @@ handleMouseAt: localPosition in: paper
 			with: context corner
 			with: localPosition) )! !
 
-!GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 23/Oct/2024 10:30:27'!
+!GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/Mar/2026 19:24:35'!
 handleRelease: localPosition in: paper
 	| selectionRect |
 	selectionRect := Rectangle encompassingInteger: {
@@ -2102,8 +2143,8 @@ handleRelease: localPosition in: paper
 		ifFalse: [
 			context 	grabMorphsIn: paper inside: selectionRect.
 			context selection 
-				ifEmpty: [		context switchState: GroupToolStateNeutral ] " empty selectio go back to neutral"
-				ifNotEmpty: [			context switchState: GroupToolStateDragging] "We catched some morph, go..."
+				ifEmpty: [context switchState: GroupToolStateNeutral ] " empty selectio go back to neutral"
+				ifNotEmpty: [context switchState: GroupToolStateDragging] "We catched some morph, go..."
 		]! !
 
 !GroupToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 23/Oct/2024 10:30:15'!
@@ -3202,7 +3243,7 @@ grabMorphsIn: rect
 	^ submorphs select: [:aMorph |
 		(aMorph is: #StrokeGroupMorph) and: [rect containsRect: aMorph displayFullBounds] ]! !
 
-!PaperMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024 15:25:54'!
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/Mar/2026 19:27:05'!
 selectionArea: rect
 "set, update or discard the selection area"
 	(rect isNil and: [selectionMorph notNil]) ifTrue: [
@@ -3211,7 +3252,7 @@ selectionArea: rect
 		^ self].
 	rect ifNotNil: [
 		selectionMorph 
-			ifNil:  [	selectionMorph := BorderedBoxMorph new
+			ifNil:  [selectionMorph := BorderedBoxMorph new
 					color: (Color brown alpha: 0.2);
 					borderWidth: 2;
 					borderColor: Color brown;
