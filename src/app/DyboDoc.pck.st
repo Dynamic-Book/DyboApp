@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 9 March 2026 at 10:26:50 pm'!
+'From Cuis7.7 [latest update: #7840] on 10 March 2026 at 7:21:53 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 204!
+!provides: 'DyboDoc' 1 205!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -3242,7 +3242,7 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 9/Mar/2026 22:20:19'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 19:02:59'!
 annotate: aPlacedMorph
 | annotedExtent formerExtent |
 	annotatedMorph ifNotNil: [
@@ -3255,11 +3255,7 @@ annotate: aPlacedMorph
 		ifNotNil: [annotatedMorph displayBounds extent].		
 	annotatedMorph removeProperty: #bitMask.
 	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
-	self addMorphBack: annotatedMorph position: self frameWidth asPoint.
-"	Need to think on that"
-	self when: #haloAdded evaluate: [annotatedMorph triggerEvent: #haloAdded].
-	self when: #haloRemoved evaluate: [annotatedMorph triggerEvent: #haloRemoved]
-! !
+	self addMorphBack: annotatedMorph position: self frameWidth asPoint! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025 11:26:04'!
 annotated
@@ -3304,20 +3300,21 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/Mar/2026 21:19:24'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 10/Mar/2026 19:02:40'!
 mouseEnter: evt
 	| myInnerFrame |
+	annotatedMorph triggerEvent: #enterAnnotator.
 	myInnerFrame := (self externalizeBoundsToWorld: self localBounds) insetBy: 20.
 	(myInnerFrame containsPoint: evt eventPosition) ifTrue: [^ self].
 	self removeAlarm: #removeHalo.
 	self show.
 	self addHalo.
-	self triggerEvent: #haloAdded! !
+! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 9/Mar/2026 21:19:32'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 10/Mar/2026 19:02:52'!
 mouseLeave: evt
 	self addAlarm: #removeHalo after: 2000.
-	self triggerEvent: #haloRemoved! !
+	annotatedMorph triggerEvent: #leaveAnnotator! !
 
 !AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 31/Aug/2025 11:25:31'!
 adjustBounds
