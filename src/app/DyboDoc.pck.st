@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 10 March 2026 at 8:04:09 pm'!
+'From Cuis7.7 [latest update: #7840] on 10 March 2026 at 10:06:11 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 206!
+!provides: 'DyboDoc' 1 207!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -190,7 +190,7 @@ EraserTool class
 
 !classDefinition: #GeometricTool category: #'DyboDoc-Presenter-Tool'!
 PageTool subclass: #GeometricTool
-	instanceVariableNames: 'shape'
+	instanceVariableNames: 'shape shapeClass'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Presenter-Tool'!
@@ -659,7 +659,8 @@ With the EraserTool the users deletes handwriten notes, highlit zones.
 
 !GeometricTool commentStamp: '<historical>' prior: 0!
 Let the user draw quickly basic geometric shape as line, (circle, rectangle to be implemented)
-- shape: a Morph class representing the type of shape I will draw!
+- shape: a Morph class representing the type of shape I will draw. It responds to class side protocol
+ #startPoint:endPoint: and the instance side protocol #endPoint:!
 
 !GroupTool commentStamp: '<historical>' prior: 0!
 With the GroupTool the user defined a rectangle area to grab objects and to move them around
@@ -1887,6 +1888,22 @@ initialize
 	self switchState: GeometricToolStateNeutral.
 	shape := LineMorph.! !
 
+!GeometricTool methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 22:00:58'!
+endPoint: point
+	shape endPoint: point! !
+
+!GeometricTool methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 21:59:25'!
+firstPoint: point
+	shape := shapeClass startPoint: point endPoint: point.
+	shape width: presenter strokeTool width;
+		color: presenter strokeTool color.
+	self currentPage addMorph: shape.! !
+
+!GeometricTool methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 21:51:21'!
+shapeClass: aClass
+	shapeClass := aClass 
+	! !
+
 !GroupTool methodsFor: 'accessing' stamp: 'hlsf 18/Oct/2024 21:18:31'!
 corner
 	^ corner! !
@@ -2094,6 +2111,25 @@ handlePress: localPosition in: paper
 	context 
 		switchState: EraserToolStateErasing; 	" Prepare to erase... "
 		handleMouseAt: localPosition in: paper "...then start erasing "! !
+
+!GeometricToolStateDrawing methodsFor: 'as yet unclassified' stamp: 'hlsf 10/Mar/2026 22:01:38'!
+handleMouseAt: localPosition in: paper
+	context endPoint: localPosition ! !
+
+!GeometricToolStateDrawing methodsFor: 'as yet unclassified' stamp: 'hlsf 10/Mar/2026 22:06:02'!
+handleRelease: localPosition in: paper
+	context endPoint: localPosition.
+	context switchState: GeometricToolStateNeutral 
+"	TODO:
+	- remove the shape from the paper
+	- turn the shape as a stroke group morph
+	- record a command in the command manager
+"! !
+
+!GeometricToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/Mar/2026 21:58:44'!
+handlePress: localPosition in: aPaper
+	context firstPoint: localPosition;
+		switchState: GeometricToolStateDrawing ! !
 
 !GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025 22:23:23'!
 handleMouseAt: localPosition in: paper
