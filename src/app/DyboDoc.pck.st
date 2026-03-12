@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 10 March 2026 at 10:06:11 pm'!
+'From Cuis7.7 [latest update: #7840] on 12 March 2026 at 9:01:43 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 207!
+!provides: 'DyboDoc' 1 209!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2358,15 +2358,15 @@ headerFrom: stream into: data
 			(self metadataFrom: headerLine) ifNotNil: [:someData | data add: someData] ] ]
 ! !
 
-!DKMScript class methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 13:13:05'!
+!DKMScript class methodsFor: 'scan' stamp: 'hlsf 12/Mar/2026 21:01:12'!
 metadataFrom: line
 "	Read *one* metadata "
 	| str key data |
 	str  := ReadStream on: line.
 	str next = $@ ifFalse: [^ nil].
 	key := (str upTo: $:) asSymbol.
-	data := str upToEnd withBlanksTrimmed.
-	key = #tags ifTrue: [data := (data findTokens: ';') collect: [:each | each withBlanksTrimmed]].
+	data := str upToEnd withBlanksTrimmed asLowercase .
+	key = #tags ifTrue: [data := (data findTokens: ';') collect: [:each | each withBlanksTrimmed asLowercase ]].
 	key = #class ifTrue: [data := Smalltalk at: data asSymbol ifAbsent: [DKMPresenter]].
 	^ key -> data! !
 
