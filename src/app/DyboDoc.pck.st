@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 12 March 2026 at 9:01:43 pm'!
+'From Cuis7.7 [latest update: #7840] on 12 March 2026 at 10:01:51 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 209!
+!provides: 'DyboDoc' 1 210!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -446,6 +446,26 @@ Morph subclass: #LineStrokeMorph
 	category: 'DyboDoc-View'!
 !classDefinition: 'LineStrokeMorph class' category: #'DyboDoc-View'!
 LineStrokeMorph class
+	instanceVariableNames: ''!
+
+!classDefinition: #ShapeMorph category: #'DyboDoc-View'!
+Morph subclass: #ShapeMorph
+	instanceVariableNames: 'color width startPoint endPoint'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-View'!
+!classDefinition: 'ShapeMorph class' category: #'DyboDoc-View'!
+ShapeMorph class
+	instanceVariableNames: ''!
+
+!classDefinition: #LineShape category: #'DyboDoc-View'!
+ShapeMorph subclass: #LineShape
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-View'!
+!classDefinition: 'LineShape class' category: #'DyboDoc-View'!
+LineShape class
 	instanceVariableNames: ''!
 
 !classDefinition: #StrokeGroupMorph category: #'DyboDoc-View'!
@@ -1448,6 +1468,10 @@ resetTool
 " reselect to tool remove intermediate state in the tool "
 	self tool: tool class ! !
 
+!Document methodsFor: 'tool' stamp: 'hlsf 12/Mar/2026 22:00:26'!
+straightLineTool
+	self tool: GeometricTool ! !
+
 !Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 15:09:27'!
 tool
 	^ tool! !
@@ -1881,28 +1905,52 @@ iconName
 title
 	^ 'Eraser' translated! !
 
-!GeometricTool methodsFor: 'initialization' stamp: 'hlsf 10/Mar/2026 20:02:37'!
+!GeometricTool methodsFor: 'initialization' stamp: 'hlsf 12/Mar/2026 21:53:34'!
 initialize
 	super initialize.
 	self currentPage lockAnnoted.
 	self switchState: GeometricToolStateNeutral.
-	shape := LineMorph.! !
+	shape := LineShape! !
 
 !GeometricTool methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 22:00:58'!
 endPoint: point
 	shape endPoint: point! !
 
-!GeometricTool methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 21:59:25'!
-firstPoint: point
-	shape := shapeClass startPoint: point endPoint: point.
-	shape width: presenter strokeTool width;
-		color: presenter strokeTool color.
-	self currentPage addMorph: shape.! !
+!GeometricTool methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:12:52'!
+removeShape
+	! !
 
 !GeometricTool methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 21:51:21'!
 shapeClass: aClass
 	shapeClass := aClass 
 	! !
+
+!GeometricTool methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:10:00'!
+startPoint
+	^ shape startPoint! !
+
+!GeometricTool methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:06:19'!
+startPoint: point
+	shape := shapeClass startPoint: point endPoint: point.
+	shape width: presenter strokeTool width;
+		color: presenter strokeTool color.
+	self currentPage addMorph: shape.! !
+
+!GeometricTool class methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:56:18'!
+action
+	^ #straightLineTool! !
+
+!GeometricTool class methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 22:00:01'!
+description
+	^ 'Draw a straight line from its extremities.' translated! !
+
+!GeometricTool class methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:54:36'!
+iconName
+	^ #lineShape! !
+
+!GeometricTool class methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:55:32'!
+title
+	^ 'Straight line' translated! !
 
 !GroupTool methodsFor: 'accessing' stamp: 'hlsf 18/Oct/2024 21:18:31'!
 corner
@@ -2112,23 +2160,25 @@ handlePress: localPosition in: paper
 		switchState: EraserToolStateErasing; 	" Prepare to erase... "
 		handleMouseAt: localPosition in: paper "...then start erasing "! !
 
-!GeometricToolStateDrawing methodsFor: 'as yet unclassified' stamp: 'hlsf 10/Mar/2026 22:01:38'!
+!GeometricToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 10/Mar/2026 22:01:38'!
 handleMouseAt: localPosition in: paper
 	context endPoint: localPosition ! !
 
-!GeometricToolStateDrawing methodsFor: 'as yet unclassified' stamp: 'hlsf 10/Mar/2026 22:06:02'!
+!GeometricToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 12/Mar/2026 21:28:09'!
 handleRelease: localPosition in: paper
+	| finalStrokeGroup |
 	context endPoint: localPosition.
+	paper startWritingAt: context startPoint.
+	finalStrokeGroup := paper endWritingAt: localPosition.
+	self commandsManager strokeGroup: finalStrokeGroup in: paper.
+	context removeShape.
+	context presenter modified.
 	context switchState: GeometricToolStateNeutral 
-"	TODO:
-	- remove the shape from the paper
-	- turn the shape as a stroke group morph
-	- record a command in the command manager
-"! !
+! !
 
-!GeometricToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 10/Mar/2026 21:58:44'!
+!GeometricToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 12/Mar/2026 21:06:19'!
 handlePress: localPosition in: aPaper
-	context firstPoint: localPosition;
+	context startPoint: localPosition;
 		switchState: GeometricToolStateDrawing ! !
 
 !GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025 22:23:23'!
@@ -2746,6 +2796,37 @@ drawOn: canvas
 !LineStrokeMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:33:58'!
 includeInNewMorphMenu
 	^ false! !
+
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:30:23'!
+color: aColor
+	color := aColor! !
+
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:29:55'!
+endPoint: aPoint
+	endPoint := aPoint! !
+
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:29:42'!
+startPoint
+	^ startPoint! !
+
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:29:35'!
+startPoint: aPoint
+	startPoint := aPoint! !
+
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:30:37'!
+width: number
+	width := number! !
+
+!ShapeMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/Mar/2026 21:29:18'!
+startPoint: start endPoint: end
+	^ self new
+		startPoint: start;
+		endPoint: end;
+		yourself! !
+
+!LineShape methodsFor: 'drawing' stamp: 'hlsf 12/Mar/2026 21:32:09'!
+drawOn: canvas
+	canvas line: startPoint to:endPoint width: width color: color! !
 
 !StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 29/Dec/2024 10:36:25'!
 drawOn: canvas
@@ -4013,10 +4094,10 @@ installView
 	presenter penTool.
 	self adjustPageCounter! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 24/Dec/2024 15:06:52'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/Mar/2026 21:52:25'!
 miniToolbarSpec
 " Toolbar for a one page document "
-	^ #(pen eraser highlighter undo redo 
+	^ #(pen eraser highlighter lineShape undo redo 
 	blank
 	pointer group)! !
 
@@ -4318,6 +4399,14 @@ lastPageButtonData
 	#lastPage . 
 	#lastPage . 
 	'Go to the LAST page of the document.' translated  }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/Mar/2026 21:58:58'!
+lineShapeButtonData
+" label - iconName - callback - description "
+	^ {GeometricTool title .
+	GeometricTool iconName .
+	GeometricTool action .
+	GeometricTool description }! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:22:38'!
 loadDocButtonData
