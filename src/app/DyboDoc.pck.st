@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 14 March 2026 at 1:46:17 pm'!
+'From Cuis7.7 [latest update: #7840] on 14 March 2026 at 2:11:31 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 212!
+!provides: 'DyboDoc' 1 213!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1480,10 +1480,20 @@ resetTool
 " reselect to tool remove intermediate state in the tool "
 	self tool: tool class ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 13:44:07'!
+!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 14:04:18'!
 shapeTool
+	| menu |
+	menu := MenuMorph new.
+	menu 
+		add: 'Line' translated target: self action: #shapeTool: argument: LineShape;
+		add: 'Rectangle' translated target: self action: #shapeTool: argument: RectangularShape;
+		popUpInWorld! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 14:04:46'!
+shapeTool: shapeClass
 	self tool: ShapeTool.
-	tool shapeClass: "RectangularShape " LineShape! !
+	tool shapeClass: shapeClass 
+! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 15:09:27'!
 tool
@@ -2107,17 +2117,17 @@ startPoint: point
 action
 	^ #shapeTool! !
 
-!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 22:00:01'!
+!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 14:09:26'!
 description
-	^ 'Draw a straight line from its extremities.' translated! !
+	^ 'Draw a shape defined by two positions, I use the Pen color and width.' translated! !
 
 !ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:54:36'!
 iconName
 	^ #lineShape! !
 
-!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:55:32'!
+!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 14:05:10'!
 title
-	^ 'Straight line' translated! !
+	^ 'Shape' translated! !
 
 !PageToolState methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024 17:25:29'!
 commandsManager
