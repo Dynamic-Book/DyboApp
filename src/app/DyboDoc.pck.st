@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 14 March 2026 at 5:16:58 am'!
+'From Cuis7.7 [latest update: #7840] on 14 March 2026 at 1:46:17 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 211!
+!provides: 'DyboDoc' 1 212!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -468,6 +468,16 @@ ShapeMorph subclass: #LineShape
 LineShape class
 	instanceVariableNames: ''!
 
+!classDefinition: #RectangularShape category: #'DyboDoc-View'!
+ShapeMorph subclass: #RectangularShape
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-View'!
+!classDefinition: 'RectangularShape class' category: #'DyboDoc-View'!
+RectangularShape class
+	instanceVariableNames: ''!
+
 !classDefinition: #StrokeGroupMorph category: #'DyboDoc-View'!
 PlacedMorph subclass: #StrokeGroupMorph
 	instanceVariableNames: ''
@@ -885,7 +895,7 @@ initialize
 	width := 2. 
 	adjustWidth := false! !
 
-!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 18/Aug/2024 09:58:49'!
+!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 14/Mar/2026 13:21:08'!
 newStroke
 	| newStroke lastStroke junctionPoint samples  |
 	samples := self samples.
@@ -898,7 +908,7 @@ newStroke
 		width: (self widthFor: samples prev: lastStroke);
 		yourself.
 
-	(lastStroke notNil 	and: [lastStroke end == newStroke start 		] ) 
+	(lastStroke notNil and: [lastStroke end == newStroke start ] ) 
 		ifTrue: [				
 			junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
 			lastStroke end: junctionPoint.
@@ -999,7 +1009,7 @@ on: aPaperMorph
 		paper: aPaperMorph ;
 		yourself! !
 
-!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 20/Oct/2024 16:07:41'!
+!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 14/Mar/2026 13:20:58'!
 newStroke
 	| newStroke lastStroke junctionPoint samples migratedControl middle c1 |
 	samples := self samples.
@@ -1021,7 +1031,7 @@ newStroke
 	(at the control point) we are not paying attention. This below only checks between two bezier curves.
 	We need a different traitment for that kind of situation
 "
-	and: [c1 := self isLocalC1at: newStroke start between: lastStroke control1 and: newStroke control1]	 		] ) 
+	and: [c1 := self isLocalC1at: newStroke start between: lastStroke control1 and: newStroke control1]	] ) 
 		ifTrue: [				
 			junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
 			lastStroke end: junctionPoint.
@@ -1470,10 +1480,10 @@ resetTool
 " reselect to tool remove intermediate state in the tool "
 	self tool: tool class ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 05:01:12'!
+!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 13:44:07'!
 shapeTool
 	self tool: ShapeTool.
-	tool shapeClass: LineShape ! !
+	tool shapeClass: "RectangularShape " LineShape! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 15:09:27'!
 tool
@@ -2064,9 +2074,9 @@ initialize
 	self currentPage lockAnnoted.
 	self switchState: ShapeToolStateNeutral! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 05:14:04'!
-asStrokeGroupIn: aPaper
-	^ shape asStrokeGroupIn: aPaper! !
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 13:40:05'!
+asStrokeGroupsIn: aPaper
+	^ shape asStrokeGroupsIn: aPaper! !
 
 !ShapeTool methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 04:58:19'!
 endPoint: point
@@ -2305,12 +2315,11 @@ handlePress: localPosition in: paper
 handleMouseAt: localPosition in: paper
 	context endPoint: localPosition ! !
 
-!ShapeToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 14/Mar/2026 05:15:16'!
+!ShapeToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 14/Mar/2026 13:45:58'!
 handleRelease: localPosition in: paper
 	context endPoint: localPosition.
-	self commandsManager 
-		strokeGroup: (context asStrokeGroupIn: paper) 
-		in: paper.
+	(context asStrokeGroupsIn: paper) do: [:aStrokeGroup |
+		self commandsManager strokeGroup: aStrokeGroup in: paper].
 	context removeShape.
 	context presenter modified.
 	context switchState: ShapeToolStateNeutral 
@@ -2823,8 +2832,8 @@ startPoint: aPoint
 width: number
 	width := number! !
 
-!ShapeMorph methodsFor: 'converting' stamp: 'hlsf 14/Mar/2026 05:15:37'!
-asStrokeGroupIn: aPaper
+!ShapeMorph methodsFor: 'converting' stamp: 'hlsf 14/Mar/2026 13:40:05'!
+asStrokeGroupsIn: aPaper
 
 	self subclassResponsibility! !
 
@@ -2839,10 +2848,31 @@ startPoint: start endPoint: end
 drawOn: canvas
 	canvas line: startPoint to:endPoint width: width color: color! !
 
-!LineShape methodsFor: 'converting' stamp: 'hlsf 14/Mar/2026 05:15:37'!
-asStrokeGroupIn: aPaper
+!LineShape methodsFor: 'converting' stamp: 'hlsf 14/Mar/2026 13:40:05'!
+asStrokeGroupsIn: aPaper
 	aPaper startWritingAt: startPoint.
-	^ aPaper endWritingAt: endPoint! !
+	^ Array with: (aPaper endWritingAt: endPoint)! !
+
+!RectangularShape methodsFor: 'geometry' stamp: 'hlsf 14/Mar/2026 13:10:33'!
+encompassingRectangle
+	^ Rectangle encompassingInteger: (Array with: startPoint with: endPoint)! !
+
+!RectangularShape methodsFor: 'converting' stamp: 'hlsf 14/Mar/2026 13:40:29'!
+asStrokeGroupsIn: aPaper
+	| rect strokeGroups corners |
+	rect := self encompassingRectangle.
+	corners := #(topLeft topRight bottomRight bottomLeft).
+	strokeGroups := corners withIndexCollect: [:corner :cornerIndex |
+		aPaper startWritingAt: (rect perform: corner) ;
+			endWritingAt: (rect perform: (corners atWrap: cornerIndex + 1))].
+	^ strokeGroups ! !
+
+!RectangularShape methodsFor: 'drawing' stamp: 'hlsf 14/Mar/2026 13:43:13'!
+drawOn: canvas 
+	canvas 
+		frameRectangle: (self encompassingRectangle outsetBy: width / 2.0)
+		borderWidth: width 
+		color: color! !
 
 !StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 29/Dec/2024 10:36:25'!
 drawOn: canvas
@@ -3314,12 +3344,12 @@ strokeGroupsAt: worldPosition
 		(each is: #StrokeGroupMorph) 
 		and: [each isCloserThan: self strokeTool width toPixel: worldPosition ] ]! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 4/Jan/2025 10:51:12'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 14/Mar/2026 13:26:03'!
 endWritingAt: localPosition
 	samples at: sampleIndex put: localPosition.
 	sampleIndex := sampleIndex + 1.
 	"In case there is not enought sample, clone the last one"
-	sampleIndex to: self samplesQty do: [	:i | samples at: i put: localPosition].
+	sampleIndex to: self samplesQty do: [:i | samples at: i put: localPosition].
 	currentStrokeGroup 
 		addStroke: stroker newStroke;
 		redrawNeeded.
