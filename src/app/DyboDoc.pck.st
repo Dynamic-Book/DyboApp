@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 14 March 2026 at 2:11:31 pm'!
+'From Cuis7.7 [latest update: #7840] on 16 March 2026 at 9:33:34 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 213!
+!provides: 'DyboDoc' 1 214!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1291,7 +1291,7 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 27/Feb/2026 09:02:47'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 15/Mar/2026 19:37:37'!
 importPDF: aFileEntry
 	| process |
 	process := DyboSystem 
@@ -1301,7 +1301,7 @@ importPDF: aFileEntry
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
 	1 to: model pdfNumberOfPages do: [:index | | newPage |
 		newPage := PageMorph newOn: self background: (self model pdfBackgroundForPage: index).
-		self view insertPage: newPage 	]
+		self view insertPage: newPage	]
 	! !
 
 !Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:37:58'!
@@ -2610,12 +2610,12 @@ initialize
 	timeStamp := DateAndTime now.
 	pageBackground := PageBackgroundHL ! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:46:02'!
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 15/Mar/2026 20:02:31'!
 pdfBackgroundForPage: aPageNumber
-	| pdfPageModel |
-	pdfPageModel := PageBackgroundPdf newOn: (self pdfFormAtPage: aPageNumber).
-	pdfPageModel pageNumber: aPageNumber.
-	^ pdfPageModel ! !
+	| pdfPageBackground |
+	pdfPageBackground := PageBackgroundPdf newOn: (self pdfFormAtPage: aPageNumber).
+	pdfPageBackground pageNumber: aPageNumber.
+	^ pdfPageBackground ! !
 
 !DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:35:35'!
 pdfFormAtPage: integer
@@ -3029,9 +3029,9 @@ unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 5/Mar/2026 11:28:58'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 16/Mar/2026 19:43:48'!
 viewport
-" I represent my visible surface to the user "
+" I represent my visible surface to the user, in own coordinates system "
 	^ ((self internalize: 0@0) max: 0@0) corner: ((self internalize: owner morphExtent) min: extent)! !
 
 !PageMorph methodsFor: 'initialization' stamp: 'hlsf 27/Feb/2026 08:48:31'!
@@ -3891,7 +3891,7 @@ title
 dpi
 	^ dpi ifNil: [dpi := 150]! !
 
-!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026 08:35:35'!
+!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 15/Mar/2026 20:04:36'!
 form
 	^ form ifNil: [form := self documentModel pdfFormAtPage: pageNumber ]! !
 
@@ -3963,11 +3963,11 @@ requiresVectorCanvas
 wantsContour
 	^ false! !
 
-!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2024 11:15:42'!
+!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026 20:02:02'!
 new
 	self error: 'Use #newOn: to create new instance'! !
 
-!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 16/Nov/2024 11:16:04'!
+!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026 20:08:05'!
 newOn: aForm
 	^ self basicNew
 		form: aForm;
@@ -4029,16 +4029,15 @@ presenter
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 25/Dec/2024 20:07:58'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 16/Mar/2026 21:09:52'!
 preview
 " Shrinkg a bit then cut a piece from the origin with a given extent "
-	| shrinkFactor origin |
-	origin := 20 @10.
+	| shrinkFactor form |
 	^ preview ifNil: [
 		('compute preview: ', self printString) print.
-		shrinkFactor := (self class previewExtent x / currentPage morphWidth ) * 2.
-		preview := ((currentPage imageForm: 32) magnifyBy: shrinkFactor) 
-			copy: (origin corner: self class previewExtent + origin)]! !
+		form := (container imageForm: 32) copy: (0@0 corner: container morphWidth @ (container morphHeight -40)).
+		shrinkFactor := self class previewExtent x / form width.
+		preview := form magnifyBy: shrinkFactor]! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024 19:51:30'!
 statusBarMessage: aString
