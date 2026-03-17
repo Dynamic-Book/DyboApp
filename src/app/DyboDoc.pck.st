@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 16 March 2026 at 9:33:34 pm'!
+'From Cuis7.7 [latest update: #7840] on 17 March 2026 at 9:59:19 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 214!
+!provides: 'DyboDoc' 1 215!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -570,7 +570,7 @@ PageBackgroundMillimeter class
 
 !classDefinition: #PageBackgroundPdf category: #'DyboDoc-Model'!
 PageBackground subclass: #PageBackgroundPdf
-	instanceVariableNames: 'form pageNumber dpi'
+	instanceVariableNames: 'form dpi'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
@@ -2097,6 +2097,10 @@ endPoint: point
 removeShape
 	self currentPage removeMorph: shape! !
 
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:50:17'!
+shapeClass
+	^ shapeClass ifNil: [LineShape]! !
+
 !ShapeTool methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 21:51:21'!
 shapeClass: aClass
 	shapeClass := aClass 
@@ -2106,9 +2110,9 @@ shapeClass: aClass
 startPoint
 	^ shape startPoint! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 04:51:29'!
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:49:53'!
 startPoint: point
-	shape := shapeClass startPoint: point endPoint: point.
+	shape := self shapeClass startPoint: point endPoint: point.
 	shape width: presenter writingTool width;
 		color: presenter writingTool color.
 	self currentPage addMorph: shape.! !
@@ -2610,25 +2614,24 @@ initialize
 	timeStamp := DateAndTime now.
 	pageBackground := PageBackgroundHL ! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 15/Mar/2026 20:02:31'!
-pdfBackgroundForPage: aPageNumber
-	| pdfPageBackground |
-	pdfPageBackground := PageBackgroundPdf newOn: (self pdfFormAtPage: aPageNumber).
-	pdfPageBackground pageNumber: aPageNumber.
-	^ pdfPageBackground ! !
-
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:35:35'!
-pdfFormAtPage: integer
-	^ ImageReadWriter formFromFileEntry: (self pdfPageJpegs at: integer)! !
-
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:46:31'!
-pdfNumberOfPages
-	^ self pdfPageJpegs size! !
-
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 27/Feb/2026 08:34:27'!
-pdfPageJpegs
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026 21:08:17'!
+jpegFilePages
 	^ (self path children select: [:each | each extension = 'jpg'])
 		sort: [:f1 :f2 | f1 name < f2 name]! !
+
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026 21:32:06'!
+pdfBackgroundForPage: aPageNumber
+	| pdfPageBackground |
+	pdfPageBackground := PageBackgroundPdf newOn: (self pdfPageAt: aPageNumber).
+	^ pdfPageBackground ! !
+
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026 21:08:17'!
+pdfNumberOfPages
+	^ self jpegFilePages size! !
+
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026 21:10:11'!
+pdfPageAt: integer
+	^ ImageReadWriter formFromFileEntry: (self jpegFilePages at: integer)! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:59:06'!
 dirName
@@ -3008,6 +3011,10 @@ grabAnnotatorsAt: localPosition
 lockAnnoted
 	self annotators do: #lockAnnoted ! !
 
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:30:49'!
+number
+	^ presenter view pageNumber: self! !
+
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 11:17:04'!
 pageContainer
 	^ owner! !
@@ -3043,6 +3050,11 @@ initialize
 		addMorphFront: paper position: 0@0.
 	self morphExtent: pageBackground morphExtent.
 	paper morphExtent: pageBackground morphExtent! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026 20:52:12'!
+release
+" Free any ressource I am using when I am deleted"
+	pageBackground release! !
 
 !PageMorph methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 17:28:05'!
 replaceBackgroundBy: newPageBackground
@@ -3740,9 +3752,17 @@ defaultColor
 defaultExtent
 	^ DyboSystem defaultPaperSize ! !
 
-!PageBackground methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:33:03'!
+!PageBackground methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026 20:50:13'!
+release
+" Free any used resources when I am discarded "! !
+
+!PageBackground methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:26:57'!
 documentModel
-	^ owner documentModel ! !
+	^ self page documentModel ! !
+
+!PageBackground methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:26:49'!
+page
+	^ owner! !
 
 !PageBackground methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 11:27:01'!
 drawOn: canvas
@@ -3891,21 +3911,21 @@ title
 dpi
 	^ dpi ifNil: [dpi := 150]! !
 
-!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 15/Mar/2026 20:04:36'!
+!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:31:01'!
 form
-	^ form ifNil: [form := self documentModel pdfFormAtPage: pageNumber ]! !
+	^ form ifNil: [form := self documentModel pdfPageAt: self page number ]! !
 
 !PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:50:23'!
 form: aForm
 	form := aForm ! !
 
-!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:50:11'!
-pageNumber: integer
-	pageNumber := integer! !
-
 !PageBackgroundPdf methodsFor: 'initialization' stamp: 'hlsf 24/Nov/2024 17:36:44'!
 defaultExtent
 	^ self form extent! !
+
+!PageBackgroundPdf methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026 21:44:54'!
+release
+	(self documentModel jpegFilePages at: self page number) delete! !
 
 !PageBackgroundPdf methodsFor: 'drawing' stamp: 'hlsf 4/Jan/2025 11:02:33'!
 drawOn: canvas
@@ -3916,7 +3936,7 @@ drawOn: canvas
 is: aSymbol
 	^ aSymbol == #PageBackgroundPdf or: [super is: aSymbol ]! !
 
-!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 4/Jan/2025 18:16:57'!
+!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026 21:53:30'!
 resampleFrom: oldScale to: newScale in: documentPath
 	" Do I need to be resampled "
 	| newDpi |
@@ -3937,15 +3957,16 @@ resampleFrom: oldScale to: newScale in: documentPath
 		extent := form extent.
 		dpi := newDpi ]! !
 
-!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 27/Feb/2026 08:35:35'!
+!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026 21:31:46'!
 sampleAt: newDpi in: documentPath
-	| process |
+	| process number |
+	number := self page number.
 	process := DyboSystem 
 		convert:  documentPath 
-		pages:  (pageNumber to: pageNumber)
+		pages:  (number to: number)
 		dpi: newDpi .
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
-	form := self documentModel pdfFormAtPage: pageNumber! !
+	form := self documentModel pdfPageAt: number! !
 
 !PageBackgroundPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024 19:09:38'!
 prepareToBeSaved
@@ -4174,14 +4195,15 @@ currentPage
 currentPageIndex
 	^ pages indexOf: currentPage ! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 16:10:16'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 17/Mar/2026 21:15:46'!
 deletePage
 " delete the current page "
 	| newIndex |
-	self numberOfPages > 1 ifTrue: [
+	self numberOfPages > 1 ifTrue: [ 
+		currentPage release.
 		newIndex := self currentPageIndex min: self numberOfPages - 1.
 		pages remove: currentPage.
-		self goPage: (self pageAt: newIndex)		 		]! !
+		self goPage: (self pageAt: newIndex)]! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 15:45:59'!
 firstPage
@@ -4226,6 +4248,10 @@ numberOfPages
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 15:14:37'!
 pageAt: anIndex
 	^ pages at: anIndex ifAbsent: nil! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 17/Mar/2026 21:24:42'!
+pageNumber: aPageMorph
+	^ pages indexOf: aPageMorph ! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 15:39:57'!
 previousPage

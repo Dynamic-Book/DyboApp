@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 15 March 2026 at 4:40:13 pm'!
+'From Cuis7.7 [latest update: #7840] on 17 March 2026 at 9:59:14 pm'!
 'Description '!
-!provides: 'Dybo' 1 172!
+!provides: 'Dybo' 1 173!
 !requires: 'DyboDoc' 1 5 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
 !requires: 'Gettext' 1 26 nil!
@@ -2010,7 +2010,7 @@ preferences
 scriptLibrary
 	^ platform scriptLibrary ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 15/Mar/2026 13:58:11'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 17/Mar/2026 20:58:09'!
 convert: destEntry pages: interval dpi: integer
 " 
 	In destEntry, convert the import.pdf interval pages at interger resolution	   
@@ -2018,9 +2018,9 @@ convert: destEntry pages: interval dpi: integer
 	| converstionCommand resolution |
 	resolution := integer min: 300 max: 75.
 	converstionCommand := interval 
-		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 {2}/import.pdf {2}/doc' format: {
+		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 {2}/import.pdf {2}/page' format: {
 			resolution . destEntry pathName }] 
-		ifNotNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 -f {2} -l {3} {4}/import.pdf {4}/doc' format: {
+		ifNotNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 -f {2} -l {3} {4}/import.pdf {4}/page' format: {
 			resolution. 
 			interval first. interval last.
 			destEntry pathName }].
