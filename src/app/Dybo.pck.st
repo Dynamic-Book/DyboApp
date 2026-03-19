@@ -1,15 +1,16 @@
-'From Cuis7.7 [latest update: #7840] on 17 March 2026 at 9:59:14 pm'!
+'From Cuis7.7 [latest update: #7840] on 19 March 2026 at 10:26:05 pm'!
 'Description '!
-!provides: 'Dybo' 1 173!
-!requires: 'DyboDoc' 1 5 nil!
-!requires: 'Neo-CSV-Core' 1 2 nil!
+!provides: 'Dybo' 1 174!
 !requires: 'Gettext' 1 26 nil!
-!requires: 'UI-Graphic-Import' 1 0 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
 !requires: 'UI-Mold' 1 13 nil!
+!requires: 'DyboDoc' 1 5 nil!
+!requires: 'Neo-CSV-Core' 1 2 nil!
+!requires: 'UI-Graphic-Import' 1 0 nil!
 !requires: 'UI-Panel' 1 91 nil!
 !requires: 'Commander' 1 9 nil!
+!requires: 'Compression' 1 42 nil!
 SystemOrganization addCategory: #'Dybo-Morph'!
 SystemOrganization addCategory: #Dybo!
 SystemOrganization addCategory: #'Dybo-Model'!
@@ -301,16 +302,6 @@ SystemWindow subclass: #DyboWindow
 DyboWindow class
 	instanceVariableNames: ''!
 
-!classDefinition: #CalibratorPanel category: #'Dybo-View'!
-DialogPanel subclass: #CalibratorPanel
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-View'!
-!classDefinition: 'CalibratorPanel class' category: #'Dybo-View'!
-CalibratorPanel class
-	instanceVariableNames: ''!
-
 !classDefinition: #DyboTestCase category: #'Dybo-Test'!
 TestCase subclass: #DyboTestCase
 	instanceVariableNames: 'domain'
@@ -463,9 +454,9 @@ userData
 initialize
 	DyUserData current: (userData := DyUserData new)! !
 
-!DyDomain methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DyDomain methodsFor: 'initialization' stamp: 'hlsf 19/Mar/2026 21:15:28'!
 load
-	userData := ReferenceStream restoreFromFile: DyboSystem userDataPath // 'data.obj'.
+	userData := ReferenceStream restoreFromCompressedFile: DyboSystem userDataPath // 'data.obj'.
 	DyUserData current: userData.! !
 
 !DyDomain methodsFor: 'dangerous' stamp: 'hlsf 14/Dec/2024 11:18:47'!
@@ -2063,10 +2054,10 @@ rename: oldName to: newName in: parentDir
 				ifTrue: [dir rename: newName asFileName ] 
 				ifFalse: [(parentDir / newName asFileName ) assureExistence]]! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 19/Mar/2026 10:08:13'!
 saveData
 	ReferenceStream 
-		dumpOnFile: (DyboSystem userDataPath // 'data.obj') 
+		dumpOnCompressedFile: (DyboSystem userDataPath // 'data.obj') 
 		object: DyUserData current! !
 
 !DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 22/Feb/2026 11:52:28'!
@@ -3627,26 +3618,6 @@ for: aPresenter
 		presenter: aPresenter;
 		yourself! !
 
-!CalibratorPanel methodsFor: 'as yet unclassified' stamp: 'hlsf 1/Mar/2026 18:20:56'!
-newButtonArea
-	| area |
-	area := LayoutMorph newRow 
-		axisEdgeWeight: #rowRight;
-		addMorph: (PluggableButtonMorph
-			model: self
-			action: #accept
-			label: 'Accept' translated :: setBalloonText: 'I am done calibrating the ruler to the grid.' translated);
-		addMorph: (PluggableButtonMorph
-			model: self
-			action: #cancel
-			label: 'Cancel' translated).
-	^ area ! !
-
-!CalibratorPanel methodsFor: 'as yet unclassified' stamp: 'hlsf 1/Mar/2026 18:17:52'!
-newPane
-	^ CalibratorMorph new
-		etalon: (ImageReadWriter formFromFileEntry: DyboSystem iconsPath // 'etalon.png')! !
-
 !DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 5/Dec/2024 23:15:26'!
 setUp
 	domain := self resources anyOne current domain! !
@@ -4084,6 +4055,19 @@ asTimeSlot
 		slotName: elements first;
 		start: (Time fromString: elements second);
 		end: (Time fromString: elements third)! !
+
+!ReferenceStream class methodsFor: '*Dybo' stamp: 'hlsf 19/Mar/2026 19:56:38'!
+dumpOnCompressedFile: aFileEntry object: anObject
+	aFileEntry forceWriteStreamDo: [ :fileStream | | compressor |
+		compressor := GZipWriteStream on: fileStream.
+		(self on: compressor) nextPut: (self streamedRepresentationOf: anObject).
+		compressor close]! !
+
+!ReferenceStream class methodsFor: '*Dybo' stamp: 'hlsf 19/Mar/2026 21:55:39'!
+restoreFromCompressedFile: aFileEntry
+	^ aFileEntry readStreamDo: [ :fileStream | | uncompressed |
+		uncompressed := (GZipReadStream on: fileStream) upToEnd.
+		self unStream: (self unStream: uncompressed)]! !
 
 !Morph methodsFor: '*Dybo' stamp: 'hlsf 26/Feb/2026 11:09:19'!
 isStepping

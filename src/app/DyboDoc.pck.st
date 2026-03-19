@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 17 March 2026 at 9:59:19 pm'!
+'From Cuis7.7 [latest update: #7840] on 19 March 2026 at 10:26:08 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 215!
+!provides: 'DyboDoc' 1 216!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1535,9 +1535,9 @@ comeFullyUpOnReload: smartRefStream
 isSaved
 	^ isSaved ifNil: [true]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 22/Dec/2024 11:31:59'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026 21:15:36'!
 loadFromDisk
-	^ ReferenceStream restoreFromFile: model path // 'doc.obj'! !
+	^ ReferenceStream restoreFromCompressedFile: model path // 'doc.obj'! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 4/Jan/2025 18:24:38'!
 modified
@@ -1548,28 +1548,33 @@ modified
 	view currentPage paper redrawNeeded 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 15/Feb/2026 11:32:34'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026 09:19:40'!
 objectForDataStream: str
-" We have two states when saving a document.
-1. When serialized from the data tree model -> respond a diskproxy, it is the default state saveReal == false
-2. When serialized and saved in its own tree at its own file location -> respond self, it is explicitly required, see #saveDocument
+" 	
+A Document is serialized on disk in its own directory. A document may be asked to be serialized under two circumstances, 
+those we have two states when saving a document.
+1. 	The default state saveReal == false
+	When the whole DyboApp data model is saved (see DyboSystem class>>saveData)-> respond a diskproxy, 
+	Indeed, we don't want to save the Document in the data model, just its proxy. 
+2. 	When the user saves the document itself (see #saveDocument) 	-> 	respond self, it is explicitly required,
+	It is serialized and saved in its own tree at its own directory location, so we respond the instance (self)	
 "
 	^ savesReal 
 		ifFalse: [Transcript show: '   proxy saved: '; show: self; cr.
 			DiskProxy 				
 				global: #Document 				
 				selector: #loadDocument:  				
-				args: (Array with: model relPath)		 ]
+				args: (Array with: model relPath) ]
 		ifTrue: [	Transcript show: '   full object on disk: '; show: self; cr.
 			self]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 22/Dec/2024 13:06:49'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026 21:15:04'!
 saveToDisk
 " NEVER SEND MESSAGE DIRECTLY, use saveDocument if necessary 
 Save me in my model disk location "
 	'Saving to disk' print.
 	ReferenceStream 
-		dumpOnFile:  model path // 'doc.obj'
+		dumpOnCompressedFile:  model path // 'doc.obj'
 		object: self
 ! !
 
@@ -1591,13 +1596,13 @@ printOn: aStream
 		nextPutAll: model dirName;
 		nextPut: $)! !
 
-!Document class methodsFor: 'object serialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!Document class methodsFor: 'object serialization' stamp: 'hlsf 19/Mar/2026 21:16:11'!
 loadDocument: relativePath
 "
 	Once restored, the controlManager needs to be associated back and 
 	the view plug in the dynamic book main view
 "
-	^ ReferenceStream restoreFromFile: DyboSystem userDataPath / relativePath // 'doc.obj'! !
+	^ ReferenceStream restoreFromCompressedFile: DyboSystem userDataPath / relativePath // 'doc.obj'! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024 21:05:57'!
 execute
