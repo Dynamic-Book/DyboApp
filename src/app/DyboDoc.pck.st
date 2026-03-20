@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 19 March 2026 at 11:00:06 pm'!
+'From Cuis7.7 [latest update: #7843] on 20 March 2026 at 9:33:54 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 217!
+!provides: 'DyboDoc' 1 218!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -4119,7 +4119,7 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/Feb/2026 11:32:06'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Mar/2026 21:07:12'!
 installScriptsFlap
 	| flap items |
 	items := Array 
@@ -4130,10 +4130,12 @@ installScriptsFlap
 		with: (DKMScript for: Workspace).
 	flap := Flap label: ' Knowledge Models ' translated scripts: items.
 	container addMorph: flap.
-	flap target: PageMorph.
+	flap 
+		borderColor: self defaultColor twiceDarker ;
+		target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/Feb/2026 11:31:02'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Mar/2026 21:17:24'!
 installToolsFlap
 	| flap tools |
 	tools := Array 
@@ -4143,7 +4145,7 @@ installToolsFlap
 		with: Compass new.
 	flap := Flap label: ' Geometry Tools ' translated objects: tools.
 	container addMorph: flap.
-	flap borderColor: Color blue;
+	flap borderColor: Color yellow darker;
 		target: PageMorph.
 	^ flap! !
 
