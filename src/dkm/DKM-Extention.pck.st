@@ -1,9 +1,97 @@
-'From Cuis7.7 [latest update: #7840] on 25 February 2026 at 10:27:30 am'!
+'From Cuis7.7 [latest update: #7843] on 22 March 2026 at 1:26:53 pm'!
 'Description '!
-!provides: 'DKM-Extention' 1 4!
+!provides: 'DKM-Extention' 1 5!
 SystemOrganization addCategory: #'DKM-Extention'!
 
 
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:19:00'!
+blackBackground
+	^self asText blackBackground ! !
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:19:21'!
+blueBackground
+	^self asText blueBackground ! !
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:20:02'!
+cyanBackground
+	^self asText cyanBackground ! !
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:20:24'!
+grayBackground
+	^self asText grayBackground ! !
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:20:34'!
+greenBackground
+	^self asText greenBackground ! !
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:21:01'!
+magentaBackground
+	^self asText magentaBackground ! !
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:21:11'!
+redBackground
+	^self asText redBackground ! !
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:23:08'!
+white
+	^self asText white! !
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:21:39'!
+whiteBackground
+	^self asText whiteBackground ! !
+
+!CharacterSequence methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:23:31'!
+yellowBackground
+	^self asText yellowBackground ! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:04:35'!
+bgColor: aColor
+	"Stuff like
+	'Hello world' color: (Color fromHexString: '#941100') :: edit
+	'Hello world' color: (Color fromHexString: '#5A9F2D') :: edit
+	"
+	self addAttribute: (TextBackgroundColor color: aColor)! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:19:05'!
+blackBackground
+	self bgColor: Color black! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:19:16'!
+blueBackground
+	self bgColor: Color blue ! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:19:31'!
+cyanBackground
+	self bgColor: Color cyan ! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:20:18'!
+grayBackground
+	self bgColor: Color gray! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:20:42'!
+greenBackground
+	self bgColor: Color green ! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:20:53'!
+magentaBackground
+	self bgColor: Color magenta ! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:21:19'!
+redBackground
+	self bgColor: Color red ! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:22:03'!
+white
+	self color: Color white ! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:21:28'!
+whiteBackground
+	self bgColor: Color white ! !
+
+!Text methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 12:23:41'!
+yellowBackground
+	self bgColor: Color yellow ! !
 
 !Workspace class methodsFor: '*DKM-Extention' stamp: 'hlsf 12/Oct/2025 15:30:35'!
 codeSample
@@ -40,6 +128,18 @@ title
 !TextModelMorph class methodsFor: '*DKM-Extention' stamp: 'hlsf 25/Feb/2026 10:23:15'!
 codeSample
 	^ 'TextModelMorph withText: ''Write your text here.'''! !
+
+!TextModelMorph class methodsFor: '*DKM-Extention' stamp: 'hlsf 22/Mar/2026 13:14:45'!
+codeSampleForAI
+	^ 'TextModelMorph withText: 
+	''A text with style sttributes as '', 
+	''Coloring words'' red, '' bold words '' bold,  
+	'' underlined words '' under , '' struck words'' struck, 
+	(''bigger words'' pointSize: 14), (''smaller words'' pointSize: 10),
+	'' italic words'' italic, ''combined attributes on words'' bold white blueBackground,
+	''
+new paragraph with empty line'' 
+"Possible colors are black, blue, cyan, gray, green, magenta, red, white yellow"'! !
 
 !TextModelMorph class methodsFor: '*DKM-Extention' stamp: 'hlsf 15/Feb/2026 12:38:23'!
 description

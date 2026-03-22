@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7843] on 20 March 2026 at 9:33:54 pm'!
+'From Cuis7.7 [latest update: #7843] on 22 March 2026 at 1:27:12 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 218!
+!provides: 'DyboDoc' 1 219!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -4825,9 +4825,9 @@ styleByParagraphs
 textStylerClassFor: object
 	^ SHTextStylerST80 ! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 5/Feb/2026 10:53:04'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 22/Mar/2026 11:27:25'!
 copyAIprompt
-	Clipboard storeObject: model presenter promptForAI ! !
+	Clipboard storeObject: model presenter AI_Prompt ! !
 
 !DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 18:24:45'!
 debugScript
