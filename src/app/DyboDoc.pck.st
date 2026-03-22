@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7843] on 22 March 2026 at 3:56:15 pm'!
+'From Cuis7.7 [latest update: #7843] on 22 March 2026 at 4:12:02 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 220!
+!provides: 'DyboDoc' 1 221!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -3729,6 +3729,14 @@ noteNewOwner: newOwner
 !AnnotatorMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 26/Feb/2026 10:16:13'!
 wantsToBeDroppedInto: aMorph 
 	^ aMorph is: #PageMorph ! !
+
+!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Mar/2026 16:03:32'!
+balloonText
+	^ script description ! !
+
+!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Mar/2026 16:08:11'!
+wantsBalloon
+	^ false! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 26/Sep/2024 11:33:10'!
 newOn: aPresenter
