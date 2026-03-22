@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7843] on 22 March 2026 at 1:27:12 pm'!
+'From Cuis7.7 [latest update: #7843] on 22 March 2026 at 3:56:15 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 219!
+!provides: 'DyboDoc' 1 220!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2098,9 +2098,9 @@ endPoint: point
 	shape endPoint: point.
 	self currentPage redrawNeeded ! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 04:55:36'!
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 22/Mar/2026 15:55:27'!
 removeShape
-	self currentPage removeMorph: shape! !
+	shape owner removeMorph: shape! !
 
 !ShapeTool methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:50:17'!
 shapeClass
@@ -2115,12 +2115,12 @@ shapeClass: aClass
 startPoint
 	^ shape startPoint! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:49:53'!
-startPoint: point
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 22/Mar/2026 15:53:38'!
+startPoint: point in: aPaper
 	shape := self shapeClass startPoint: point endPoint: point.
 	shape width: presenter writingTool width;
 		color: presenter writingTool color.
-	self currentPage addMorph: shape.! !
+	aPaper addMorph: shape.! !
 
 !ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 04:46:53'!
 action
@@ -2344,9 +2344,9 @@ handleRelease: localPosition in: paper
 	context switchState: ShapeToolStateNeutral 
 ! !
 
-!ShapeToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 14/Mar/2026 04:59:49'!
+!ShapeToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 22/Mar/2026 15:54:08'!
 handlePress: localPosition in: aPaper
-	context startPoint: localPosition;
+	context startPoint: localPosition in: aPaper ;
 		switchState: ShapeToolStateDrawing ! !
 
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 12:04:20'!
@@ -2505,16 +2505,16 @@ browseFor: currentPage
 		setBalloonText: 'Scan again the existing model on the disks, in your "myDybo/myScripts directory". Necessary when manually adding models from external sources.'. 
 	mainMenu popUpInWorld ! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 15/Feb/2026 19:24:35'!
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 22/Mar/2026 15:23:22'!
 tagMenuFor: scriptsByCategory
 	| tags tagMenu |
 	tagMenu := MenuMorph new.
 	tags := Set new.
-	scriptsByCategory do: [:aScript | tags addAll: (aScript at: #tags)].
+	scriptsByCategory do: [:aScript | tags addAll: (self tagsOf: aScript)].
 	tags sorted do: [:aTag | | scriptsByTag scriptsMenu|
 		scriptsMenu := MenuMorph new defaultTarget: self.
 		tagMenu add: aTag capitalized subMenu: scriptsMenu.
-		scriptsByTag := scriptsByCategory select: [:aScript | (aScript at: #tags) includes: aTag].
+		scriptsByTag := scriptsByCategory select: [:aScript | (self tagsOf: aScript) includes: aTag].
 		scriptsByTag := scriptsByTag sorted: [:scriptA :scriptB | (scriptA at: #title) < (scriptA at: #title)].
 		scriptsByTag do: [:metadataScript |
 			(scriptsMenu 
@@ -2551,6 +2551,10 @@ resetScripts
 !DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:41:57'!
 scripts
 	^ scripts ifNil: [self scanForScripts]! !
+
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 22/Mar/2026 15:22:35'!
+tagsOf: scriptRecord
+	^ scriptRecord at: #tags ifAbsent: [Array with: 'no tag' translated]! !
 
 !DKMScriptLibrary methodsFor: 'updating' stamp: 'hlsf 24/Feb/2026 21:05:59'!
 scriptSaved: dkmScript
@@ -3721,10 +3725,6 @@ initialize
 !AnnotatorMorph methodsFor: 'submorphs-accessing' stamp: 'hlsf 7/Sep/2025 11:08:13'!
 noteNewOwner: newOwner
 	self adjustBounds ! !
-
-!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 15/Feb/2026 10:37:52'!
-balloonText
-	^ script description ! !
 
 !AnnotatorMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 26/Feb/2026 10:16:13'!
 wantsToBeDroppedInto: aMorph 
