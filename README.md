@@ -82,4 +82,5 @@ Have an interesting exploration!
 
 # License
 GNU Less General Public License
+
 Copyright 2023--2025  Hilaire Fernandes 
