@@ -81,5 +81,5 @@ button at the right in the toolbar).
 Have an interesting exploration!
 
 # License
-
-Copyright 2023--2025 Hilaire Fernandes 
+GNU Less General Public License
+Copyright 2023--2025  Hilaire Fernandes 
