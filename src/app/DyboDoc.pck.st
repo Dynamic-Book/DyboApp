@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7843] on 22 March 2026 at 4:12:02 pm'!
+'From Cuis7.7 [latest update: #7843] on 26 March 2026 at 10:55:02 am'!
 'Description '!
-!provides: 'DyboDoc' 1 221!
+!provides: 'DyboDoc' 1 222!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -28,9 +28,19 @@ Object subclass: #Pen
 Pen class
 	instanceVariableNames: ''!
 
-!classDefinition: #StrokerBezier2 category: #'DyboDoc-Model'!
-Object subclass: #StrokerBezier2
+!classDefinition: #StrokerBezier category: #'DyboDoc-Model'!
+Object subclass: #StrokerBezier
 	instanceVariableNames: 'paper strokes'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Model'!
+!classDefinition: 'StrokerBezier class' category: #'DyboDoc-Model'!
+StrokerBezier class
+	instanceVariableNames: ''!
+
+!classDefinition: #StrokerBezier2 category: #'DyboDoc-Model'!
+StrokerBezier subclass: #StrokerBezier2
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
@@ -49,7 +59,7 @@ StrokerBezier2XP class
 	instanceVariableNames: ''!
 
 !classDefinition: #StrokerBezier3 category: #'DyboDoc-Model'!
-StrokerBezier2 subclass: #StrokerBezier3
+StrokerBezier subclass: #StrokerBezier3
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -616,16 +626,27 @@ Depending on the use of the pen, we have different threshold
 - adjustWidth: does the width depends on the speed/pressure of the pen
 - threshold : the minimum squared distance between two stroke with paper morph at scale 1!
 
-!StrokerBezier2 commentStamp: '<historical>' prior: 0!
-Given samples of mouse positions and previous strokes, I compute a new Bézier quadratic stroke . 
+!StrokerBezier2 commentStamp: 'hlsf 26/Mar/2026 10:46:11' prior: 0!
+Given samples of mouse positions, I compute a new Bézier quadratic stroke . 
+My curve is only C0, not C1, so it has rough edge.
 I can be subclassed to adjust my behavior.!
 
-!StrokerBezier2XP commentStamp: 'hlsf 9/15/2024 17:06:16' prior: 0!
+!StrokerBezier2XP commentStamp: 'hlsf 26/Mar/2026 10:46:24' prior: 0!
 Experiment on 2-Bezier. 
-We migrate a bit the control point a bit away from its sampled position.!
+Given samples of mouse positions and previous stroke, I compute a new Bézier quadratic stroke . 
+The Curve is C1, the common point of two bezier curves is recompute to ensure C1 : it is recomputed as 
+the middle of the controls point of the two curve. This smooth the curve but it makes  it unaccurate to the user hand stroke.
+So we migrate the control point a bit away from its sampled position.!
 
-!StrokerBezier3 commentStamp: '<historical>' prior: 0!
-Compute a cubic Bézier curve.!
+!StrokerBezier3 commentStamp: 'hlsf 26/Mar/2026 10:46:29' prior: 0!
+Compute a cubic Bézier curve.
+Given samples of mouse positions and previous stroke, I compute a new Bézier cubic stroke . 
+My curve is only C0, not C1, so it has rough edge.
+I can be subclassed to adjust my behavior.!
+
+!StrokerBezier3XP commentStamp: 'hlsf 26/Mar/2026 10:47:41' prior: 0!
+Given samples of mouse positions and previous stroke, I compute a new Bézier cubic stroke . 
+The common point of the consecutive curve is repositionned, to smooth a bit the curve, it is not exactly C1 though!
 
 !Document commentStamp: '<historical>' prior: 0!
 The Presenter of the Document to handle the controllers and associated callbacks of the tools.!
@@ -895,59 +916,7 @@ initialize
 	width := 2. 
 	adjustWidth := false! !
 
-!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 14/Mar/2026 13:21:08'!
-newStroke
-	| newStroke lastStroke junctionPoint samples  |
-	samples := self samples.
-	lastStroke := paper lastStroke.
-	newStroke := Bezier2Morph new
-		start: samples first
-		end: samples last
-		control1: samples second;
-		color: self penColor; 
-		width: (self widthFor: samples prev: lastStroke);
-		yourself.
-
-	(lastStroke notNil and: [lastStroke end == newStroke start ] ) 
-		ifTrue: [				
-			junctionPoint := (lastStroke control1 + newStroke control1) / 2.0.
-			lastStroke end: junctionPoint.
-			newStroke start: junctionPoint].
-	^ newStroke
-	
-	! !
-
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025 17:52:33'!
-adjustWidth
-	^ paper strokeTool adjustWidth ! !
-
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 1/Apr/2023 12:32:38'!
-paper: aPaperMorph
-	paper := aPaperMorph ! !
-
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025 17:52:33'!
-penColor
-	^ paper strokeTool color! !
-
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025 17:52:33'!
-penThreshold
-	^ paper strokeTool threshold ! !
-
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025 17:52:33'!
-penWidth
-	^ paper strokeTool width! !
-
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 1/Apr/2023 12:53:07'!
-samples
-"samples used to compute a new stroke"
-	^ paper samples! !
-
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 14:44:49'!
-samplesQty
-"Quantity of samples used to compute a new stroke"
-	^ 3! !
-
-!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 9/Apr/2023 10:25:47'!
+!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026 10:09:40'!
 averageDistance: samples
 	| dist |
 	dist := 0.
@@ -955,7 +924,7 @@ averageDistance: samples
 		dist := dist + ( (samples at: i) dist: (samples at: i + 1) )].
 	^ dist / (samples size - 1)! !
 
-!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 1/Apr/2023 12:56:11'!
+!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026 10:09:28'!
 intersectionOrigin1: p1 vector1: v1 origin2: p2 vector2: v2
 | det c1 c2 |
 	det := v1 crossProduct: v2.
@@ -964,7 +933,7 @@ intersectionOrigin1: p1 vector1: v1 origin2: p2 vector2: v2
 	c2 := p2 crossProduct: v2.
 	^ ((c2 * v1 x - (c1 * v2 x) ) / det) @ ((v1 y * c2 - (v2 y * c1)) / det)! !
 
-!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 12/Apr/2023 17:28:57'!
+!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026 10:25:58'!
 maxDistance: samples
 	| dist |
 	dist := Array new: samples size - 1.
@@ -972,7 +941,7 @@ maxDistance: samples
 		dist at: i put: ( (samples at: i) dist: (samples at: i + 1) )].
 	^ dist max! !
 
-!StrokerBezier2 methodsFor: 'compute' stamp: 'hlsf 4/Jan/2025 15:31:52'!
+!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026 10:09:08'!
 widthFor: samples prev: lastStroke
 	| penWidth prevWidth strokeDist min max f a b  | 
 	penWidth := self penWidth.
@@ -989,12 +958,64 @@ widthFor: samples prev: lastStroke
 	strokeDist := (self maxDistance: samples) min: max max: min.
 	^ (a * strokeDist + b) * 0.6 + (prevWidth * 0.4)! !
 
-!StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 18/Aug/2024 10:07:39'!
-isLocalC1at: m between: c1 and: c2
-"
-	We check if local C1 continuity is desirable ? 
-"
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:10:01'!
+adjustWidth
+	^ paper strokeTool adjustWidth ! !
+
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:07'!
+paper: aPaperMorph
+	paper := aPaperMorph ! !
+
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:14'!
+penColor
+	^ paper strokeTool color! !
+
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:19'!
+penThreshold
+	^ paper strokeTool threshold ! !
+
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:23'!
+penWidth
+	^ paper strokeTool width! !
+
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:29'!
+samples
+"samples used to compute a new stroke"
+	^ paper samples! !
+
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:48'!
+samplesQty
+"Quantity of samples used to compute a new stroke"
+	self subclassResponsibility ! !
+
+!StrokerBezier methodsFor: 'testing' stamp: 'hlsf 26/Mar/2026 10:24:24'!
+isSamplesValid
 	^ true! !
+
+!StrokerBezier class methodsFor: 'instance creation' stamp: 'hlsf 26/Mar/2026 10:31:03'!
+on: aPaperMorph
+	^ self new ::
+		paper: aPaperMorph ;
+		yourself! !
+
+!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 26/Mar/2026 10:37:28'!
+newStroke
+	| lastStroke samples  |
+	samples := self samples.
+	lastStroke := paper lastStroke.
+	^ Bezier2Morph new
+		start: samples first
+		end: samples last
+		control1: samples second;
+		color: self penColor; 
+		width: (self widthFor: samples prev: lastStroke);
+		yourself
+	! !
+
+!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 14:44:49'!
+samplesQty
+"Quantity of samples used to compute a new stroke"
+	^ 3! !
 
 !StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 7/Sep/2025 17:52:33'!
 isSamplesValid
@@ -1002,12 +1023,6 @@ isSamplesValid
 Do we consider valid the current samples, Subclasses may implement differently to discard
 "
 	^ (self samples first squaredDistanceTo: self samples second) > paper strokeTool threshold! !
-
-!StrokerBezier2 class methodsFor: 'instance creation' stamp: 'hlsf 1/Apr/2023 14:29:08'!
-on: aPaperMorph
-	^ self new ::
-		paper: aPaperMorph ;
-		yourself! !
 
 !StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 14/Mar/2026 13:20:58'!
 newStroke
@@ -1041,21 +1056,12 @@ newStroke
 	
 	! !
 
-!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024 09:55:53'!
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 26/Mar/2026 10:27:37'!
 isLocalC1at: m between: c1 and: c2
 "
 	We check if local C1 continuity is desirable ? 
-	When the stroke is abruptly changing of direction, C1 is not wished, 
-	otherwise the user stroke will be truncated (i.e. n, m letter strokes for example)	
 "
-	| u v cos |
-	u := c1 - m.
-	v := c2 - m.
-	cos := (u dotProduct: v) / (u r * v r) .
-	"cos arcCos radiansToDegrees print."
-	^ (cos
-		between: `90 degreesToRadians cos` 
-		and: `0 cos`) not! !
+	^ true! !
 
 !StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 20/Oct/2024 16:05:21'!
 isSamplesValid
@@ -1076,25 +1082,19 @@ Do we consider valid the current samples, reason to discard :
 "
 	! !
 
-!StrokerBezier3 methodsFor: 'instance' stamp: 'hlsf 9/Apr/2023 12:17:41'!
+!StrokerBezier3 methodsFor: 'instance' stamp: 'hlsf 26/Mar/2026 10:44:43'!
 newStroke
-	| newStroke lastStroke junctionPoint samples |
+	| lastStroke samples |
 	samples := self samples.
 	lastStroke := paper lastStroke.
-	newStroke := Bezier3Morph new
+	^ Bezier3Morph new
 		start: samples first
 		end: samples last
 		control1: samples second
 		control2: samples third;
 		color: self penColor; 
 		width:  (self widthFor: samples prev: lastStroke);
-		yourself.
-	(lastStroke notNil and: [lastStroke end == newStroke start]) ifTrue: [	
-		junctionPoint := (lastStroke control2 + newStroke control1) / 2.0.
-		lastStroke end: junctionPoint.
-		newStroke start: junctionPoint.
-		lastStroke redrawNeeded].
-	^ newStroke
+		yourself
 	
 	! !
 
@@ -1103,11 +1103,7 @@ samplesQty
 "Quantity of samples used to compute a new stroke"
 	^ 4! !
 
-!StrokerBezier3 methodsFor: 'testing' stamp: 'hlsf 17/Aug/2024 11:20:02'!
-isSamplesValid
-	^ true! !
-
-!StrokerBezier3XP methodsFor: 'as yet unclassified' stamp: 'hlsf 29/May/2024 21:27:24'!
+!StrokerBezier3XP methodsFor: 'as yet unclassified' stamp: 'hlsf 26/Mar/2026 10:51:36'!
 newStroke
 	| newStroke lastStroke junctionPoint samples migratedControl1 migratedControl2 factor |
 	samples := self samples.
@@ -1125,7 +1121,8 @@ newStroke
 		yourself.
 	(lastStroke notNil and: [lastStroke end == newStroke start]) ifTrue: [	
 		junctionPoint := (lastStroke control2 + newStroke control1) / 2.0.
-		junctionPoint := (junctionPoint + (lastStroke end) ) / 2.0.
+		"Reduce the sloopy effect"
+		junctionPoint := (junctionPoint + (lastStroke end * 4) ) / 5.0.
 		lastStroke end: junctionPoint.
 		newStroke start: junctionPoint.
 		lastStroke redrawNeeded].
@@ -3051,11 +3048,11 @@ viewport
 " I represent my visible surface to the user, in own coordinates system "
 	^ ((self internalize: 0@0) max: 0@0) corner: ((self internalize: owner morphExtent) min: extent)! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 27/Feb/2026 08:48:31'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 26/Mar/2026 10:50:52'!
 initialize
 	super initialize.
 	paper := PaperMorph newOn: presenter.
-	paper stroker: StrokerBezier2XP.
+	paper stroker: StrokerBezier3XP.
 	self addMorphBack: pageBackground position: 0@0;
 		addMorphFront: paper position: 0@0.
 	self morphExtent: pageBackground morphExtent.

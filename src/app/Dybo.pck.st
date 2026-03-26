@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 19 March 2026 at 10:26:05 pm'!
+'From Cuis7.7 [latest update: #7843] on 26 March 2026 at 10:54:57 am'!
 'Description '!
-!provides: 'Dybo' 1 174!
+!provides: 'Dybo' 1 175!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -4056,18 +4056,18 @@ asTimeSlot
 		start: (Time fromString: elements second);
 		end: (Time fromString: elements third)! !
 
-!ReferenceStream class methodsFor: '*Dybo' stamp: 'hlsf 19/Mar/2026 19:56:38'!
+!ReferenceStream class methodsFor: '*Dybo' stamp: 'hlsf 26/Mar/2026 08:38:47'!
 dumpOnCompressedFile: aFileEntry object: anObject
 	aFileEntry forceWriteStreamDo: [ :fileStream | | compressor |
 		compressor := GZipWriteStream on: fileStream.
-		(self on: compressor) nextPut: (self streamedRepresentationOf: anObject).
+		compressor nextPutAll: (self streamedRepresentationOf: anObject).
 		compressor close]! !
 
-!ReferenceStream class methodsFor: '*Dybo' stamp: 'hlsf 19/Mar/2026 21:55:39'!
+!ReferenceStream class methodsFor: '*Dybo' stamp: 'hlsf 26/Mar/2026 09:54:46'!
 restoreFromCompressedFile: aFileEntry
 	^ aFileEntry readStreamDo: [ :fileStream | | uncompressed |
 		uncompressed := (GZipReadStream on: fileStream) upToEnd.
-		self unStream: (self unStream: uncompressed)]! !
+		self unStream: uncompressed]! !
 
 !Morph methodsFor: '*Dybo' stamp: 'hlsf 26/Feb/2026 11:09:19'!
 isStepping
