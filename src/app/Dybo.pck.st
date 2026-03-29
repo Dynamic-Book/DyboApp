@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7843] on 26 March 2026 at 10:54:57 am'!
+'From Cuis7.7 [latest update: #7843] on 29 March 2026 at 1:11:53 pm'!
 'Description '!
-!provides: 'Dybo' 1 175!
+!provides: 'Dybo' 1 176!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -3565,20 +3565,20 @@ stepTime
 wantsSteps
 	^ true! !
 
-!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 14:45:03'!
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 29/Mar/2026 13:05:39'!
 addCustomMenuItems: aMenu hand: aHand
-	aMenu addUpdating: #fullscreenString action: #toggleFullextent! !
+	aMenu addUpdating: #hackerModeString action: #toggleHackerMode! !
 
-!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 14:44:32'!
-fullscreenString
-	^ self isStepping asMenuItemTextPrefix , 'full extent'! !
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 29/Mar/2026 13:06:39'!
+hackerModeString
+	^ self isStepping not asMenuItemTextPrefix , 'hacker mode'! !
 
 !DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 11:16:51'!
 morphExtent: newExtent
 	super morphExtent: Display extent x @ newExtent y! !
 
-!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 26/Feb/2026 14:45:27'!
-toggleFullextent
+!DyboFullscreenView methodsFor: 'menus' stamp: 'hlsf 29/Mar/2026 13:05:39'!
+toggleHackerMode
 	self isStepping ifTrue: [self stopStepping] ifFalse: [self startStepping]! !
 
 !DyboFullscreenView class methodsFor: 'instance creation' stamp: 'hlsf 25/Feb/2026 09:25:52'!
@@ -4055,19 +4055,6 @@ asTimeSlot
 		slotName: elements first;
 		start: (Time fromString: elements second);
 		end: (Time fromString: elements third)! !
-
-!ReferenceStream class methodsFor: '*Dybo' stamp: 'hlsf 26/Mar/2026 08:38:47'!
-dumpOnCompressedFile: aFileEntry object: anObject
-	aFileEntry forceWriteStreamDo: [ :fileStream | | compressor |
-		compressor := GZipWriteStream on: fileStream.
-		compressor nextPutAll: (self streamedRepresentationOf: anObject).
-		compressor close]! !
-
-!ReferenceStream class methodsFor: '*Dybo' stamp: 'hlsf 26/Mar/2026 09:54:46'!
-restoreFromCompressedFile: aFileEntry
-	^ aFileEntry readStreamDo: [ :fileStream | | uncompressed |
-		uncompressed := (GZipReadStream on: fileStream) upToEnd.
-		self unStream: uncompressed]! !
 
 !Morph methodsFor: '*Dybo' stamp: 'hlsf 26/Feb/2026 11:09:19'!
 isStepping

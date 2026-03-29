@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7843] on 26 March 2026 at 10:55:02 am'!
+'From Cuis7.7 [latest update: #7850] on 29 March 2026 at 1:57:11 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 222!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 223!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'UI-Panel' 1 122 nil!
-!requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -3807,19 +3807,21 @@ initialize
 	super initialize.
 	step := DyboSystem ppcm / 2  "5 mm"! !
 
-!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 20:23:26'!
+!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026 13:49:56'!
 drawOn: canvas 
-	| x y width |
+	| x y width end |
 	super drawOn: canvas.
 	x := (viewport origin x roundDownTo: step) + step.
 	width := self lineWidth: 0.5.
-	[ x < extent x ] whileTrue: [
+	end := viewport corner x.
+	[ x < end ] whileTrue: [
 		canvas strokeWidth: width color: color do: [
 			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y].
 		x := x + step ] .
 	
 	y := (viewport origin y roundDownTo: step) + step.
-	[ y < extent y ] whileTrue: [
+	end := viewport corner y.
+	[ y < end ] whileTrue: [
 		canvas strokeWidth: width color: color do: [
 			canvas moveTo: viewport origin x@ y; lineTo: viewport corner x @ y].
 		y := y + step ] 
@@ -3834,13 +3836,14 @@ initialize
 	super initialize.
 	step := DyboSystem ppcm.! !
 
-!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 20:22:14'!
+!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026 13:44:03'!
 drawOn: canvas 
-	| y  width |
+	| y  width bottom |
 	super drawOn: canvas.
 	width := self lineWidth: 0.8.
+	bottom := viewport corner y.
 	y := (viewport origin y roundDownTo: step) + step.
-	[ y < extent y ] whileTrue: [
+	[ y < bottom ] whileTrue: [
 		canvas strokeWidth: width color: color do: [
 			canvas moveTo: viewport origin x @ y; lineTo: viewport corner x @ y].
 		y := y + step ]! !
@@ -3849,9 +3852,9 @@ drawOn: canvas
 title
 	^ 'Horizontal line' translated! !
 
-!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 20:21:12'!
+!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026 13:49:11'!
 drawOn: canvas 
-	| x y width subStep startX startY |
+	| x y width subStep startX startY end |
 	super drawOn: canvas.
 	
 	startX := (viewport origin x roundDownTo: step).
@@ -3860,13 +3863,15 @@ drawOn: canvas
 	10 mm grid
 "
 	x := startX + step.
+	end := viewport corner x.
 	width := self lineWidth: 1.
-	[ x < extent x ] whileTrue: [
+	[ x < end ] whileTrue: [
 		canvas strokeWidth: width color: color do: [
 			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y].
 		x := x + step ] .
 	y := startY + step.
-	[ y < extent y ] whileTrue: [
+	end := viewport corner y.
+	[ y < end] whileTrue: [
 		canvas strokeWidth: width color: color do: [
 			canvas moveTo: viewport origin x @ y;lineTo: viewport corner x @ y].
 		y := y + step ].
@@ -3875,12 +3880,14 @@ drawOn: canvas
 "
 	x := startX + (step / 2).
 	width := self lineWidth: 0.5.
-	[ x < extent x ] whileTrue: [
+	end := viewport corner x.
+	[ x < end ] whileTrue: [
 		canvas strokeWidth: width color: color do: [
 			canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y].
 		x := x + step ] .
 	y := startY + (step / 2).
-	[ y < extent y ] whileTrue: [
+	end := viewport corner y.
+	[ y < end ] whileTrue: [
 		canvas strokeWidth: width color: color do: [
 			canvas moveTo: viewport origin x @ y;lineTo: viewport corner x @ y].
 		y := y + step ] .
@@ -3890,7 +3897,8 @@ drawOn: canvas
 	subStep := step / 10.
 	x := startX + subStep.
 	width := self lineWidth: 0.2.
-	[ x < extent x ] whileTrue: [
+	end := viewport corner x.
+	[ x < end ] whileTrue: [
 		canvas strokeWidth: width color: color do: [
 			4 timesRepeat: [
 				canvas moveTo: x @ viewport origin y; lineTo: x @ viewport corner y.
@@ -3898,7 +3906,8 @@ drawOn: canvas
 		x := x + subStep] .
 	y := startY + subStep.
 	width := self lineWidth: 0.2.
-	[ y < extent y ] whileTrue: [
+	end := viewport corner y.
+	[ y < end ] whileTrue: [
 		canvas strokeWidth: width color: color do: [
 			4 timesRepeat: [
 				canvas moveTo: viewport origin x @ y; lineTo: viewport corner x @ y.
