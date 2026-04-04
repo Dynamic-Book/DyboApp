@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7843] on 29 March 2026 at 1:11:53 pm'!
+'From Cuis7.7 [latest update: #7850] on 4 April 2026 at 5:13:08 pm'!
 'Description '!
-!provides: 'Dybo' 1 176!
+!provides: 'Dybo' 1 177!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -2001,7 +2001,7 @@ preferences
 scriptLibrary
 	^ platform scriptLibrary ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 17/Mar/2026 20:58:09'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Apr/2026 16:27:00'!
 convert: destEntry pages: interval dpi: integer
 " 
 	In destEntry, convert the import.pdf interval pages at interger resolution	   
@@ -2009,15 +2009,15 @@ convert: destEntry pages: interval dpi: integer
 	| converstionCommand resolution |
 	resolution := integer min: 300 max: 75.
 	converstionCommand := interval 
-		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 {2}/import.pdf {2}/page' format: {
+		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 "{2}/import.pdf" "{2}/page"' format: {
 			resolution . destEntry pathName }] 
-		ifNotNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 -f {2} -l {3} {4}/import.pdf {4}/page' format: {
+		ifNotNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 -f {2} -l {3} "{4}/import.pdf" "{4}/page"' format: {
 			resolution. 
 			interval first. interval last.
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 15/Mar/2026 13:57:38'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Apr/2026 16:28:05'!
 import: pdfEntry to: destEntry pages: interval
 "
 	In our destEntry, generate a import.pdf document with the selected pages interval, if fany ;
@@ -2026,8 +2026,8 @@ import: pdfEntry to: destEntry pages: interval
 	| importCommand process |
 	destEntry assureExistence.
 	importCommand := interval 
-		ifNil:  ['pdftocairo -pdf ''{1}'' ''{2}/import.pdf''' format: { pdfEntry pathName . destEntry pathName } ]
-		ifNotNil: ['pdftocairo -pdf ''{1}'' -f {2} -l {3} ''{4}/import.pdf''' format: {
+		ifNil:  ['pdftocairo -pdf "{1}" "{2}/import.pdf"' format: { pdfEntry pathName . destEntry pathName } ]
+		ifNotNil: ['pdftocairo -pdf "{1}" -f {2} -l {3} "{4}/import.pdf"' format: {
 			pdfEntry pathName.
 			interval first. interval last.
 			destEntry pathName}].
