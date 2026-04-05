@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7850] on 4 April 2026 at 5:13:08 pm'!
+'From Cuis7.7 [latest update: #7850] on 5 April 2026 at 4:32:54 pm'!
 'Description '!
-!provides: 'Dybo' 1 177!
+!provides: 'Dybo' 1 180!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -418,10 +418,10 @@ I am a view to browse the past document, depending on the class groups, courses 
 !DyboWindow commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 26/Dec/2024 11:15:54'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:06:25'!
 addDocument: aDocument to: topic
 	topic documents add: aDocument.
-	aDocument model ownerPath: topic relPath.
+	aDocument model owner: topic.
 	"Save the empty document in case the user does not do it after editing"
 	aDocument modified .
 	aDocument saveDocument.
@@ -437,11 +437,11 @@ deleteTask: aTask
 	userData agenda tasks remove: aTask.
 	(DyboSystem userDataPath / DyboSystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:08:06'!
 newTask: aTask
 	userData agenda tasks add: aTask.
-	aTask document model ownerPath: DyboSystem tasksRelPath.
-		"Save the empty document in case the user does not do it after editing"
+	aTask document model owner: aTask.
+	"Save the empty document in case the user does not do it after editing"
 	aTask document
 		modified;
 		saveDocument! !
@@ -574,13 +574,6 @@ current
 current: aDyUserData
 	Current := aDyUserData ! !
 
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 16/Aug/2025 15:55:56'!
-schoolOf: anObject
-"Search the school tree this object belongs to"
-	self current  schools do: [:school |			
-		(school treePointsTo: anObject) ifTrue: [^ school] ].
-	^ nil! !
-
 !DyUserData class methodsFor: 'initialization' stamp: 'hlsf 12/Sep/2023 21:54:25'!
 reset
 	self current: nil! !
@@ -635,10 +628,6 @@ timeSlots
 !DyCourseHour methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 13:29:14'!
 timeSlots: aCollection
 	timeSlots := aCollection ! !
-
-!DyCourseHour methodsFor: 'visiting' stamp: 'hlsf 1/Jul/2023 13:08:44'!
-accept: aVisitor
-	^ aVisitor visitCourseHour: self! !
 
 !DyCourseHour methodsFor: 'printing' stamp: 'hlsf 5/Dec/2024 12:11:08'!
 printOn: str
@@ -830,6 +819,10 @@ relPath
 "relative path to the object within the data "
 	^ owner relPath, '/', self dirName! !
 
+!DyObject methodsFor: 'disk operations' stamp: 'hlsf 5/Apr/2026 14:56:34'!
+removeFromDisk
+	self directory recursiveDelete ! !
+
 !DyObject class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:21'!
 label
 	^ 'unnamed object'! !
@@ -899,6 +892,10 @@ tasks
 isDayOff: aDate
 	^ daysOff anySatisfy: [:aDayInteverval | aDayInteverval 	 includes: aDate]! !
 
+!DyAgenda methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Apr/2026 15:00:14'!
+removeFromDisk
+! !
+
 !DyClassGroup methodsFor: 'user interface' stamp: 'hlsf 30/Jun/2023 21:15:15'!
 mold
 	| mold |
@@ -925,9 +922,9 @@ headTeacher
 number
 	^number! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 21:45:44'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 15:32:51'!
 number: newNumber 
-	self triggerEvent: #renamedClassGroup withArguments: {self . number . newNumber }.
+	DyboSystem renameClassGroup: self from: number to:newNumber.
 	number := newNumber.
 ! !
 
@@ -950,10 +947,6 @@ initialize
 	courses := OrderedCollection new.
 	students := SortedCollection new.
 	number := 'Unknown class' translated! !
-
-!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
-registerEvents
-	self when: #renamedClassGroup send: #renameClassGroup:from:to: to: DyboSystem! !
 
 !DyClassGroup methodsFor: 'visiting' stamp: 'hlsf 30/Jun/2023 22:01:43'!
 accept: aVisitor 
@@ -980,10 +973,6 @@ initialize
 	topics := OrderedCollection new.
 	teacher := DyTeacher new.
 	subject := 'Unnamed course' translated! !
-
-!DyCourse methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
-registerEvents
-	self when: #renamedCourse send: #renameCourse:from:to: to: DyboSystem! !
 
 !DyCourse methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:30:36'!
 mold
@@ -1019,9 +1008,9 @@ school
 subject
 	^subject! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:43:17'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 15:31:56'!
 subject: newName 
-	self triggerEvent: #renamedCourse withArguments: {self . subject . newName }.
+	DyboSystem renameCourse:  self from: subject to: newName.
 	subject := newName.
 ! !
 
@@ -1122,10 +1111,6 @@ initialize
 	classGroups := OrderedCollection new.
 	name := 'Unknown school' translated! !
 
-!DySchool methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
-registerEvents
-	self when: #renamedSchool send: #renameSchool:from:to: to: DyboSystem! !
-
 !DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:49:32'!
 classGroups
 	^ classGroups ! !
@@ -1148,9 +1133,9 @@ dirName
 schoolName
 	^ name! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 21:45:03'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 15:30:27'!
 schoolName: newName
-	self triggerEvent: #renamedSchool withArguments: {self . name . newName}.
+	DyboSystem renameSchool: self from: name to: newName.
 	name := newName.! !
 
 !DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:48:48'!
@@ -1236,21 +1221,11 @@ title
 
 	^ title! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 21:44:42'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:08:23'!
 title: newTitle
 	"Set the value of title"
-	self triggerEvent: #renamedTopic withArguments: {self. title . newTitle }.
-	title := newTitle.! !
-
-!DyTopic methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:33:08'!
-initialize
-	documents := OrderedCollection new.
-	resources := OrderedCollection new.
-	title := 'Unnamed topic' translated! !
-
-!DyTopic methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
-registerEvents
-	self when: #renamedTopic send: #renameTopic:from:to: to: DyboSystem! !
+	DyboSystem renameTopic: self from: title to: newTitle.
+	title := newTitle! !
 
 !DyTopic methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:37:49'!
 mold
@@ -1265,6 +1240,12 @@ mold
 !DyTopic methodsFor: 'printing' stamp: 'hlsf 11/Dec/2024 18:48:02'!
 printOn: str
 	str nextPutAll: title! !
+
+!DyTopic methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Apr/2026 15:37:27'!
+initialize
+	super initialize.
+	documents := OrderedCollection new.
+	title := 'Unnamed topic' translated! !
 
 !DyTopic class methodsFor: 'instance creation' stamp: 'hlsf 8/Oct/2023 23:21:58'!
 title: aString in: aCourse
@@ -1415,6 +1396,10 @@ document: anObject
 !DyTask methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 12:05:22'!
 printOn: aStream
 	aStream print: courseHourDate ! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:07:23'!
+relPath
+	^ DyboSystem tasksRelPath! !
 
 !DyTask methodsFor: 'persistence' stamp: 'hlsf 18/Dec/2024 15:24:29'!
 restoreDocumentFromDisk
@@ -1962,21 +1947,25 @@ userDataPath
 " the location of the user data and documents "
 	^ (platform userPath / 'data') assureExistence ! !
 
-!DyboSystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:58:55'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026 10:23:38'!
 renameClassGroup: aClassGroup from: prevName to: newName
+	'Class group renamed: maintenance operations' print.
 	self rename: prevName to: newName in: aClassGroup directory parent! !
 
-!DyboSystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:02'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026 10:23:25'!
 renameCourse: aCourse from: prevName to: newName
+	'Course renamed: maintenance operations' print.
 	self rename: prevName to: newName in: aCourse directory parent! !
 
-!DyboSystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:07'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026 12:59:50'!
 renameSchool: aSchool from: prevName to: newName
 "Should use a data manager facade at some point "
-	self rename: prevName to: newName in: aSchool directory parent! !
+	'School renamed: maintenance operations' print.
+	self rename: prevName to: newName in: DyUserData current directory! !
 
-!DyboSystem class methodsFor: 'events' stamp: 'hlsf 11/Dec/2024 18:59:12'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026 10:44:29'!
 renameTopic: aTopic from: prevName to: newName
+	'Topic renamed: maintenance operations' print.
 	self rename: prevName to: newName in: aTopic directory parent! !
 
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:58:37'!
@@ -2035,10 +2024,8 @@ import: pdfEntry to: destEntry pages: interval
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
 	^ self convert: destEntry pages: interval dpi: 150.! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 22/Aug/2023 20:57:02'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 5/Apr/2026 15:29:01'!
 removeUserData
-	#(renamedSchool renamedClassGroup renamedCourse renamedTopic) do: [:anEvent |
-		self removeActionsForEvent: anEvent].
 	self userDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
@@ -2503,26 +2490,18 @@ visitClassGroup: class
 		self editorsFor: class courses ofType: DyCourse in: class.
 		self editorsFor: class students ofType: DyStudent }! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 27/Oct/2024 19:09:23'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 5/Apr/2026 12:22:52'!
 visitCourse: course 
 | mold columns |
 	mold := course mold.
 	mold when: #edited send: #triggerEvent: to: course with: #edited.
 	columns := OrderedCollection withAll: {
 		self decoratedPaneFor: mold labeled: 'Information' translated.
-		self editorsFor: course courseHours ofType: DyCourseHour}.
+		self editorsFor: course courseHours ofType: DyCourseHour in: course}.
 	DyUserData current user isStudent ifTrue: [ columns add:
 		(self decoratedPaneFor: course teacher mold labeled: 'Teacher' translated)].
-	columns add: (	self editorsFor: course topics ofType: DyTopic in: course).
-	^ self newColumnWith:		 columns ! !
-
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 11:01:34'!
-visitCourseHour: courseHour
-| mold |
-	mold := courseHour mold: (DyUserData schoolOf: courseHour).
-	mold when: #edited send: #triggerEvent: to: courseHour with: #edited.
-	^ self newColumnWith: {
-		self decoratedPaneFor: mold labeled: 'Information' translated }! !
+	columns add: (self editorsFor: course topics ofType: DyTopic in: course).
+	^ self newColumnWith: columns ! !
 
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 20/Aug/2025 17:19:26'!
 visitSchool: school 
@@ -2609,7 +2588,7 @@ newColumnWith: morphs
 	column morphExtent: column minimumExtent.
 	^ column ! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 26/Feb/2026 09:18:38'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 5/Apr/2026 15:30:58'!
 quickAdd: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
@@ -2617,19 +2596,16 @@ quickAdd: args
 3. the listMorph
 4. an optional owner of the instantiated object, nil otherwise
 "
- | school objectClass decorator listModel listMorph newObject objectMold objectPane quickButtons |
+ | objectClass decorator listModel listMorph newObject objectMold objectPane quickButtons |
 	objectClass := args first.
 	decorator := args second.
 	listMorph := args third .
 	listModel := listMorph model.
 	quickButtons := decorator quickButtons.
 	newObject := objectClass new.
-	args fourth ifNotNil: [:owner | newObject owner: owner].
+	(newObject respondsTo: #owner:) ifTrue: [ newObject owner: args fourth].
 	objectMold := (newObject respondsTo: #mold:) 
-		ifTrue: [
-			school := DyUserData schoolOf: listModel list.
-			school ifNil: [^ self] .
-			newObject mold: school] 
+		ifTrue: [	newObject mold: args fourth school] 
 		ifFalse: [newObject mold].
 	objectPane := objectMold newPane.
 	objectPane layoutSpec: LayoutSpec useAll.
@@ -2637,7 +2613,6 @@ quickAdd: args
 		actionOnButton: [
 			objectMold validate.
 			objectMold isValid ifTrue: [
-				newObject registerEvents. " first "
 				objectMold save.
 				listModel list add: newObject .
 				decorator replaceSubmorph: objectPane by: listMorph.
@@ -2652,7 +2627,7 @@ quickAdd: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 20/Aug/2025 17:18:53'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 5/Apr/2026 15:22:53'!
 quickDelete: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
@@ -2668,10 +2643,12 @@ quickDelete: args
 		borderWidth: 0; color: Color transparent.
 	objectPane := nil.
 	objectPane := PluggablePane open: [text] view: #value action:[
+		listModel selectedItem removeFromDisk.
 		listModel removeSelectedItem.
 		decorator replaceSubmorph: objectPane by: listMorph.
 		quickButtons submorphsDo: #lockUnlockMorph.
-		listModel changed: #list]				.
+		listModel changed: #list.
+		DyboSystem saveData].
 	objectPane
 		actionOnAltButton: [
 			decorator replaceSubmorph: objectPane by: listMorph.
@@ -2681,11 +2658,12 @@ quickDelete: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 26/Feb/2026 09:18:11'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 5/Apr/2026 15:23:06'!
 quickEdit: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
 2. the listMorph
+3. an Optional owner of the edited object
 "
  | decorator listModel listMorph objectMold objectPane quickButtons |
 	decorator := args first .
@@ -2694,7 +2672,7 @@ quickEdit: args
 	listModel listIndex isZero ifTrue: [^ self]. "no selected item"
 	quickButtons := decorator quickButtons.
 	objectMold := (listModel selectedItem respondsTo: #mold:) 
-		ifTrue: [listModel selectedItem mold: (DyUserData schoolOf: listModel list)] 
+		ifTrue: [listModel selectedItem mold: args third school] 
 		ifFalse: [listModel selectedItem mold].
 	objectPane := objectMold newPane.
 	objectPane layoutSpec: LayoutSpec useAll.
@@ -2707,7 +2685,8 @@ quickEdit: args
 				quickButtons submorphsDo: #lockUnlockMorph.
 				(listModel selectedItem respondsTo: #<=) ifTrue: [
 					listModel list reSort].
-				listModel changed: #list]					
+				listModel changed: #list.
+				DyboSystem saveData]					
 			];
 		actionOnAltButton: [
 			decorator replaceSubmorph: objectPane by: listMorph.
@@ -2764,7 +2743,7 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 	attributeView morphWidth: scroller viewableExtent x.
 	^ DecoratedPane open: scroller label: aTitle ! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 26/Feb/2026 09:54:10'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 5/Apr/2026 12:15:43'!
 plugView: aMorph
 " Add an Edit button to this contents "
 	| viewer |
@@ -2773,6 +2752,7 @@ plugView: aMorph
 		open: [aMorph] 
 		view: #value 
 		action: 	["Edit me" 
+			visitedModel print.
 			viewer owner 
 				replaceView: viewer 
 				byView: (visitedModel accept: DyEditorVisitor new)] 
@@ -2849,17 +2829,6 @@ visitCourse: course
 	column 
 		addMorph: (self paneFor: course topics label: 'Topics' translated browse: false).
 	^ self plugView: column! !
-
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 28/Sep/2023 12:08:32'!
-visitCourseHour: courseHour
-	| column slots|
-	visitedModel := courseHour .
-	slots := ListMultiModel with: (DyUserData schoolOf: courseHour) timeSlots ::
-		selectedItems: courseHour timeSlots.
-	column := LayoutMorph newColumn.
-	column 	
-		addMorph: (self paneFor: slots selectedItems label: 'Period(s)' translated browse: false).
-	^ self plugView: column	! !
 
 !DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 3/Jul/2023 15:14:16'!
 visitSchool: school
@@ -3992,16 +3961,6 @@ domain
 !DyboTestResource class methodsFor: 'testing' stamp: 'hlsf 28/Sep/2023 12:28:49'!
 isAvailable
 	^ true! !
-
-!ProtoObject methodsFor: '*Dybo' stamp: 'hlsf 1/Jul/2023 12:19:17'!
-treePointsTo: anObject
-" Are my instances and sub instances hold a reference of anObject"
-	^ (self statePointsTo: anObject) or: [ |attributesToVisit |
-		attributesToVisit := OrderedCollection new.
-		1 to: self class instSize do: [:i |
-			(self instVarAt: i) isCollection 	ifTrue: [ attributesToVisit addAll: (self instVarAt: i)] ].
-		attributesToVisit anySatisfy: [:attribute | 
-			attribute == anObject or: [attribute treePointsTo: anObject		] 		] ]! !
 
 !Object methodsFor: '*Dybo-object serialization' stamp: 'hlsf 18/Dec/2024 21:42:12'!
 backupThenNilAttributes

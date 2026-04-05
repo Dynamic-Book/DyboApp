@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7850] on 29 March 2026 at 1:57:11 pm'!
+'From Cuis7.7 [latest update: #7850] on 5 April 2026 at 4:32:51 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 223!
+!provides: 'DyboDoc' 1 225!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -420,7 +420,7 @@ CommandStack class
 
 !classDefinition: #DocumentModel category: #'DyboDoc-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'timeStamp pageBackground ownerPath'
+	instanceVariableNames: 'pageBackground owner dirName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
@@ -775,8 +775,9 @@ I am light because I don't create instance of DKMScript for each representative 
 !CommandStack commentStamp: '<historical>' prior: 0!
 I am stack of command to execute or to unexecute user action in a Document!
 
-!DocumentModel commentStamp: 'hlsf 3/Mar/2026 17:05:34' prior: 0!
-- timeStamp : creation time of a Document. An unique identifier. It is used to create a dedicated directory on disk in the tasks or topic directory
+!DocumentModel commentStamp: '<historical>' prior: 0!
+- owner: my onwer, a Topic or a Task
+- dirName : based on the creation time of a Document. It is used to create a dedicated directory on disk in the tasks or topic directory
 - relPath, the path my folder is saved in with my associate data, relatively to userDataPath. Those my fullPath is userDataPath / relPath / dirName
 - pageBackground can be either 
  1. a path to a pdf document used as a model for PageModelPdf. Each page of the Document use a PDF page as its model
@@ -2615,10 +2616,10 @@ reset
 new
 	^self on: Array new! !
 
-!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 17:05:50'!
+!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026 10:17:02'!
 initialize
 	super initialize.
-	timeStamp := DateAndTime now.
+	dirName := String streamContents: [:s | DateAndTime now filenamePrintOn: s].
 	pageBackground := PageBackgroundHL ! !
 
 !DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026 21:08:17'!
@@ -2640,27 +2641,26 @@ pdfNumberOfPages
 pdfPageAt: integer
 	^ ImageReadWriter formFromFileEntry: (self jpegFilePages at: integer)! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:59:06'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 10:17:17'!
 dirName
-	^ String streamContents: [:s | timeStamp filenamePrintOn: s] ! !
+	^ dirName ! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 3/Mar/2026 17:06:49'!
 newPageBackground
 	^ pageBackground new! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 22/Dec/2024 11:40:27'!
-ownerPath: aString
-" The relative path of my owner, a topic or a task. 
-a topic path looks like School/Class/Course/topic/,  a task path is just topics/ "
-	ownerPath := aString! !
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:04:49'!
+owner: anObject
+" a Topic or a Task"
+	owner := anObject ! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 path
 	^ DyboSystem userDataPath / self relPath ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:32:18'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:05:38'!
 relPath
-	^ ownerPath ifNotNil: [ownerPath, '/', self dirName] ifNil: ['']! !
+	^ owner relPath, '/', self dirName! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:51:46'!
 color
@@ -2868,23 +2868,23 @@ startPoint: start endPoint: end
 drawOn: canvas
 	canvas line: startPoint to:endPoint width: width color: color! !
 
-!LineShape methodsFor: 'converting' stamp: 'hlsf 14/Mar/2026 13:40:05'!
+!LineShape methodsFor: 'converting' stamp: 'hlsf 5/Apr/2026 16:30:33'!
 asStrokeGroupsIn: aPaper
-	aPaper startWritingAt: startPoint.
-	^ Array with: (aPaper endWritingAt: endPoint)! !
+	^ Array with: (aPaper lineWritingFrom: startPoint to: endPoint)! !
 
 !RectangularShape methodsFor: 'geometry' stamp: 'hlsf 14/Mar/2026 13:10:33'!
 encompassingRectangle
 	^ Rectangle encompassingInteger: (Array with: startPoint with: endPoint)! !
 
-!RectangularShape methodsFor: 'converting' stamp: 'hlsf 14/Mar/2026 13:40:29'!
+!RectangularShape methodsFor: 'converting' stamp: 'hlsf 5/Apr/2026 16:31:25'!
 asStrokeGroupsIn: aPaper
 	| rect strokeGroups corners |
 	rect := self encompassingRectangle.
 	corners := #(topLeft topRight bottomRight bottomLeft).
 	strokeGroups := corners withIndexCollect: [:corner :cornerIndex |
-		aPaper startWritingAt: (rect perform: corner) ;
-			endWritingAt: (rect perform: (corners atWrap: cornerIndex + 1))].
+		aPaper 
+			lineWritingFrom: (rect perform: corner) 
+			to: (rect perform: (corners atWrap: cornerIndex + 1))].
 	^ strokeGroups ! !
 
 !RectangularShape methodsFor: 'drawing' stamp: 'hlsf 14/Mar/2026 13:43:13'!
@@ -3048,7 +3048,7 @@ viewport
 " I represent my visible surface to the user, in own coordinates system "
 	^ ((self internalize: 0@0) max: 0@0) corner: ((self internalize: owner morphExtent) min: extent)! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 26/Mar/2026 10:50:52'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026 16:21:28'!
 initialize
 	super initialize.
 	paper := PaperMorph newOn: presenter.
@@ -3388,6 +3388,16 @@ endWritingAt: localPosition
 		comeToFront.
 	^ currentStrokeGroup 
 ! !
+
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 5/Apr/2026 16:28:21'!
+lineWritingFrom: startPoint to: endPoint
+	| legacyStroker result |	
+	legacyStroker := stroker class.
+	self stroker: StrokerBezier2.
+	self startWritingAt: startPoint.
+	result := self endWritingAt: endPoint.
+	self stroker: legacyStroker.
+	^ result! !
 
 !PaperMorph methodsFor: 'writing' stamp: 'hlsf 4/Jan/2025 15:44:43'!
 startWritingAt: localPosition
