@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7850] on 5 April 2026 at 4:32:51 pm'!
+'From Cuis7.7 [latest update: #7875] on 13 April 2026 at 5:24:58 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 225!
-!requires: 'DyboTools-Geometry' 1 26 nil!
+!provides: 'DyboDoc' 1 226!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'UI-Panel' 1 122 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -420,7 +420,7 @@ CommandStack class
 
 !classDefinition: #DocumentModel category: #'DyboDoc-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'pageBackground owner dirName'
+	instanceVariableNames: 'pageBackground owner dirName title'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
@@ -778,6 +778,7 @@ I am stack of command to execute or to unexecute user action in a Document!
 !DocumentModel commentStamp: '<historical>' prior: 0!
 - owner: my onwer, a Topic or a Task
 - dirName : based on the creation time of a Document. It is used to create a dedicated directory on disk in the tasks or topic directory
+- title : the user can adjust it if needed. It falls back to dirName when nil
 - relPath, the path my folder is saved in with my associate data, relatively to userDataPath. Those my fullPath is userDataPath / relPath / dirName
 - pageBackground can be either 
  1. a path to a pdf document used as a model for PageModelPdf. Each page of the Document use a PDF page as its model
@@ -2662,6 +2663,14 @@ path
 relPath
 	^ owner relPath, '/', self dirName! !
 
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 12:31:01'!
+title
+	^ title ifNil: [dirName]! !
+
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 12:31:18'!
+title: aString
+	title := aString ! !
+
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:51:46'!
 color
 	^ color! !
@@ -4080,15 +4089,16 @@ presenter
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 16/Mar/2026 21:09:52'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 16:41:20'!
 preview
 " Shrinkg a bit then cut a piece from the origin with a given extent "
-	| shrinkFactor form |
-	^ preview ifNil: [
-		('compute preview: ', self printString) print.
+	| shrinkFactorX shrinkFactorY form |
+	^ preview ifNil: [ ('compute preview: ', self printString) print.
 		form := (container imageForm: 32) copy: (0@0 corner: container morphWidth @ (container morphHeight -40)).
-		shrinkFactor := self class previewExtent x / form width.
-		preview := form magnifyBy: shrinkFactor]! !
+		shrinkFactorX := DocumentView previewExtent x / form width.
+		shrinkFactorY := DocumentView previewExtent y / form height.
+		form := form magnifyBy: (shrinkFactorX max: shrinkFactorY).
+		preview := form copy: (0@0 corner: DocumentView previewExtent)]! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024 19:51:30'!
 statusBarMessage: aString

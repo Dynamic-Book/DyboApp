@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7850] on 5 April 2026 at 4:32:54 pm'!
+'From Cuis7.7 [latest update: #7875] on 13 April 2026 at 5:24:52 pm'!
 'Description '!
-!provides: 'Dybo' 1 180!
+!provides: 'Dybo' 1 181!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -810,9 +810,9 @@ directory
 owner
 	^ owner! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:04:58'!
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 12:26:19'!
 owner: anObject
-	owner := 	anObject ! !
+	owner := anObject ! !
 
 !DyObject methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:45:13'!
 relPath
@@ -1421,7 +1421,7 @@ in the topic: {2}?' translated
 	DyboSystem saveData 
 	! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 23/Feb/2026 12:39:30'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 13/Apr/2026 12:38:13'!
 importPDF
 	| newDoc answer |
 	answer := (StandardFileMenu  new 
@@ -1429,7 +1429,8 @@ importPDF
 		withPattern:  '*.pdf'
 		excludePattern: '.*') startUpWithCaption: 'Import a PDF document.' translated.
 	answer ifNil: [^ self].
-	newDoc := self newDocument.	
+	newDoc := self newDocument.
+	newDoc model title: (answer name allButLast: 4) capitalized.
 	newDoc 
 		importPDF: answer directory // answer name;
 		modified;
@@ -1452,11 +1453,11 @@ newDocument
 openDocument: aDocument
 	self goDocument: aDocument view! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 23/Dec/2024 10:24:00'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 13/Apr/2026 16:32:03'!
 saveDocument: aDocument 
  | binderView |
 	binderView := controlsManager activeView.
-	aDocument saveDocument ifTrue: [	binderView updateDocumentPreviews]! !
+	aDocument saveDocument ifTrue: [binderView updateDocumentPreviews]! !
 
 !Dybo methodsFor: 'callback-task' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 deleteTask: aDyTask 
@@ -3374,7 +3375,7 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 31/Dec/2024 19:29:17'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 13/Apr/2026 16:47:42'!
 previewFor: aDocument
 	| buttons  |
 	buttons := OrderedCollection new.
@@ -3394,9 +3395,10 @@ previewFor: aDocument
 		object:  aDocument 
 		image:  aDocument view preview
 		buttons: buttons
-		label: aDocument model dirName ::
+		label: aDocument model title ::
+		color: self defaultColor darker;
 		borderWidth: 2;
-		borderColor: (aDocument isSaved ifTrue: [Color black] ifFalse: [Color red])! !
+		borderColor: (aDocument isSaved ifTrue: [self defaultColor muchDarker] ifFalse: [Color red])! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 6/Feb/2025 11:18:18'!
 previewRow
@@ -3436,14 +3438,13 @@ initialize
 	self addMorphUseAll: self documentsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 4/Jan/2025 10:22:04'!
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 13/Apr/2026 16:28:09'!
 updateDocumentPreviews
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	documents := self topic ifNil: [`Array new`] ifNotNil: [:aTopic | aTopic documents].
 	previewPanel removeAllMorphs.
-	previewsPerLine := self owner morphWidth - 50 // 
-		(DocumentView previewExtent x + DocumentView previewGap).
+	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + DocumentView previewGap).
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
 		previewPanel addMorph: (	documentsRow 
 			inject: self previewRow 
