@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 14 April 2026 at 12:42:09 pm'!
+'From Cuis7.7 [latest update: #7875] on 14 April 2026 at 3:22:24 pm'!
 'Description '!
-!provides: 'Dybo' 1 182!
+!provides: 'Dybo' 1 183!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -3387,7 +3387,7 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 14/Apr/2026 12:15:00'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 14/Apr/2026 15:21:26'!
 previewFor: aDocument
 	| buttons preview |
 	buttons := OrderedCollection new.
@@ -3411,7 +3411,10 @@ previewFor: aDocument
 		color: self defaultColor darker;
 		borderWidth: 2;
 		borderColor: (aDocument isSaved ifTrue: [self defaultColor muchDarker] ifFalse: [Color red]).
-	preview when: #doubleClick send: #renameDocument: to: presenter .
+	preview when: #doubleClick send: #renameDocument: to: presenter.
+	" To be compted when balloon text is shown. May neeed a dedicated PreviewMorph
+	preview setBalloonText: aDocument model title asText,  String lf, aDocument model dirName italic, String lf,
+		(Text withForm: (aDocument view currentPage imageForm magnifyBy: 0.5))."
 	^ preview ! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 6/Feb/2025 11:18:18'!
