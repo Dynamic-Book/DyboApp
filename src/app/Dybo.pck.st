@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 14 April 2026 at 3:22:24 pm'!
+'From Cuis7.7 [latest update: #7875] on 14 April 2026 at 7:01:03 pm'!
 'Description '!
-!provides: 'Dybo' 1 183!
+!provides: 'Dybo' 1 184!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -282,6 +282,16 @@ DyView subclass: #DyBinderView
 DyBinderView class
 	instanceVariableNames: ''!
 
+!classDefinition: #DyStartView category: #'Dybo-View'!
+DyView subclass: #DyStartView
+	instanceVariableNames: 'qantityIndex typeIndex sortIndex'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-View'!
+!classDefinition: 'DyStartView class' category: #'Dybo-View'!
+DyStartView class
+	instanceVariableNames: ''!
+
 !classDefinition: #DyboFullscreenView category: #'Dybo-View'!
 LinearLayoutMorph subclass: #DyboFullscreenView
 	instanceVariableNames: 'presenter'
@@ -414,6 +424,9 @@ My model is a DyAgenda instance, to access the agenda and the class group!
 
 !DyBinderView commentStamp: '<historical>' prior: 0!
 I am a view to browse the past document, depending on the class groups, courses and topics.!
+
+!DyStartView commentStamp: '<historical>' prior: 0!
+I am the start view from where the user can search for all his recent activities, in all class groups.!
 
 !DyboWindow commentStamp: '<historical>' prior: 0!
 I am the main view of the Dynabook app.!
