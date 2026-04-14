@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 13 April 2026 at 5:24:58 pm'!
+'From Cuis7.7 [latest update: #7875] on 14 April 2026 at 2:58:15 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 226!
+!provides: 'DyboDoc' 1 227!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1365,9 +1365,8 @@ penWhite
 redoAction
 	self commandsManager redo ifTrue: [self modified]! !
 
-!Document methodsFor: 'callback ui' stamp: 'hlsf 28/Dec/2024 20:37:26'!
+!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Apr/2026 14:42:55'!
 saveDocument
-	self isSaved ifTrue: [^ false].
 	savesReal := true.
 	self saveToDisk.
 	savesReal := false.
@@ -3120,14 +3119,15 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 15/Feb/2026 19:11:31'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Apr/2026 14:47:06'!
 acceptDroppingAnnotator: annotator event: dropEvent
 	presenter pointerTool.
 	self addMorphFront: annotator.
-	annotator morphPosition:  (self internalizeFromWorld: dropEvent eventPosition) - annotator annotated fullBoundsInOwner center
+	annotator morphPosition:  (self internalizeFromWorld: dropEvent eventPosition) - annotator annotated fullBoundsInOwner center.
+	presenter modified
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026 17:27:50'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Apr/2026 14:47:16'!
 acceptDroppingFromFlap: flapItem event: dropEvent
 	| dropMorph |
 	dropMorph := (flapItem object is: #DKMScript) 
@@ -3136,7 +3136,8 @@ acceptDroppingFromFlap: flapItem event: dropEvent
 		ifFalse: [flapItem object copy].
 	self 	addMorphFront: dropMorph.
 	dropMorph morphPosition: (self internalizeFromWorld: dropEvent eventPosition) - dropMorph fullBoundsInOwner center.
-	flapItem flap fold! !
+	flapItem flap fold.
+	presenter modified! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026 17:05:58'!
 acceptDroppingMorph: aMorph event: dropEvent
