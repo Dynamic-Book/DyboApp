@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 13 April 2026 at 5:24:52 pm'!
+'From Cuis7.7 [latest update: #7875] on 14 April 2026 at 12:42:09 pm'!
 'Description '!
-!provides: 'Dybo' 1 181!
+!provides: 'Dybo' 1 182!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1056,28 +1056,28 @@ futureDates: qty
 			date: anArray second;
 			yourself]! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 27/Oct/2024 19:45:23'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 14/Apr/2026 11:13:39'!
 next: qty courseHoursAfter: aDate
 " A list of qty course hours & dates after a given date"
 	| futureDates n next |
 	futureDates := OrderedCollection new.
 	n := qty.
 	next := self nextCourseHourAfter: aDate.
-	[n isZero or: [next isNil]] whileFalse:	 [
+	[n isZero or: [next isNil]] whileFalse: [
 		futureDates add: next.	
 		next := self nextCourseHourAfter: next second. "next date"
-		n := n - 1	] .
+		n := n - 1 ] .
 	^ futureDates ! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 29/Oct/2024 21:24:16'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 14/Apr/2026 11:16:51'!
 nextCourseHourAfter: aDate
 "Search for my next course hour after aDate"
 	| dayOfWeek currentCourseHourIndex nextCourseHour nextDate |
 	dayOfWeek := aDate dayOfWeek.
-
-	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | 		aCourseHour dayOfWeek = dayOfWeek].
+	aDate < Date today ifTrue: [^ nil ]. " We did not find any future date for this course "
+	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | aCourseHour dayOfWeek = dayOfWeek].
 	"No course at this day, jump to the previous day, and try again "
-	currentCourseHourIndex = 0 ifTrue: [		^ self nextCourseHourAfter: aDate previous].
+	currentCourseHourIndex = 0 ifTrue: [ ^ self nextCourseHourAfter: aDate previous].
 	
 	nextCourseHour := courseHours atWrap: currentCourseHourIndex + 1.
 	nextDate := nextCourseHour dayOfWeek = dayOfWeek 
@@ -1452,6 +1452,18 @@ newDocument
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 31/Dec/2024 12:35:33'!
 openDocument: aDocument
 	self goDocument: aDocument view! !
+
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 14/Apr/2026 12:35:38'!
+renameDocument: aPreviewMorph 
+	StringRequestMorph 
+		request:  'Rename the document' translated
+		initialAnswer:  aPreviewMorph object model title
+		do: [:aString |
+			aString ifNotEmpty: [
+				aPreviewMorph object model title: aString.
+				aPreviewMorph relabel: aString.
+				aPreviewMorph object saveDocument]
+			]! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 13/Apr/2026 16:32:03'!
 saveDocument: aDocument 
@@ -3375,9 +3387,9 @@ documentsPanel
 		label:  'My documents' translated
 		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 13/Apr/2026 16:47:42'!
+!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 14/Apr/2026 12:15:00'!
 previewFor: aDocument
-	| buttons  |
+	| buttons preview |
 	buttons := OrderedCollection new.
 	buttons add: 
 		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocument ::
@@ -3391,14 +3403,16 @@ previewFor: aDocument
 		(PluggableButtonMorph model: presenter action: #deleteDocument: actionArgument: aDocument ::
 			icon: Theme current cancelIcon ;
 			setBalloonText: 'Delete this document' translated).
-	^ PreviewMorph 
+	preview := PreviewMorph 
 		object:  aDocument 
 		image:  aDocument view preview
 		buttons: buttons
 		label: aDocument model title ::
 		color: self defaultColor darker;
 		borderWidth: 2;
-		borderColor: (aDocument isSaved ifTrue: [self defaultColor muchDarker] ifFalse: [Color red])! !
+		borderColor: (aDocument isSaved ifTrue: [self defaultColor muchDarker] ifFalse: [Color red]).
+	preview when: #doubleClick send: #renameDocument: to: presenter .
+	^ preview ! !
 
 !DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 6/Feb/2025 11:18:18'!
 previewRow
