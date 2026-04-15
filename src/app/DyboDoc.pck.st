@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 14 April 2026 at 2:58:15 pm'!
+'From Cuis7.7 [latest update: #7875] on 15 April 2026 at 4:17:36 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 227!
+!provides: 'DyboDoc' 1 228!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2644,6 +2644,10 @@ pdfPageAt: integer
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 10:17:17'!
 dirName
 	^ dirName ! !
+
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 15:42:39'!
+modificationTime
+	^ (self path // 'doc.obj') modificationTime ! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 3/Mar/2026 17:06:49'!
 newPageBackground

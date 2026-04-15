@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 15 April 2026 at 1:03:58 pm'!
+'From Cuis7.7 [latest update: #7875] on 15 April 2026 at 4:17:33 pm'!
 'Description '!
-!provides: 'Dybo' 1 185!
+!provides: 'Dybo' 1 186!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -448,19 +448,24 @@ deleteDocument: aDocument from: topic
 	topic documents remove: aDocument.
 	(topic directory / aDocument model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 15:55:37'!
 deleteTask: aTask
-	userData agenda tasks remove: aTask.
+	self tasks remove: aTask.
 	(DyboSystem userDataPath / DyboSystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
-!DyDomain methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:08:06'!
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 15:55:37'!
 newTask: aTask
-	userData agenda tasks add: aTask.
+	self tasks add: aTask.
 	aTask document model owner: aTask.
 	"Save the empty document in case the user does not do it after editing"
 	aTask document
 		modified;
 		saveDocument! !
+
+!DyDomain methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 15:55:37'!
+tasks
+
+	^ userData agenda tasks! !
 
 !DyDomain methodsFor: 'accessing' stamp: 'hlsf 16/Aug/2023 21:39:50'!
 userData
@@ -475,11 +480,11 @@ load
 	userData := ReferenceStream restoreFromCompressedFile: DyboSystem userDataPath // 'data.obj'.
 	DyUserData current: userData.! !
 
-!DyDomain methodsFor: 'dangerous' stamp: 'hlsf 14/Dec/2024 11:18:47'!
+!DyDomain methodsFor: 'dangerous' stamp: 'hlsf 15/Apr/2026 15:55:37'!
 purge
 	self allTopics do: [:aTopic | 
 		aTopic documents do: [:aDocument | aTopic documents remove: aDocument ]].
-	userData agenda tasks do: [:aTask | self deleteTask: aTask]! !
+	self tasks do: [:aTask | self deleteTask: aTask]! !
 
 !DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 11:57:14'!
 allCourses
@@ -488,11 +493,11 @@ allCourses
 		courses 	addAll: aClassGroup courses.
 		courses ]! !
 
-!DyDomain methodsFor: 'queries' stamp: 'hlsf 12/Dec/2024 22:12:59'!
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 15/Apr/2026 14:50:45'!
 allTopics
 " Returns the collection of the user's topcis "
 	^ self allCourses inject: OrderedCollection new into: [:topics :aCourse |
-		topics 	addAll: aCourse topics.
+		topics addAll: aCourse topics.
 		topics ]! !
 
 !DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 11:59:33'!
@@ -532,6 +537,10 @@ nextCourseHourAfter: aDateAndTime
 	course := self courseAt: aDateAndTime.
 	course ifNil: [^nil].
 	^ course nextCourseHourAfter: aDateAndTime date! !
+
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 15/Apr/2026 15:58:50'!
+tasksOf: aClassGroup
+	^ self tasks select: [:aTask | (self courseAndGroupOf: aTask) second = aClassGroup]! !
 
 !DyDomain class methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Dec/2024 12:10:54'!
 daysOfWeek
@@ -936,6 +945,10 @@ courses
 dirName
 	^ number asFileName! !
 
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 15:10:18'!
+documents
+	^ courses inject: OrderedCollection new into: [:documents :aCourse | documents addAll: aCourse documents]! !
+
 !DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:09'!
 headTeacher
 	^ headTeacher ! !
@@ -1021,6 +1034,11 @@ courseHours
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
 dirName
 	^ subject asFileName! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 15:07:58'!
+documents
+	" All the documents in this course "
+	^ topics inject: OrderedCollection new into: [:documents :aTopic | documents addAll: aTopic documents]! !
 
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:44:07'!
 school 
@@ -3108,6 +3126,13 @@ classGroupListMorph
 		indexSetter: #classGroupIndex: ::
 		autoDeselect: false.! !
 
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 16:13:27'!
+previewRow
+	^ ​ LayoutMorph newRow :: 
+		separation: DocumentView previewGap ; 
+		adoptWidgetsColor: self defaultColor
+	! !
+
 !DyView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:29:16'!
 sortListMorph
 " Present a list of topic in selected course "
@@ -3117,6 +3142,14 @@ sortListMorph
 		indexGetter: #sortIndex
 		indexSetter: #sortIndex: ::
 		autoDeselect: false.! !
+
+!DyView methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026 16:07:50'!
+isSortingNewer
+	^ sortIndex = 1! !
+
+!DyView methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026 16:08:06'!
+isSortingOlder
+	^ sortIndex = 2! !
 
 !DyView methodsFor: 'initialization' stamp: 'hlsf 7/Oct/2023 15:56:04'!
 initialize
@@ -3428,13 +3461,6 @@ previewFor: aDocument
 		(Text withForm: (aDocument view currentPage imageForm magnifyBy: 0.5))."
 	^ preview ! !
 
-!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 6/Feb/2025 11:18:18'!
-previewRow
-	^ ​ LayoutMorph newRow :: 
-		separation: DocumentView previewGap ; 
-		adoptWidgetsColor: self defaultColor
-	! !
-
 !DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:47:59'!
 previewsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
@@ -3513,6 +3539,11 @@ quantities
 " How many documents to preview at once "
 	^ #(5 10 20 50 100)! !
 
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 14:35:04'!
+quantity
+	" How many documents to present at once in the preview "
+	^ self quantities at: quantityIndex ! !
+
 !DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:40:01'!
 quantityIndex
 	^ quantityIndex ! !
@@ -3528,6 +3559,11 @@ sortIndex: anIndex
 	super sortIndex: anIndex.
 	self updatePreviewsPanel! !
 
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 14:35:38'!
+type
+	" The type of document to present "
+	^ self types at: typeIndex ! !
+
 !DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:35:15'!
 typeIndex
 	^ typeIndex ! !
@@ -3538,19 +3574,50 @@ typeIndex: anIndex
 	self changed: #typeIndex:.
 	self updatePreviewsPanel! !
 
-!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:39:37'!
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 14:59:49'!
 types
 " Document type can be pedagogicial class/course/topic or task document "
-	^ `{'ALL' translated . 'Course' translated . 'Task' translated}`! !
+	^ `{'ALL' translated . 'Course' translated . 'Homework' translated}`! !
 
-!DyStartView methodsFor: 'initialization' stamp: 'hlsf 15/Apr/2026 12:32:11'!
+!DyStartView methodsFor: 'initialization' stamp: 'hlsf 15/Apr/2026 14:36:37'!
 initialize
 	super initialize.	
 "	By default, present the last 5 most recent documents of all types, in all classes "	
 	classGroupIndex := 1.
 	typeIndex := 1.
 	quantityIndex := 1.
-	sortIndex := 1.! !
+	sortIndex := 1.
+	self addMorphKeepMorphHeight: self documentSelectorPanel.
+	self addMorphUseAll: self previewsPanel.
+	self adoptWidgetsColor: self defaultBorderColor. ! !
+
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 14:34:14'!
+documentSelectorPanel
+" A view to select documents according to classGroups, courses, topics and sorting option "
+	^ LayoutMorph newRow ::
+		addMorph: self classGroupListMorph layoutSpec: LayoutSpec keepMorphExtent ;
+		addMorph: self typeListMorph layoutSpec: LayoutSpec keepMorphExtent ;
+		addMorph: self quantityListMorph layoutSpec: LayoutSpec keepMorphExtent ;
+		addMorphUseAll: DyControlsManager spacer;
+		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
+
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 16:17:23'!
+previewFor: aDocument
+	| buttons preview |
+	buttons := OrderedCollection new.
+	buttons add: 
+		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocument ::
+			icon: Theme current textEditorIcon;
+			setBalloonText: 'Edit this document' translated).
+	preview := PreviewMorph 
+		object:  aDocument 
+		image:  aDocument view preview
+		buttons: buttons
+		label: aDocument model title ::
+		color: self defaultColor darker;
+		borderWidth: 2;
+		borderColor:self defaultColor muchDarker.
+	^ preview ! !
 
 !DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:48:04'!
 previewsPanel
@@ -3583,8 +3650,65 @@ typeListMorph
 		indexSetter: #typeIndex: ::
 		autoDeselect: false.! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Apr/2026 12:45:17'!
-updatePreviewsPanel! !
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Apr/2026 15:26:55'!
+classGroupsQuery
+	| classGroups |
+	classGroups := OrderedCollection new.
+	classGroupIndex = 1
+		ifTrue:  [classGroups addAll: self domain classGroups ]
+		ifFalse: [classGroups add: self classGroup].	
+	^ classGroups ! !
+
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Apr/2026 16:14:23'!
+documentsQuery
+	" Documents according to the user selection "
+	| classGroups types documents sortBloc |
+	documents := OrderedCollection new.
+	classGroups := self classGroupsQuery.
+	types := self typesQuery.
+	classGroups do: [:aClassGroup |
+		types do: [:aDocType |
+			aDocType = #document 
+				ifTrue: [documents addAll: aClassGroup documents].
+			aDocType = #task
+				ifTrue: [documents addAll: (
+					(self domain tasksOf: aClassGroup) collect: [:aTask | aTask document]
+			) ] ] ].
+	sortBloc := self isSortingNewer 
+		ifTrue: [ [:docA :docB | docA modificationTime > docB modificationTime] ]
+		ifFalse: [ [:docA :docB | docA modificationTime < docB modificationTime] ].
+	documents := documents sort: sortBloc.
+	^ documents first: self quantity ! !
+
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Apr/2026 15:35:33'!
+typesQuery
+	| types |
+	types := OrderedCollection new.
+	typeIndex = 1
+		ifTrue:  [types addAll: #(course task)]
+		ifFalse: [
+			types add: (typeIndex = 2 
+				ifTrue: [#course] 
+				ifFalse: [#task]) ].
+	^ types! !
+
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Apr/2026 16:14:35'!
+updatePreviewsPanel
+" Fill the preview panel with document previews from the user selected classGroup-course-topic "
+	| previewsPerLine  documents |
+	documents := self documentsQuery.
+	previewPanel removeAllMorphs.
+	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + DocumentView previewGap).
+	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
+		previewPanel addMorph: (	documentsRow 
+			inject: self previewRow 
+			into: [:row :document | row addMorph: (self previewFor: document) ]) ].
+	documents size \\ previewsPerLine ifNotZero: [ "There is an incomplete row to add "
+		previewPanel addMorph: (
+			(documents allButFirst: (documents size // previewsPerLine * previewsPerLine))
+				inject: self previewRow 
+				into: [:row :document | row addMorph: (self previewFor: document) ]) ].
+	^ previewPanel ! !
 
 !DyboFullscreenView methodsFor: 'accessing' stamp: 'hlsf 25/Feb/2026 09:29:30'!
 adoptWidgetsColor: aColor 
