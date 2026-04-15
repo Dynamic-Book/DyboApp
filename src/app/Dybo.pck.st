@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 14 April 2026 at 7:01:03 pm'!
+'From Cuis7.7 [latest update: #7875] on 15 April 2026 at 1:03:58 pm'!
 'Description '!
-!provides: 'Dybo' 1 184!
+!provides: 'Dybo' 1 185!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -254,7 +254,7 @@ DyTimeSlot class
 
 !classDefinition: #DyView category: #'Dybo-View'!
 LinearLayoutMorph subclass: #DyView
-	instanceVariableNames: 'presenter classGroupIndex courseIndex'
+	instanceVariableNames: 'presenter classGroupIndex courseIndex sortIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-View'!
@@ -274,7 +274,7 @@ DyAgendaView class
 
 !classDefinition: #DyBinderView category: #'Dybo-View'!
 DyView subclass: #DyBinderView
-	instanceVariableNames: 'topicIndex sortIndex previewPanel'
+	instanceVariableNames: 'topicIndex previewPanel'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-View'!
@@ -284,7 +284,7 @@ DyBinderView class
 
 !classDefinition: #DyStartView category: #'Dybo-View'!
 DyView subclass: #DyStartView
-	instanceVariableNames: 'qantityIndex typeIndex sortIndex'
+	instanceVariableNames: 'quantityIndex typeIndex previewPanel'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-View'!
@@ -387,6 +387,9 @@ My owner is a DyUserData instance
 
 !DyTopic commentStamp: '<historical>' prior: 0!
 Pedagogical document grouped in one topic.!
+
+!DyTask commentStamp: '<historical>' prior: 0!
+I represent an assignment for student with a course hour date and a document with written instructions.!
 
 !Dybo commentStamp: '<historical>' prior: 0!
 A presenter for a Dynabook application.!
@@ -499,9 +502,9 @@ classGroups
 		classGroups addAll: aSchool classGroups.
 		classGroups ]! !
 
-!DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 11:59:27'!
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 15/Apr/2026 11:26:30'!
 courseAndGroupAt: aDateTime
-" Search my course and group occuring at this date and time "
+" 	Search my course and group occuring at this date and time "
 	userData schools do: [:aSchool |
 		aSchool classGroups do: [:aClassGroup |
 			aClassGroup courses do: [:aCourse |
@@ -510,6 +513,12 @@ courseAndGroupAt: aDateTime
 		]
 	].
 	^ nil! !
+
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 15/Apr/2026 11:26:22'!
+courseAndGroupOf: aTask
+" 	Search the course and group aTask belongs to
+"
+	^ self courseAndGroupAt: aTask courseHourDate asDateAndTime ! !
 
 !DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 11:59:55'!
 courseAt: aDateTime
@@ -1418,7 +1427,7 @@ relPath
 restoreDocumentFromDisk
 	document := document loadFromDisk! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 15/Apr/2026 12:37:16'!
 deleteDocument: aDocument 
  | topic binderView |
 	binderView := controlsManager activeView.
@@ -1430,7 +1439,7 @@ in the topic: {2}?' translated
 		trueChoice: 'Yes, I want to delete it.' translated falseChoice: 'No, keep it.' translated) 
 			ifFalse: [^ self].
 	domain deleteDocument: aDocument from: topic.
-	binderView updateDocumentPreviews.
+	binderView updatePreviewsPanel.
 	DyboSystem saveData 
 	! !
 
@@ -1478,11 +1487,11 @@ renameDocument: aPreviewMorph
 				aPreviewMorph object saveDocument]
 			]! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 13/Apr/2026 16:32:03'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 15/Apr/2026 12:37:16'!
 saveDocument: aDocument 
  | binderView |
 	binderView := controlsManager activeView.
-	aDocument saveDocument ifTrue: [binderView updateDocumentPreviews]! !
+	aDocument saveDocument ifTrue: [binderView updatePreviewsPanel]! !
 
 !Dybo methodsFor: 'callback-task' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 deleteTask: aDyTask 
@@ -2397,7 +2406,7 @@ calibratorView
 	^ CalibratorMorph new
 		etalon: (ImageReadWriter formFromFileEntry: DyboSystem iconsPath // 'etalon.png')! !
 
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 4/Jan/2025 10:30:30'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 15/Apr/2026 12:37:16'!
 plugBinder
 	self plugInDyboView: (DyBinderView presenter: self dyboPresenter).
 	self dyboPresenter currentTopic "Any previously selected topic? "
@@ -2405,7 +2414,7 @@ plugBinder
 		ifNil: [" Set a default topic for the presenter, if any "
 			activeView topic ifNotNil: [:aTopic |
 				self dyboPresenter currentTopic: aTopic.
-				self activeView updateDocumentPreviews]	].
+				self activeView updatePreviewsPanel]	].
 	self runningWorld doOneCycleNow.! !
 
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 26/Feb/2026 09:56:30'!
@@ -2560,7 +2569,7 @@ visitUserData: userData
 editorsFor: aCollection ofType: classModel 
 	^ self editorsFor: aCollection ofType: classModel in: nil! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 20/Aug/2025 17:29:08'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 15/Apr/2026 11:49:43'!
 editorsFor: aCollection ofType: classModel in: anOwner
 " A decorated editor to edit a collection of models "
 	| listMorph quickButtons decoratedPanel |
@@ -2576,7 +2585,7 @@ editorsFor: aCollection ofType: classModel in: anOwner
 		setBalloonText: ('Add a new {1}' translated format: {classModel label});
 		yourself).
 	quickButtons add: (PluggableButtonMorph model: self action: #quickEdit: 
-			actionArgument: (Array with: decoratedPanel with: listMorph)::
+			actionArgument: (Array with: decoratedPanel with: listMorph with: anOwner)::
 		icon: Theme current textEditorIcon;
 		buttonStyle: #none;
 		setBalloonText: ('Edit the selected {1}' translated format: {classModel label});
@@ -3066,6 +3075,19 @@ domain
 presenter: aPresenter
 	presenter := aPresenter ! !
 
+!DyView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 11:58:00'!
+sortIndex
+	^ sortIndex! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 11:58:07'!
+sortIndex: anIndex
+	sortIndex := 	anIndex.
+	self changed: #sortIndex:! !
+
+!DyView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 11:57:39'!
+sortOptions
+	^ `Array with: 'Newer' translated with: 'Older' translated with: 'Title' translated`! !
+
 !DyView methodsFor: 'GUI building' stamp: 'hlsf 26/May/2024 16:34:08'!
 classGroupCoursesListMorph
 " Present the list of the user courses in a given class group"
@@ -3084,6 +3106,16 @@ classGroupListMorph
 		listGetter: #classGroups
 		indexGetter: #classGroupIndex
 		indexSetter: #classGroupIndex: ::
+		autoDeselect: false.! !
+
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:29:16'!
+sortListMorph
+" Present a list of topic in selected course "
+	^ DropDownListMorph 
+		withModel: self
+		listGetter: #sortOptions
+		indexGetter: #sortIndex
+		indexSetter: #sortIndex: ::
 		autoDeselect: false.! !
 
 !DyView methodsFor: 'initialization' stamp: 'hlsf 7/Oct/2023 15:56:04'!
@@ -3119,20 +3151,20 @@ incomingTasksPanel
 		addMorph: (LabelMorph contents: 'Future tasks' translated);
 		addMorphUseAll: self tasksListMorph ! !
 
-!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 5/Dec/2024 11:07:42'!
+!DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 13:03:12'!
 newTaskPanel
 "The tools to assign a new task : which classGroup, which course and when "
 	^​ LayoutMorph newRow ::
 		addMorph: (LabelMorph contents: 'New task in ' translated);
-		addMorph: self classGroupListMorph ;
-		addMorph: self classGroupCoursesListMorph ;
+		addMorph: self classGroupListMorph layoutSpec: LayoutSpec keepMorphExtent ;
+		addMorph: self classGroupCoursesListMorph layoutSpec: LayoutSpec keepMorphExtent ;
 		addMorph: (LabelMorph contents: ' at ' translated);
-		addMorph: self courseHourDateListMorph;
+		addMorph: self courseHourDateListMorph layoutSpec: LayoutSpec keepMorphExtent ;
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: (PluggableButtonMorph 
 			model: presenter
 			action: #saveTask
-			label: 'Save' translated)! !
+			label: 'Save' translated) layoutSpec: LayoutSpec keepMorphExtent ! !
 
 !DyAgendaView methodsFor: 'GUI building' stamp: 'hlsf 8/Dec/2024 19:26:09'!
 tasksListMorph
@@ -3185,10 +3217,10 @@ courseIndex: anIndex
 	self changed: #courseHourDates.
 	self courseHourIndex:​ (self courseHourDates ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 8/Dec/2024 12:06:49'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 15/Apr/2026 11:26:40'!
 labelForTask: aTask
 	^String streamContents: [:str |
-		(self domain courseAndGroupAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourseGroup |
+		(self domain courseAndGroupOf: aTask) ifNotNil: [:aCourseGroup |
 			str print: aCourseGroup first;
 				nextPutAll: ' (';
 				print: aCourseGroup second;
@@ -3206,19 +3238,19 @@ task
 taskIndex
 	^ taskIndex! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 18/Dec/2024 22:16:08'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 15/Apr/2026 11:27:59'!
 taskIndex: anIndex
 	taskIndex := anIndex.
 	self changed: #taskIndex:.
 	self task 
 		ifNotNil: [:aTask |
-			(self domain courseAndGroupAt: aTask courseHourDate asDateAndTime) ifNotNil: [:aCourseGroup |
+			(self domain courseAndGroupOf: aTask) ifNotNil: [:aCourseGroup |
 				self classGroup: aCourseGroup second.
 				self course: aCourseGroup first.
-				self courseHourDate: aTask courseHourDate			].
+				self courseHourDate: aTask courseHourDate].
 			aTask restoreDocumentFromDisk.
 			self plugMiniDocument: aTask document view]
-		ifNil: [	self plugNewMiniDocument]
+		ifNil: [self plugNewMiniDocument]
 		! !
 
 !DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 5/Dec/2024 11:28:11'!
@@ -3239,18 +3271,18 @@ tasksWidget
 			yourself		]
 				! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 8/Dec/2024 19:34:01'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 15/Apr/2026 11:28:08'!
 initTask
 	" Guess the course at current time, then its classGroup "
 	| courseGroupNow |
 	courseGroupNow := self domain courseAndGroupAt: DateAndTime now.
 	courseGroupNow 
-		ifNotNil: 		[
+		ifNotNil: 	[
 			classGroupIndex := self classGroups indexOf: courseGroupNow second.
-			courseIndex := self classGroupCourses indexOf: courseGroupNow first 	.
-			courseHourIndex := self courseHourDates ifEmpty: [0] ifNotEmpty: [1]						 ]
-		ifNil: [	classGroupIndex := courseIndex := courseHourIndex := 0			].
-	self changedNewTask		.
+			courseIndex := self classGroupCourses indexOf: courseGroupNow first .
+			courseHourIndex := self courseHourDates ifEmpty: [0] ifNotEmpty: [1] ]
+		ifNil: [classGroupIndex := courseIndex := courseHourIndex := 0 ].
+	self changedNewTask	.
 	taskIndex := 0.
 	self changedFutureTasks 
 	! !
@@ -3326,19 +3358,6 @@ courseIndex: anIndex
 	self changed: #topics.
 	self topicIndex:​ (self topics ifEmpty: [0] ifNotEmpty: [1]).! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 7/Oct/2023 11:52:11'!
-sortIndex
-	^ sortIndex! !
-
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 7/Oct/2023 11:52:37'!
-sortIndex: anIndex
-	sortIndex := 	anIndex.
-	self changed: #sortIndex:! !
-
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 7/Oct/2023 11:51:47'!
-sortOptions
-	^ `Array with: 'Newer first' translated with: 'Older first' translated with: 'By name' translated`! !
-
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 11:23:19'!
 topic
 " The selected topic, if any "
@@ -3355,11 +3374,11 @@ topic: aTopic
 topicIndex
 	^ topicIndex! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 4/Jan/2025 10:30:51'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:37:16'!
 topicIndex: anIndex
 	topicIndex := anIndex.
 	self changed: #topicIndex:.
-	self updateDocumentPreviews.
+	self updatePreviewsPanel.
 	presenter currentTopic: self topic! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 16:57:40'!
@@ -3369,38 +3388,17 @@ topics
 		ifNotNil: [:aCourse | aCourse topics]
 		ifNil: [`Array new`]! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 1/Sep/2024 09:59:19'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 13:02:15'!
 documentSelectorPanel
 " A view to select documents according to classGroups, courses, topics and sorting option "
 	^ LayoutMorph newRow ::
-		addMorph: self classGroupListMorph ;
-		addMorph: self classGroupCoursesListMorph;
-		addMorph: self topicListMorph;
+		addMorph: self classGroupListMorph layoutSpec: LayoutSpec keepMorphExtent ;
+		addMorph: self classGroupCoursesListMorph layoutSpec: LayoutSpec keepMorphExtent ;
+		addMorph: self topicListMorph layoutSpec: LayoutSpec keepMorphExtent ;
 		addMorphUseAll: DyControlsManager spacer;
-		addMorph: self sortListMorph! !
+		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 20/Aug/2025 17:29:31'!
-documentsPanel
-" A view to present previews of the selected documents from the documentSelectorPanel "
-	| quickButtons scroller |
-	quickButtons := Array 
-		with: (PluggableButtonMorph model: presenter action: #newDocument ::
-			icon: Theme current listAddIcon;
-			buttonStyle: #none;
-			setBalloonText: 'Create a new document in the selected topic.' translated)
-		with: (PluggableButtonMorph model: presenter action: #importPDF ::
-			icon: Theme current openIcon;
-			buttonStyle: #none;
-			setBalloonText: 'Import a PDF document in the selected topic.' translated).
-	scroller := PluggableScrollPane new ::
-		layoutSpec: LayoutSpec useAll;
-		scroller: (previewPanel := LayoutMorph newColumn) .
-	^ DecoratedPane 
-		open: scroller
-		label:  'My documents' translated
-		quickButtons: quickButtons! !
-
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 14/Apr/2026 15:21:26'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 14/Apr/2026 15:21:26'!
 previewFor: aDocument
 	| buttons preview |
 	buttons := OrderedCollection new.
@@ -3430,24 +3428,35 @@ previewFor: aDocument
 		(Text withForm: (aDocument view currentPage imageForm magnifyBy: 0.5))."
 	^ preview ! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 6/Feb/2025 11:18:18'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 6/Feb/2025 11:18:18'!
 previewRow
 	^ ​ LayoutMorph newRow :: 
 		separation: DocumentView previewGap ; 
 		adoptWidgetsColor: self defaultColor
 	! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 26/May/2024 15:45:41'!
-sortListMorph
-" Present a list of topic in selected course "
-	^ DropDownListMorph 
-		withModel: self
-		listGetter: #sortOptions
-		indexGetter: #sortIndex
-		indexSetter: #sortIndex: ::
-		autoDeselect: false.! !
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:47:59'!
+previewsPanel
+" A view to present previews of the selected documents from the documentSelectorPanel "
+	| quickButtons scroller |
+	quickButtons := Array 
+		with: (PluggableButtonMorph model: presenter action: #newDocument ::
+			icon: Theme current listAddIcon;
+			buttonStyle: #none;
+			setBalloonText: 'Create a new document in the selected topic.' translated)
+		with: (PluggableButtonMorph model: presenter action: #importPDF ::
+			icon: Theme current openIcon;
+			buttonStyle: #none;
+			setBalloonText: 'Import a PDF document in the selected topic.' translated).
+	scroller := PluggableScrollPane new ::
+		layoutSpec: LayoutSpec useAll;
+		scroller: (previewPanel := LayoutMorph newColumn) .
+	^ DecoratedPane 
+		open: scroller
+		label:  'My courses' translated
+		quickButtons: quickButtons! !
 
-!DyBinderView methodsFor: 'GUI Building' stamp: 'hlsf 26/May/2024 15:45:44'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 26/May/2024 15:45:44'!
 topicListMorph
 " Present a list of topic in selected course "
 	^ DropDownListMorph 
@@ -3457,7 +3466,7 @@ topicListMorph
 		indexSetter: #topicIndex: ::
 		autoDeselect: false.! !
 
-!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 12/Dec/2024 19:44:03'!
+!DyBinderView methodsFor: 'initialization' stamp: 'hlsf 15/Apr/2026 12:28:50'!
 initialize
 	super initialize.
 	classGroupIndex :=  self classGroups ifNotEmpty: [1] ifEmpty: [0].
@@ -3465,11 +3474,11 @@ initialize
 	topicIndex := self topics ifNotEmpty: [1] ifEmpty: [0].
 	sortIndex := 1.
 	self addMorphKeepMorphHeight: self documentSelectorPanel.
-	self addMorphUseAll: self documentsPanel.
+	self addMorphUseAll: self previewsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 13/Apr/2026 16:28:09'!
-updateDocumentPreviews
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 15/Apr/2026 12:37:16'!
+updatePreviewsPanel
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	documents := self topic ifNil: [`Array new`] ifNotNil: [:aTopic | aTopic documents].
@@ -3485,6 +3494,97 @@ updateDocumentPreviews
 				inject: self previewRow 
 				into: [:row :document | row addMorph: (self previewFor: document) ]) ].
 	^ previewPanel ! !
+
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:43:52'!
+classGroupIndex: anIndex
+	" Set the class group "
+	classGroupIndex := anIndex.
+	self changed: #classGroupIndex:.
+	self updatePreviewsPanel ! !
+
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:19:19'!
+classGroups
+	^ super classGroups 
+		addFirst: 'ALL' translated;
+		yourself! !
+
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:23:35'!
+quantities
+" How many documents to preview at once "
+	^ #(5 10 20 50 100)! !
+
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:40:01'!
+quantityIndex
+	^ quantityIndex ! !
+
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:40:24'!
+quantityIndex: anIndex
+	quantityIndex  := anIndex.
+	self changed: #quantityIndex:.
+	self updatePreviewsPanel! !
+
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:44:58'!
+sortIndex: anIndex
+	super sortIndex: anIndex.
+	self updatePreviewsPanel! !
+
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:35:15'!
+typeIndex
+	^ typeIndex ! !
+
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:37:26'!
+typeIndex: anIndex
+	typeIndex  := anIndex.
+	self changed: #typeIndex:.
+	self updatePreviewsPanel! !
+
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:39:37'!
+types
+" Document type can be pedagogicial class/course/topic or task document "
+	^ `{'ALL' translated . 'Course' translated . 'Task' translated}`! !
+
+!DyStartView methodsFor: 'initialization' stamp: 'hlsf 15/Apr/2026 12:32:11'!
+initialize
+	super initialize.	
+"	By default, present the last 5 most recent documents of all types, in all classes "	
+	classGroupIndex := 1.
+	typeIndex := 1.
+	quantityIndex := 1.
+	sortIndex := 1.! !
+
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:48:04'!
+previewsPanel
+" A view to present previews of the selected documents from the documentSelectorPanel "
+	|  scroller |
+	scroller := PluggableScrollPane new ::
+		layoutSpec: LayoutSpec useAll;
+		scroller: (previewPanel := LayoutMorph newColumn).
+	^ DecoratedPane 
+		open: scroller
+		label:  'My documents' translated! !
+
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:31:46'!
+quantityListMorph
+" Present a list of the quantity of document to present at once "
+	^ DropDownListMorph 
+		withModel: self
+		listGetter: #quantities
+		indexGetter: #quantityIndex
+		indexSetter: #quantityIndex: ::
+		autoDeselect: false.! !
+
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:45:54'!
+typeListMorph
+" Present a selector for the type of document to present "
+	^ DropDownListMorph 
+		withModel: self
+		listGetter: #types
+		indexGetter: #typeIndex
+		indexSetter: #typeIndex: ::
+		autoDeselect: false.! !
+
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Apr/2026 12:45:17'!
+updatePreviewsPanel! !
 
 !DyboFullscreenView methodsFor: 'accessing' stamp: 'hlsf 25/Feb/2026 09:29:30'!
 adoptWidgetsColor: aColor 
