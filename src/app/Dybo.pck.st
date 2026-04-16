@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 11:29:42 am'!
+'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 12:28:39 pm'!
 'Description '!
-!provides: 'Dybo' 1 188!
+!provides: 'Dybo' 1 189!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1119,12 +1119,12 @@ next: qty courseHoursAfter: aDate
 		n := n - 1 ] .
 	^ futureDates ! !
 
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 14/Apr/2026 11:16:51'!
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 16/Apr/2026 11:46:38'!
 nextCourseHourAfter: aDate
 "Search for my next course hour after aDate"
 	| dayOfWeek currentCourseHourIndex nextCourseHour nextDate |
 	dayOfWeek := aDate dayOfWeek.
-	aDate < Date today ifTrue: [^ nil ]. " We did not find any future date for this course "
+	(aDate + 8 days) < Date today ifTrue: [^ nil ]. " We did not find any future date for this course "
 	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | aCourseHour dayOfWeek = dayOfWeek].
 	"No course at this day, jump to the previous day, and try again "
 	currentCourseHourIndex = 0 ifTrue: [ ^ self nextCourseHourAfter: aDate previous].
@@ -3138,11 +3138,12 @@ classGroupListMorph
 		indexSetter: #classGroupIndex: ::
 		autoDeselect: false.! !
 
-!DyView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 16:13:27'!
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 16/Apr/2026 12:12:37'!
 previewRow
 	^ ​ LayoutMorph newRow :: 
 		separation: DocumentView previewGap ; 
-		adoptWidgetsColor: self defaultColor
+		adoptWidgetsColor: self defaultColor;
+		name: 'Preview row'
 	! !
 
 !DyView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:29:16'!
@@ -3620,10 +3621,12 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 16/Apr/2026 11:28:38'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 16/Apr/2026 12:23:34'!
 previewFor: aDocument
-	| buttons preview docModel classGroup |
+	| buttons preview decorated docModel classGroup indicativeColor title |
 	docModel := aDocument model.
+	title := docModel isCourse ifTrue: [docModel title] ifFalse: [docModel owner printString].
+	indicativeColor := docModel isCourse ifTrue: [self defaultColor muchDarker] ifFalse: [Color blue].
 	classGroup := self domain classGroupOf: docModel.
 	buttons := OrderedCollection new.
 	buttons add: 
@@ -3634,11 +3637,10 @@ previewFor: aDocument
 		object:  aDocument 
 		image:  aDocument view preview
 		buttons: buttons
-		label: docModel title ::
-		color: self defaultColor darker;
+		label: title ::
 		borderWidth: 2.
 	preview setBalloonText: (Text streamContents: [:str |
-		str nextPutAll: docModel title bold;
+		str nextPutAll: title bold;
 			nextPut: Character lf;
 			nextPutAll: (docModel description format: {classGroup});
 			nextPut: Character lf;
@@ -3647,7 +3649,11 @@ previewFor: aDocument
 			nextPutAll: (('Modification time: ' translated, 
 			(String streamContents: [:str2 | docModel modificationTime filenamePrintOn: str2]) italic) 
 				pointSize: FontFamily defaultPointSize - 2) ]).
-	^ (DecoratedPane open: preview label: classGroup printString) layoutSpec: LayoutSpec keepMorphExtent ! !
+	decorated := (DecoratedPane open: preview label: classGroup printString) 
+		layoutSpec: (LayoutSpec keepMorphExtent offAxisEdgeWeight: 0);
+		padding: 20@10.
+	preview borderColor: indicativeColor.
+	^ decorated ! !
 
 !DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:48:04'!
 previewsPanel
@@ -3724,13 +3730,13 @@ typesQuery
 				ifFalse: [#task]) ].
 	^ types! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 16/Apr/2026 11:29:07'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 16/Apr/2026 12:20:14'!
 updatePreviewsPanel
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	documents := self documentsQuery.
 	previewPanel removeAllMorphs.
-	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + (DocumentView previewGap * 2) + 10).
+	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + (DocumentView previewGap * 2) + 35).
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
 		previewPanel addMorph: (	documentsRow 
 			inject: self previewRow 
