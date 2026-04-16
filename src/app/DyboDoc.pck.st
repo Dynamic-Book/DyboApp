@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 11:29:47 am'!
+'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 5:15:45 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 230!
+!provides: 'DyboDoc' 1 232!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1594,13 +1594,19 @@ printOn: aStream
 		nextPutAll: model dirName;
 		nextPut: $)! !
 
-!Document class methodsFor: 'object serialization' stamp: 'hlsf 19/Mar/2026 21:16:11'!
+!Document class methodsFor: 'object serialization' stamp: 'hlsf 16/Apr/2026 16:59:20'!
 loadDocument: relativePath
 "
 	Once restored, the controlManager needs to be associated back and 
 	the view plug in the dynamic book main view
 "
-	^ ReferenceStream restoreFromCompressedFile: DyboSystem userDataPath / relativePath // 'doc.obj'! !
+	| file |
+	file :=  DyboSystem userDataPath / relativePath // 'doc.obj'.
+	^ file exists 
+		ifTrue:  [ReferenceStream restoreFromCompressedFile:  file]
+		ifFalse: [Transcript show: 'Document not on disk: '; show: relativePath.
+			self halt.] 
+	! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024 21:05:57'!
 execute

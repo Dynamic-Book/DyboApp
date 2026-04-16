@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 3:18:34 pm'!
+'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 5:15:41 pm'!
 'Description '!
-!provides: 'Dybo' 1 191!
+!provides: 'Dybo' 1 192!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -594,6 +594,10 @@ initialize
 	user := DyTeacher new.
 	agenda := DyAgenda new owner: self.
 	ppcm := 59.! !
+
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 16/Apr/2026 17:11:43'!
+reset
+	user := schools := agenda := ppcm := nil! !
 
 !DyUserData methodsFor: 'printing' stamp: 'hlsf 28/Jun/2023 00:09:47'!
 printOn: str
@@ -3731,11 +3735,11 @@ typesQuery
 				ifFalse: [#task]) ].
 	^ types! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 16/Apr/2026 12:20:14'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 16/Apr/2026 17:15:04'!
 updatePreviewsPanel
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
-	documents := self documentsQuery.
+	documents := self documentsQuery ifEmpty: [^ self].
 	previewPanel removeAllMorphs.
 	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + (DocumentView previewGap * 2) + 35).
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
