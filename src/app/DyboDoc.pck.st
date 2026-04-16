@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 15 April 2026 at 4:17:36 pm'!
+'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 11:29:47 am'!
 'Description '!
-!provides: 'DyboDoc' 1 228!
+!provides: 'DyboDoc' 1 230!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1587,10 +1587,10 @@ storeDataOn: aDataStream
 unsavedAttributes
 	^ #(commandsManager controlsManager isSaved pen highlighter eraser tool)! !
 
-!Document methodsFor: 'printing' stamp: 'hlsf 22/Dec/2024 13:18:26'!
+!Document methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:45:30'!
 printOn: aStream
 	super printOn: aStream.
-	aStream nextPutAll: ' (';
+	aStream nextPutAll: ' P. (';
 		nextPutAll: model dirName;
 		nextPut: $)! !
 
@@ -2653,6 +2653,10 @@ modificationTime
 newPageBackground
 	^ pageBackground new! !
 
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 20:07:39'!
+owner
+	^ owner! !
+
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:04:49'!
 owner: anObject
 " a Topic or a Task"
@@ -2673,6 +2677,47 @@ title
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 12:31:18'!
 title: aString
 	title := aString ! !
+
+!DocumentModel methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026 19:57:09'!
+isCourse
+" Is the document a teaching document, therefore part of a course/topic "
+	^ owner class = DyTopic! !
+
+!DocumentModel methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026 19:57:41'!
+isTask
+" Is the document a task document, therefore part of a task in the agenda "
+	^ self isCourse not! !
+
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:55:53'!
+description
+	^ self isCourse 
+		ifTrue:  [self descriptionCourse ]
+		ifFalse: [self descriptionTask ]! !
+
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:57:24'!
+descriptionCourse
+	^ String streamContents: [:str | str 
+		nextPutAll: 'Educational document from class {1}' translated;	" Class group "
+		nextPut: Character lf;
+		print: owner course;											" Course " 
+		nextPut: $/; print: owner]										" Topic "! !
+
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:58:27'!
+descriptionTask
+	^ String streamContents: [:str | str 
+		nextPutAll: 'Homework assignment for class {1}' translated;
+		nextPut: Character lf;
+		print: owner]! !
+
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:35:36'!
+printOn: str
+	self isCourse 
+		ifTrue: [str 
+			nextPutAll: 'Document in ';
+			print: owner; nextPut: $/; 
+			print: owner course; nextPut: $/; 
+			print: owner course classGroup]
+		ifFalse: [str nextPutAll: 'Document in task '; print: owner]! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:51:46'!
 color

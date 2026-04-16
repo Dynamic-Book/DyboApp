@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 15 April 2026 at 4:17:33 pm'!
+'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 11:29:42 am'!
 'Description '!
-!provides: 'Dybo' 1 186!
+!provides: 'Dybo' 1 188!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -500,6 +500,14 @@ allTopics
 		topics addAll: aCourse topics.
 		topics ]! !
 
+!DyDomain methodsFor: 'queries' stamp: 'hlsf 16/Apr/2026 10:16:00'!
+classGroupOf: aDocumentModel
+"	Determine the class group this document belongs to. 
+	The document may come from a topic of  a course or a task "
+	^ aDocumentModel isCourse
+		ifTrue: [aDocumentModel owner course classGroup]
+		ifFalse: [(self courseAndGroupOf: aDocumentModel owner) ifNotNil: [:array | array second] ]! !
+
 !DyDomain methodsFor: 'queries' stamp: 'hlsf 5/Dec/2024 11:59:33'!
 classGroups
 " Returns the collection of the user's class groups"
@@ -945,9 +953,10 @@ courses
 dirName
 	^ number asFileName! !
 
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 15:10:18'!
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:20:17'!
 documents
-	^ courses inject: OrderedCollection new into: [:documents :aCourse | documents addAll: aCourse documents]! !
+	^ courses inject: OrderedCollection new into: [:documents :aCourse | 
+			documents addAll: aCourse documents; yourself]! !
 
 !DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:09'!
 headTeacher
@@ -1035,10 +1044,11 @@ courseHours
 dirName
 	^ subject asFileName! !
 
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 15:07:58'!
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:20:26'!
 documents
 	" All the documents in this course "
-	^ topics inject: OrderedCollection new into: [:documents :aTopic | documents addAll: aTopic documents]! !
+	^ topics inject: OrderedCollection new into: [:documents :aTopic | 
+		documents addAll: aTopic documents; yourself]! !
 
 !DyCourse methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:44:07'!
 school 
@@ -2454,9 +2464,11 @@ plugSettings
 			on: self dyboPresenter domain userData 
 			with: DyViewerVisitor )! !
 
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 1/Dec/2024 10:32:31'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 15/Apr/2026 19:11:38'!
 plugStart
-! !
+	self plugInDyboView: (DyStartView presenter: self dyboPresenter).
+	self activeView updatePreviewsPanel.
+	self runningWorld doOneCycleNow ! !
 
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 1/Dec/2024 17:02:37'!
 plugTask
@@ -3528,10 +3540,10 @@ classGroupIndex: anIndex
 	self changed: #classGroupIndex:.
 	self updatePreviewsPanel ! !
 
-!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:19:19'!
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:13:12'!
 classGroups
 	^ super classGroups 
-		addFirst: 'ALL' translated;
+		addFirst: 'All' translated;
 		yourself! !
 
 !DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:23:35'!
@@ -3559,6 +3571,10 @@ sortIndex: anIndex
 	super sortIndex: anIndex.
 	self updatePreviewsPanel! !
 
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 16/Apr/2026 10:09:47'!
+sortOptions
+	^ `Array with: 'Newer' translated with: 'Older' translated`! !
+
 !DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 14:35:38'!
 type
 	" The type of document to present "
@@ -3574,10 +3590,10 @@ typeIndex: anIndex
 	self changed: #typeIndex:.
 	self updatePreviewsPanel! !
 
-!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 14:59:49'!
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:13:03'!
 types
 " Document type can be pedagogicial class/course/topic or task document "
-	^ `{'ALL' translated . 'Course' translated . 'Homework' translated}`! !
+	^ `{'All' translated . 'Course' translated . 'Homework' translated}`! !
 
 !DyStartView methodsFor: 'initialization' stamp: 'hlsf 15/Apr/2026 14:36:37'!
 initialize
@@ -3591,19 +3607,24 @@ initialize
 	self addMorphUseAll: self previewsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 14:34:14'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 16/Apr/2026 10:12:05'!
 documentSelectorPanel
 " A view to select documents according to classGroups, courses, topics and sorting option "
 	^ LayoutMorph newRow ::
+		addMorph: (LabelMorph contents: 'Class ' translated);
 		addMorph: self classGroupListMorph layoutSpec: LayoutSpec keepMorphExtent ;
+		addMorph: (LabelMorph contents: 'Type ' translated);
 		addMorph: self typeListMorph layoutSpec: LayoutSpec keepMorphExtent ;
+		addMorph: (LabelMorph contents: 'Quantity ' translated);
 		addMorph: self quantityListMorph layoutSpec: LayoutSpec keepMorphExtent ;
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 16:17:23'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 16/Apr/2026 11:28:38'!
 previewFor: aDocument
-	| buttons preview |
+	| buttons preview docModel classGroup |
+	docModel := aDocument model.
+	classGroup := self domain classGroupOf: docModel.
 	buttons := OrderedCollection new.
 	buttons add: 
 		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocument ::
@@ -3613,11 +3634,20 @@ previewFor: aDocument
 		object:  aDocument 
 		image:  aDocument view preview
 		buttons: buttons
-		label: aDocument model title ::
+		label: docModel title ::
 		color: self defaultColor darker;
-		borderWidth: 2;
-		borderColor:self defaultColor muchDarker.
-	^ preview ! !
+		borderWidth: 2.
+	preview setBalloonText: (Text streamContents: [:str |
+		str nextPutAll: docModel title bold;
+			nextPut: Character lf;
+			nextPutAll: (docModel description format: {classGroup});
+			nextPut: Character lf;
+			nextPutAll: (('Creation time: ' translated, docModel dirName italic) pointSize: FontFamily defaultPointSize - 2);
+			nextPut: Character lf;
+			nextPutAll: (('Modification time: ' translated, 
+			(String streamContents: [:str2 | docModel modificationTime filenamePrintOn: str2]) italic) 
+				pointSize: FontFamily defaultPointSize - 2) ]).
+	^ (DecoratedPane open: preview label: classGroup printString) layoutSpec: LayoutSpec keepMorphExtent ! !
 
 !DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:48:04'!
 previewsPanel
@@ -3659,7 +3689,7 @@ classGroupsQuery
 		ifFalse: [classGroups add: self classGroup].	
 	^ classGroups ! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Apr/2026 16:14:23'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 16/Apr/2026 10:13:53'!
 documentsQuery
 	" Documents according to the user selection "
 	| classGroups types documents sortBloc |
@@ -3668,17 +3698,19 @@ documentsQuery
 	types := self typesQuery.
 	classGroups do: [:aClassGroup |
 		types do: [:aDocType |
-			aDocType = #document 
+			aDocType = #course 
 				ifTrue: [documents addAll: aClassGroup documents].
 			aDocType = #task
 				ifTrue: [documents addAll: (
 					(self domain tasksOf: aClassGroup) collect: [:aTask | aTask document]
 			) ] ] ].
 	sortBloc := self isSortingNewer 
-		ifTrue: [ [:docA :docB | docA modificationTime > docB modificationTime] ]
-		ifFalse: [ [:docA :docB | docA modificationTime < docB modificationTime] ].
+		ifTrue: [ [:docA :docB | docA model modificationTime > docB model modificationTime] ]
+		ifFalse: [ [:docA :docB | docA model modificationTime < docB model modificationTime] ].
 	documents := documents sort: sortBloc.
-	^ documents first: self quantity ! !
+	^ documents size <= self quantity 
+		ifTrue: [documents]
+		ifFalse: [documents first: self quantity]! !
 
 !DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Apr/2026 15:35:33'!
 typesQuery
@@ -3692,13 +3724,13 @@ typesQuery
 				ifFalse: [#task]) ].
 	^ types! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Apr/2026 16:14:35'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 16/Apr/2026 11:29:07'!
 updatePreviewsPanel
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	documents := self documentsQuery.
 	previewPanel removeAllMorphs.
-	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + DocumentView previewGap).
+	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + (DocumentView previewGap * 2) + 10).
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
 		previewPanel addMorph: (	documentsRow 
 			inject: self previewRow 
