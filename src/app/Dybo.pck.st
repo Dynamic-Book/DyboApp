@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 12:28:39 pm'!
+'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 3:18:34 pm'!
 'Description '!
-!provides: 'Dybo' 1 189!
+!provides: 'Dybo' 1 191!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -3138,12 +3138,13 @@ classGroupListMorph
 		indexSetter: #classGroupIndex: ::
 		autoDeselect: false.! !
 
-!DyView methodsFor: 'GUI building' stamp: 'hlsf 16/Apr/2026 12:12:37'!
+!DyView methodsFor: 'GUI building' stamp: 'hlsf 16/Apr/2026 15:17:38'!
 previewRow
 	^ ​ LayoutMorph newRow :: 
 		separation: DocumentView previewGap ; 
 		adoptWidgetsColor: self defaultColor;
-		name: 'Preview row'
+		name: 'Preview row';
+		layoutSpec: (LayoutSpec keepMorphExtent offAxisEdgeWeight: 0)
 	! !
 
 !DyView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:29:16'!
@@ -3655,13 +3656,13 @@ previewFor: aDocument
 	preview borderColor: indicativeColor.
 	^ decorated ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:48:04'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 16/Apr/2026 13:15:07'!
 previewsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
 	|  scroller |
 	scroller := PluggableScrollPane new ::
 		layoutSpec: LayoutSpec useAll;
-		scroller: (previewPanel := LayoutMorph newColumn).
+		scroller: (previewPanel := LayoutMorph newColumn :: name: 'Preview panel').
 	^ DecoratedPane 
 		open: scroller
 		label:  'My documents' translated! !
