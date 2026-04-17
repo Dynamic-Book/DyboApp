@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 1:05:43 pm'!
+'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 6:36:16 pm'!
 'Description '!
-!provides: 'Dybo' 1 196!
+!provides: 'Dybo' 1 197!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -49,116 +49,6 @@ Object subclass: #DyCourseHourDate
 	category: 'Dybo-Model'!
 !classDefinition: 'DyCourseHourDate class' category: 'Dybo-Model'!
 DyCourseHourDate class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyDayInterval category: 'Dybo-Model'!
-Object subclass: #DyDayInterval
-	instanceVariableNames: 'start end'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyDayInterval class' category: 'Dybo-Model'!
-DyDayInterval class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyObject category: 'Dybo-Model'!
-Object subclass: #DyObject
-	instanceVariableNames: 'owner'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyObject class' category: 'Dybo-Model'!
-DyObject class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyAgenda category: 'Dybo-Model'!
-DyObject subclass: #DyAgenda
-	instanceVariableNames: 'start end daysOff tasks'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyAgenda class' category: 'Dybo-Model'!
-DyAgenda class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyClassGroup category: 'Dybo-Model'!
-DyObject subclass: #DyClassGroup
-	instanceVariableNames: 'number headTeacher students courses'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyClassGroup class' category: 'Dybo-Model'!
-DyClassGroup class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyCourse category: 'Dybo-Model'!
-DyObject subclass: #DyCourse
-	instanceVariableNames: 'subject color teacher courseHours topics'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyCourse class' category: 'Dybo-Model'!
-DyCourse class
-	instanceVariableNames: ''!
-
-!classDefinition: #DySchool category: 'Dybo-Model'!
-DyObject subclass: #DySchool
-	instanceVariableNames: 'name phone email timeSlots classGroups'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DySchool class' category: 'Dybo-Model'!
-DySchool class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyTopic category: 'Dybo-Model'!
-DyObject subclass: #DyTopic
-	instanceVariableNames: 'title color documents resources'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyTopic class' category: 'Dybo-Model'!
-DyTopic class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyPerson category: 'Dybo-Model'!
-Object subclass: #DyPerson
-	instanceVariableNames: 'lastName firstName email'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyPerson class' category: 'Dybo-Model'!
-DyPerson class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyStudent category: 'Dybo-Model'!
-DyPerson subclass: #DyStudent
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyStudent class' category: 'Dybo-Model'!
-DyStudent class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyTeacher category: 'Dybo-Model'!
-DyPerson subclass: #DyTeacher
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyTeacher class' category: 'Dybo-Model'!
-DyTeacher class
-	instanceVariableNames: ''!
-
-!classDefinition: #DyTask category: 'Dybo-Model'!
-Object subclass: #DyTask
-	instanceVariableNames: 'courseHourDate document'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Dybo-Model'!
-!classDefinition: 'DyTask class' category: 'Dybo-Model'!
-DyTask class
 	instanceVariableNames: ''!
 
 !classDefinition: #Dybo category: #'Dybo-Presenter'!
@@ -229,6 +119,116 @@ Object subclass: #DyViewerVisitor
 	category: 'Dybo-View'!
 !classDefinition: 'DyViewerVisitor class' category: #'Dybo-View'!
 DyViewerVisitor class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyDayInterval category: 'Dybo-Model'!
+ActiveModel subclass: #DyDayInterval
+	instanceVariableNames: 'start end'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyDayInterval class' category: 'Dybo-Model'!
+DyDayInterval class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyObject category: 'Dybo-Model'!
+ActiveModel subclass: #DyObject
+	instanceVariableNames: 'owner'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyObject class' category: 'Dybo-Model'!
+DyObject class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyAgenda category: 'Dybo-Model'!
+DyObject subclass: #DyAgenda
+	instanceVariableNames: 'start end daysOff tasks'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyAgenda class' category: 'Dybo-Model'!
+DyAgenda class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyClassGroup category: 'Dybo-Model'!
+DyObject subclass: #DyClassGroup
+	instanceVariableNames: 'number headTeacher students courses'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyClassGroup class' category: 'Dybo-Model'!
+DyClassGroup class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyCourse category: 'Dybo-Model'!
+DyObject subclass: #DyCourse
+	instanceVariableNames: 'subject color teacher courseHours topics'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyCourse class' category: 'Dybo-Model'!
+DyCourse class
+	instanceVariableNames: ''!
+
+!classDefinition: #DySchool category: 'Dybo-Model'!
+DyObject subclass: #DySchool
+	instanceVariableNames: 'name phone email timeSlots classGroups'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DySchool class' category: 'Dybo-Model'!
+DySchool class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyTopic category: 'Dybo-Model'!
+DyObject subclass: #DyTopic
+	instanceVariableNames: 'title color documents resources'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyTopic class' category: 'Dybo-Model'!
+DyTopic class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyPerson category: 'Dybo-Model'!
+ActiveModel subclass: #DyPerson
+	instanceVariableNames: 'lastName firstName email'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyPerson class' category: 'Dybo-Model'!
+DyPerson class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyStudent category: 'Dybo-Model'!
+DyPerson subclass: #DyStudent
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyStudent class' category: 'Dybo-Model'!
+DyStudent class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyTeacher category: 'Dybo-Model'!
+DyPerson subclass: #DyTeacher
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyTeacher class' category: 'Dybo-Model'!
+DyTeacher class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyTask category: 'Dybo-Model'!
+ActiveModel subclass: #DyTask
+	instanceVariableNames: 'courseHourDate document'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyTask class' category: 'Dybo-Model'!
+DyTask class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyTimeSlot category: 'Dybo-Model'!
@@ -337,6 +337,29 @@ Describes one or more contiguous teaching periods.
 !DyCourseHourDate commentStamp: '<historical>' prior: 0!
 I represent a course hour in a week described by a date and a time slot.!
 
+!Dybo commentStamp: '<historical>' prior: 0!
+A presenter for a Dynabook application.!
+
+!DyPlatform commentStamp: '<historical>' prior: 0!
+Access to preferences, path, information in deployment mode.
+Pattern: strategy!
+
+!DyDevelopment commentStamp: '<historical>' prior: 0!
+Access to preferences, path, information in development mode.!
+
+!DyboSystem commentStamp: '<historical>' prior: 0!
+I map settings/preferences to the underneath hardware/os plateform
+Pattern: strategy!
+
+!DyControlsManager commentStamp: '<historical>' prior: 0!
+A manager for the Dynabook user interface : main dynabook view, document view,  toolbars, controls and other widgets!
+
+!DyEditorVisitor commentStamp: '<historical>' prior: 0!
+I visit the model of user data to provide an editor!
+
+!DyViewerVisitor commentStamp: '<historical>' prior: 0!
+I visit the model of user data to provide a viewer linked to an editor.!
+
 !DyDayInterval commentStamp: '<historical>' prior: 0!
 I represent an interval of days!
 
@@ -376,29 +399,6 @@ Pedagogical document grouped in one topic.!
 
 !DyTask commentStamp: '<historical>' prior: 0!
 I represent an assignment for student with a course hour date and a document with written instructions.!
-
-!Dybo commentStamp: '<historical>' prior: 0!
-A presenter for a Dynabook application.!
-
-!DyPlatform commentStamp: '<historical>' prior: 0!
-Access to preferences, path, information in deployment mode.
-Pattern: strategy!
-
-!DyDevelopment commentStamp: '<historical>' prior: 0!
-Access to preferences, path, information in development mode.!
-
-!DyboSystem commentStamp: '<historical>' prior: 0!
-I map settings/preferences to the underneath hardware/os plateform
-Pattern: strategy!
-
-!DyControlsManager commentStamp: '<historical>' prior: 0!
-A manager for the Dynabook user interface : main dynabook view, document view,  toolbars, controls and other widgets!
-
-!DyEditorVisitor commentStamp: '<historical>' prior: 0!
-I visit the model of user data to provide an editor!
-
-!DyViewerVisitor commentStamp: '<historical>' prior: 0!
-I visit the model of user data to provide a viewer linked to an editor.!
 
 !DyTimeSlot commentStamp: '<historical>' prior: 0!
 Describe the organization of the teaching periods in a school. There are generally 10 time slots per school.
@@ -581,10 +581,6 @@ accept: aVisitor
 current
 	^ Current ifNil: [Current := self basicNew initialize]! !
 
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2023 22:24:43'!
-current: aDyUserData
-	Current := aDyUserData ! !
-
 !DyUserData class methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 12:46:05'!
 load
 	Current := nil.
@@ -594,9 +590,11 @@ load
 new
 	self error: 'I am a Singleton, new instance are not possible'! !
 
-!DyUserData class methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026 12:27:03'!
+!DyUserData class methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026 18:21:36'!
 reset
-	Current ifNotNil: [:instance| instance reset]! !
+	Current ifNotNil: [:instance| 
+		instance reset.
+		Current := nil]! !
 
 !DyUserData class methodsFor: 'translated' stamp: 'hlsf 17/Apr/2026 12:11:07'!
 daysOfWeek
@@ -727,730 +725,6 @@ asDateAndTime
 !DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 7/Dec/2024 09:41:14'!
 hash
 	^ date hash bitXor: timeSlots hash! !
-
-!DyDayInterval methodsFor: 'printing' stamp: 'hlsf 27/Oct/2024 16:30:32'!
-printOn: aStream
-	start 
-		ifNotNil:  [aStream nextPutAll:  start ddmmyy;
-				nextPutAll: ' - '; 
-				nextPutAll: self end ddmmyy .]
-		ifNil: [aStream nextPutAll: 'days inteval' translated]! !
-
-!DyDayInterval methodsFor: 'testing' stamp: 'hlsf 11/Aug/2024 10:44:37'!
-includes: aDay
-	^ start = aDay 
-	or: [self end = aDay 
-	or: [start < aDay and: [aDay < self end ] ] ]! !
-
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 11/Aug/2024 10:44:21'!
-end
-" if end date is nil,  then start date if any. Handy to input only one day off "
-	^ (end isNil and: [start notNil])
-		ifTrue: [start] 
-		ifFalse: [	end]
-! !
-
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 11/Aug/2024 10:42:55'!
-end: aDate
-	end := aDate ! !
-
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 00:38:28'!
-start
-	^ start ! !
-
-!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 00:38:56'!
-start: aDate
-	start := aDate ! !
-
-!DyDayInterval methodsFor: 'comparing' stamp: 'hlsf 30/Jul/2023 18:08:33'!
-<= aDayInterval
-"Date does not implement <=, dive into its attribute start, a DateAndTime "
-	^ start start <= aDayInterval start start! !
-
-!DyDayInterval methodsFor: 'user interface' stamp: 'hlsf 11/Aug/2024 10:38:11'!
-mold
-	| mold |
-	mold := Mold new.
-	mold dateField 
-		label: 'Start' translated;
-		on: #start of: self;
-		beRequired.
-	mold dateField 
-		label: 'End' translated;
-		on: #end of: self;
-		beOptional .
-	^ mold
-	! !
-
-!DyDayInterval class methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 16:18:04'!
-label
-	^ 'day off' translated! !
-
-!DyDayInterval class methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 16:24:47'!
-pluralLabel
-	^ 'Days off' translated! !
-
-!DyDayInterval class methodsFor: 'fileIn/Out' stamp: 'hlsf 29/Jul/2023 16:54:46'!
-export: daysOff to: writeStream
-	| writer |
-	writer := NeoCSVWriter on: writeStream.
-	writer writeHeader: #(start end);
-		addFields: #(start end);
-		nextPutAll: daysOff ! !
-
-!DyDayInterval class methodsFor: 'fileIn/Out' stamp: 'hlsf 29/Jul/2023 17:01:46'!
-importFrom: readStream
-"Import days off from a CSV file with header: start, end "
-| reader |
-	reader := NeoCSVReader on: readStream.
-	reader readHeader = #('start' 'end')
-		ifFalse: [self error: 'Headers should be start, end'].
-	reader 
-		recordClass: self;
-		addField: #start: converter: [:d | Date fromString: d];
-		addField: #end: converter: [:d | Date fromString: d].
-	^ reader upToEnd asSortedCollection ! !
-
-!DyDayInterval class methodsFor: 'instance creation' stamp: 'hlsf 24/Sep/2023 14:05:07'!
-start: startDateString end: endDateString
-	^ self new
-		start: startDateString asDate;
-		end: endDateString  asDate! !
-
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:21:09'!
-dirName
-	self subclassResponsibility ! !
-
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 13:01:04'!
-directory
-"Location on of the object data and associated document "
-	^ self owner directory / self dirName! !
-
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:04:50'!
-owner
-	^ owner! !
-
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 12:26:19'!
-owner: anObject
-	owner := anObject ! !
-
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:45:13'!
-relPath
-"relative path to the object within the data "
-	^ owner relPath, '/', self dirName! !
-
-!DyObject methodsFor: 'disk operations' stamp: 'hlsf 5/Apr/2026 14:56:34'!
-removeFromDisk
-	self directory recursiveDelete ! !
-
-!DyObject class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:21'!
-label
-	^ 'unnamed object'! !
-
-!DyObject class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:27'!
-pluralLabel
-	^ 'Unnamed objects'! !
-
-!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 24/Sep/2023 10:38:03'!
-initialize
-	super initialize.
-	tasks := OrderedCollection new.
-	daysOff := SortedCollection new! !
-
-!DyAgenda methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 00:50:25'!
-mold
-	| mold |
-	mold := Mold new.
-	mold dateField 
-		label: 'Back-to-school day' translated;
-		on: #start of: self;
-		beRequired.
-	mold dateField 
-		label: 'End of school year' translated;
-		on: #end of: self;
-		beRequired.
-	^ mold
-	! !
-
-!DyAgenda methodsFor: 'visiting' stamp: 'hlsf 28/Jul/2023 18:31:24'!
-accept: aVisitor
-	^ aVisitor visitAgenda: self! !
-
-!DyAgenda methodsFor: 'printing' stamp: 'hlsf 30/Jul/2023 18:09:47'!
-printOn: stream
-	start 
-		ifNotNil: [ 	stream nextPutAll: 
-			('{1} to {2}' translated format: 
-				{start ddmmyyyy . end ddmmyyyy }) 		] 
-		ifNil: [stream nextPutAll: 'Unspecified agenda' translated]! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:09:53'!
-daysOff
-	^ daysOff ! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:23:47'!
-end
-	^ end ! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:27:11'!
-end: aDate
-	end := aDate ! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 13:04:04'!
-owner
-	^ DyUserData current! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 12:57:01'!
-owner: anObject
-	" Not needed, our owner is the Data Singleton, we don' t want to keep a reference around"! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:23:42'!
-start
-	^ start! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:27:23'!
-start: aDate
-	start := 	aDate ! !
-
-!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:34:08'!
-tasks
-	^ tasks! !
-
-!DyAgenda methodsFor: 'testing' stamp: 'hlsf 24/Sep/2023 14:02:05'!
-isDayOff: aDate
-	^ daysOff anySatisfy: [:aDayInteverval | aDayInteverval 	 includes: aDate]! !
-
-!DyAgenda methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Apr/2026 15:00:14'!
-removeFromDisk
-! !
-
-!DyClassGroup methodsFor: 'user interface' stamp: 'hlsf 30/Jun/2023 21:15:15'!
-mold
-	| mold |
-	mold := Mold new.
-	mold stringField
-		label: 'Number' translated;
-		on: #number of: self;
-		beRequired.
-	^ mold! !
-
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:14'!
-courses
-	^ courses ! !
-
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
-dirName
-	^ number asFileName! !
-
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:20:17'!
-documents
-	^ courses inject: OrderedCollection new into: [:documents :aCourse | 
-			documents addAll: aCourse documents; yourself]! !
-
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:09'!
-headTeacher
-	^ headTeacher ! !
-
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 4/Jun/2023 18:12:55'!
-number
-	^number! !
-
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 15:32:51'!
-number: newNumber 
-	DyboSystem renameClassGroup: self from: number to:newNumber.
-	number := newNumber.
-! !
-
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:43:32'!
-school
-	^ owner! !
-
-!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:20'!
-students
-	^ students! !
-
-!DyClassGroup methodsFor: 'printing' stamp: 'hlsf 8/Oct/2023 23:34:42'!
-printOn: str
-	str nextPutAll: number! !
-
-!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:34:51'!
-initialize
-	super initialize.
-	headTeacher := DyTeacher new.
-	courses := OrderedCollection new.
-	students := SortedCollection new.
-	number := 'Unknown class' translated! !
-
-!DyClassGroup methodsFor: 'visiting' stamp: 'hlsf 30/Jun/2023 22:01:43'!
-accept: aVisitor 
-	^ aVisitor visitClassGroup: self! !
-
-!DyClassGroup class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:36:49'!
-label
-	^ 'class' translated! !
-
-!DyClassGroup class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:36:59'!
-pluralLabel
-	^ 'Classes' translated! !
-
-!DyClassGroup class methodsFor: 'instance creation' stamp: 'hlsf 14/Sep/2023 15:59:15'!
-number: aString in: aSchool
-	^ self new ::
-		number: aString;
-		owner: aSchool! !
-
-!DyCourse methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:34:26'!
-initialize
-	super initialize.
-	courseHours := OrderedCollection new.
-	topics := OrderedCollection new.
-	teacher := DyTeacher new.
-	subject := 'Unnamed course' translated! !
-
-!DyCourse methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:30:36'!
-mold
-	| mold |
-	mold := Mold new.
-	mold stringField 
-		label: 'Subject' translated;
-		on: #subject of: self;
-		beRequired.
-	^ mold! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 23/Sep/2023 10:28:49'!
-agenda 
-	^ self school owner agenda! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:43:52'!
-classGroup
-	^ owner! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 08:52:47'!
-courseHours
-	^ courseHours ! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
-dirName
-	^ subject asFileName! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:20:26'!
-documents
-	" All the documents in this course "
-	^ topics inject: OrderedCollection new into: [:documents :aTopic | 
-		documents addAll: aTopic documents; yourself]! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:44:07'!
-school 
-	^ self classGroup school! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 19/Jun/2023 22:33:42'!
-subject
-	^subject! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 15:31:56'!
-subject: newName 
-	DyboSystem renameCourse:  self from: subject to: newName.
-	subject := newName.
-! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 08:52:52'!
-teacher
-	^ teacher ! !
-
-!DyCourse methodsFor: 'accessing' stamp: 'hlsf 8/Oct/2023 23:09:25'!
-topics
-	^ topics! !
-
-!DyCourse methodsFor: 'printing' stamp: 'hlsf 7/Dec/2024 09:34:58'!
-printOn: aStream
-	aStream nextPutAll: subject";
-		nextPutAll: ' (';
-		print: self classGroup;
-		nextPut: $)"! !
-
-!DyCourse methodsFor: 'visiting' stamp: 'hlsf 1/Jul/2023 08:53:53'!
-accept: aVisitor
-	^ aVisitor visitCourse: self! !
-
-!DyCourse methodsFor: 'testing' stamp: 'hlsf 27/Oct/2024 19:51:49'!
-isAt: aTimeSlot day: aDayNumber
-	^ courseHours 
-		detect:  [:aCourseHour | aCourseHour isAt: aTimeSlot day: aDayNumber]
-		ifFound: [:aCourse | true]
-		ifNone: [false]! !
-
-!DyCourse methodsFor: 'testing' stamp: 'hlsf 19/Sep/2023 21:27:08'!
-isDuring: aDateAndTime
-	^ courseHours 
-		detect:  [:aCourseHour | aCourseHour isDuring: aDateAndTime ]
-		ifFound: [:aCourse | true]
-		ifNone: [false]! !
-
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 1/Dec/2024 18:13:51'!
-futureDates: qty
-" A list of future course hours dates after today "
-	^ (self next: qty courseHoursAfter: Date today) collect: [: anArray |
-		DyCourseHourDate new 
-			timeSlots: anArray first timeSlots;
-			date: anArray second;
-			yourself]! !
-
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 14/Apr/2026 11:13:39'!
-next: qty courseHoursAfter: aDate
-" A list of qty course hours & dates after a given date"
-	| futureDates n next |
-	futureDates := OrderedCollection new.
-	n := qty.
-	next := self nextCourseHourAfter: aDate.
-	[n isZero or: [next isNil]] whileFalse: [
-		futureDates add: next.	
-		next := self nextCourseHourAfter: next second. "next date"
-		n := n - 1 ] .
-	^ futureDates ! !
-
-!DyCourse methodsFor: 'searching' stamp: 'hlsf 16/Apr/2026 11:46:38'!
-nextCourseHourAfter: aDate
-"Search for my next course hour after aDate"
-	| dayOfWeek currentCourseHourIndex nextCourseHour nextDate |
-	dayOfWeek := aDate dayOfWeek.
-	(aDate + 8 days) < Date today ifTrue: [^ nil ]. " We did not find any future date for this course "
-	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | aCourseHour dayOfWeek = dayOfWeek].
-	"No course at this day, jump to the previous day, and try again "
-	currentCourseHourIndex = 0 ifTrue: [ ^ self nextCourseHourAfter: aDate previous].
-	
-	nextCourseHour := courseHours atWrap: currentCourseHourIndex + 1.
-	nextDate := nextCourseHour dayOfWeek = dayOfWeek 
-		ifTrue: [aDate + 7 days]
-		ifFalse: [aDate + (nextCourseHour dayOfWeek - dayOfWeek \\ 7) days].
-		
-	nextDate > self agenda end
-		ifTrue: [^ nil "School is over, it is summer time !!"].
-	^ (self agenda isDayOff: nextDate)
-		ifTrue: [self nextCourseHourAfter: nextDate]
-		ifFalse: [Array with: nextCourseHour with: nextDate]! !
-
-!DyCourse class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:34:16'!
-label
-	^  'lesson' translated! !
-
-!DyCourse class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:33:49'!
-pluralLabel
-	^  'Lessons' translated! !
-
-!DyCourse class methodsFor: 'instance creation' stamp: 'hlsf 14/Sep/2023 16:00:09'!
-subject: aString in: aClassGroup
-	^ self new ::
-		subject: aString ;
-		owner: aClassGroup ! !
-
-!DySchool methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:33:45'!
-initialize
-	super initialize .
-	timeSlots := SortedCollection new.
-	classGroups := OrderedCollection new.
-	name := 'Unknown school' translated! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:49:32'!
-classGroups
-	^ classGroups ! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 27/Oct/2024 20:49:33'!
-courseAt: aTimeSlot day: aDayNumber
-	classGroups do: [:aClassGroup |
-		aClassGroup courses 	
-			detect:  [:aCourse | aCourse isAt: aTimeSlot day: aDayNumber ]
-			ifFound:  [:aCourse | ^ aCourse ]
-			ifNone: []
-		].
-	^ nil! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
-dirName
-	^ name asFileName! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 13:01:33'!
-owner
-	^ DyUserData current! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 12:57:18'!
-owner: anObject
-	" Not needed, our owner is the Data Singleton, we don' t want to keep a reference around"! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:54:57'!
-schoolName
-	^ name! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 15:30:27'!
-schoolName: newName
-	DyboSystem renameSchool: self from: name to: newName.
-	name := newName.! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:48:48'!
-timeSlots
-	^ timeSlots ! !
-
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 23:11:12'!
-timeSlotsDic
-	^ (timeSlots collect: [:each | each slotName -> each] ) asDictionary ! !
-
-!DySchool methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:31:58'!
-mold
-	| mold |
-	mold := Mold new.
-	mold stringField
-		label: 'School name' translated;
-		on: #schoolName of: self;
-		beRequired.
-	^ mold! !
-
-!DySchool methodsFor: 'printing' stamp: 'hlsf 8/Oct/2023 23:40:39'!
-printOn: str
-	str nextPutAll: name! !
-
-!DySchool methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026 12:11:31'!
-printTimesTableOn: aStream
-	| indent |
-	indent := 6.
-	aStream nextPutAll: 'Période' ; tab: indent // 2.
-	(DyUserData daysOfWeek first: 5)
-		do: [:aDay | 		aStream nextPutAll: aDay]
-		separatedBy: [aStream tab: indent].
-	aStream lf.
-	timeSlots do: [:aTimeSlot |
-		aStream nextPutAll: aTimeSlot slotName ; tab: indent // 2.		
-		1 to: 7 do: [:aDay |
-			(self courseAt: aTimeSlot day: aDay) 	
-				ifNotNil:  [:thisCourse | aStream nextPutAll: (thisCourse printString contractTo: 20)] 			]
-			separatedBy: [aStream tab: indent]
-		] separatedBy: [aStream lf]! !
-
-!DySchool methodsFor: 'visiting' stamp: 'hlsf 30/Jun/2023 21:49:08'!
-accept: aVisitor 
-	^ aVisitor visitSchool: self! !
-
-!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:38:14'!
-label
-	^ 'school' translated! !
-
-!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:38:22'!
-pluralLabel
-	^ 'Schools' translated! !
-
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
-color
-	"Answer the value of color"
-
-	^ color! !
-
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
-color: anObject
-	"Set the value of color"
-
-	color := anObject! !
-
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 10:55:31'!
-course
-	^ owner! !
-
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:29:15'!
-dirName
-	^ title asFileName ! !
-
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
-documents
-	"Answer the value of documents"
-
-	^ documents! !
-
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
-title
-	"Answer the value of title"
-
-	^ title! !
-
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:08:23'!
-title: newTitle
-	"Set the value of title"
-	DyboSystem renameTopic: self from: title to: newTitle.
-	title := newTitle! !
-
-!DyTopic methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:37:49'!
-mold
-	| mold |
-	mold := Mold new.
-	mold stringField
-		label: 'Title' translated;
-		on: #title of: self;
-		beRequired.
-	^ mold! !
-
-!DyTopic methodsFor: 'printing' stamp: 'hlsf 11/Dec/2024 18:48:02'!
-printOn: str
-	str nextPutAll: title! !
-
-!DyTopic methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Apr/2026 15:37:27'!
-initialize
-	super initialize.
-	documents := OrderedCollection new.
-	title := 'Unnamed topic' translated! !
-
-!DyTopic class methodsFor: 'instance creation' stamp: 'hlsf 8/Oct/2023 23:21:58'!
-title: aString in: aCourse
-	^ self new ::
-		title: aString;
-		owner: aCourse! !
-
-!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:57'!
-label
-	^ 'topic' translated! !
-
-!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:30:19'!
-pluralLabel
-	^ 'Topics' translated! !
-
-!DyPerson methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:30'!
-isStudent
-	^ false! !
-
-!DyPerson methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:25'!
-isTeacher
-	^ false! !
-
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:36:00'!
-email
-	^ email! !
-
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:49'!
-email: aString
-	email := 	aString ! !
-
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:38'!
-firstName
-	^ firstName! !
-
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:31'!
-firstName: aString
-	firstName := 	aString ! !
-
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:12'!
-lastName
-	^ lastName ! !
-
-!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:24'!
-lastName: aString
-	lastName := 	aString ! !
-
-!DyPerson methodsFor: 'printing' stamp: 'hlsf 8/Oct/2023 23:36:49'!
-printOn: str
-	str nextPutAll: lastName;
-		space;
-		nextPutAll: firstName! !
-
-!DyPerson methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:36:22'!
-mold
-	| mold |
-	mold := Mold new.
-	mold stringField
-		label: 'Firstname' translated;
-		on: #firstName of: self;
-		beRequired.
-	mold stringField
-		label: 'Lastname' translated;
-		on: #lastName of: self;
-		beRequired.
-	mold stringField
-		label: 'Email' translated;
-		on: #email of: self.
-	^ mold! !
-
-!DyPerson methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:36:24'!
-initialize
-	super initialize.
-	lastName := 'Unknown person' translated.
-	firstName := ''! !
-
-!DyPerson methodsFor: 'comparing' stamp: 'hlsf 28/Nov/2024 10:35:00'!
-<= aPerson
-	^ lastName < aPerson lastName 
-	or: [lastName = aPerson lastName 
-		and: [	firstName <= aPerson firstName]
-		]! !
-
-!DyStudent methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:38'!
-isStudent
-	^ true! !
-
-!DyStudent class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:35:08'!
-label
-	^ 'student' translated! !
-
-!DyStudent class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:35:30'!
-pluralLabel
-	^ 'Students' translated! !
-
-!DyStudent class methodsFor: 'fileIn/Out' stamp: 'hlsf 27/Jul/2023 00:39:46'!
-export: persons to: writeStream
-	| writer |
-	writer := NeoCSVWriter on: writeStream.
-	writer writeHeader: #(firstName lastName email);
-		addFields: #(firstName lastName email);
-		nextPutAll: persons ! !
-
-!DyStudent class methodsFor: 'fileIn/Out' stamp: 'hlsf 29/Jul/2023 16:57:44'!
-importFrom: readStream
-"Import student from a CSV file"
-| reader |
-	reader := NeoCSVReader on: readStream.
-	reader readHeader = #('firstName' 'lastName' 'email')
-		ifFalse: [self error: 'Headers should be firstName, lastName, email'].
-	reader 
-		recordClass: self;
-		addFields: #(firstName: lastName: email:).
-	^ reader upToEnd asSortedCollection ! !
-
-!DyTeacher methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:52'!
-isTeacher
-	^ true! !
-
-!DyTeacher methodsFor: 'visiting' stamp: 'hlsf 28/Jun/2023 00:18:07'!
-accept: aVisitor
-	^ aVisitor visitTeacher: self! !
-
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
-courseHourDate
-	"Answer the value of courseHourDate"
-
-	^ courseHourDate! !
-
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
-courseHourDate: anObject
-	"Set the value of courseHourDate"
-
-	courseHourDate := anObject! !
-
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
-document
-	"Answer the value of document"
-
-	^ document! !
-
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
-document: anObject
-	"Set the value of document"
-
-	document := anObject! !
-
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 12:05:22'!
-printOn: aStream
-	aStream print: courseHourDate ! !
-
-!DyTask methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:07:23'!
-relPath
-	^ DyboSystem tasksRelPath! !
-
-!DyTask methodsFor: 'persistence' stamp: 'hlsf 18/Dec/2024 15:24:29'!
-restoreDocumentFromDisk
-	document := document loadFromDisk! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 17/Apr/2026 12:30:50'!
 deleteDocument: aDocument 
@@ -1627,14 +901,15 @@ isView: aSymbolView
 initialize
 	self installComponents ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:52:08'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026 17:59:26'!
 installComponents
 	controlsManager := DyControlsManager new.
 	DyboSystem isDeployment 
 		ifTrue:  [controlsManager installDyboFullscreenView: self]
 		ifFalse: [	controlsManager installDyboWindow: self].
+	self view openInWorld.
 	self goStart.
-	self view openInWorld ! !
+! !
 
 !Dybo methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026 12:42:01'!
 load
@@ -2921,6 +2196,730 @@ visitUserData: userData
 		addMorph: (self paneFor: userData agenda label: 'Agenda' translated).
 	^ self plugView: column! !
 
+!DyDayInterval methodsFor: 'printing' stamp: 'hlsf 27/Oct/2024 16:30:32'!
+printOn: aStream
+	start 
+		ifNotNil:  [aStream nextPutAll:  start ddmmyy;
+				nextPutAll: ' - '; 
+				nextPutAll: self end ddmmyy .]
+		ifNil: [aStream nextPutAll: 'days inteval' translated]! !
+
+!DyDayInterval methodsFor: 'testing' stamp: 'hlsf 11/Aug/2024 10:44:37'!
+includes: aDay
+	^ start = aDay 
+	or: [self end = aDay 
+	or: [start < aDay and: [aDay < self end ] ] ]! !
+
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 11/Aug/2024 10:44:21'!
+end
+" if end date is nil,  then start date if any. Handy to input only one day off "
+	^ (end isNil and: [start notNil])
+		ifTrue: [start] 
+		ifFalse: [	end]
+! !
+
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 11/Aug/2024 10:42:55'!
+end: aDate
+	end := aDate ! !
+
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 00:38:28'!
+start
+	^ start ! !
+
+!DyDayInterval methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 00:38:56'!
+start: aDate
+	start := aDate ! !
+
+!DyDayInterval methodsFor: 'comparing' stamp: 'hlsf 30/Jul/2023 18:08:33'!
+<= aDayInterval
+"Date does not implement <=, dive into its attribute start, a DateAndTime "
+	^ start start <= aDayInterval start start! !
+
+!DyDayInterval methodsFor: 'user interface' stamp: 'hlsf 11/Aug/2024 10:38:11'!
+mold
+	| mold |
+	mold := Mold new.
+	mold dateField 
+		label: 'Start' translated;
+		on: #start of: self;
+		beRequired.
+	mold dateField 
+		label: 'End' translated;
+		on: #end of: self;
+		beOptional .
+	^ mold
+	! !
+
+!DyDayInterval class methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 16:18:04'!
+label
+	^ 'day off' translated! !
+
+!DyDayInterval class methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 16:24:47'!
+pluralLabel
+	^ 'Days off' translated! !
+
+!DyDayInterval class methodsFor: 'fileIn/Out' stamp: 'hlsf 29/Jul/2023 16:54:46'!
+export: daysOff to: writeStream
+	| writer |
+	writer := NeoCSVWriter on: writeStream.
+	writer writeHeader: #(start end);
+		addFields: #(start end);
+		nextPutAll: daysOff ! !
+
+!DyDayInterval class methodsFor: 'fileIn/Out' stamp: 'hlsf 29/Jul/2023 17:01:46'!
+importFrom: readStream
+"Import days off from a CSV file with header: start, end "
+| reader |
+	reader := NeoCSVReader on: readStream.
+	reader readHeader = #('start' 'end')
+		ifFalse: [self error: 'Headers should be start, end'].
+	reader 
+		recordClass: self;
+		addField: #start: converter: [:d | Date fromString: d];
+		addField: #end: converter: [:d | Date fromString: d].
+	^ reader upToEnd asSortedCollection ! !
+
+!DyDayInterval class methodsFor: 'instance creation' stamp: 'hlsf 24/Sep/2023 14:05:07'!
+start: startDateString end: endDateString
+	^ self new
+		start: startDateString asDate;
+		end: endDateString  asDate! !
+
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:21:09'!
+dirName
+	self subclassResponsibility ! !
+
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 13:01:04'!
+directory
+"Location on of the object data and associated document "
+	^ self owner directory / self dirName! !
+
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:04:50'!
+owner
+	^ owner! !
+
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 12:26:19'!
+owner: anObject
+	owner := anObject ! !
+
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:45:13'!
+relPath
+"relative path to the object within the data "
+	^ owner relPath, '/', self dirName! !
+
+!DyObject methodsFor: 'disk operations' stamp: 'hlsf 5/Apr/2026 14:56:34'!
+removeFromDisk
+	self directory recursiveDelete ! !
+
+!DyObject class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:21'!
+label
+	^ 'unnamed object'! !
+
+!DyObject class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:27'!
+pluralLabel
+	^ 'Unnamed objects'! !
+
+!DyAgenda methodsFor: 'initialization' stamp: 'hlsf 24/Sep/2023 10:38:03'!
+initialize
+	super initialize.
+	tasks := OrderedCollection new.
+	daysOff := SortedCollection new! !
+
+!DyAgenda methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 00:50:25'!
+mold
+	| mold |
+	mold := Mold new.
+	mold dateField 
+		label: 'Back-to-school day' translated;
+		on: #start of: self;
+		beRequired.
+	mold dateField 
+		label: 'End of school year' translated;
+		on: #end of: self;
+		beRequired.
+	^ mold
+	! !
+
+!DyAgenda methodsFor: 'visiting' stamp: 'hlsf 28/Jul/2023 18:31:24'!
+accept: aVisitor
+	^ aVisitor visitAgenda: self! !
+
+!DyAgenda methodsFor: 'printing' stamp: 'hlsf 30/Jul/2023 18:09:47'!
+printOn: stream
+	start 
+		ifNotNil: [ 	stream nextPutAll: 
+			('{1} to {2}' translated format: 
+				{start ddmmyyyy . end ddmmyyyy }) 		] 
+		ifNil: [stream nextPutAll: 'Unspecified agenda' translated]! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:09:53'!
+daysOff
+	^ daysOff ! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:23:47'!
+end
+	^ end ! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:27:11'!
+end: aDate
+	end := aDate ! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 13:04:04'!
+owner
+	^ DyUserData current! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 12:57:01'!
+owner: anObject
+	" Not needed, our owner is the Data Singleton, we don' t want to keep a reference around"! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:23:42'!
+start
+	^ start! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 29/Jul/2023 16:27:23'!
+start: aDate
+	start := 	aDate ! !
+
+!DyAgenda methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:34:08'!
+tasks
+	^ tasks! !
+
+!DyAgenda methodsFor: 'testing' stamp: 'hlsf 24/Sep/2023 14:02:05'!
+isDayOff: aDate
+	^ daysOff anySatisfy: [:aDayInteverval | aDayInteverval 	 includes: aDate]! !
+
+!DyAgenda methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Apr/2026 15:00:14'!
+removeFromDisk
+! !
+
+!DyClassGroup methodsFor: 'user interface' stamp: 'hlsf 30/Jun/2023 21:15:15'!
+mold
+	| mold |
+	mold := Mold new.
+	mold stringField
+		label: 'Number' translated;
+		on: #number of: self;
+		beRequired.
+	^ mold! !
+
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:14'!
+courses
+	^ courses ! !
+
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
+dirName
+	^ number asFileName! !
+
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:20:17'!
+documents
+	^ courses inject: OrderedCollection new into: [:documents :aCourse | 
+			documents addAll: aCourse documents; yourself]! !
+
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:09'!
+headTeacher
+	^ headTeacher ! !
+
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 4/Jun/2023 18:12:55'!
+number
+	^number! !
+
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 15:32:51'!
+number: newNumber 
+	DyboSystem renameClassGroup: self from: number to:newNumber.
+	number := newNumber.
+! !
+
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:43:32'!
+school
+	^ owner! !
+
+!DyClassGroup methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 22:01:20'!
+students
+	^ students! !
+
+!DyClassGroup methodsFor: 'printing' stamp: 'hlsf 8/Oct/2023 23:34:42'!
+printOn: str
+	str nextPutAll: number! !
+
+!DyClassGroup methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:34:51'!
+initialize
+	super initialize.
+	headTeacher := DyTeacher new.
+	courses := OrderedCollection new.
+	students := SortedCollection new.
+	number := 'Unknown class' translated! !
+
+!DyClassGroup methodsFor: 'visiting' stamp: 'hlsf 30/Jun/2023 22:01:43'!
+accept: aVisitor 
+	^ aVisitor visitClassGroup: self! !
+
+!DyClassGroup class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:36:49'!
+label
+	^ 'class' translated! !
+
+!DyClassGroup class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:36:59'!
+pluralLabel
+	^ 'Classes' translated! !
+
+!DyClassGroup class methodsFor: 'instance creation' stamp: 'hlsf 14/Sep/2023 15:59:15'!
+number: aString in: aSchool
+	^ self new ::
+		number: aString;
+		owner: aSchool! !
+
+!DyCourse methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:34:26'!
+initialize
+	super initialize.
+	courseHours := OrderedCollection new.
+	topics := OrderedCollection new.
+	teacher := DyTeacher new.
+	subject := 'Unnamed course' translated! !
+
+!DyCourse methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:30:36'!
+mold
+	| mold |
+	mold := Mold new.
+	mold stringField 
+		label: 'Subject' translated;
+		on: #subject of: self;
+		beRequired.
+	^ mold! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 18:07:17'!
+agenda 
+	^ DyUserData current agenda! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:43:52'!
+classGroup
+	^ owner! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 08:52:47'!
+courseHours
+	^ courseHours ! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
+dirName
+	^ subject asFileName! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:20:26'!
+documents
+	" All the documents in this course "
+	^ topics inject: OrderedCollection new into: [:documents :aTopic | 
+		documents addAll: aTopic documents; yourself]! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 21:44:07'!
+school 
+	^ self classGroup school! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 19/Jun/2023 22:33:42'!
+subject
+	^subject! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 15:31:56'!
+subject: newName 
+	DyboSystem renameCourse:  self from: subject to: newName.
+	subject := newName.
+! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 1/Jul/2023 08:52:52'!
+teacher
+	^ teacher ! !
+
+!DyCourse methodsFor: 'accessing' stamp: 'hlsf 8/Oct/2023 23:09:25'!
+topics
+	^ topics! !
+
+!DyCourse methodsFor: 'printing' stamp: 'hlsf 7/Dec/2024 09:34:58'!
+printOn: aStream
+	aStream nextPutAll: subject";
+		nextPutAll: ' (';
+		print: self classGroup;
+		nextPut: $)"! !
+
+!DyCourse methodsFor: 'visiting' stamp: 'hlsf 1/Jul/2023 08:53:53'!
+accept: aVisitor
+	^ aVisitor visitCourse: self! !
+
+!DyCourse methodsFor: 'testing' stamp: 'hlsf 27/Oct/2024 19:51:49'!
+isAt: aTimeSlot day: aDayNumber
+	^ courseHours 
+		detect:  [:aCourseHour | aCourseHour isAt: aTimeSlot day: aDayNumber]
+		ifFound: [:aCourse | true]
+		ifNone: [false]! !
+
+!DyCourse methodsFor: 'testing' stamp: 'hlsf 19/Sep/2023 21:27:08'!
+isDuring: aDateAndTime
+	^ courseHours 
+		detect:  [:aCourseHour | aCourseHour isDuring: aDateAndTime ]
+		ifFound: [:aCourse | true]
+		ifNone: [false]! !
+
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 1/Dec/2024 18:13:51'!
+futureDates: qty
+" A list of future course hours dates after today "
+	^ (self next: qty courseHoursAfter: Date today) collect: [: anArray |
+		DyCourseHourDate new 
+			timeSlots: anArray first timeSlots;
+			date: anArray second;
+			yourself]! !
+
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 14/Apr/2026 11:13:39'!
+next: qty courseHoursAfter: aDate
+" A list of qty course hours & dates after a given date"
+	| futureDates n next |
+	futureDates := OrderedCollection new.
+	n := qty.
+	next := self nextCourseHourAfter: aDate.
+	[n isZero or: [next isNil]] whileFalse: [
+		futureDates add: next.	
+		next := self nextCourseHourAfter: next second. "next date"
+		n := n - 1 ] .
+	^ futureDates ! !
+
+!DyCourse methodsFor: 'searching' stamp: 'hlsf 16/Apr/2026 11:46:38'!
+nextCourseHourAfter: aDate
+"Search for my next course hour after aDate"
+	| dayOfWeek currentCourseHourIndex nextCourseHour nextDate |
+	dayOfWeek := aDate dayOfWeek.
+	(aDate + 8 days) < Date today ifTrue: [^ nil ]. " We did not find any future date for this course "
+	currentCourseHourIndex := courseHours findFirst: [:aCourseHour | aCourseHour dayOfWeek = dayOfWeek].
+	"No course at this day, jump to the previous day, and try again "
+	currentCourseHourIndex = 0 ifTrue: [ ^ self nextCourseHourAfter: aDate previous].
+	
+	nextCourseHour := courseHours atWrap: currentCourseHourIndex + 1.
+	nextDate := nextCourseHour dayOfWeek = dayOfWeek 
+		ifTrue: [aDate + 7 days]
+		ifFalse: [aDate + (nextCourseHour dayOfWeek - dayOfWeek \\ 7) days].
+		
+	nextDate > self agenda end
+		ifTrue: [^ nil "School is over, it is summer time !!"].
+	^ (self agenda isDayOff: nextDate)
+		ifTrue: [self nextCourseHourAfter: nextDate]
+		ifFalse: [Array with: nextCourseHour with: nextDate]! !
+
+!DyCourse class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:34:16'!
+label
+	^  'lesson' translated! !
+
+!DyCourse class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:33:49'!
+pluralLabel
+	^  'Lessons' translated! !
+
+!DyCourse class methodsFor: 'instance creation' stamp: 'hlsf 14/Sep/2023 16:00:09'!
+subject: aString in: aClassGroup
+	^ self new ::
+		subject: aString ;
+		owner: aClassGroup ! !
+
+!DySchool methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:33:45'!
+initialize
+	super initialize .
+	timeSlots := SortedCollection new.
+	classGroups := OrderedCollection new.
+	name := 'Unknown school' translated! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:49:32'!
+classGroups
+	^ classGroups ! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 27/Oct/2024 20:49:33'!
+courseAt: aTimeSlot day: aDayNumber
+	classGroups do: [:aClassGroup |
+		aClassGroup courses 	
+			detect:  [:aCourse | aCourse isAt: aTimeSlot day: aDayNumber ]
+			ifFound:  [:aCourse | ^ aCourse ]
+			ifNone: []
+		].
+	^ nil! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023 21:38:51'!
+dirName
+	^ name asFileName! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 13:01:33'!
+owner
+	^ DyUserData current! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 12:57:18'!
+owner: anObject
+	" Not needed, our owner is the Data Singleton, we don' t want to keep a reference around"! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:54:57'!
+schoolName
+	^ name! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 15:30:27'!
+schoolName: newName
+	DyboSystem renameSchool: self from: name to: newName.
+	name := newName.! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:48:48'!
+timeSlots
+	^ timeSlots ! !
+
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2023 23:11:12'!
+timeSlotsDic
+	^ (timeSlots collect: [:each | each slotName -> each] ) asDictionary ! !
+
+!DySchool methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:31:58'!
+mold
+	| mold |
+	mold := Mold new.
+	mold stringField
+		label: 'School name' translated;
+		on: #schoolName of: self;
+		beRequired.
+	^ mold! !
+
+!DySchool methodsFor: 'printing' stamp: 'hlsf 8/Oct/2023 23:40:39'!
+printOn: str
+	str nextPutAll: name! !
+
+!DySchool methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026 12:11:31'!
+printTimesTableOn: aStream
+	| indent |
+	indent := 6.
+	aStream nextPutAll: 'Période' ; tab: indent // 2.
+	(DyUserData daysOfWeek first: 5)
+		do: [:aDay | 		aStream nextPutAll: aDay]
+		separatedBy: [aStream tab: indent].
+	aStream lf.
+	timeSlots do: [:aTimeSlot |
+		aStream nextPutAll: aTimeSlot slotName ; tab: indent // 2.		
+		1 to: 7 do: [:aDay |
+			(self courseAt: aTimeSlot day: aDay) 	
+				ifNotNil:  [:thisCourse | aStream nextPutAll: (thisCourse printString contractTo: 20)] 			]
+			separatedBy: [aStream tab: indent]
+		] separatedBy: [aStream lf]! !
+
+!DySchool methodsFor: 'visiting' stamp: 'hlsf 30/Jun/2023 21:49:08'!
+accept: aVisitor 
+	^ aVisitor visitSchool: self! !
+
+!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:38:14'!
+label
+	^ 'school' translated! !
+
+!DySchool class methodsFor: 'user inteface' stamp: 'hlsf 15/Jul/2023 11:38:22'!
+pluralLabel
+	^ 'Schools' translated! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
+color
+	"Answer the value of color"
+
+	^ color! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
+color: anObject
+	"Set the value of color"
+
+	color := anObject! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 10:55:31'!
+course
+	^ owner! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 27/Nov/2024 21:29:15'!
+dirName
+	^ title asFileName ! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
+documents
+	"Answer the value of documents"
+
+	^ documents! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023 16:53:31'!
+title
+	"Answer the value of title"
+
+	^ title! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:08:23'!
+title: newTitle
+	"Set the value of title"
+	DyboSystem renameTopic: self from: title to: newTitle.
+	title := newTitle! !
+
+!DyTopic methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:37:49'!
+mold
+	| mold |
+	mold := Mold new.
+	mold stringField
+		label: 'Title' translated;
+		on: #title of: self;
+		beRequired.
+	^ mold! !
+
+!DyTopic methodsFor: 'printing' stamp: 'hlsf 11/Dec/2024 18:48:02'!
+printOn: str
+	str nextPutAll: title! !
+
+!DyTopic methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Apr/2026 15:37:27'!
+initialize
+	super initialize.
+	documents := OrderedCollection new.
+	title := 'Unnamed topic' translated! !
+
+!DyTopic class methodsFor: 'instance creation' stamp: 'hlsf 8/Oct/2023 23:21:58'!
+title: aString in: aCourse
+	^ self new ::
+		title: aString;
+		owner: aCourse! !
+
+!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:29:57'!
+label
+	^ 'topic' translated! !
+
+!DyTopic class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:30:19'!
+pluralLabel
+	^ 'Topics' translated! !
+
+!DyPerson methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:30'!
+isStudent
+	^ false! !
+
+!DyPerson methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:25'!
+isTeacher
+	^ false! !
+
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:36:00'!
+email
+	^ email! !
+
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:49'!
+email: aString
+	email := 	aString ! !
+
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:38'!
+firstName
+	^ firstName! !
+
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:31'!
+firstName: aString
+	firstName := 	aString ! !
+
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:12'!
+lastName
+	^ lastName ! !
+
+!DyPerson methodsFor: 'accessing' stamp: 'hlsf 23/May/2023 20:35:24'!
+lastName: aString
+	lastName := 	aString ! !
+
+!DyPerson methodsFor: 'printing' stamp: 'hlsf 8/Oct/2023 23:36:49'!
+printOn: str
+	str nextPutAll: lastName;
+		space;
+		nextPutAll: firstName! !
+
+!DyPerson methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:36:22'!
+mold
+	| mold |
+	mold := Mold new.
+	mold stringField
+		label: 'Firstname' translated;
+		on: #firstName of: self;
+		beRequired.
+	mold stringField
+		label: 'Lastname' translated;
+		on: #lastName of: self;
+		beRequired.
+	mold stringField
+		label: 'Email' translated;
+		on: #email of: self.
+	^ mold! !
+
+!DyPerson methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023 23:36:24'!
+initialize
+	super initialize.
+	lastName := 'Unknown person' translated.
+	firstName := ''! !
+
+!DyPerson methodsFor: 'comparing' stamp: 'hlsf 28/Nov/2024 10:35:00'!
+<= aPerson
+	^ lastName < aPerson lastName 
+	or: [lastName = aPerson lastName 
+		and: [	firstName <= aPerson firstName]
+		]! !
+
+!DyStudent methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:38'!
+isStudent
+	^ true! !
+
+!DyStudent class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:35:08'!
+label
+	^ 'student' translated! !
+
+!DyStudent class methodsFor: 'user interface' stamp: 'hlsf 15/Jul/2023 11:35:30'!
+pluralLabel
+	^ 'Students' translated! !
+
+!DyStudent class methodsFor: 'fileIn/Out' stamp: 'hlsf 27/Jul/2023 00:39:46'!
+export: persons to: writeStream
+	| writer |
+	writer := NeoCSVWriter on: writeStream.
+	writer writeHeader: #(firstName lastName email);
+		addFields: #(firstName lastName email);
+		nextPutAll: persons ! !
+
+!DyStudent class methodsFor: 'fileIn/Out' stamp: 'hlsf 29/Jul/2023 16:57:44'!
+importFrom: readStream
+"Import student from a CSV file"
+| reader |
+	reader := NeoCSVReader on: readStream.
+	reader readHeader = #('firstName' 'lastName' 'email')
+		ifFalse: [self error: 'Headers should be firstName, lastName, email'].
+	reader 
+		recordClass: self;
+		addFields: #(firstName: lastName: email:).
+	^ reader upToEnd asSortedCollection ! !
+
+!DyTeacher methodsFor: 'testing' stamp: 'hlsf 23/May/2023 20:18:52'!
+isTeacher
+	^ true! !
+
+!DyTeacher methodsFor: 'visiting' stamp: 'hlsf 28/Jun/2023 00:18:07'!
+accept: aVisitor
+	^ aVisitor visitTeacher: self! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
+courseHourDate
+	"Answer the value of courseHourDate"
+
+	^ courseHourDate! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
+courseHourDate: anObject
+	"Set the value of courseHourDate"
+
+	courseHourDate := anObject! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
+document
+	"Answer the value of document"
+
+	^ document! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 18:36:16'!
+document: anObject
+	"Set the value of document"
+
+	document := anObject! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 8/Dec/2024 12:05:22'!
+printOn: aStream
+	aStream print: courseHourDate ! !
+
+!DyTask methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:07:23'!
+relPath
+	^ DyboSystem tasksRelPath! !
+
+!DyTask methodsFor: 'persistence' stamp: 'hlsf 18/Dec/2024 15:24:29'!
+restoreDocumentFromDisk
+	document := document loadFromDisk! !
+
 !DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 22/May/2023 19:58:55'!
 end
 	^ endTime! !
@@ -3850,6 +3849,11 @@ defaultBorderColor
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
+!DyboWindow methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026 17:56:10'!
+initialize
+	super initialize.
+	self setLabel: 'Developer Mode'! !
+
 !DyboWindow methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 21:38:59'!
 adoptWidgetsColor: aColor 
 	super adoptWidgetsColor: aColor.
@@ -3867,11 +3871,13 @@ presenter: aPresenter
 windowColor
 	^ Theme current workspace! !
 
-!DyboWindow methodsFor: 'open/close' stamp: 'hlsf 16/Apr/2026 22:57:49'!
+!DyboWindow methodsFor: 'open/close' stamp: 'hlsf 17/Apr/2026 18:30:05'!
 delete
 	super delete.
 	presenter reset.
-	presenter := nil! !
+	DyUserData reset.
+	presenter := nil.
+	Smalltalk garbageCollect ! !
 
 !DyboWindow class methodsFor: 'instance creation' stamp: 'hlsf 15/Aug/2023 20:51:48'!
 for: aPresenter
