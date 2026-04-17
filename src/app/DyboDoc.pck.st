@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7875] on 16 April 2026 at 5:15:45 pm'!
+'From Cuis7.7 [latest update: #7879] on 16 April 2026 at 10:58:18 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 232!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 233!
+!requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'UI-Panel' 1 122 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1594,7 +1594,7 @@ printOn: aStream
 		nextPutAll: model dirName;
 		nextPut: $)! !
 
-!Document class methodsFor: 'object serialization' stamp: 'hlsf 16/Apr/2026 16:59:20'!
+!Document class methodsFor: 'object serialization' stamp: 'hlsf 16/Apr/2026 22:19:52'!
 loadDocument: relativePath
 "
 	Once restored, the controlManager needs to be associated back and 
@@ -1604,8 +1604,7 @@ loadDocument: relativePath
 	file :=  DyboSystem userDataPath / relativePath // 'doc.obj'.
 	^ file exists 
 		ifTrue:  [ReferenceStream restoreFromCompressedFile:  file]
-		ifFalse: [Transcript show: 'Document not on disk: '; show: relativePath.
-			self halt.] 
+		ifFalse: [self error: 'Document not on disk: ', relativePath	] 
 	! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024 21:05:57'!
