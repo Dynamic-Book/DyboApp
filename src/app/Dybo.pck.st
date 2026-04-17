@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 6:36:16 pm'!
+'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 7:00:42 pm'!
 'Description '!
-!provides: 'Dybo' 1 197!
+!provides: 'Dybo' 1 198!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -13,41 +13,41 @@
 !requires: 'Compression' 1 42 nil!
 SystemOrganization addCategory: #'Dybo-Morph'!
 SystemOrganization addCategory: #Dybo!
-SystemOrganization addCategory: 'Dybo-Data'!
-SystemOrganization addCategory: 'Dybo-Model'!
+SystemOrganization addCategory: #'Dybo-Data'!
+SystemOrganization addCategory: #'Dybo-Model'!
 SystemOrganization addCategory: #'Dybo-Presenter'!
 SystemOrganization addCategory: #'Dybo-System'!
 SystemOrganization addCategory: #'Dybo-Test'!
 SystemOrganization addCategory: #'Dybo-View'!
 
 
-!classDefinition: #DyUserData category: 'Dybo-Data'!
+!classDefinition: #DyUserData category: #'Dybo-Data'!
 Object subclass: #DyUserData
 	instanceVariableNames: 'user schools agenda ppcm'
 	classVariableNames: 'Current'
 	poolDictionaries: ''
 	category: 'Dybo-Data'!
-!classDefinition: 'DyUserData class' category: 'Dybo-Data'!
+!classDefinition: 'DyUserData class' category: #'Dybo-Data'!
 DyUserData class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyCourseHour category: 'Dybo-Model'!
+!classDefinition: #DyCourseHour category: #'Dybo-Model'!
 Object subclass: #DyCourseHour
 	instanceVariableNames: 'room dayOfWeek timeSlots'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyCourseHour class' category: 'Dybo-Model'!
+!classDefinition: 'DyCourseHour class' category: #'Dybo-Model'!
 DyCourseHour class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyCourseHourDate category: 'Dybo-Model'!
+!classDefinition: #DyCourseHourDate category: #'Dybo-Model'!
 Object subclass: #DyCourseHourDate
 	instanceVariableNames: 'date timeSlots'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyCourseHourDate class' category: 'Dybo-Model'!
+!classDefinition: 'DyCourseHourDate class' category: #'Dybo-Model'!
 DyCourseHourDate class
 	instanceVariableNames: ''!
 
@@ -121,123 +121,123 @@ Object subclass: #DyViewerVisitor
 DyViewerVisitor class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyDayInterval category: 'Dybo-Model'!
+!classDefinition: #DyDayInterval category: #'Dybo-Model'!
 ActiveModel subclass: #DyDayInterval
 	instanceVariableNames: 'start end'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyDayInterval class' category: 'Dybo-Model'!
+!classDefinition: 'DyDayInterval class' category: #'Dybo-Model'!
 DyDayInterval class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyObject category: 'Dybo-Model'!
+!classDefinition: #DyObject category: #'Dybo-Model'!
 ActiveModel subclass: #DyObject
 	instanceVariableNames: 'owner'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyObject class' category: 'Dybo-Model'!
+!classDefinition: 'DyObject class' category: #'Dybo-Model'!
 DyObject class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyAgenda category: 'Dybo-Model'!
+!classDefinition: #DyAgenda category: #'Dybo-Model'!
 DyObject subclass: #DyAgenda
 	instanceVariableNames: 'start end daysOff tasks'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyAgenda class' category: 'Dybo-Model'!
+!classDefinition: 'DyAgenda class' category: #'Dybo-Model'!
 DyAgenda class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyClassGroup category: 'Dybo-Model'!
+!classDefinition: #DyClassGroup category: #'Dybo-Model'!
 DyObject subclass: #DyClassGroup
 	instanceVariableNames: 'number headTeacher students courses'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyClassGroup class' category: 'Dybo-Model'!
+!classDefinition: 'DyClassGroup class' category: #'Dybo-Model'!
 DyClassGroup class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyCourse category: 'Dybo-Model'!
+!classDefinition: #DyCourse category: #'Dybo-Model'!
 DyObject subclass: #DyCourse
 	instanceVariableNames: 'subject color teacher courseHours topics'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyCourse class' category: 'Dybo-Model'!
+!classDefinition: 'DyCourse class' category: #'Dybo-Model'!
 DyCourse class
 	instanceVariableNames: ''!
 
-!classDefinition: #DySchool category: 'Dybo-Model'!
+!classDefinition: #DySchool category: #'Dybo-Model'!
 DyObject subclass: #DySchool
 	instanceVariableNames: 'name phone email timeSlots classGroups'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DySchool class' category: 'Dybo-Model'!
+!classDefinition: 'DySchool class' category: #'Dybo-Model'!
 DySchool class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyTopic category: 'Dybo-Model'!
+!classDefinition: #DyTopic category: #'Dybo-Model'!
 DyObject subclass: #DyTopic
 	instanceVariableNames: 'title color documents resources'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyTopic class' category: 'Dybo-Model'!
+!classDefinition: 'DyTopic class' category: #'Dybo-Model'!
 DyTopic class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyPerson category: 'Dybo-Model'!
+!classDefinition: #DyPerson category: #'Dybo-Model'!
 ActiveModel subclass: #DyPerson
 	instanceVariableNames: 'lastName firstName email'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyPerson class' category: 'Dybo-Model'!
+!classDefinition: 'DyPerson class' category: #'Dybo-Model'!
 DyPerson class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyStudent category: 'Dybo-Model'!
+!classDefinition: #DyStudent category: #'Dybo-Model'!
 DyPerson subclass: #DyStudent
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyStudent class' category: 'Dybo-Model'!
+!classDefinition: 'DyStudent class' category: #'Dybo-Model'!
 DyStudent class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyTeacher category: 'Dybo-Model'!
+!classDefinition: #DyTeacher category: #'Dybo-Model'!
 DyPerson subclass: #DyTeacher
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyTeacher class' category: 'Dybo-Model'!
+!classDefinition: 'DyTeacher class' category: #'Dybo-Model'!
 DyTeacher class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyTask category: 'Dybo-Model'!
+!classDefinition: #DyTask category: #'Dybo-Model'!
 ActiveModel subclass: #DyTask
 	instanceVariableNames: 'courseHourDate document'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyTask class' category: 'Dybo-Model'!
+!classDefinition: 'DyTask class' category: #'Dybo-Model'!
 DyTask class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyTimeSlot category: 'Dybo-Model'!
+!classDefinition: #DyTimeSlot category: #'Dybo-Model'!
 Magnitude subclass: #DyTimeSlot
 	instanceVariableNames: 'name startTime endTime'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
-!classDefinition: 'DyTimeSlot class' category: 'Dybo-Model'!
+!classDefinition: 'DyTimeSlot class' category: #'Dybo-Model'!
 DyTimeSlot class
 	instanceVariableNames: ''!
 
@@ -2302,10 +2302,10 @@ owner
 owner: anObject
 	owner := anObject ! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:45:13'!
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 18:40:09'!
 relPath
 "relative path to the object within the data "
-	^ owner relPath, '/', self dirName! !
+	^ self owner relPath, '/', self dirName! !
 
 !DyObject methodsFor: 'disk operations' stamp: 'hlsf 5/Apr/2026 14:56:34'!
 removeFromDisk
@@ -3721,12 +3721,12 @@ typesQuery
 				ifFalse: [#task]) ].
 	^ types! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 16/Apr/2026 23:18:40'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 17/Apr/2026 18:59:24'!
 updatePreviewsPanel
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
-	documents := self documentsQuery ifEmpty: [^ self].
 	previewPanel removeAllMorphs.
+	documents := self documentsQuery ifEmpty: [^ self].
 	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + (DocumentView previewGap * 2) + 35).
 	previewsPerLine := previewsPerLine max: 1.
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
