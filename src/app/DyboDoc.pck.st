@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 8:37:03 pm'!
+'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 10:46:52 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 234!
+!provides: 'DyboDoc' 1 235!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2658,9 +2658,12 @@ modificationTime
 newPageBackground
 	^ pageBackground new! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 20:07:39'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 22:20:59'!
 owner
-	^ owner! !
+	^ owner ifNil: [
+		owner := DyUserData current documentOwner: self.
+		owner ifNil: [self error: 'Document model without an owner'].
+		owner]! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:04:49'!
 owner: anObject
