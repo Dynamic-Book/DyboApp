@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7879] on 16 April 2026 at 10:58:18 pm'!
+'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 8:37:03 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 233!
-!requires: 'UI-Panel' 1 122 nil!
+!provides: 'DyboDoc' 1 234!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
+!requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -2671,9 +2671,9 @@ owner: anObject
 path
 	^ DyboSystem userDataPath / self relPath ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:05:38'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 20:11:24'!
 relPath
-	^ owner relPath, '/', self dirName! !
+	^ self owner relPath, '/', self dirName! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 12:31:01'!
 title
@@ -2683,10 +2683,10 @@ title
 title: aString
 	title := aString ! !
 
-!DocumentModel methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026 19:57:09'!
+!DocumentModel methodsFor: 'testing' stamp: 'hlsf 17/Apr/2026 20:11:07'!
 isCourse
 " Is the document a teaching document, therefore part of a course/topic "
-	^ owner class = DyTopic! !
+	^ self owner class = DyTopic! !
 
 !DocumentModel methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026 19:57:41'!
 isTask
@@ -2699,30 +2699,41 @@ description
 		ifTrue:  [self descriptionCourse ]
 		ifFalse: [self descriptionTask ]! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:57:24'!
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026 20:10:55'!
 descriptionCourse
 	^ String streamContents: [:str | str 
 		nextPutAll: 'Educational document from class {1}' translated;	" Class group "
 		nextPut: Character lf;
-		print: owner course;											" Course " 
-		nextPut: $/; print: owner]										" Topic "! !
+		print: self owner course;											" Course " 
+		nextPut: $/; print: self owner]										" Topic "! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:58:27'!
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026 20:11:01'!
 descriptionTask
 	^ String streamContents: [:str | str 
 		nextPutAll: 'Homework assignment for class {1}' translated;
 		nextPut: Character lf;
-		print: owner]! !
+		print: self owner]! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:35:36'!
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026 20:11:19'!
 printOn: str
 	self isCourse 
 		ifTrue: [str 
 			nextPutAll: 'Document in ';
-			print: owner; nextPut: $/; 
-			print: owner course; nextPut: $/; 
-			print: owner course classGroup]
-		ifFalse: [str nextPutAll: 'Document in task '; print: owner]! !
+			print: self owner; nextPut: $/; 
+			print: self owner course; nextPut: $/; 
+			print: self owner course classGroup]
+		ifFalse: [str nextPutAll: 'Document in task '; print: self owner]! !
+
+!DocumentModel methodsFor: 'persistence' stamp: 'hlsf 17/Apr/2026 20:15:28'!
+storeDataOn: aDataStream
+	| backup |
+	backup := self backupThenNilAttributes.
+	super storeDataOn: aDataStream.
+	self restoreAttributes: backup! !
+
+!DocumentModel methodsFor: 'persistence' stamp: 'hlsf 17/Apr/2026 20:13:43'!
+unsavedAttributes
+	^ #(owner)! !
 
 !Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:51:46'!
 color

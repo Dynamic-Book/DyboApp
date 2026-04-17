@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 7:00:42 pm'!
+'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 8:36:59 pm'!
 'Description '!
-!provides: 'Dybo' 1 198!
+!provides: 'Dybo' 1 199!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -551,6 +551,23 @@ deleteDocument: aDocument from: topic
 deleteTask: aTask
 	self tasks remove: aTask.
 	(DyboSystem userDataPath / DyboSystem tasksRelPath / aTask document model dirName) recursiveDelete! !
+
+!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026 20:36:48'!
+documentOwner: docModel
+"Search in my tasks "
+	self tasks 
+		detect: [:aTask | aTask document model = docModel] 
+		ifFound: [:ownerTask | ^ ownerTask]
+		ifNone: [nil].
+" Search in document in all ClassGroups/Courses/Topics "
+	self allTopics 
+		detect:  [:aTopic | aTopic documents 
+			detect: [:aDocPresenter | aDocPresenter model = docModel ] 
+			ifFound: [:matchingTopic | true ]
+			ifNone: [false] ]
+		ifFound: [:ownerTopic | ^ ownerTopic ]
+		ifNone: [].
+	^ nil! !
 
 !DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026 12:08:26'!
 newTask: aTask
