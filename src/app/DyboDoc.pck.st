@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 10:46:52 pm'!
+'From Cuis7.7 [latest update: #7879] on 18 April 2026 at 10:30:29 am'!
 'Description '!
-!provides: 'DyboDoc' 1 235!
+!provides: 'DyboDoc' 1 236!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -4114,10 +4114,14 @@ defaultColor
 flaps
 	^ submorphs select: [:aMorph | aMorph is: #Flap]! !
 
-!PageContainer methodsFor: 'as yet unclassified' stamp: 'hlsf 9/Feb/2025 17:43:06'!
+!PageContainer methodsFor: 'geometry' stamp: 'hlsf 9/Feb/2025 17:43:06'!
 extentChanged: oldExtent
 	super extentChanged: oldExtent.
 	self flaps do: #fold! !
+
+!PageContainer methodsFor: 'geometry' stamp: 'hlsf 18/Apr/2026 10:18:54'!
+minimumExtent
+	^ DocumentView previewExtent * 4! !
 
 !PageContainer methodsFor: 'geometry' stamp: 'hlsf 13/Feb/2025 10:29:51'!
 morphCenter
@@ -4199,20 +4203,19 @@ deleteBitMasks
 	pages do: [:aPage |
 		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 17:06:49'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026 10:04:39'!
 initialize
 	super initialize.
 	self beColumn.
 	pages := OrderedCollection new.
 	currentPage := PageMorph newOn: presenter background: self model newPageBackground .
-	container := PageContainer for: currentPage.
-	self installScriptsFlap;
-		installToolsFlap.
+	self installPageContainer.
 	pages add: currentPage.
 ! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026 09:57:35'!
 installMiniView
+" Install the minimalist view, for assignment (task) "
 	viewType := #mini.
 	presenter view: self.
 	self 
@@ -4221,6 +4224,12 @@ installMiniView
 	self	addMorphUseAll: container.
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
+
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026 10:04:39'!
+installPageContainer
+	container := PageContainer for: currentPage.
+	self installScriptsFlap;
+		installToolsFlap! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Mar/2026 21:07:12'!
 installScriptsFlap
@@ -4252,8 +4261,9 @@ installToolsFlap
 		target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026 09:57:28'!
 installView
+" Install the complete view, for course document "
 	| row col |
 	viewType := #full.
 	presenter view: self.
@@ -4280,23 +4290,6 @@ installView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool.
 	self adjustPageCounter! !
-
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 14/Mar/2026 04:41:19'!
-miniToolbarSpec
-" Toolbar for a one page document "
-	^ #(pen eraser highlighter undo redo 
-	blank
-	pointer group)! !
-
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 14/Mar/2026 04:41:30'!
-toolbarSpec
-	^ #(saveDoc
-	blank
-	pen eraser highlighter shape undo redo 
-	blank
-	pointer group dkm
-	blank
-	firstPage previousPage insertPage deletePage nextPage lastPage background)! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 14:34:50'!
 currentPage
@@ -4382,9 +4375,10 @@ resetPreview
 	preview := nil
 	! !
 
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 24/Dec/2024 16:31:45'!
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 18/Apr/2026 10:05:19'!
 comeFullyUpOnReload: smartRefStream
 	submorphs := #().
+	self installPageContainer.
 	viewType == #mini
 		ifTrue: [self installMiniView]
 		ifFalse: [	self installView].
@@ -4401,9 +4395,9 @@ storeDataOn: aDataStream
 	super storeDataOn: aDataStream.
 	self restoreAttributes: backup! !
 
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 24/Dec/2024 15:50:03'!
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 18/Apr/2026 09:54:16'!
 unsavedAttributes
-	^# (submorphs statusBar pageCount)! !
+	^# (submorphs statusBar pageCount container)! !
 
 !DocumentView methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 button: symbol state: stateGetter size: size
@@ -4599,6 +4593,13 @@ loadDocButtonData
 	#loadDocument . 
 	'Load a document from my data.' translated  }! !
 
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026 04:41:19'!
+miniToolbarSpec
+" Toolbar for a one page document "
+	^ #(pen eraser highlighter undo redo 
+	blank
+	pointer group)! !
+
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:22:44'!
 nextPageButtonData
 	^ {'Next page' translated . 
@@ -4648,6 +4649,16 @@ shapeButtonData
 	ShapeTool iconName .
 	ShapeTool action .
 	ShapeTool description }! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026 04:41:30'!
+toolbarSpec
+	^ #(saveDoc
+	blank
+	pen eraser highlighter shape undo redo 
+	blank
+	pointer group dkm
+	blank
+	firstPage previousPage insertPage deletePage nextPage lastPage background)! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:23:31'!
 undoButtonData
