@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 19 April 2026 at 12:25:31 pm'!
+'From Cuis7.7 [latest update: #7879] on 19 April 2026 at 3:08:08 pm'!
 'Description '!
-!provides: 'Dybo' 1 200!
+!provides: 'Dybo' 1 201!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -132,14 +132,14 @@ Object subclass: #DyClassCourse
 DyClassCourse class
 	instanceVariableNames: ''!
 
-!classDefinition: #DyUserSchool category: #'Dybo-Wizard'!
-Object subclass: #DyUserSchool
-	instanceVariableNames: 'userFirstname userLastname schoolName'
+!classDefinition: #DyNewUser category: #'Dybo-Wizard'!
+Object subclass: #DyNewUser
+	instanceVariableNames: 'userFirstname userLastname schoolName classCourses'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Wizard'!
-!classDefinition: 'DyUserSchool class' category: #'Dybo-Wizard'!
-DyUserSchool class
+!classDefinition: 'DyNewUser class' category: #'Dybo-Wizard'!
+DyNewUser class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyDayInterval category: #'Dybo-Model'!
@@ -324,7 +324,7 @@ DyboWindow class
 
 !classDefinition: #DyWizardNewUser category: #'Dybo-Wizard'!
 WizardPanel subclass: #DyWizardNewUser
-	instanceVariableNames: 'userSchool classCourses'
+	instanceVariableNames: 'user'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Wizard'!
@@ -394,8 +394,8 @@ I visit the model of user data to provide a viewer linked to an editor.!
 !DyClassCourse commentStamp: '<historical>' prior: 0!
 DyClassCourse is the the model to set the pair Class group and Course. For example (1035, Mathematics). The user can input several identical class groupe, i.e. (1035, CS)!
 
-!DyUserSchool commentStamp: '<historical>' prior: 0!
-DyUserSchool is the the model to set the user and school identity.!
+!DyNewUser commentStamp: '<historical>' prior: 0!
+I am a minimal model to install new user with minimal data!
 
 !DyDayInterval commentStamp: '<historical>' prior: 0!
 I represent an interval of days!
@@ -2225,6 +2225,15 @@ visitCourse: course
 		addMorph: (self paneFor: course topics label: 'Topics' translated browse: false).
 	^ self plugView: column! !
 
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 19/Apr/2026 14:14:15'!
+visitNewUser: newUser
+	| column |
+	visitedModel := newUser .
+	column := LayoutMorph newColumn.
+	column 	addMorph: (self paneFor: newUser label: 'School & User' translated browse: false);	
+		addMorph: (self paneFor: newUser classCourses label: 'Courses' translated browse: false).
+	^ self plugView: column! !
+
 !DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 3/Jul/2023 15:14:16'!
 visitSchool: school
 	| column |
@@ -2276,45 +2285,83 @@ course: anObject
 
 	course := anObject! !
 
-!DyClassCourse methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 11:20:46'!
+!DyClassCourse methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 15:07:54'!
 mold
 	| mold |
 	mold := Mold new.
 	mold stringField
 		label: 'Class' translated;
 		on: #classGroup of: self;
+		addCondition: [:input | input ~= 'Unnamed class' translated] 
+			labeled: 'Input a meaningful name (6eA, 1011,...)' translated;
 		beRequired.
 	mold stringField
 		label: 'Course' translated;
 		on: #course of: self;
+		addCondition: [:input | input ~= 'Unnamed course' translated] 
+			labeled: 'Input a meaningful name (Geography, Math,...)' translated;		
 		beRequired.
 	^ mold! !
 
-!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:45'!
+!DyClassCourse methodsFor: 'printing' stamp: 'hlsf 19/Apr/2026 12:51:24'!
+printOn: str
+	str nextPutAll: classGroup ;
+		nextPutAll: ' (';
+		nextPutAll: course ;
+		nextPut: $)! !
+
+!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:08:45'!
+classCourses
+	"Answer the value of classCourses"
+
+	^ classCourses! !
+
+!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:53:24'!
+initialize
+	classCourses := OrderedCollection new.
+	classCourses add: ( 
+		DyClassCourse new
+			classGroup: 'Unnamed class' translated;
+			course: 'Unnamed course' translated;
+			yourself)! !
+
+!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:08:45'!
 schoolName
+	"Answer the value of schoolName"
+
 	^ schoolName! !
 
-!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:54'!
+!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:08:45'!
 schoolName: anObject
+	"Set the value of schoolName"
+
 	schoolName := anObject! !
 
-!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:58'!
+!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:08:45'!
 userFirstname
+	"Answer the value of userFirstname"
+
 	^ userFirstname! !
 
-!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:14:05'!
+!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:08:45'!
 userFirstname: anObject
+	"Set the value of userFirstname"
+
 	userFirstname := anObject! !
 
-!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:21'!
+!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:08:45'!
 userLastname
+	"Answer the value of userLastname"
+
 	^ userLastname! !
 
-!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:36'!
+!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:08:45'!
 userLastname: anObject
+	"Set the value of userLastname"
+
 	userLastname := anObject! !
 
-!DyUserSchool methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 11:15:04'!
+!DyNewUser methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 14:17:59'!
 mold
 	| mold |
 	mold := Mold new.
@@ -2325,11 +2372,16 @@ mold
 	mold stringField
 		label: 'Lastname' translated;
 		on: #userLastname of: self;
-		beRequired.
+		beOptional.
 	mold stringField
 		label: 'School' translated;
-		on: #schoolName of: self.
+		on: #schoolName of: self;
+		beRequired.
 	^ mold! !
+
+!DyNewUser methodsFor: 'as yet unclassified' stamp: 'hlsf 19/Apr/2026 15:00:15'!
+accept: aVisitor
+	^ aVisitor visitNewUser: self! !
 
 !DyDayInterval methodsFor: 'printing' stamp: 'hlsf 27/Oct/2024 16:30:32'!
 printOn: aStream
@@ -3155,11 +3207,6 @@ timeSlotName,start, end "
 		addField: #start: converter: [:s | Time fromString: s];
 		addField: #end: converter: [:s | Time fromString: s].
 	^ reader upToEnd asSortedCollection ! !
-
-!DyView methodsFor: 'ui' stamp: 'hlsf 1/Oct/2023 18:53:08'!
-adoptWidgetsColor: aColor 
-	super adoptWidgetsColor: aColor.
-	color := Theme current paneBackgroundFrom: aColor.! !
 
 !DyView methodsFor: 'ui' stamp: 'hlsf 1/Oct/2023 18:53:14'!
 defaultBorderColor
@@ -4022,23 +4069,48 @@ for: aPresenter
 		presenter: aPresenter;
 		yourself! !
 
-!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 12:21:59'!
-coursesPage
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 14:59:11'!
+coursePage
+"Let the user edit his first course "
 	| mold pane |
-	mold := userSchool mold.
-	pane :=  mold pane 
+	mold := model classCourses first mold.
+	pane :=  mold newPane 
 		layoutSpec: LayoutSizeSpec useAll;
 		yourself.
-	^ (WizardPage standardPage: 'School and user' translated on: self) contents: pane! !
+	^ (WizardPage standardPage: 'My first course' translated on: self) contents: pane! !
 
-!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 12:20:51'!
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 15:01:32'!
+coursesPage
+	| pane |
+	pane := model accept: DyViewerVisitor new.
+	pane 
+		layoutSpec: LayoutSizeSpec useAll;
+		yourself.
+	^ (WizardPage standardPage: 'Edit more courses' translated on: self) contents: pane! !
+
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 14:59:17'!
 userPage
 	| mold pane |
-	mold := userSchool mold.
-	pane :=  mold pane 
+	mold := model mold.
+	pane :=  mold newPane 
 		layoutSpec: LayoutSizeSpec useAll;
 		yourself.
-	^ (WizardPage standardPage: 'School and user' translated on: self) contents: pane! !
+	^ (WizardPage standardPage: 'School & User' translated on: self) contents: pane! !
+
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 14:44:55'!
+validatePage
+	^ (WizardPage firstPage: 'Validate' translated on: self) contents: 
+'Have you finished entering your information?
+If your information is valid, click on the "apply" button. Otherwise, go back and correct it.
+
+After clicking on the "apply" button, you will be able to edit additional information such as class schedules and course topics.' translated
+
+"
+Vous avez fini de saisir vos informations ?
+Si vos informations sont valides, cliquer sur le bouton ""appliquer"". Sinon, revenir en arrière et corriger.
+
+Après avoir cliqué sur le bouton ""appliquer"", vous pourrez éditer des informations supplémentaires comme l'emploi du temps des classes et les sujets de vos cours.
+"! !
 
 !DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 12:09:52'!
 welcomePage
@@ -4061,20 +4133,28 @@ Ces données sont uniquement enregistrées localement dans votre dossier Documen
 
 Une fois terminé, vous pourrez saisir des informations complémentaires comme l'horaire de vos cours et son chapitrage. Ces informations sont utiles à DyboApp pour ranger au mieux vos documents et vos tâches."! !
 
+!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 14:56:51'!
+addPages
+	#(welcomePage userPage #coursePage #coursesPage) do: [:aPage |
+		self addPage: (self perform: aPage)]
+		! !
+
+!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 14:54:53'!
+adoptWidgetsColor: aColor 
+	super adoptWidgetsColor: aColor.
+	color := Theme current paneBackgroundFrom: aColor.! !
+
+!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 14:54:28'!
+defaultBorderColor
+	^ Theme current transcript! !
+
 !DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 12:03:26'!
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
-!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 12:23:46'!
-initialize
-	super initialize.
-	userSchool := DyUserSchool new.
-	classCourses := OrderedCollection new.
-	classCourses add: ( 
-		DyClassCourse new
-			classGroup: 'Unnamed class';
-			course: 'Unnamed course';
-			yourself)! !
+!DyWizardNewUser methodsFor: 'testing' stamp: 'hlsf 19/Apr/2026 14:52:27'!
+isReadyToApply
+	^ model mold isValid and: [model classCourses first mold isValid]! !
 
 !DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 28/Sep/2023 21:28:52'!
 tearDown
