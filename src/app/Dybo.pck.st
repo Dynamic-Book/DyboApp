@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 19 April 2026 at 9:51:44 pm'!
+'From Cuis7.7 [latest update: #7879] on 19 April 2026 at 10:36:48 pm'!
 'Description '!
-!provides: 'Dybo' 1 202!
+!provides: 'Dybo' 1 203!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -2226,12 +2226,12 @@ visitCourse: course
 		addMorph: (self paneFor: course topics label: 'Topics' translated browse: false).
 	^ self plugView: column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 19/Apr/2026 14:14:15'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 19/Apr/2026 22:35:56'!
 visitNewUser: newUser
 	| column |
 	visitedModel := newUser .
 	column := LayoutMorph newColumn.
-	column 	addMorph: (self paneFor: newUser label: 'School & User' translated browse: false);	
+	column 	addMorph: (self paneFor: newUser label: 'User & School' translated browse: false);	
 		addMorph: (self paneFor: newUser classCourses label: 'Courses' translated browse: false).
 	^ self plugView: column! !
 
@@ -2380,9 +2380,15 @@ mold
 		beRequired.
 	^ mold! !
 
-!DyNewUser methodsFor: 'as yet unclassified' stamp: 'hlsf 19/Apr/2026 15:00:15'!
+!DyNewUser methodsFor: 'visiting' stamp: 'hlsf 19/Apr/2026 15:00:15'!
 accept: aVisitor
 	^ aVisitor visitNewUser: self! !
+
+!DyNewUser methodsFor: 'visiting' stamp: 'hlsf 19/Apr/2026 22:34:15'!
+printOn: str
+	str nextPutAll: (userFirstname ifNil: ['']);
+		nextPutAll: ' - ';
+		nextPutAll: (schoolName  ifNil: [''])! !
 
 !DyDayInterval methodsFor: 'printing' stamp: 'hlsf 27/Oct/2024 16:30:32'!
 printOn: aStream
@@ -4094,6 +4100,11 @@ coursesPage
 		yourself.
 	^ (WizardPage standardPage: 'Edit more courses' translated on: self) contents: pane! !
 
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 21:57:34'!
+pageBuilders
+	^ #(welcomePage userPage #coursePage #coursesPage) 
+		! !
+
 !DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 14:59:17'!
 userPage
 	| mold pane |
@@ -4138,12 +4149,6 @@ Il s'agit de votre première utilisation de DyboApp. Pour l'utiliser au mieux, v
 Ces données sont uniquement enregistrées localement dans votre dossier Documents/MyDybo.
 
 Une fois terminé, vous pourrez saisir des informations complémentaires comme l'horaire de vos cours et son chapitrage. Ces informations sont utiles à DyboApp pour ranger au mieux vos documents et vos tâches."! !
-
-!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 14:56:51'!
-addPages
-	#(welcomePage userPage #coursePage #coursesPage) do: [:aPage |
-		self addPage: (self perform: aPage)]
-		! !
 
 !DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 14:54:53'!
 adoptWidgetsColor: aColor 
