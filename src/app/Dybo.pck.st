@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 17 April 2026 at 8:36:59 pm'!
+'From Cuis7.7 [latest update: #7879] on 19 April 2026 at 12:25:31 pm'!
 'Description '!
-!provides: 'Dybo' 1 199!
+!provides: 'Dybo' 1 200!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -19,6 +19,7 @@ SystemOrganization addCategory: #'Dybo-Presenter'!
 SystemOrganization addCategory: #'Dybo-System'!
 SystemOrganization addCategory: #'Dybo-Test'!
 SystemOrganization addCategory: #'Dybo-View'!
+SystemOrganization addCategory: #'Dybo-Wizard'!
 
 
 !classDefinition: #DyUserData category: #'Dybo-Data'!
@@ -119,6 +120,26 @@ Object subclass: #DyViewerVisitor
 	category: 'Dybo-View'!
 !classDefinition: 'DyViewerVisitor class' category: #'Dybo-View'!
 DyViewerVisitor class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyClassCourse category: #'Dybo-Wizard'!
+Object subclass: #DyClassCourse
+	instanceVariableNames: 'classGroup course'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Wizard'!
+!classDefinition: 'DyClassCourse class' category: #'Dybo-Wizard'!
+DyClassCourse class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyUserSchool category: #'Dybo-Wizard'!
+Object subclass: #DyUserSchool
+	instanceVariableNames: 'userFirstname userLastname schoolName'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Wizard'!
+!classDefinition: 'DyUserSchool class' category: #'Dybo-Wizard'!
+DyUserSchool class
 	instanceVariableNames: ''!
 
 !classDefinition: #DyDayInterval category: #'Dybo-Model'!
@@ -301,6 +322,16 @@ SystemWindow subclass: #DyboWindow
 DyboWindow class
 	instanceVariableNames: ''!
 
+!classDefinition: #DyWizardNewUser category: #'Dybo-Wizard'!
+WizardPanel subclass: #DyWizardNewUser
+	instanceVariableNames: 'userSchool classCourses'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Dybo-Wizard'!
+!classDefinition: 'DyWizardNewUser class' category: #'Dybo-Wizard'!
+DyWizardNewUser class
+	instanceVariableNames: ''!
+
 !classDefinition: #DyboTestCase category: #'Dybo-Test'!
 TestCase subclass: #DyboTestCase
 	instanceVariableNames: 'domain'
@@ -359,6 +390,12 @@ I visit the model of user data to provide an editor!
 
 !DyViewerVisitor commentStamp: '<historical>' prior: 0!
 I visit the model of user data to provide a viewer linked to an editor.!
+
+!DyClassCourse commentStamp: '<historical>' prior: 0!
+DyClassCourse is the the model to set the pair Class group and Course. For example (1035, Mathematics). The user can input several identical class groupe, i.e. (1035, CS)!
+
+!DyUserSchool commentStamp: '<historical>' prior: 0!
+DyUserSchool is the the model to set the user and school identity.!
 
 !DyDayInterval commentStamp: '<historical>' prior: 0!
 I represent an interval of days!
@@ -617,7 +654,7 @@ reset
 daysOfWeek
 	^ Week dayNames collect: [:day | day translated]! !
 
-!DyCourseHour methodsFor: 'user interface' stamp: 'hlsf 17/Apr/2026 12:11:16'!
+!DyCourseHour methodsFor: 'ui' stamp: 'hlsf 17/Apr/2026 12:11:16'!
 mold: school
 	| mold |
 	mold := Mold new.
@@ -1817,14 +1854,15 @@ spacer: size
 		morphWidth: size;
 		yourself! !
 
-!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 10:25:09'!
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 19/Apr/2026 11:28:12'!
 decoratedPaneFor: aMold labeled: aMessage
 	^ DecoratedPane 
 			open: (PluggableScrollPane new 
 				layoutSpec: LayoutSpec useAll;
 				scroller: aMold newPane;
 				yourself) 
-			label: aMessage ! !
+			label: aMessage ::
+			padding: 20! !
 
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 14/Jul/2024 10:59:55'!
 visitAgenda: agenda
@@ -1890,14 +1928,14 @@ visitUserData: userData
 editorsFor: aCollection ofType: classModel 
 	^ self editorsFor: aCollection ofType: classModel in: nil! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 15/Apr/2026 11:49:43'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 11:29:48'!
 editorsFor: aCollection ofType: classModel in: anOwner
 " A decorated editor to edit a collection of models "
 	| listMorph quickButtons decoratedPanel |
 	listMorph := PluggableListMorph 
 		withModel: (ListModel with: aCollection )		
 		listGetter: #list indexGetter: #listIndex indexSetter: #listIndex:.
-	decoratedPanel := DecoratedPane open: listMorph label: classModel pluralLabel .
+	decoratedPanel := DecoratedPane open: listMorph label: classModel pluralLabel :: padding: 20.
 	quickButtons := OrderedCollection new.
 	quickButtons add: (PluggableButtonMorph model: self action: #quickAdd: 
 			actionArgument: (Array with: classModel with: decoratedPanel with: listMorph with: anOwner) ::
@@ -2085,7 +2123,7 @@ quickImport: args
 paneFor: anObject label: aTitle 
 	^self paneFor: anObject label: aTitle browse: true! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 1/Jul/2023 21:23:29'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 11:28:37'!
 paneFor: anObject label: aTitle browse: canBeBrowsed
 " Present the view of an object in a decorated pane with a title "
 	| viewBuilderMessage attributeView scroller |
@@ -2097,7 +2135,8 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 		layoutSpec: LayoutSpec useAll;
 		scroller: attributeView.
 	attributeView morphWidth: scroller viewableExtent x.
-	^ DecoratedPane open: scroller label: aTitle ! !
+	^ DecoratedPane open: scroller label: aTitle ::
+		padding: 20! !
 
 !DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 5/Apr/2026 12:15:43'!
 plugView: aMorph
@@ -2163,13 +2202,13 @@ visitAgenda: agenda
 		addMorph: (self paneFor: agenda daysOff label: 'Days off' translated browse: false).
 	^ self plugView: column! !
 
-!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 27/Jul/2023 00:52:27'!
+!DyViewerVisitor methodsFor: 'visiting' stamp: 'hlsf 19/Apr/2026 11:31:25'!
 visitClassGroup: class
 	| column |
 	visitedModel := class .
 	column := LayoutMorph newColumn.
 	column 	addMorph: (self paneFor: class headTeacher label: 'Head teacher' translated browse: false);	
-		addMorph: (self paneFor: class courses label: 'Lessons' translated);
+		addMorph: (self paneFor: class courses label: 'Courses' translated);
 		addMorph: (self paneFor: class students label: 'Students' translated browse: false).
 	^ self plugView: column! !
 
@@ -2213,6 +2252,85 @@ visitUserData: userData
 		addMorph: (self paneFor: userData agenda label: 'Agenda' translated).
 	^ self plugView: column! !
 
+!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:19:58'!
+classGroup
+	"Answer the value of classGroup"
+
+	^ classGroup! !
+
+!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:19:58'!
+classGroup: anObject
+	"Set the value of classGroup"
+
+	classGroup := anObject! !
+
+!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:19:58'!
+course
+	"Answer the value of course"
+
+	^ course! !
+
+!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:19:58'!
+course: anObject
+	"Set the value of course"
+
+	course := anObject! !
+
+!DyClassCourse methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 11:20:46'!
+mold
+	| mold |
+	mold := Mold new.
+	mold stringField
+		label: 'Class' translated;
+		on: #classGroup of: self;
+		beRequired.
+	mold stringField
+		label: 'Course' translated;
+		on: #course of: self;
+		beRequired.
+	^ mold! !
+
+!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:45'!
+schoolName
+	^ schoolName! !
+
+!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:54'!
+schoolName: anObject
+	schoolName := anObject! !
+
+!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:58'!
+userFirstname
+	^ userFirstname! !
+
+!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:14:05'!
+userFirstname: anObject
+	userFirstname := anObject! !
+
+!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:21'!
+userLastname
+	^ userLastname! !
+
+!DyUserSchool methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:13:36'!
+userLastname: anObject
+	userLastname := anObject! !
+
+!DyUserSchool methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 11:15:04'!
+mold
+	| mold |
+	mold := Mold new.
+	mold stringField
+		label: 'Firstname' translated;
+		on: #userFirstname of: self;
+		beRequired.
+	mold stringField
+		label: 'Lastname' translated;
+		on: #userLastname of: self;
+		beRequired.
+	mold stringField
+		label: 'School' translated;
+		on: #schoolName of: self.
+	^ mold! !
+
 !DyDayInterval methodsFor: 'printing' stamp: 'hlsf 27/Oct/2024 16:30:32'!
 printOn: aStream
 	start 
@@ -2252,7 +2370,7 @@ start: aDate
 "Date does not implement <=, dive into its attribute start, a DateAndTime "
 	^ start start <= aDayInterval start start! !
 
-!DyDayInterval methodsFor: 'user interface' stamp: 'hlsf 11/Aug/2024 10:38:11'!
+!DyDayInterval methodsFor: 'ui' stamp: 'hlsf 11/Aug/2024 10:38:11'!
 mold
 	| mold |
 	mold := Mold new.
@@ -2342,7 +2460,7 @@ initialize
 	tasks := OrderedCollection new.
 	daysOff := SortedCollection new! !
 
-!DyAgenda methodsFor: 'user interface' stamp: 'hlsf 29/Jul/2023 00:50:25'!
+!DyAgenda methodsFor: 'ui' stamp: 'hlsf 29/Jul/2023 00:50:25'!
 mold
 	| mold |
 	mold := Mold new.
@@ -2405,11 +2523,11 @@ tasks
 isDayOff: aDate
 	^ daysOff anySatisfy: [:aDayInteverval | aDayInteverval 	 includes: aDate]! !
 
-!DyAgenda methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Apr/2026 15:00:14'!
+!DyAgenda methodsFor: 'disk operations' stamp: 'hlsf 5/Apr/2026 15:00:14'!
 removeFromDisk
 ! !
 
-!DyClassGroup methodsFor: 'user interface' stamp: 'hlsf 30/Jun/2023 21:15:15'!
+!DyClassGroup methodsFor: 'ui' stamp: 'hlsf 30/Jun/2023 21:15:15'!
 mold
 	| mold |
 	mold := Mold new.
@@ -2492,7 +2610,7 @@ initialize
 	teacher := DyTeacher new.
 	subject := 'Unnamed course' translated! !
 
-!DyCourse methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:30:36'!
+!DyCourse methodsFor: 'ui' stamp: 'hlsf 3/Jul/2023 11:30:36'!
 mold
 	| mold |
 	mold := Mold new.
@@ -2678,7 +2796,7 @@ timeSlots
 timeSlotsDic
 	^ (timeSlots collect: [:each | each slotName -> each] ) asDictionary ! !
 
-!DySchool methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:31:58'!
+!DySchool methodsFor: 'ui' stamp: 'hlsf 3/Jul/2023 11:31:58'!
 mold
 	| mold |
 	mold := Mold new.
@@ -2759,7 +2877,7 @@ title: newTitle
 	DyboSystem renameTopic: self from: title to: newTitle.
 	title := newTitle! !
 
-!DyTopic methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023 23:37:49'!
+!DyTopic methodsFor: 'ui' stamp: 'hlsf 8/Oct/2023 23:37:49'!
 mold
 	| mold |
 	mold := Mold new.
@@ -2773,7 +2891,7 @@ mold
 printOn: str
 	str nextPutAll: title! !
 
-!DyTopic methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Apr/2026 15:37:27'!
+!DyTopic methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026 15:37:27'!
 initialize
 	super initialize.
 	documents := OrderedCollection new.
@@ -2831,7 +2949,7 @@ printOn: str
 		space;
 		nextPutAll: firstName! !
 
-!DyPerson methodsFor: 'user interface' stamp: 'hlsf 3/Jul/2023 11:36:22'!
+!DyPerson methodsFor: 'ui' stamp: 'hlsf 3/Jul/2023 11:36:22'!
 mold
 	| mold |
 	mold := Mold new.
@@ -3482,7 +3600,7 @@ previewFor: aDocument
 		(Text withForm: (aDocument view currentPage imageForm magnifyBy: 0.5))."
 	^ preview ! !
 
-!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:47:59'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 19/Apr/2026 11:27:19'!
 previewsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
 	| quickButtons scroller |
@@ -3501,7 +3619,8 @@ previewsPanel
 	^ DecoratedPane 
 		open: scroller
 		label:  'My courses' translated
-		quickButtons: quickButtons! !
+		quickButtons: quickButtons ::
+		padding: 20! !
 
 !DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 26/May/2024 15:45:44'!
 topicListMorph
@@ -3663,7 +3782,7 @@ previewFor: aDocument
 	preview borderColor: indicativeColor.
 	^ decorated ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 16/Apr/2026 13:15:07'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 19/Apr/2026 11:27:00'!
 previewsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
 	|  scroller |
@@ -3672,7 +3791,8 @@ previewsPanel
 		scroller: (previewPanel := LayoutMorph newColumn :: name: 'Preview panel').
 	^ DecoratedPane 
 		open: scroller
-		label:  'My documents' translated! !
+		label:  'My documents' translated ::
+		padding: 20! !
 
 !DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026 12:31:46'!
 quantityListMorph
@@ -3901,6 +4021,60 @@ for: aPresenter
 	^ self new ::
 		presenter: aPresenter;
 		yourself! !
+
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 12:21:59'!
+coursesPage
+	| mold pane |
+	mold := userSchool mold.
+	pane :=  mold pane 
+		layoutSpec: LayoutSizeSpec useAll;
+		yourself.
+	^ (WizardPage standardPage: 'School and user' translated on: self) contents: pane! !
+
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 12:20:51'!
+userPage
+	| mold pane |
+	mold := userSchool mold.
+	pane :=  mold pane 
+		layoutSpec: LayoutSizeSpec useAll;
+		yourself.
+	^ (WizardPage standardPage: 'School and user' translated on: self) contents: pane! !
+
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 12:09:52'!
+welcomePage
+	^ (WizardPage firstPage: 'Initial setup' translated on: self) contents: 
+'Welcome!!
+
+This is your first time using DyboApp. To make the best use of it, you need to enter some information about your classes and courses.
+
+This data is only saved locally in your Documents/MyDybo folder.
+
+Once completed, you may want to enter additional information such as your class schedule and its chapters. This information is useful for DyboApp to better organize your documents and tasks.
+
+To start press the ''next'' button.' translated
+
+"Bienvenue !!
+
+Il s'agit de votre première utilisation de DyboApp. Pour l'utiliser au mieux, vous devez saisir quelques informations concernant vos classes et vos cours.
+
+Ces données sont uniquement enregistrées localement dans votre dossier Documents/MyDybo.
+
+Une fois terminé, vous pourrez saisir des informations complémentaires comme l'horaire de vos cours et son chapitrage. Ces informations sont utiles à DyboApp pour ranger au mieux vos documents et vos tâches."! !
+
+!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 12:03:26'!
+defaultColor
+	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+
+!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 12:23:46'!
+initialize
+	super initialize.
+	userSchool := DyUserSchool new.
+	classCourses := OrderedCollection new.
+	classCourses add: ( 
+		DyClassCourse new
+			classGroup: 'Unnamed class';
+			course: 'Unnamed course';
+			yourself)! !
 
 !DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 28/Sep/2023 21:28:52'!
 tearDown
