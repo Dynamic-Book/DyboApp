@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 19 April 2026 at 3:08:08 pm'!
+'From Cuis7.7 [latest update: #7879] on 19 April 2026 at 9:51:44 pm'!
 'Description '!
-!provides: 'Dybo' 1 201!
+!provides: 'Dybo' 1 202!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -795,9 +795,10 @@ in the topic: {2}?' translated
 	binderView updatePreviewsPanel.
 	DyboSystem saveData! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 13/Apr/2026 12:38:13'!
+!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 19/Apr/2026 21:45:46'!
 importPDF
 	| newDoc answer |
+	currentTopic ifNil: [^ self].
 	answer := (StandardFileMenu  new 
 		oldFileFrom:  DyboSystem myPDFPath 
 		withPattern:  '*.pdf'
@@ -805,14 +806,14 @@ importPDF
 	answer ifNil: [^ self].
 	newDoc := self newDocument.
 	newDoc model title: (answer name allButLast: 4) capitalized.
-	newDoc 
-		importPDF: answer directory // answer name;
-		modified;
-		saveDocument.	
+	newDoc 	importPDF: answer directory // answer name.
 	" Remove the former first page and present the first page "
 	newDoc view 
 		firstPage;
-		deletePage.		
+		deletePage.
+	newDoc 
+		modified;
+		saveDocument.
 	^ newDoc! !
 
 !Dybo methodsFor: 'callback-binder' stamp: 'hlsf 17/Apr/2026 12:28:14'!
@@ -3207,6 +3208,11 @@ timeSlotName,start, end "
 		addField: #start: converter: [:s | Time fromString: s];
 		addField: #end: converter: [:s | Time fromString: s].
 	^ reader upToEnd asSortedCollection ! !
+
+!DyView methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 18:41:10'!
+adoptWidgetsColor: aColor 
+	super adoptWidgetsColor: aColor.
+	color := Theme current paneBackgroundFrom: aColor.! !
 
 !DyView methodsFor: 'ui' stamp: 'hlsf 1/Oct/2023 18:53:14'!
 defaultBorderColor
