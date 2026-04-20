@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7879] on 19 April 2026 at 10:36:48 pm'!
+'From Cuis7.7 [latest update: #7880] on 20 April 2026 at 11:54:00 pm'!
 'Description '!
-!provides: 'Dybo' 1 203!
+!provides: 'Dybo' 1 204!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -2139,7 +2139,7 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 	^ DecoratedPane open: scroller label: aTitle ::
 		padding: 20! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 5/Apr/2026 12:15:43'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 20/Apr/2026 23:16:59'!
 plugView: aMorph
 " Add an Edit button to this contents "
 	| viewer |
@@ -4081,13 +4081,13 @@ for: aPresenter
 		presenter: aPresenter;
 		yourself! !
 
-!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 14:59:11'!
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 20/Apr/2026 23:34:45'!
 coursePage
 "Let the user edit his first course "
 	| mold pane |
 	mold := model classCourses first mold.
 	pane :=  mold newPane 
-		layoutSpec: LayoutSizeSpec useAll;
+		layoutSpec: LayoutSizeSpec useAll
 		yourself.
 	^ (WizardPage standardPage: 'My first course' translated on: self) contents: pane! !
 
@@ -4105,12 +4105,13 @@ pageBuilders
 	^ #(welcomePage userPage #coursePage #coursesPage) 
 		! !
 
-!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 14:59:17'!
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 20/Apr/2026 23:25:18'!
 userPage
 	| mold pane |
 	mold := model mold.
 	pane :=  mold newPane 
 		layoutSpec: LayoutSizeSpec useAll;
+		widgetsColor: Color red;
 		yourself.
 	^ (WizardPage standardPage: 'School & User' translated on: self) contents: pane! !
 
@@ -4150,18 +4151,9 @@ Ces données sont uniquement enregistrées localement dans votre dossier Documen
 
 Une fois terminé, vous pourrez saisir des informations complémentaires comme l'horaire de vos cours et son chapitrage. Ces informations sont utiles à DyboApp pour ranger au mieux vos documents et vos tâches."! !
 
-!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 14:54:53'!
-adoptWidgetsColor: aColor 
-	super adoptWidgetsColor: aColor.
-	color := Theme current paneBackgroundFrom: aColor.! !
-
-!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 14:54:28'!
-defaultBorderColor
-	^ Theme current transcript! !
-
-!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 19/Apr/2026 12:03:26'!
+!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 20/Apr/2026 22:15:26'!
 defaultColor
-	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+	^ Theme current transcript! !
 
 !DyWizardNewUser methodsFor: 'testing' stamp: 'hlsf 19/Apr/2026 14:52:27'!
 isReadyToApply
