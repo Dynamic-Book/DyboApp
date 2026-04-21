@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7880] on 20 April 2026 at 11:54:00 pm'!
+'From Cuis7.7 [latest update: #7880] on 21 April 2026 at 3:17:12 pm'!
 'Description '!
-!provides: 'Dybo' 1 204!
+!provides: 'Dybo' 1 205!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1898,6 +1898,11 @@ visitCourse: course
 	columns add: (self editorsFor: course topics ofType: DyTopic in: course).
 	^ self newColumnWith: columns ! !
 
+!DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 21/Apr/2026 14:51:29'!
+visitNewUser: newUser
+	^ self newColumnWith: {
+		self editorsFor: newUser classCourses ofType: DyClassCourse in: newUser }! !
+
 !DyEditorVisitor methodsFor: 'visiting' stamp: 'hlsf 20/Aug/2025 17:19:26'!
 visitSchool: school 
 | mold |
@@ -2139,7 +2144,7 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 	^ DecoratedPane open: scroller label: aTitle ::
 		padding: 20! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 20/Apr/2026 23:16:59'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 21/Apr/2026 15:10:44'!
 plugView: aMorph
 " Add an Edit button to this contents "
 	| viewer |
@@ -2148,10 +2153,10 @@ plugView: aMorph
 		open: [aMorph] 
 		view: #value 
 		action: 	["Edit me" 
-			visitedModel print.
 			viewer owner 
 				replaceView: viewer 
-				byView: (visitedModel accept: DyEditorVisitor new)] 
+				byView: (visitedModel accept: DyEditorVisitor new).
+			visitedModel triggerEvent: #editorPlugged] 
 		altAction: [DyboSystem saveData] 
 		::
 		buttonLabel: 'Edit' translated;
@@ -2310,6 +2315,14 @@ printOn: str
 		nextPutAll: ' (';
 		nextPutAll: course ;
 		nextPut: $)! !
+
+!DyClassCourse class methodsFor: 'as yet unclassified' stamp: 'hlsf 21/Apr/2026 14:56:09'!
+label
+	^ 'Class & Course' translated! !
+
+!DyClassCourse class methodsFor: 'as yet unclassified' stamp: 'hlsf 21/Apr/2026 14:55:58'!
+pluralLabel
+	^ 'Classes & Courses' translated! !
 
 !DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:08:45'!
 classCourses
@@ -4091,10 +4104,11 @@ coursePage
 		yourself.
 	^ (WizardPage standardPage: 'My first course' translated on: self) contents: pane! !
 
-!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 15:01:32'!
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 21/Apr/2026 15:14:31'!
 coursesPage
 	| pane |
 	pane := model accept: DyViewerVisitor new.
+	model when: #editorPlugged send: #adoptWidgetsColor: to: self with: self defaultColor.
 	pane 
 		layoutSpec: LayoutSizeSpec useAll;
 		yourself.
@@ -4580,6 +4594,14 @@ asTimeSlot
 !Morph methodsFor: '*Dybo' stamp: 'hlsf 26/Feb/2026 11:09:19'!
 isStepping
 	^ self world ifNotNil: [ :w | w isStepping: self]! !
+
+!LinearLayoutMorph methodsFor: '*Dybo' stamp: 'hlsf 21/Apr/2026 14:45:14'!
+replaceView: aPluggablePane byView: aLinearLayoutMorph 
+" Replace a view in the pane with another viewer and shrink the panel "
+	aPluggablePane releaseActionMap.
+	self replaceSubmorph: aPluggablePane by: aLinearLayoutMorph .
+	self morphExtent: self minimumExtent.
+	self adoptWidgetsColor: self defaultBorderColor ! !
 
 !WorldMorph methodsFor: '*Dybo' stamp: 'hlsf 26/Feb/2026 11:10:57'!
 isStepping: aMorph
