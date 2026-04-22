@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7880] on 21 April 2026 at 3:17:12 pm'!
+'From Cuis7.7 [latest update: #7880] on 22 April 2026 at 11:29:52 pm'!
 'Description '!
-!provides: 'Dybo' 1 205!
+!provides: 'Dybo' 1 206!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -4114,9 +4114,9 @@ coursesPage
 		yourself.
 	^ (WizardPage standardPage: 'Edit more courses' translated on: self) contents: pane! !
 
-!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 21:57:34'!
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 22/Apr/2026 22:35:31'!
 pageBuilders
-	^ #(welcomePage userPage #coursePage #coursesPage) 
+	^ #(welcomePage userPage #coursePage #coursesPage #validatePage) 
 		! !
 
 !DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 20/Apr/2026 23:25:18'!
@@ -4129,13 +4129,14 @@ userPage
 		yourself.
 	^ (WizardPage standardPage: 'School & User' translated on: self) contents: pane! !
 
-!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 14:44:55'!
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 22/Apr/2026 22:52:13'!
 validatePage
-	^ (WizardPage firstPage: 'Validate' translated on: self) contents: 
+	^ (WizardPage applyPage: 'Validate' translated on: self) contents: 
 'Have you finished entering your information?
-If your information is valid, click on the "apply" button. Otherwise, go back and correct it.
 
-After clicking on the "apply" button, you will be able to edit additional information such as class schedules and course topics.' translated
+If your information is valid, click on the "Apply" button; otherwise, go back and correct it.
+
+After clicking on the "Apply" button, you will be able to edit additional information such as the class schedules and the course topics.' translated justified
 
 "
 Vous avez fini de saisir vos informations ?
@@ -4144,19 +4145,19 @@ Si vos informations sont valides, cliquer sur le bouton ""appliquer"". Sinon, re
 Après avoir cliqué sur le bouton ""appliquer"", vous pourrez éditer des informations supplémentaires comme l'emploi du temps des classes et les sujets de vos cours.
 "! !
 
-!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 19/Apr/2026 12:09:52'!
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 22/Apr/2026 22:53:18'!
 welcomePage
 	^ (WizardPage firstPage: 'Initial setup' translated on: self) contents: 
 'Welcome!!
 
-This is your first time using DyboApp. To make the best use of it, you need to enter some information about your classes and courses.
+This is your first time using DyboApp. To make the best use of it, you need to enter some information about your classes and courses, validate your editing with the ''Accept'' button.
 
-This data is only saved locally in your Documents/MyDybo folder.
+This data is only saved locally in your ''Documents/MyDybo'' folder.
 
-Once completed, you may want to enter additional information such as your class schedule and its chapters. This information is useful for DyboApp to better organize your documents and tasks.
+Later, you may want to enter additional information such as your class schedules and its chapters. This information is useful for DyboApp to better organize your documents and tasks.
 
-To start press the ''next'' button.' translated
-
+To start, press the ''Next'' button.' translated justified 
+ 
 "Bienvenue !!
 
 Il s'agit de votre première utilisation de DyboApp. Pour l'utiliser au mieux, vous devez saisir quelques informations concernant vos classes et vos cours.
@@ -4172,6 +4173,22 @@ defaultColor
 !DyWizardNewUser methodsFor: 'testing' stamp: 'hlsf 19/Apr/2026 14:52:27'!
 isReadyToApply
 	^ model mold isValid and: [model classCourses first mold isValid]! !
+
+!DyWizardNewUser methodsFor: 'open/close' stamp: 'hlsf 22/Apr/2026 22:49:38'!
+minimumExtent
+	^ 600 @ (400 max: super minimumExtent y)! !
+
+!DyWizardNewUser methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Apr/2026 23:29:36'!
+apply
+	self delete.
+"	TODO
+	1.  Create the User data according to the informatiion in the user instance: 
+		- user
+		- school with default agenda and time slots
+		- class group and course
+		- for each course, create two topics: Lessons and Exercises
+	2. Open the DyboApp Settings tool to let the user input additional information
+"! !
 
 !DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 28/Sep/2023 21:28:52'!
 tearDown
