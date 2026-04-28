@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7840] on 2 March 2026 at 10:28:26 pm'!
+'From Cuis7.7 [latest update: #7880] on 28 April 2026 at 12:16:56 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 58!
+!provides: 'DyboTools-Geometry' 1 59!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -1031,11 +1031,11 @@ insertButtons
 	self addMorph: btn position: (295 + buttonExtent x) @150
 ! !
 
-!CalibratorMorph methodsFor: 'drawing' stamp: 'hlsf 1/Mar/2026 17:53:39'!
+!CalibratorMorph methodsFor: 'drawing' stamp: 'hlsf 28/Apr/2026 11:11:20'!
 drawOn: canvas
 	canvas
 		fillRectangle: self localBounds
-		color: `Color white`.
+		color: `Color transparent`.
 	canvas image: etalon at: 0@0.! !
 
 !CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026 18:06:00'!

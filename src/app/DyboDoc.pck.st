@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7879] on 19 April 2026 at 9:51:47 pm'!
+'From Cuis7.7 [latest update: #7880] on 28 April 2026 at 12:16:39 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 237!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
+!provides: 'DyboDoc' 1 238!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1132,257 +1132,6 @@ newStroke
 	
 	! !
 
-!Document methodsFor: 'callback pages' stamp: 'hlsf 4/Mar/2026 16:00:03'!
-chooseBackground
-	| menu |
-	menu := MenuMorph entitled: 'Type of background' translated.
-	{PageBackgroundBlank . PageBackgroundHL . PageBackgroundGrid. PageBackgroundMillimeter } do: [:aBackground |
-		menu 
-			addUpdating: #pageBackgroundString: 
-			target: self 
-			action: #switchToPageBackground: 
-			argumentList: {aBackground }].
-	menu popUpInWorld ! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 16:04:43'!
-deletePage
-	self view deletePage! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 15:45:38'!
-firstPage
-	self view firstPage! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 12/Oct/2024 11:18:01'!
-fitWidthPage
-	" Take PageContainer width for our current page "
-	| page |
-	page := self currentPage.
-	page 
-		morphPosition: 0@ (page morphPosition y);
-		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
-	! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 15:38:17'!
-insertPage
-	self view insertPage! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 15:45:29'!
-lastPage
-	self view lastPage! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 24/Dec/2024 14:39:54'!
-moveOXAction: increment
-	| page |
-	page := self currentPage.
-	page morphPosition: (page morphPosition + (increment @ 0) 
-		min: view container morphExtent 
-		max: page morphExtent negated * page scale)! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 24/Dec/2024 14:39:48'!
-moveOYAction: increment
-	| page |
-	page := self currentPage.
-	page morphPosition: (page morphPosition - (0@increment) 
-		min: view container morphExtent 
-		max: page morphExtent negated * page scale)! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 15:46:24'!
-nextPage
-	self view nextPage! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 3/Mar/2026 17:23:28'!
-pageBackgroundString: pageBackground
-	^ (self currentPage isBackground: pageBackground) asMenuItemTextPrefix , pageBackground title! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 14:28:44'!
-pageFitScreen
-	" Make the page entirely visible in the PageContainer "
-	| page scaleX scaleY |
-	page := self currentPage.
-	
-	scaleX := (page pageContainer morphWidth / page morphWidth) asFloat.
-	scaleY := (page pageContainer morphHeight / page morphHeight) asFloat.
-	page
-		morphPosition: 0@0;
-		scale: (scaleX min: scaleY)
-	! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 26/Oct/2024 15:46:33'!
-previousPage
-	self view previousPage! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 13/Feb/2025 10:30:00'!
-zoomAction: increment	
-	self zoomAction: increment at: view container morphCenter! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 3/Jan/2025 14:57:51'!
-zoomAction: increment	 at: referencePoint
-" zoom centered at the referencePoint position in the container "
-	|  center page |
-	page := self currentPage.
-	center := page internalize: referencePoint .
-	page scale: (page scale - increment min: 2 max: 0.1).
-	center := page externalize: center.
-	page morphPosition: page morphPosition - center + referencePoint ! !
-
-!Document methodsFor: 'callback pages' stamp: 'hlsf 4/Jan/2025 18:12:35'!
-zoomPageTo100
-	self currentPage 
-		morphPosition: 0@0;
-		scale: 1.001! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 22/Feb/2026 10:00:34'!
-browseDKM
-	DyboSystem scriptLibrary browseFor: self currentPage! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 16/Oct/2024 19:28:13'!
-eraserSize: aNumber
-	self eraserTool.
-	eraser width: aNumber ! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 16/Oct/2024 19:29:02'!
-eraserSize16
-	self eraserSize: 16.! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 19/Oct/2024 23:06:48'!
-eraserSize4
-	self eraserSize: 4! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 16/Oct/2024 19:28:45'!
-eraserSize8
-	self eraserSize: 8.! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:39:35'!
-highlighterBlue
-	self highlighterColor: Color blue! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:39:25'!
-highlighterColor: aColor
-	self highlighterTool.
-	highlighter color: (aColor alpha: 0.3)! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:39:46'!
-highlighterGreen
-	self highlighterColor: Color green! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 19/Oct/2024 23:09:21'!
-highlighterRed
-	self highlighterColor: Color red! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 15/Oct/2024 18:46:25'!
-highlighterSize: aNumber
-	self highlighterTool.
-	highlighter width: aNumber ! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 15/Oct/2024 18:46:35'!
-highlighterSize10
-	self highlighterSize: 10! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 15/Oct/2024 18:47:01'!
-highlighterSize20
-	self highlighterSize: 20! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 15/Oct/2024 18:47:29'!
-highlighterSize40
-	self highlighterSize: 40! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 19/Oct/2024 23:49:17'!
-highlighterYellow
-	self highlighterColor: Color yellow! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 15/Mar/2026 19:37:37'!
-importPDF: aFileEntry
-	| process |
-	process := DyboSystem 
-		import: aFileEntry
-		to: model path
-		pages: nil.
-	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
-	1 to: model pdfNumberOfPages do: [:index | | newPage |
-		newPage := PageMorph newOn: self background: (self model pdfBackgroundForPage: index).
-		self view insertPage: newPage	]
-	! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:37:58'!
-nibSize: aNumber
-	self penTool.
-	pen width: aNumber ! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:40:53'!
-nibSize05
-	self nibSize: 0.5! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:43:11'!
-nibSize08
-	self nibSize: 0.8! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:43:16'!
-nibSize1
-	self nibSize: 1! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:43:21'!
-nibSize2
-	self nibSize: 2! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:43:25'!
-nibSize4
-	self nibSize: 4! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:43:29'!
-nibSize6
-	self nibSize: 6! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:43:32'!
-nibSize8
-	self nibSize: 8! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:38:24'!
-penBlack
-	self penColor: Color black! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 19/Oct/2024 23:22:18'!
-penBlue
-	self penColor: Color blue! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:38:13'!
-penColor: aColor
-	self penTool.
-	pen color: aColor! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:38:44'!
-penGreen
-	self penColor: Color green! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:38:53'!
-penRed
-	self penColor: Color red! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Oct/2024 21:39:01'!
-penWhite
-	self penColor: Color white! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 24/Dec/2024 17:12:39'!
-redoAction
-	self commandsManager redo ifTrue: [self modified]! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 14/Apr/2026 14:42:55'!
-saveDocument
-	savesReal := true.
-	self saveToDisk.
-	savesReal := false.
-	isSaved := true.
-	self currentPage redrawNeeded.
-	^ true! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 3/Mar/2026 17:27:42'!
-switchToPageBackground: aClass
-	self currentPage replaceBackgroundBy: aClass new! !
-
-!Document methodsFor: 'callback ui' stamp: 'hlsf 24/Dec/2024 17:12:27'!
-undoAction
-	self commandsManager undo ifTrue: [self modified].
-	self resetTool! !
-
 !Document methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024 21:45:16'!
 commandsManager
 	^ commandsManager ifNil: [commandsManager := CommandManager new]! !
@@ -1442,67 +1191,256 @@ writingTool
 		}
 		otherwise: [nil]! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 14:34:33'!
-eraserTool
-	self tool: EraserTool ! !
-
-!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024 10:29:11'!
-groupTool
-	self tool: GroupTool ! !
-
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 14:34:47'!
-highlighterTool
-	self tool:HighlighterTool ! !
-
-!Document methodsFor: 'tool' stamp: 'hlsf 4/Jan/2025 18:47:34'!
-isTool: aToolName
-	^ self selectedTool == aToolName ! !
-
-!Document methodsFor: 'tool' stamp: 'hlsf 7/Sep/2025 17:52:33'!
-isToolColor: toolName
-" Check if pen or hightlighter and which color - for the circular toolbar 
-toolName takes value penRed,  hightlighterYellow, etc.  "
-	^ (toolName includesSubString: self selectedTool) 
-	and: [toolName includesSubString: (self strokeTool color alpha: 1) colorName capitalized ]! !
-
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 10:38:17'!
-penTool
-	self tool: PenTool ! !
-
-!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024 10:52:29'!
-pointerTool
-	self tool: PointerTool .! !
-
-!Document methodsFor: 'tool' stamp: 'hlsf 26/Oct/2024 15:56:47'!
-resetTool
-" reselect to tool remove intermediate state in the tool "
-	self tool: tool class ! !
-
-!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 14:04:18'!
-shapeTool
+!Document methodsFor: 'actions pages' stamp: 'hlsf 4/Mar/2026 16:00:03'!
+chooseBackground
 	| menu |
-	menu := MenuMorph new.
-	menu 
-		add: 'Line' translated target: self action: #shapeTool: argument: LineShape;
-		add: 'Rectangle' translated target: self action: #shapeTool: argument: RectangularShape;
-		popUpInWorld! !
+	menu := MenuMorph entitled: 'Type of background' translated.
+	{PageBackgroundBlank . PageBackgroundHL . PageBackgroundGrid. PageBackgroundMillimeter } do: [:aBackground |
+		menu 
+			addUpdating: #pageBackgroundString: 
+			target: self 
+			action: #switchToPageBackground: 
+			argumentList: {aBackground }].
+	menu popUpInWorld ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 14:04:46'!
-shapeTool: shapeClass
-	self tool: ShapeTool.
-	tool shapeClass: shapeClass 
-! !
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 16:04:43'!
+deletePage
+	self view deletePage! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 15:09:27'!
-tool
-	^ tool! !
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:45:38'!
+firstPage
+	self view firstPage! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 4/Jan/2025 19:09:41'!
-tool: aToolClass
-	tool ifNotNil: [tool release].
-	tool := aToolClass presenter: self.
-	view statusBarMessage: aToolClass description.
-	self changed: #isTool:! !
+!Document methodsFor: 'actions pages' stamp: 'hlsf 12/Oct/2024 11:18:01'!
+fitWidthPage
+	" Take PageContainer width for our current page "
+	| page |
+	page := self currentPage.
+	page 
+		morphPosition: 0@ (page morphPosition y);
+		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
+	! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:38:17'!
+insertPage
+	self view insertPage! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:45:29'!
+lastPage
+	self view lastPage! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 24/Dec/2024 14:39:54'!
+moveOXAction: increment
+	| page |
+	page := self currentPage.
+	page morphPosition: (page morphPosition + (increment @ 0) 
+		min: view container morphExtent 
+		max: page morphExtent negated * page scale)! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 24/Dec/2024 14:39:48'!
+moveOYAction: increment
+	| page |
+	page := self currentPage.
+	page morphPosition: (page morphPosition - (0@increment) 
+		min: view container morphExtent 
+		max: page morphExtent negated * page scale)! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:46:24'!
+nextPage
+	self view nextPage! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 3/Mar/2026 17:23:28'!
+pageBackgroundString: pageBackground
+	^ (self currentPage isBackground: pageBackground) asMenuItemTextPrefix , pageBackground title! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 14:28:44'!
+pageFitScreen
+	" Make the page entirely visible in the PageContainer "
+	| page scaleX scaleY |
+	page := self currentPage.
+	
+	scaleX := (page pageContainer morphWidth / page morphWidth) asFloat.
+	scaleY := (page pageContainer morphHeight / page morphHeight) asFloat.
+	page
+		morphPosition: 0@0;
+		scale: (scaleX min: scaleY)
+	! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:46:33'!
+previousPage
+	self view previousPage! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 13/Feb/2025 10:30:00'!
+zoomAction: increment	
+	self zoomAction: increment at: view container morphCenter! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 3/Jan/2025 14:57:51'!
+zoomAction: increment	 at: referencePoint
+" zoom centered at the referencePoint position in the container "
+	|  center page |
+	page := self currentPage.
+	center := page internalize: referencePoint .
+	page scale: (page scale - increment min: 2 max: 0.1).
+	center := page externalize: center.
+	page morphPosition: page morphPosition - center + referencePoint ! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 4/Jan/2025 18:12:35'!
+zoomPageTo100
+	self currentPage 
+		morphPosition: 0@0;
+		scale: 1.001! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+browseDKM
+	DyboSystem scriptLibrary browseFor: self currentPage! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024 19:28:13'!
+eraserSize: aNumber
+	self eraserTool.
+	eraser width: aNumber ! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024 19:29:02'!
+eraserSize16
+	self eraserSize: 16.! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024 23:06:48'!
+eraserSize4
+	self eraserSize: 4! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024 19:28:45'!
+eraserSize8
+	self eraserSize: 8.! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:39:35'!
+highlighterBlue
+	self highlighterColor: Color blue! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:39:25'!
+highlighterColor: aColor
+	self highlighterTool.
+	highlighter color: (aColor alpha: 0.3)! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:39:46'!
+highlighterGreen
+	self highlighterColor: Color green! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024 23:09:21'!
+highlighterRed
+	self highlighterColor: Color red! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024 18:46:25'!
+highlighterSize: aNumber
+	self highlighterTool.
+	highlighter width: aNumber ! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024 18:46:35'!
+highlighterSize10
+	self highlighterSize: 10! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024 18:47:01'!
+highlighterSize20
+	self highlighterSize: 20! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024 18:47:29'!
+highlighterSize40
+	self highlighterSize: 40! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024 23:49:17'!
+highlighterYellow
+	self highlighterColor: Color yellow! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Mar/2026 19:37:37'!
+importPDF: aFileEntry
+	| process |
+	process := DyboSystem 
+		import: aFileEntry
+		to: model path
+		pages: nil.
+	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
+	1 to: model pdfNumberOfPages do: [:index | | newPage |
+		newPage := PageMorph newOn: self background: (self model pdfBackgroundForPage: index).
+		self view insertPage: newPage	]
+	! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:37:58'!
+nibSize: aNumber
+	self penTool.
+	pen width: aNumber ! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:40:53'!
+nibSize05
+	self nibSize: 0.5! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:11'!
+nibSize08
+	self nibSize: 0.8! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:16'!
+nibSize1
+	self nibSize: 1! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:21'!
+nibSize2
+	self nibSize: 2! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:25'!
+nibSize4
+	self nibSize: 4! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:29'!
+nibSize6
+	self nibSize: 6! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:32'!
+nibSize8
+	self nibSize: 8! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:38:24'!
+penBlack
+	self penColor: Color black! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024 23:22:18'!
+penBlue
+	self penColor: Color blue! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:38:13'!
+penColor: aColor
+	self penTool.
+	pen color: aColor! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:38:44'!
+penGreen
+	self penColor: Color green! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:38:53'!
+penRed
+	self penColor: Color red! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:39:01'!
+penWhite
+	self penColor: Color white! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024 17:12:39'!
+redoAction
+	self commandsManager redo ifTrue: [self modified]! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Apr/2026 14:42:55'!
+saveDocument
+	savesReal := true.
+	self saveToDisk.
+	savesReal := false.
+	isSaved := true.
+	self currentPage redrawNeeded.
+	^ true! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 3/Mar/2026 17:27:42'!
+switchToPageBackground: aClass
+	self currentPage replaceBackgroundBy: aClass new! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024 17:12:27'!
+undoAction
+	self commandsManager undo ifTrue: [self modified].
+	self resetTool! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025 17:51:46'!
 initialize
@@ -1593,6 +1531,68 @@ printOn: aStream
 	aStream nextPutAll: ' P. (';
 		nextPutAll: model dirName;
 		nextPut: $)! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 14:34:33'!
+eraserTool
+	self tool: EraserTool ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024 10:29:11'!
+groupTool
+	self tool: GroupTool ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 14:34:47'!
+highlighterTool
+	self tool:HighlighterTool ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 4/Jan/2025 18:47:34'!
+isTool: aToolName
+	^ self selectedTool == aToolName ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+isToolColor: toolName
+" Check if pen or hightlighter and which color - for the circular toolbar 
+toolName takes value penRed,  hightlighterYellow, etc.  "
+	^ (toolName includesSubString: self selectedTool) 
+	and: [toolName includesSubString: (self strokeTool color alpha: 1) colorName capitalized ]! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 10:38:17'!
+penTool
+	self tool: PenTool ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024 10:52:29'!
+pointerTool
+	self tool: PointerTool .! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 26/Oct/2024 15:56:47'!
+resetTool
+" reselect to tool remove intermediate state in the tool "
+	self tool: tool class ! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 14:04:18'!
+shapeTool
+	| menu |
+	menu := MenuMorph new.
+	menu 
+		add: 'Line' translated target: self action: #shapeTool: argument: LineShape;
+		add: 'Rectangle' translated target: self action: #shapeTool: argument: RectangularShape;
+		popUpInWorld! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 14:04:46'!
+shapeTool: shapeClass
+	self tool: ShapeTool.
+	tool shapeClass: shapeClass 
+! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 15:09:27'!
+tool
+	^ tool! !
+
+!Document methodsFor: 'tool' stamp: 'hlsf 4/Jan/2025 19:09:41'!
+tool: aToolClass
+	tool ifNotNil: [tool release].
+	tool := aToolClass presenter: self.
+	view statusBarMessage: aToolClass description.
+	self changed: #isTool:! !
 
 !Document class methodsFor: 'object serialization' stamp: 'hlsf 16/Apr/2026 22:19:52'!
 loadDocument: relativePath
@@ -4185,9 +4185,9 @@ statusBarMessage: aString
 tool
 	^ presenter tool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 24/Dec/2024 14:16:13'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:55:01'!
 buttonColor
-	^ Theme current buttonColorFrom: Theme current workspace ! !
+	^ Theme current buttonColorFrom: self defaultBorderColor! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2024 09:52:25'!
 defaultBorderColor

@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7880] on 22 April 2026 at 11:29:52 pm'!
+'From Cuis7.7 [latest update: #7880] on 28 April 2026 at 12:16:33 pm'!
 'Description '!
-!provides: 'Dybo' 1 206!
+!provides: 'Dybo' 1 207!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -780,7 +780,91 @@ asDateAndTime
 hash
 	^ date hash bitXor: timeSlots hash! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 17/Apr/2026 12:30:50'!
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/Dec/2024 21:08:35'!
+activeView
+	^ controlsManager activeView ! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 09:59:47'!
+controlsManager
+	^ controlsManager ! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 11:08:13'!
+currentTopic
+	^ currentTopic ! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 12:33:21'!
+currentTopic: aTopic
+	currentTopic := aTopic ! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 28/Apr/2026 10:14:28'!
+defaultColor
+	^ controlsManager defaultColor! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 16/Aug/2023 21:40:14'!
+domain
+	^ domain! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 28/Apr/2026 10:13:07'!
+icons
+	^ DyboSystem icons! !
+
+!Dybo methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:02:49'!
+view
+	^ controlsManager dyboView! !
+
+!Dybo methodsFor: 'actions' stamp: 'hlsf 31/Dec/2024 11:07:16'!
+goBinder
+	activeViewType := #binder.
+	controlsManager plugBinder.
+	self changed: #isView:	! !
+
+!Dybo methodsFor: 'actions' stamp: 'hlsf 16/Aug/2025 16:21:10'!
+goDocument
+" Plug a new document "
+	^ self goDocument:  (DocumentView presenter: Document new :: installView)
+! !
+
+!Dybo methodsFor: 'actions' stamp: 'hlsf 14/Dec/2024 14:55:15'!
+goDocument: aDocumentView
+" Go to an existing document "
+	activeViewType := #document.
+	controlsManager 
+		docView: aDocumentView;
+		plugInDyboView: aDocumentView.
+	self changed: #isView:.
+	^ controlsManager docPresenter! !
+
+!Dybo methodsFor: 'actions' stamp: 'hlsf 1/Dec/2024 17:18:51'!
+goSettings
+	activeViewType := #settings.
+	controlsManager plugSettings.
+	self changed: #isView:! !
+
+!Dybo methodsFor: 'actions' stamp: 'hlsf 1/Dec/2024 17:18:51'!
+goStart
+	activeViewType := #start.
+	controlsManager plugStart.
+	self changed: #isView:! !
+
+!Dybo methodsFor: 'actions' stamp: 'hlsf 1/Dec/2024 17:18:51'!
+goTasks
+	activeViewType := #tasks.
+	controlsManager plugTask.
+	self changed: #isView:! !
+
+!Dybo methodsFor: 'actions' stamp: 'hlsf 26/Feb/2026 14:51:18'!
+toggleFullscreen
+	DyboSystem toggleFullscreen ! !
+
+!Dybo methodsFor: 'actions settings' stamp: 'hlsf 28/Apr/2026 10:23:08'!
+calibratorView
+	^ controlsManager calibratorView! !
+
+!Dybo methodsFor: 'actions settings' stamp: 'hlsf 28/Apr/2026 10:23:39'!
+userDataView
+	^ controlsManager userDataView ! !
+
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 17/Apr/2026 12:30:50'!
 deleteDocument: aDocument 
  | topic binderView |
 	binderView := controlsManager activeView.
@@ -795,7 +879,7 @@ in the topic: {2}?' translated
 	binderView updatePreviewsPanel.
 	DyboSystem saveData! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 19/Apr/2026 21:45:46'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 19/Apr/2026 21:45:46'!
 importPDF
 	| newDoc answer |
 	currentTopic ifNil: [^ self].
@@ -816,7 +900,7 @@ importPDF
 		saveDocument.
 	^ newDoc! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 17/Apr/2026 12:28:14'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 17/Apr/2026 12:28:14'!
 newDocument
 	| newDoc |
 	currentTopic ifNil: [^ self].
@@ -824,11 +908,11 @@ newDocument
 	DyboSystem saveData.
 	^ newDoc ! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 31/Dec/2024 12:35:33'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 31/Dec/2024 12:35:33'!
 openDocument: aDocument
 	self goDocument: aDocument view! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 14/Apr/2026 12:35:38'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 14/Apr/2026 12:35:38'!
 renameDocument: aPreviewMorph 
 	StringRequestMorph 
 		request:  'Rename the document' translated
@@ -840,13 +924,13 @@ renameDocument: aPreviewMorph
 				aPreviewMorph object saveDocument]
 			]! !
 
-!Dybo methodsFor: 'callback-binder' stamp: 'hlsf 15/Apr/2026 12:37:16'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 15/Apr/2026 12:37:16'!
 saveDocument: aDocument 
  | binderView |
 	binderView := controlsManager activeView.
 	aDocument saveDocument ifTrue: [binderView updatePreviewsPanel]! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 17/Apr/2026 12:12:36'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 17/Apr/2026 12:12:36'!
 deleteTask: aDyTask 
 	(PopUpMenu 
 		confirm: ('Delete the task at {1}?' translated format: {aDyTask})
@@ -855,7 +939,7 @@ deleteTask: aDyTask
 	DyboSystem saveData.
 	self activeView resetTask.! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
 	| task agendaView |
@@ -871,7 +955,7 @@ saveCurrentTask
 		agendaView changedFutureTasks]
 	! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 17/Apr/2026 12:13:06'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 17/Apr/2026 12:13:06'!
 saveNewTask
 	| taskView task |
 	taskView := self activeView.
@@ -884,73 +968,16 @@ saveNewTask
 	taskView resetTask 
 	! !
 
-!Dybo methodsFor: 'callback-task' stamp: 'hlsf 12/Dec/2024 21:09:51'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 12/Dec/2024 21:09:51'!
 saveTask
 	self activeView task
 		ifNotNil: [self saveCurrentTask]
 		ifNil: [self saveNewTask]
 	! !
 
-!Dybo methodsFor: 'callback' stamp: 'hlsf 1/Mar/2026 22:31:05'!
-calibrateMetric
-	| panel | 
-	panel := nil.
-	panel := PluggableDialogPanel 
-		open: controlsManager 
-		label: 'Calibrate Metric Unit' translated
-		view: #calibratorView
-		action: [
-			DyboSystem ppcm: panel pane ppcm.
-			panel delete]! !
-
-!Dybo methodsFor: 'callback' stamp: 'hlsf 31/Dec/2024 11:07:16'!
-goBinder
-	activeViewType := #binder.
-	controlsManager plugBinder.
-	self changed: #isView:	! !
-
-!Dybo methodsFor: 'callback' stamp: 'hlsf 16/Aug/2025 16:21:10'!
-goDocument
-" Plug a new document "
-	^ self goDocument:  (DocumentView presenter: Document new :: installView)
-! !
-
-!Dybo methodsFor: 'callback' stamp: 'hlsf 14/Dec/2024 14:55:15'!
-goDocument: aDocumentView
-" Go to an existing document "
-	activeViewType := #document.
-	controlsManager 
-		docView: aDocumentView;
-		plugInDyboView: aDocumentView.
-	self changed: #isView:.
-	^ controlsManager docPresenter! !
-
-!Dybo methodsFor: 'callback' stamp: 'hlsf 1/Dec/2024 17:18:51'!
-goSettings
-	activeViewType := #settings.
-	controlsManager plugSettings.
-	self changed: #isView:! !
-
-!Dybo methodsFor: 'callback' stamp: 'hlsf 1/Dec/2024 17:18:51'!
-goStart
-	activeViewType := #start.
-	controlsManager plugStart.
-	self changed: #isView:! !
-
-!Dybo methodsFor: 'callback' stamp: 'hlsf 1/Dec/2024 17:18:51'!
-goTasks
-	activeViewType := #tasks.
-	controlsManager plugTask.
-	self changed: #isView:! !
-
-!Dybo methodsFor: 'callback' stamp: 'hlsf 26/Feb/2026 14:51:18'!
-toggleFullscreen
-	DyboSystem toggleFullscreen ! !
-
-!Dybo methodsFor: 'testing' stamp: 'hlsf 1/Dec/2024 17:18:51'!
-isView: aSymbolView
-" We have the start, tasks, binder, and settings views "
-	^ activeViewType == aSymbolView ! !
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:08:13'!
+defaultBorderColor
+	^ controlsManager defaultBorderColor ! !
 
 !Dybo methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026 12:13:30'!
 initialize
@@ -975,29 +1002,10 @@ load
 reset
 	controlsManager := activeViewType := currentTopic := nil! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 12/Dec/2024 21:08:35'!
-activeView
-	^ controlsManager activeView ! !
-
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 09:59:47'!
-controlsManager
-	^ controlsManager ! !
-
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 11:08:13'!
-currentTopic
-	^ currentTopic ! !
-
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 31/Dec/2024 12:33:21'!
-currentTopic: aTopic
-	currentTopic := aTopic ! !
-
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 16/Aug/2023 21:40:14'!
-domain
-	^ domain! !
-
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:02:49'!
-view
-	^ controlsManager dyboView! !
+!Dybo methodsFor: 'testing' stamp: 'hlsf 1/Dec/2024 17:18:51'!
+isView: aSymbolView
+" We have the start, tasks, binder, and settings views "
+	^ activeViewType == aSymbolView ! !
 
 !Dybo methodsFor: 'tool' stamp: 'hlsf 14/Dec/2024 14:27:18'!
 isTool: aToolName
@@ -1675,13 +1683,6 @@ binderButtonData
 	#goBinder . 
 	'In the binders, browse the documents of your courses or start a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 1/Mar/2026 11:46:25'!
-calibrateButtonData
-	^ {'Calibrate' translated . 
-	#calibrate . 
-	#calibrateMetric . 
-	'Calibrate the application to your screen configuration to accurately represent the metric unit. This is necessary for measuring length with geometric tools.' translated }! !
-
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 26/Feb/2026 14:53:38'!
 fullscreenButtonData
 " label - iconName - callback - description "
@@ -1722,17 +1723,17 @@ tasksButtonData
 	#goTasks . 
 	'In the Tasks, review forthcoming tasks and assign a new one.' translated }! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 1/Dec/2024 17:02:23'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:47:43'!
 buttonColor
-	^ dyboView 
-		ifNotNil: [:v | v buttonColor ] 
-		ifNil: [Theme current buttonColorFrom: Theme current workspace ]! !
+	^ Theme current buttonColorFrom: self defaultBorderColor! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 1/Dec/2024 17:02:23'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 10:50:33'!
+defaultBorderColor
+	^ Theme current transcript! !
+
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:47:26'!
 defaultColor
-	^ dyboView 
-		ifNotNil: [:v | v defaultColor] 
-		ifNil: [Theme current paneBackgroundFrom: Theme current transcript ]! !
+	^ Theme current paneBackgroundFrom:  self defaultBorderColor! !
 
 !DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:51:55'!
 installDyboFullscreenView: aPresenter
@@ -1750,6 +1751,10 @@ installDyboView: aPresenter in: aDyboViewClass
 installDyboWindow: aPresenter
 	self installDyboView: aPresenter in: DyboWindow ! !
 
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:46:07'!
+windowColor
+	^ self defaultBorderColor ! !
+
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 14/Dec/2024 15:21:49'!
 activeView
 " 	The active view is the view where the user operates. It is a subview in the Dybo view.
@@ -1757,11 +1762,6 @@ activeView
 	It is the first submoprh in the dybo view layout, below its toolsbar
  "
 	^ activeView! !
-
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 1/Mar/2026 22:07:32'!
-calibratorView
-	^ CalibratorMorph new
-		etalon: (ImageReadWriter formFromFileEntry: DyboSystem iconsPath // 'etalon.png')! !
 
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 15/Apr/2026 12:37:16'!
 plugBinder
@@ -1786,12 +1786,15 @@ plugInDyboView: aView
 	dyboView changed.
 	self triggerEvent: #switchView! !
 
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 17/Apr/2026 12:18:35'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 28/Apr/2026 11:39:39'!
 plugSettings
-	self plugInDyboView: (
-		BreadcrumbsPane 
-			on: DyUserData current 
-			with: DyViewerVisitor )! !
+	| categories sidebar |
+	categories := {
+		{ 'User Data' translated . #userDataView . #userData } .
+		{ 'Calibrate' translated . #calibratorView . #calibrate}
+	}.
+	self plugInDyboView: (sidebar := SidePane on: self dyboPresenter with: categories).
+	sidebar select: #userDataView! !
 
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 15/Apr/2026 19:11:38'!
 plugStart
@@ -1802,6 +1805,21 @@ plugStart
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 1/Dec/2024 17:02:37'!
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
+
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 28/Apr/2026 12:07:50'!
+calibratorView
+	| column pane |
+	pane := nil.
+	column := LayoutMorph newRow borderWidth: 2.
+	pane := PluggablePane 
+		open:  [CalibratorMorph new
+			etalon: (ImageReadWriter formFromFileEntry: DyboSystem iconsPath // 'etalon.png')]
+		view:  #value
+		action: [DyboSystem ppcm: pane pane ppcm].
+	column 
+		addMorph: pane; 
+		addMorphUseAll: DyControlsManager spacer.
+	^ column! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 dyboToolbar
@@ -1818,9 +1836,9 @@ dyboToolbar
 					self on: self dyboPresenter  button: aTool state: #isView: size: buttonWidth )] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 27/Feb/2026 11:15:33'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 28/Apr/2026 11:28:23'!
 dyboToolbarSpec
-	^ #(start tasks binder page spacer fullscreen calibrate settings)! !
+	^ #(start tasks binder page spacer fullscreen settings)! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 on: aPresenter button: symbol state: stateGetter size: size
@@ -1843,6 +1861,10 @@ on: aPresenter button: symbol state: stateGetter size: size
 		borderWidth: 2;
 		morphExtent: (size  * 1.3) rounded asPoint;
 		yourself	! !
+
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 28/Apr/2026 10:23:33'!
+userDataView
+	^ BreadcrumbsPane on: DyUserData current with: DyViewerVisitor! !
 
 !DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/Oct/2024 11:00:40'!
 spacer
@@ -3233,9 +3255,9 @@ adoptWidgetsColor: aColor
 	super adoptWidgetsColor: aColor.
 	color := Theme current paneBackgroundFrom: aColor.! !
 
-!DyView methodsFor: 'ui' stamp: 'hlsf 1/Oct/2023 18:53:14'!
+!DyView methodsFor: 'ui' stamp: 'hlsf 28/Apr/2026 10:52:45'!
 defaultBorderColor
-	^ Theme current transcript! !
+	^ presenter controlsManager defaultBorderColor! !
 
 !DyView methodsFor: 'ui' stamp: 'hlsf 1/Oct/2023 18:53:20'!
 defaultColor
@@ -3967,27 +3989,18 @@ presenter
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DyboFullscreenView methodsFor: 'GUI building' stamp: 'hlsf 25/Feb/2026 09:30:56'!
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:30:56'!
 buttonColor
 
 	^Theme current buttonColorFrom: self windowColor! !
 
-!DyboFullscreenView methodsFor: 'GUI building' stamp: 'hlsf 25/Feb/2026 09:41:22'!
-textBackgroundColor
-
-	^Theme current paneBackgroundFrom: self widgetsColor! !
-
-!DyboFullscreenView methodsFor: 'GUI building' stamp: 'hlsf 25/Feb/2026 09:29:20'!
-windowColor
-	^ Theme current workspace! !
-
-!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:33:22'!
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 10:53:11'!
 defaultBorderColor
-	^ Theme current transcript! !
+	^ presenter controlsManager defaultBorderColor! !
 
-!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:33:39'!
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:50:38'!
 defaultColor
-	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+	^ presenter controlsManager defaultColor! !
 
 !DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:37:12'!
 initialize
@@ -4002,11 +4015,16 @@ openInWorld
 		self widgetsColor: self windowColor ].
 	super openInWorld! !
 
-!DyboFullscreenView methodsFor: 'panes' stamp: 'hlsf 25/Feb/2026 09:41:48'!
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:41:22'!
+textBackgroundColor
+
+	^Theme current paneBackgroundFrom: self widgetsColor! !
+
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:41:48'!
 widgetsColor
 	^ borderColor! !
 
-!DyboFullscreenView methodsFor: 'panes' stamp: 'hlsf 25/Feb/2026 09:41:14'!
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:41:14'!
 widgetsColor: aColor
 	"aColor will be used for titles, borders, etc.
 	A variation of it, #paneColorFrom:, will be used for panes background"
@@ -4014,6 +4032,10 @@ widgetsColor: aColor
 	borderColor := aColor.
 	self color: self textBackgroundColor.
 	self adoptWidgetsColor: borderColor! !
+
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:52:09'!
+windowColor
+	^ presenter controlsManager windowColor! !
 
 !DyboFullscreenView methodsFor: 'stepping' stamp: 'hlsf 25/Feb/2026 10:02:21'!
 step
@@ -4044,24 +4066,29 @@ morphExtent: newExtent
 toggleHackerMode
 	self isStepping ifTrue: [self stopStepping] ifFalse: [self startStepping]! !
 
-!DyboFullscreenView class methodsFor: 'instance creation' stamp: 'hlsf 25/Feb/2026 09:25:52'!
+!DyboFullscreenView class methodsFor: 'instance creation' stamp: 'hlsf 28/Apr/2026 11:46:39'!
 for: aPresenter
-	^ self new ::
+	^ self basicNew
 		presenter: aPresenter;
+		initialize ;
 		yourself! !
 
-!DyboWindow methodsFor: 'initialization' stamp: 'hlsf 28/Sep/2023 21:38:31'!
+!DyboWindow methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:43:02'!
 defaultBorderColor
-	^ Theme current transcript! !
+	^ presenter controlsManager defaultBorderColor ! !
 
-!DyboWindow methodsFor: 'initialization' stamp: 'hlsf 28/Sep/2023 21:38:23'!
+!DyboWindow methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:47:08'!
 defaultColor
-	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
+	^ presenter controlsManager defaultColor! !
 
 !DyboWindow methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026 17:56:10'!
 initialize
 	super initialize.
 	self setLabel: 'Developer Mode'! !
+
+!DyboWindow methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:52:02'!
+windowColor
+	^ presenter controlsManager windowColor! !
 
 !DyboWindow methodsFor: 'accessing' stamp: 'hlsf 28/Sep/2023 21:38:59'!
 adoptWidgetsColor: aColor 
@@ -4076,10 +4103,6 @@ presenter
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DyboWindow methodsFor: 'GUI building' stamp: 'hlsf 29/Aug/2024 11:58:28'!
-windowColor
-	^ Theme current workspace! !
-
 !DyboWindow methodsFor: 'open/close' stamp: 'hlsf 17/Apr/2026 18:30:05'!
 delete
 	super delete.
@@ -4088,10 +4111,11 @@ delete
 	presenter := nil.
 	Smalltalk garbageCollect ! !
 
-!DyboWindow class methodsFor: 'instance creation' stamp: 'hlsf 15/Aug/2023 20:51:48'!
+!DyboWindow class methodsFor: 'instance creation' stamp: 'hlsf 28/Apr/2026 11:44:27'!
 for: aPresenter
-	^ self new ::
+	^ self basicNew 
 		presenter: aPresenter;
+		initialize ;
 		yourself! !
 
 !DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 20/Apr/2026 23:34:45'!
