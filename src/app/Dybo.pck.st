@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7880] on 28 April 2026 at 12:16:33 pm'!
+'From Cuis7.7 [latest update: #7880] on 28 April 2026 at 12:22:03 pm'!
 'Description '!
-!provides: 'Dybo' 1 207!
+!provides: 'Dybo' 1 208!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1786,12 +1786,13 @@ plugInDyboView: aView
 	dyboView changed.
 	self triggerEvent: #switchView! !
 
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 28/Apr/2026 11:39:39'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 28/Apr/2026 12:20:45'!
 plugSettings
 	| categories sidebar |
 	categories := {
 		{ 'User Data' translated . #userDataView . #userData } .
-		{ 'Calibrate' translated . #calibratorView . #calibrate}
+		{ 'Calibrate' translated . #calibratorView . #calibrate} .
+		{ 'Synchronize' translated . #synchronizeView . #synchronize }
 	}.
 	self plugInDyboView: (sidebar := SidePane on: self dyboPresenter with: categories).
 	sidebar select: #userDataView! !
@@ -1806,11 +1807,11 @@ plugStart
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 28/Apr/2026 12:07:50'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 28/Apr/2026 12:21:31'!
 calibratorView
 	| column pane |
 	pane := nil.
-	column := LayoutMorph newRow borderWidth: 2.
+	column := LayoutMorph newRow color: Color transparent.
 	pane := PluggablePane 
 		open:  [CalibratorMorph new
 			etalon: (ImageReadWriter formFromFileEntry: DyboSystem iconsPath // 'etalon.png')]
