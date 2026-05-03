@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7880] on 28 April 2026 at 12:22:03 pm'!
+'From Cuis7.7 [latest update: #7899] on 3 May 2026 at 1:27:44 pm'!
 'Description '!
-!provides: 'Dybo' 1 208!
+!provides: 'Dybo' 1 209!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -64,7 +64,7 @@ Dybo class
 
 !classDefinition: #DyPlatform category: #'Dybo-System'!
 Object subclass: #DyPlatform
-	instanceVariableNames: 'preferences icons scriptLibrary fullscreen'
+	instanceVariableNames: 'icons scriptLibrary fullscreen'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-System'!
@@ -464,14 +464,6 @@ agenda
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 13:03:00'!
 directory
 	^ DyboSystem userDataPath ! !
-
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 2/Mar/2026 19:38:19'!
-ppcm
-	^ ppcm! !
-
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 2/Mar/2026 19:38:29'!
-ppcm: aNumber
-	ppcm := aNumber asFloat! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024 21:45:36'!
 relPath
@@ -1186,14 +1178,9 @@ userPathPreference
 		ifEmpty: [self resourcesPath ]
 		! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 12/Oct/2024 10:09:22'!
-preferences
-	^ preferences ifNil: [self setPreferences ]! !
-
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 27/Feb/2026 08:43:26'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 3/May/2026 13:13:13'!
 setPreferences
-	preferences := PreferenceSet new.
-	preferences 
+	Preferences 
 		name: #paperRatio
 		description: 'The default ratio of a page defined by two numbers, width and height.' translated
 		category: #dybo 
@@ -1210,16 +1197,16 @@ setPreferences
 		description:  'Path for user data as documents, PDF, knowledge models. An empty path locates these resources in the Dybo application folder. Relative path accepted, home/user directory is then prepended' translated
 		category:  #dybo
 		type:  nil
-		value: ''.
-		
-	^ preferences! !
+		value: ''! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 2/Mar/2026 19:38:53'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 3/May/2026 13:16:07'!
 initialize
 	fullscreen := true.
+	self setPreferences.
 	Preferences 
 		at: #worldMenu put: Dybo;
-		at: #fullScreenLeavesDeskMargins put: false.! !
+		at: #fullScreenLeavesDeskMargins put: false.
+! !
 
 !DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 24/Feb/2026 15:02:44'!
 launch
@@ -1231,9 +1218,9 @@ launch
 	Display fullScreenMode: fullscreen
 	! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 14/Feb/2026 12:13:35'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 3/May/2026 13:16:52'!
 reset
-	icons := preferences := scriptLibrary := nil! !
+	icons := scriptLibrary := nil! !
 
 !DyPlatform methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 icons
@@ -1263,9 +1250,10 @@ rootPath
 userPath
 	^ self rootPath / 'resources'! !
 
-!DyDevelopment methodsFor: 'initialize-release' stamp: 'hlsf 2/Mar/2026 19:38:59'!
+!DyDevelopment methodsFor: 'initialize-release' stamp: 'hlsf 3/May/2026 13:16:20'!
 initialize
 	fullscreen := false.
+	self setPreferences.
 	Preferences 
 		at: #fullScreenLeavesDeskMargins put: true;
 		at: #worldMenu put: TheWorldMenu. ! !
@@ -1301,14 +1289,16 @@ miniToolbarSize
 " Size of the squared icons in the secondary toolbar"
 	^ platform miniToolbarSize ! !
 
-!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 2/Mar/2026 19:40:23'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 3/May/2026 13:09:23'!
 ppcm
-	^ DyUserData current ppcm! !
+	^ Preferences at: #ppcm! !
 
-!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 2/Mar/2026 19:41:07'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 3/May/2026 12:58:54'!
 ppcm: number
-	DyUserData current ppcm: number.
-	self saveData.! !
+	Preferences name: #useUserPrefsFile category: #system value: true.
+	Preferences name: #ppcm category: #dybo value: number.
+	Preferences saveToDisk: #ppcm
+	! !
 
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 12/Oct/2024 09:40:04'!
 screenSize
@@ -1374,17 +1364,13 @@ defaultPaperSize
 	
 	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
 
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:41'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 3/May/2026 13:14:42'!
 paperBackground
-	^ self preferences at: #paperBackground! !
+	^ Preferences at: #paperBackground! !
 
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 10:51:23'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 3/May/2026 13:14:34'!
 paperRatio
-	^ self preferences at: #paperRatio! !
-
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 09:38:35'!
-preferences
-	^ platform preferences! !
+	^ Preferences at: #paperRatio! !
 
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:13:37'!
 scriptLibrary
@@ -1447,60 +1433,10 @@ saveData
 		dumpOnCompressedFile: (DyboSystem userDataPath // 'data.obj') 
 		object: DyUserData current! !
 
-!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 22/Feb/2026 11:52:28'!
+!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 3/May/2026 13:10:00'!
 install
-	| world   |
-" Report by any mean installation and run time "
-	Transcript
-		showOnDisplay: false;
-		logToFile: true;
-		logToStdout: true.
-	Smalltalk at: #LogStartupDebugAids put: true.
-	'Installing updates...' print.
-	Smalltalk condenseChanges.
-
-" Set some preferences "
-	Preferences at: #focusFollowsMouse put: true.
-	Preferences at: #defaultFontSize put: 12.
-	'Font preferences set' print.
-"	Preferences at: #logDebuggerStackToFile put: true. "
-	Preferences at: #warnAndOfferLastUserChanges put: false.
-	Preferences at: #autoNumberUserChanges put: false.
-	Preferences name: #fullscreen category: #gui value: true.
-
-" We do code style for a whole workspace, not by paragraph "
-	Preferences at: #workspacesStyleByParagraphs put: false.
-
-" Set Locale and text domains "
-	Preferences at: #useLocale put: true.
-	TextDomainManager registerCategoryPrefix: 'Dybo' domain: 'dybo'.
-	TextDomainManager registerCategoryPrefix: 'DyboDoc' domain: 'dybodoc'.
-	TextDomainManager registerCategoryPrefix: 'DyboTools' domain: 'dybotools'.
-	TextDomainManager registerCategoryPrefix: 'cuis' domain: 'cuis'.	
-
-	DyboSystem beApplication.
-
-	'Finalizing installation...' print.
-	world := UISupervisor ui.
-[
-	(Delay forSeconds: 1) wait.
-	UISupervisor whenUIinSafeState: 	[
-		world hideTaskbar.
-		Display fullScreenMode: true.
-		
-		world submorphs do: [:each | each delete].
-		'Morphs deleted' print.
-
-		'Installing App launch sequence...' print.
-		Smalltalk at: #dyboApp put: DyboSystem.
-		AppLauncher appGlobalName: #dyboApp appSelector: #launch.
-		'Cleaning image...' print.
-		Smalltalk garbageCollect.
-		'Installation ended' print.
-		'Saving image...' print.
-		Smalltalk saveAndQuit ]
-] fork
-! !
+	Preferences name: #useUserPrefsFile category: #system value: true.
+	Preferences name: #ppcm category: #dybo value: 59.! !
 
 !DyboSystem class methodsFor: 'system startup' stamp: 'hlsf 22/Feb/2026 10:01:43'!
 launch
