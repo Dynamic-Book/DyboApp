@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7899] on 4 May 2026 at 10:01:45 pm'!
+'From Cuis7.7 [latest update: #7907] on 4 May 2026 at 10:33:57 pm'!
 'Description '!
-!provides: 'Dybo' 1 210!
+!provides: 'Dybo' 1 211!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1396,6 +1396,16 @@ convert: destEntry pages: interval dpi: integer
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/May/2026 22:22:31'!
+exchangePath
+	^ Preferences at: #exchangePath! !
+
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/May/2026 22:23:49'!
+exchangePath: aDirectory
+	Preferences name: #useUserPrefsFile category: #system value: true.
+	Preferences name: #exchangePath category: #dybo value: aDirectory printString.
+	Preferences saveToDisk: #exchangePath! !
+
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Apr/2026 16:28:05'!
 import: pdfEntry to: destEntry pages: interval
 "
@@ -1762,12 +1772,21 @@ calibratorView
 		addMorphUseAll: DyControlsManager spacer.
 	^ column! !
 
-!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 4/May/2026 21:39:06'!
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 4/May/2026 22:33:45'!
 exchangeDataView
-	| column row |
+	| column row btn |
 	column := LayoutMorph newColumn color: Color transparent.
 	row := LayoutMorph newRow color: Color transparent.
-	row addMorph: (LabelMorph contents: 'Exchange Path' translated :: setBalloonText: 'A directory to import or to export documents and to clone all your data. If this is a remote directory or an usb device, be sure to mount or to plug it before importing or exporting documents.' translated)! !
+	row addMorph: (LabelMorph contents: (DyboSystem exchangePath ifNil: ['No Exchange Folder defined' translated]) :: setBalloonText: 'A directory to import or to export documents and to clone all your data. If this is a remote directory or an usb device, be sure to mount or to plug it before importing or exporting documents.' translated).
+	btn := PluggableButtonMorph model: self dyboPresenter action: #chooseExchangePath ::
+		icon: Theme current openIcon;
+		buttonStyle: #none;
+		setBalloonText: 'Select your exchange folder';
+		yourself.
+	row addMorph: btn.	
+	column addMorph: btn.
+	row := LayoutMorph newRow color: Color transparent.
+	"Boutons avec (Export All) (Import All)"! !
 
 !DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 28/Apr/2026 10:23:33'!
 userDataView
