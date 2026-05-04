@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7880] on 28 April 2026 at 12:16:39 pm'!
+'From Cuis7.7 [latest update: #7899] on 4 May 2026 at 10:01:51 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 238!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 239!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
-!requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1105,7 +1105,7 @@ samplesQty
 "Quantity of samples used to compute a new stroke"
 	^ 4! !
 
-!StrokerBezier3XP methodsFor: 'as yet unclassified' stamp: 'hlsf 26/Mar/2026 10:51:36'!
+!StrokerBezier3XP methodsFor: 'as yet unclassified' stamp: 'hlsf 3/May/2026 19:05:16'!
 newStroke
 	| newStroke lastStroke junctionPoint samples migratedControl1 migratedControl2 factor |
 	samples := self samples.
@@ -1124,7 +1124,7 @@ newStroke
 	(lastStroke notNil and: [lastStroke end == newStroke start]) ifTrue: [	
 		junctionPoint := (lastStroke control2 + newStroke control1) / 2.0.
 		"Reduce the sloopy effect"
-		junctionPoint := (junctionPoint + (lastStroke end * 4) ) / 5.0.
+		junctionPoint := (junctionPoint + (lastStroke end * 3) ) / 4.0.
 		lastStroke end: junctionPoint.
 		newStroke start: junctionPoint.
 		lastStroke redrawNeeded].

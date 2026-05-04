@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7899] on 3 May 2026 at 1:27:44 pm'!
+'From Cuis7.7 [latest update: #7899] on 4 May 2026 at 10:01:45 pm'!
 'Description '!
-!provides: 'Dybo' 1 209!
+!provides: 'Dybo' 1 210!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -851,6 +851,10 @@ toggleFullscreen
 !Dybo methodsFor: 'actions settings' stamp: 'hlsf 28/Apr/2026 10:23:08'!
 calibratorView
 	^ controlsManager calibratorView! !
+
+!Dybo methodsFor: 'actions settings' stamp: 'hlsf 4/May/2026 21:44:15'!
+exchangeDataView
+	^ controlsManager exchangeDataView ! !
 
 !Dybo methodsFor: 'actions settings' stamp: 'hlsf 28/Apr/2026 10:23:39'!
 userDataView
@@ -1722,16 +1726,16 @@ plugInDyboView: aView
 	dyboView changed.
 	self triggerEvent: #switchView! !
 
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 28/Apr/2026 12:20:45'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 4/May/2026 21:58:48'!
 plugSettings
-	| categories sidebar |
+	| categories categoriesView |
 	categories := {
 		{ 'User Data' translated . #userDataView . #userData } .
+		{ 'Exchange Data' translated . #exchangeDataView . #exchange }.
 		{ 'Calibrate' translated . #calibratorView . #calibrate} .
-		{ 'Synchronize' translated . #synchronizeView . #synchronize }
 	}.
-	self plugInDyboView: (sidebar := SidePane on: self dyboPresenter with: categories).
-	sidebar select: #userDataView! !
+	self plugInDyboView: (categoriesView := SidePane on: self dyboPresenter with: categories).
+	categoriesView selectFirstCategory ! !
 
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 15/Apr/2026 19:11:38'!
 plugStart
@@ -1743,11 +1747,11 @@ plugStart
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 28/Apr/2026 12:21:31'!
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 3/May/2026 19:51:50'!
 calibratorView
 	| column pane |
 	pane := nil.
-	column := LayoutMorph newRow color: Color transparent.
+	column := LayoutMorph newColumn color: Color transparent.
 	pane := PluggablePane 
 		open:  [CalibratorMorph new
 			etalon: (ImageReadWriter formFromFileEntry: DyboSystem iconsPath // 'etalon.png')]
@@ -1757,6 +1761,17 @@ calibratorView
 		addMorph: pane; 
 		addMorphUseAll: DyControlsManager spacer.
 	^ column! !
+
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 4/May/2026 21:39:06'!
+exchangeDataView
+	| column row |
+	column := LayoutMorph newColumn color: Color transparent.
+	row := LayoutMorph newRow color: Color transparent.
+	row addMorph: (LabelMorph contents: 'Exchange Path' translated :: setBalloonText: 'A directory to import or to export documents and to clone all your data. If this is a remote directory or an usb device, be sure to mount or to plug it before importing or exporting documents.' translated)! !
+
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 28/Apr/2026 10:23:33'!
+userDataView
+	^ BreadcrumbsPane on: DyUserData current with: DyViewerVisitor! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
 dyboToolbar
@@ -1798,10 +1813,6 @@ on: aPresenter button: symbol state: stateGetter size: size
 		borderWidth: 2;
 		morphExtent: (size  * 1.3) rounded asPoint;
 		yourself	! !
-
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 28/Apr/2026 10:23:33'!
-userDataView
-	^ BreadcrumbsPane on: DyUserData current with: DyViewerVisitor! !
 
 !DyControlsManager class methodsFor: 'widget' stamp: 'hlsf 10/Oct/2024 11:00:40'!
 spacer
