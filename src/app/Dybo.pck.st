@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7907] on 4 May 2026 at 10:33:57 pm'!
+'From Cuis7.7 [latest update: #7907] on 5 May 2026 at 4:13:19 pm'!
 'Description '!
-!provides: 'Dybo' 1 211!
+!provides: 'Dybo' 1 212!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -852,6 +852,16 @@ toggleFullscreen
 calibratorView
 	^ controlsManager calibratorView! !
 
+!Dybo methodsFor: 'actions settings' stamp: 'hlsf 5/May/2026 16:10:12'!
+chooseExchangePath
+	| answer |
+	answer := (StandardFileMenu new newDirectoryFrom: DirectoryEntry userBaseDirectory)
+		startUpWithCaption: 'Select the exchange folder' translated.
+	answer ifNil: [^ self].
+	DyboSystem exchangePath: answer directory.
+	self activeView redrawNeeded 
+	! !
+
 !Dybo methodsFor: 'actions settings' stamp: 'hlsf 4/May/2026 21:44:15'!
 exchangeDataView
 	^ controlsManager exchangeDataView ! !
@@ -1182,8 +1192,15 @@ userPathPreference
 		ifEmpty: [self resourcesPath ]
 		! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 3/May/2026 13:13:13'!
-setPreferences
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 5/May/2026 14:43:38'!
+desktopPreferences
+	Preferences 
+		at: #worldMenu put: Dybo;
+		at: #fullScreenLeavesDeskMargins put: false.
+! !
+
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 5/May/2026 14:41:57'!
+paperPreferences
 	Preferences 
 		name: #paperRatio
 		description: 'The default ratio of a page defined by two numbers, width and height.' translated
@@ -1203,13 +1220,21 @@ setPreferences
 		type:  nil
 		value: ''! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 3/May/2026 13:16:07'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 5/May/2026 14:42:39'!
+pathPreferences
+	Preferences 
+		name: #userPath
+		description:  'Path for user data as documents, PDF, knowledge models. An empty path locates these resources in the Dybo application folder. Relative path accepted, home/user directory is then prepended' translated
+		category:  #dybo
+		type:  nil
+		value: ''! !
+
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 5/May/2026 14:45:06'!
 initialize
 	fullscreen := true.
-	self setPreferences.
-	Preferences 
-		at: #worldMenu put: Dybo;
-		at: #fullScreenLeavesDeskMargins put: false.
+	self desktopPreferences.
+	self paperPreferences.
+	self pathPreferences
 ! !
 
 !DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 24/Feb/2026 15:02:44'!
@@ -1254,13 +1279,18 @@ rootPath
 userPath
 	^ self rootPath / 'resources'! !
 
-!DyDevelopment methodsFor: 'initialize-release' stamp: 'hlsf 3/May/2026 13:16:20'!
-initialize
-	fullscreen := false.
-	self setPreferences.
+!DyDevelopment methodsFor: 'preferences' stamp: 'hlsf 5/May/2026 14:45:38'!
+desktopPreferences
 	Preferences 
 		at: #fullScreenLeavesDeskMargins put: true;
-		at: #worldMenu put: TheWorldMenu. ! !
+		at: #worldMenu put: TheWorldMenu.
+	DyboSystem ppcm: 59! !
+
+!DyDevelopment methodsFor: 'initialize-release' stamp: 'hlsf 5/May/2026 14:48:23'!
+initialize
+	super initialize.
+	fullscreen := false.
+! !
 
 !DyDevelopment methodsFor: 'testing' stamp: 'hlsf 9/Mar/2026 21:21:34'!
 isDeployment
@@ -1396,9 +1426,9 @@ convert: destEntry pages: interval dpi: integer
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/May/2026 22:22:31'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 5/May/2026 15:26:35'!
 exchangePath
-	^ Preferences at: #exchangePath! !
+	^ [Preferences at: #exchangePath] on: Error do: [nil]! !
 
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/May/2026 22:23:49'!
 exchangePath: aDirectory
@@ -1772,21 +1802,29 @@ calibratorView
 		addMorphUseAll: DyControlsManager spacer.
 	^ column! !
 
-!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 4/May/2026 22:33:45'!
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 5/May/2026 16:02:45'!
 exchangeDataView
-	| column row btn |
+	| column row morph |
 	column := LayoutMorph newColumn color: Color transparent.
-	row := LayoutMorph newRow color: Color transparent.
-	row addMorph: (LabelMorph contents: (DyboSystem exchangePath ifNil: ['No Exchange Folder defined' translated]) :: setBalloonText: 'A directory to import or to export documents and to clone all your data. If this is a remote directory or an usb device, be sure to mount or to plug it before importing or exporting documents.' translated).
-	btn := PluggableButtonMorph model: self dyboPresenter action: #chooseExchangePath ::
+	row := LayoutMorph newRow color: Color transparent :: separation: 10 .
+	morph := LabelMorph contents: (DyboSystem exchangePath ifNil: ['Exchange folder not set' translated]) :: 		setBalloonText: 'Directory for import/export documents and data backup. If using a remote directory or USB device, ensure it is mounted or plugged in before proceeding.' translated.
+	row addMorph: morph .
+	morph := PluggableButtonMorph model: self dyboPresenter action: #chooseExchangePath ::
 		icon: Theme current openIcon;
 		buttonStyle: #none;
-		setBalloonText: 'Select your exchange folder';
+		setBalloonText: 'Select an exchange folder' translated;
 		yourself.
-	row addMorph: btn.	
-	column addMorph: btn.
+	row addMorph: morph.	
+	column addMorphKeepMorphHeight: row.
 	row := LayoutMorph newRow color: Color transparent.
-	"Boutons avec (Export All) (Import All)"! !
+	morph := PluggableButtonMorph model: self dyboPresenter action: #exportAll label: 'Export All' translated ::
+		setBalloonText: 'Export all local data to the exchange folder. All previously exported data will be deleted.' translated.
+	row addMorph: morph.
+	morph := PluggableButtonMorph model: self dyboPresenter action: #importAll label: 'Import All' translated ::
+		setBalloonText: 'Import data from the exchange folder and replace all local data. CAUTION: All current local data will be overwritten.' translated.
+	row addMorph: morph.
+	column addMorphKeepMorphHeight: row.
+	^ column ! !
 
 !DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 28/Apr/2026 10:23:33'!
 userDataView
