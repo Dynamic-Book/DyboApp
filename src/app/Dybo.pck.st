@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7907] on 5 May 2026 at 4:16:29 pm'!
+'From Cuis7.7 [latest update: #7907] on 5 May 2026 at 7:53:42 pm'!
 'Description '!
-!provides: 'Dybo' 1 213!
+!provides: 'Dybo' 1 214!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -852,24 +852,17 @@ toggleFullscreen
 calibratorView
 	^ controlsManager calibratorView! !
 
-!Dybo methodsFor: 'actions settings' stamp: 'hlsf 5/May/2026 16:10:12'!
-chooseExchangePath
-	| answer |
-	answer := (StandardFileMenu new newDirectoryFrom: DirectoryEntry userBaseDirectory)
-		startUpWithCaption: 'Select the exchange folder' translated.
-	answer ifNil: [^ self].
-	DyboSystem exchangePath: answer directory.
-	self activeView redrawNeeded 
-	! !
-
-!Dybo methodsFor: 'actions settings' stamp: 'hlsf 5/May/2026 16:15:50'!
+!Dybo methodsFor: 'actions settings' stamp: 'hlsf 5/May/2026 19:34:42'!
 chooseExchangePath: label
-	| answer |
-	answer := (StandardFileMenu new newDirectoryFrom: DirectoryEntry userBaseDirectory)
+	| answer defaultDirecotry |
+	defaultDirecotry := DyboSystem exchangePath 
+		ifNil: [DirectoryEntry userBaseDirectory]
+		ifNotNil: [:path | path asDirectoryEntry].	
+	answer := (StandardFileMenu new newDirectoryFrom: defaultDirecotry)
 		startUpWithCaption: 'Select the exchange folder' translated.
 	answer ifNil: [^ self].
 	DyboSystem exchangePath: answer directory.
-	label contents: DyboSystem exchangePath
+	controlsManager setExchangePathIn: label
 	! !
 
 !Dybo methodsFor: 'actions settings' stamp: 'hlsf 4/May/2026 21:44:15'!
@@ -1812,13 +1805,13 @@ calibratorView
 		addMorphUseAll: DyControlsManager spacer.
 	^ column! !
 
-!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 5/May/2026 16:16:06'!
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 5/May/2026 19:32:14'!
 exchangeDataView
 	| column row label morph |
 	column := LayoutMorph newColumn color: Color transparent.
 	row := LayoutMorph newRow color: Color transparent :: separation: 10 .
-	label := LabelMorph contents: (DyboSystem exchangePath ifNil: ['Exchange folder not set' translated]) :: 		setBalloonText: 'Directory for import/export documents and data backup. If using a remote directory or USB device, ensure it is mounted or plugged in before proceeding.' translated.
-	row addMorph: label .
+	self setExchangePathIn: (label := LabelMorph new).
+	row addMorph: label.
 	morph := PluggableButtonMorph 
 		model: self dyboPresenter action: #chooseExchangePath: actionArgument: label ::
 		icon: Theme current openIcon;
@@ -1836,6 +1829,17 @@ exchangeDataView
 	row addMorph: morph.
 	column addMorphKeepMorphHeight: row.
 	^ column ! !
+
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 5/May/2026 19:31:50'!
+setExchangePathIn: label
+	| tips |
+	label 
+		contents: (DyboSystem exchangePath ifNil: ['Exchange folder not set' translated]) 
+		constrainedTo: 400.
+	tips := Text streamContents: [:str |
+		DyboSystem exchangePath ifNotNil: [:path | str nextPutAll: path bold; newLine].
+			str nextPutAll: 'Directory for import/export documents and data backup. If using a remote directory or USB device, ensure it is mounted or plugged in before proceeding.' translated].
+	label setBalloonText: tips! !
 
 !DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 28/Apr/2026 10:23:33'!
 userDataView
@@ -3680,22 +3684,30 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 14/Apr/2026 15:21:26'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 5/May/2026 19:51:26'!
 previewFor: aDocument
 	| buttons preview |
 	buttons := OrderedCollection new.
 	buttons add: 
 		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocument ::
 			icon: Theme current textEditorIcon;
-			setBalloonText: 'Edit this document' translated).
+			buttonStyle: #none;
+			setBalloonText: 'Edit this document.' translated).
 	aDocument isSaved ifFalse: [ buttons add:
 		(PluggableButtonMorph model: presenter action: #saveDocument: actionArgument: aDocument ::
 			icon: Theme current saveIcon;
-			setBalloonText: 'Save this document' translated)].
+			buttonStyle: #none;
+			setBalloonText: 'Save this document.' translated)].
+	buttons add: 
+		(PluggableButtonMorph model: presenter action: #exportDocument: actionArgument: aDocument ::
+			icon: Theme current goUpIcon ;
+			buttonStyle: #none;
+			setBalloonText: 'Export this document in the exchange folder.' translated).
 	buttons add: 
 		(PluggableButtonMorph model: presenter action: #deleteDocument: actionArgument: aDocument ::
 			icon: Theme current cancelIcon ;
-			setBalloonText: 'Delete this document' translated).
+			buttonStyle: #none;
+			setBalloonText: 'Delete this document.' translated).
 	preview := PreviewMorph 
 		object:  aDocument 
 		image:  aDocument view preview
@@ -3710,7 +3722,7 @@ previewFor: aDocument
 		(Text withForm: (aDocument view currentPage imageForm magnifyBy: 0.5))."
 	^ preview ! !
 
-!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 19/Apr/2026 11:27:19'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 5/May/2026 19:48:06'!
 previewsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
 	| quickButtons scroller |
@@ -3718,11 +3730,15 @@ previewsPanel
 		with: (PluggableButtonMorph model: presenter action: #newDocument ::
 			icon: Theme current listAddIcon;
 			buttonStyle: #none;
-			setBalloonText: 'Create a new document in the selected topic.' translated)
+			setBalloonText: 'Create a new document in this topic.' translated)
 		with: (PluggableButtonMorph model: presenter action: #importPDF ::
 			icon: Theme current openIcon;
 			buttonStyle: #none;
-			setBalloonText: 'Import a PDF document in the selected topic.' translated).
+			setBalloonText: 'Import a PDF document in this topic.' translated)
+		with: (PluggableButtonMorph model: presenter action: #importDocument ::
+			icon: Theme current goDownIcon ;
+			buttonStyle: #none;
+			setBalloonText: 'Import a document from the exchange folder in this topic.' translated).
 	scroller := PluggableScrollPane new ::
 		layoutSpec: LayoutSpec useAll;
 		scroller: (previewPanel := LayoutMorph newColumn) .
