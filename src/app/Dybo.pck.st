@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7907] on 5 May 2026 at 4:13:19 pm'!
+'From Cuis7.7 [latest update: #7907] on 5 May 2026 at 4:16:29 pm'!
 'Description '!
-!provides: 'Dybo' 1 212!
+!provides: 'Dybo' 1 213!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -860,6 +860,16 @@ chooseExchangePath
 	answer ifNil: [^ self].
 	DyboSystem exchangePath: answer directory.
 	self activeView redrawNeeded 
+	! !
+
+!Dybo methodsFor: 'actions settings' stamp: 'hlsf 5/May/2026 16:15:50'!
+chooseExchangePath: label
+	| answer |
+	answer := (StandardFileMenu new newDirectoryFrom: DirectoryEntry userBaseDirectory)
+		startUpWithCaption: 'Select the exchange folder' translated.
+	answer ifNil: [^ self].
+	DyboSystem exchangePath: answer directory.
+	label contents: DyboSystem exchangePath
 	! !
 
 !Dybo methodsFor: 'actions settings' stamp: 'hlsf 4/May/2026 21:44:15'!
@@ -1802,14 +1812,15 @@ calibratorView
 		addMorphUseAll: DyControlsManager spacer.
 	^ column! !
 
-!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 5/May/2026 16:02:45'!
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 5/May/2026 16:16:06'!
 exchangeDataView
-	| column row morph |
+	| column row label morph |
 	column := LayoutMorph newColumn color: Color transparent.
 	row := LayoutMorph newRow color: Color transparent :: separation: 10 .
-	morph := LabelMorph contents: (DyboSystem exchangePath ifNil: ['Exchange folder not set' translated]) :: 		setBalloonText: 'Directory for import/export documents and data backup. If using a remote directory or USB device, ensure it is mounted or plugged in before proceeding.' translated.
-	row addMorph: morph .
-	morph := PluggableButtonMorph model: self dyboPresenter action: #chooseExchangePath ::
+	label := LabelMorph contents: (DyboSystem exchangePath ifNil: ['Exchange folder not set' translated]) :: 		setBalloonText: 'Directory for import/export documents and data backup. If using a remote directory or USB device, ensure it is mounted or plugged in before proceeding.' translated.
+	row addMorph: label .
+	morph := PluggableButtonMorph 
+		model: self dyboPresenter action: #chooseExchangePath: actionArgument: label ::
 		icon: Theme current openIcon;
 		buttonStyle: #none;
 		setBalloonText: 'Select an exchange folder' translated;
