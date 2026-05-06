@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7907] on 5 May 2026 at 7:53:42 pm'!
+'From Cuis7.7 [latest update: #7911] on 6 May 2026 at 7:42:32 pm'!
 'Description '!
-!provides: 'Dybo' 1 214!
+!provides: 'Dybo' 1 215!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -888,6 +888,34 @@ in the topic: {2}?' translated
 	binderView updatePreviewsPanel.
 	DyboSystem saveData! !
 
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 6/May/2026 19:23:45'!
+exportDocument: aDocument
+	| exportedDocDirectory |
+	self isExchangePath ifFalse: [^ self].
+	exportedDocDirectory := DyboSystem exchangePath asDirectoryEntry / aDocument model relPath.
+	exportedDocDirectory exists
+		ifTrue: [(PopUpMenu 
+			confirm: 'This document has already been exported.
+Do you want to overwrite it?' translated
+			trueChoice: 'Overwrite' translated
+			falseChoice: 'Cancel' translated) 
+				ifTrue: ["delete previous export"
+					exportedDocDirectory recursiveDelete ] 
+				ifFalse: [^ self] ].
+	aDocument model path asDirectoryEntry copyTo: exportedDocDirectory pathName
+	! !
+
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 6/May/2026 19:42:16'!
+importDocument
+	self isExchangePath ifFalse: [^ self].
+"	1. Select a document "
+
+"	2. Copy its directory (path) to the topic directory "
+
+"	3. Load the document and add its Presenter instance to the topic's documents collection "
+
+"	4. Save data "! !
+
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 19/Apr/2026 21:45:46'!
 importPDF
 	| newDoc answer |
@@ -1010,6 +1038,13 @@ load
 !Dybo methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026 12:41:18'!
 reset
 	controlsManager := activeViewType := currentTopic := nil! !
+
+!Dybo methodsFor: 'testing' stamp: 'hlsf 6/May/2026 19:30:55'!
+isExchangePath
+	^ DyboSystem exchangePath notNil or: [
+		PopUpMenu inform: 'No exchange path defined.
+Go to Settings/Exchange Data to set one.' translated.
+		false]! !
 
 !Dybo methodsFor: 'testing' stamp: 'hlsf 1/Dec/2024 17:18:51'!
 isView: aSymbolView
