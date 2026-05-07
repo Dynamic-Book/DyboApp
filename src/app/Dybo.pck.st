@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7911] on 6 May 2026 at 7:42:32 pm'!
+'From Cuis7.7 [latest update: #7911] on 7 May 2026 at 12:37:09 pm'!
 'Description '!
-!provides: 'Dybo' 1 215!
+!provides: 'Dybo' 1 216!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -571,10 +571,17 @@ courseAt: aDateTime
 " Search my course occuring at this date and time "
 	^ (self courseAndGroupAt: aDateTime) ifNotNil: [:anArray | anArray first]! !
 
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026 12:30:45'!
-deleteDocument: aDocument from: topic
-	topic documents remove: aDocument.
-	(topic directory / aDocument model dirName) recursiveDelete! !
+!DyUserData methodsFor: 'queries' stamp: 'hlsf 7/May/2026 10:43:56'!
+deleteDocument: aDocPresenter from: topic
+	topic documents remove: aDocPresenter .
+	(topic directory / aDocPresenter model dirName) recursiveDelete! !
+
+!DyUserData methodsFor: 'queries' stamp: 'hlsf 7/May/2026 10:43:40'!
+deleteDocumentNamed: aDirName from: topic
+	| docPresenter |
+	" Delete a document according to its unique dirName identifier, see DocumentModel "
+	docPresenter := topic documents detect: [:aDocument | aDocument model dirName = aDirName].
+	self deleteDocument: docPresenter from: topic! !
 
 !DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026 12:08:33'!
 deleteTask: aTask
@@ -597,6 +604,12 @@ documentOwner: docModel
 		ifFound: [:ownerTopic | ^ ownerTopic ]
 		ifNone: [].
 	^ nil! !
+
+!DyUserData methodsFor: 'queries' stamp: 'hlsf 7/May/2026 12:08:03'!
+importDocument: aDocument in: topic
+	topic documents add: aDocument.
+	aDocument model owner: topic.
+	^ aDocument ! !
 
 !DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026 12:08:26'!
 newTask: aTask
@@ -873,7 +886,7 @@ exchangeDataView
 userDataView
 	^ controlsManager userDataView ! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 17/Apr/2026 12:30:50'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026 10:49:21'!
 deleteDocument: aDocument 
  | topic binderView |
 	binderView := controlsManager activeView.
@@ -885,7 +898,7 @@ in the topic: {2}?' translated
 		trueChoice: 'Yes, I want to delete it.' translated falseChoice: 'No, keep it.' translated) 
 			ifFalse: [^ self].
 	DyUserData current deleteDocument: aDocument from: topic.
-	binderView updatePreviewsPanel.
+	binderView updateView.
 	DyboSystem saveData! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 6/May/2026 19:23:45'!
@@ -905,16 +918,35 @@ Do you want to overwrite it?' translated
 	aDocument model path asDirectoryEntry copyTo: exportedDocDirectory pathName
 	! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 6/May/2026 19:42:16'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026 12:06:37'!
 importDocument
+	| answer importedDocument |
 	self isExchangePath ifFalse: [^ self].
 "	1. Select a document "
+	answer := (StandardFileMenu new oldDirectoryFrom: DyboSystem exchangePath asDirectoryEntry)
+		startUpWithCaption: 'Select a document' translated.
+	answer ifNil: [^ self].
 
-"	2. Copy its directory (path) to the topic directory "
-
-"	3. Load the document and add its Presenter instance to the topic's documents collection "
-
-"	4. Save data "! !
+"	2. Check it is a valid document, with a doc.obj file "
+	(answer directory // 'doc.obj') exists ifFalse: [^ PopUpMenu inform: 'Not a valid document.'].
+"	3. Check it does not exist in current topic "
+	(currentTopic directory / answer name) existsAsDirectory ifTrue: [
+		(PopUpMenu 
+			confirm: 'This document has already been imported.
+Do you want to import it again?' translated
+			trueChoice: 'Import it' translated
+			falseChoice: 'Cancel' translated) 
+				ifTrue: ["delete previous import"
+					DyUserData current deleteDocumentNamed: answer name from: currentTopic] 
+				ifFalse: [^ self] ].
+"	4. copy the document and open it "
+	answer directory copyTo: (currentTopic directory / answer name) pathName.
+	importedDocument := Document loadDocument: currentTopic relPath, '/', answer name.
+" 	5. Import the document in the topic "
+	DyUserData current importDocument: importedDocument in: currentTopic.
+"	6. Save data "
+	self activeView updateView.
+	DyboSystem saveData! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 19/Apr/2026 21:45:46'!
 importPDF
@@ -961,11 +993,11 @@ renameDocument: aPreviewMorph
 				aPreviewMorph object saveDocument]
 			]! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 15/Apr/2026 12:37:16'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026 10:49:21'!
 saveDocument: aDocument 
  | binderView |
 	binderView := controlsManager activeView.
-	aDocument saveDocument ifTrue: [binderView updatePreviewsPanel]! !
+	aDocument saveDocument ifTrue: [binderView updateView]! !
 
 !Dybo methodsFor: 'actions task' stamp: 'hlsf 17/Apr/2026 12:12:36'!
 deleteTask: aDyTask 
@@ -1781,7 +1813,7 @@ activeView
  "
 	^ activeView! !
 
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 15/Apr/2026 12:37:16'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 7/May/2026 10:49:21'!
 plugBinder
 	self plugInDyboView: (DyBinderView presenter: self dyboPresenter).
 	self dyboPresenter currentTopic "Any previously selected topic? "
@@ -1789,7 +1821,7 @@ plugBinder
 		ifNil: [" Set a default topic for the presenter, if any "
 			activeView topic ifNotNil: [:aTopic |
 				self dyboPresenter currentTopic: aTopic.
-				self activeView updatePreviewsPanel]	].
+				self activeView updateView]	].
 	self runningWorld doOneCycleNow.! !
 
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 26/Feb/2026 09:56:30'!
@@ -1815,10 +1847,10 @@ plugSettings
 	self plugInDyboView: (categoriesView := SidePane on: self dyboPresenter with: categories).
 	categoriesView selectFirstCategory ! !
 
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 15/Apr/2026 19:11:38'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 7/May/2026 10:49:21'!
 plugStart
 	self plugInDyboView: (DyStartView presenter: self dyboPresenter).
-	self activeView updatePreviewsPanel.
+	self activeView updateView.
 	self runningWorld doOneCycleNow ! !
 
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 1/Dec/2024 17:02:37'!
@@ -3318,6 +3350,9 @@ defaultBorderColor
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
+!DyView methodsFor: 'ui' stamp: 'hlsf 7/May/2026 10:47:37'!
+updateView! !
+
 !DyView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 16:55:05'!
 classGroup
 " The selected class group, if any "
@@ -3695,11 +3730,11 @@ topic: aTopic
 topicIndex
 	^ topicIndex! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:37:16'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 7/May/2026 10:49:21'!
 topicIndex: anIndex
 	topicIndex := anIndex.
 	self changed: #topicIndex:.
-	self updatePreviewsPanel.
+	self updateView.
 	presenter currentTopic: self topic! !
 
 !DyBinderView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024 16:57:40'!
@@ -3804,8 +3839,8 @@ initialize
 	self addMorphUseAll: self previewsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 15/Apr/2026 12:37:16'!
-updatePreviewsPanel
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 7/May/2026 10:49:21'!
+updateView
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	documents := self topic ifNil: [`Array new`] ifNotNil: [:aTopic | aTopic documents].
@@ -3822,12 +3857,12 @@ updatePreviewsPanel
 				into: [:row :document | row addMorph: (self previewFor: document) ]) ].
 	^ previewPanel ! !
 
-!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:43:52'!
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 7/May/2026 10:49:21'!
 classGroupIndex: anIndex
 	" Set the class group "
 	classGroupIndex := anIndex.
 	self changed: #classGroupIndex:.
-	self updatePreviewsPanel ! !
+	self updateView ! !
 
 !DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:13:12'!
 classGroups
@@ -3849,16 +3884,16 @@ quantity
 quantityIndex
 	^ quantityIndex ! !
 
-!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:40:24'!
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 7/May/2026 10:49:21'!
 quantityIndex: anIndex
 	quantityIndex  := anIndex.
 	self changed: #quantityIndex:.
-	self updatePreviewsPanel! !
+	self updateView! !
 
-!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:44:58'!
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 7/May/2026 10:49:21'!
 sortIndex: anIndex
 	super sortIndex: anIndex.
-	self updatePreviewsPanel! !
+	self updateView! !
 
 !DyStartView methodsFor: 'accessing' stamp: 'hlsf 16/Apr/2026 10:09:47'!
 sortOptions
@@ -3873,11 +3908,11 @@ type
 typeIndex
 	^ typeIndex ! !
 
-!DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 12:37:26'!
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 7/May/2026 10:49:21'!
 typeIndex: anIndex
 	typeIndex  := anIndex.
 	self changed: #typeIndex:.
-	self updatePreviewsPanel! !
+	self updateView! !
 
 !DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 19:13:03'!
 types
@@ -4019,8 +4054,8 @@ typesQuery
 				ifFalse: [#task]) ].
 	^ types! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 17/Apr/2026 18:59:24'!
-updatePreviewsPanel
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 7/May/2026 10:49:21'!
+updateView
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	previewPanel removeAllMorphs.
