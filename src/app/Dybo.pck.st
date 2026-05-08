@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7911] on 7 May 2026 at 3:48:07 pm'!
+'From Cuis7.7 [latest update: #7911] on 8 May 2026 at 11:00:29 am'!
 'Description '!
-!provides: 'Dybo' 1 217!
+!provides: 'Dybo' 1 218!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -860,6 +860,17 @@ goTasks
 !Dybo methodsFor: 'actions' stamp: 'hlsf 26/Feb/2026 14:51:18'!
 toggleFullscreen
 	DyboSystem toggleFullscreen ! !
+
+!Dybo methodsFor: 'actions settings' stamp: 'hlsf 8/May/2026 10:50:26'!
+backupUserData
+	| backupDir archive |
+	self isExchangePath ifFalse: [^ self].
+	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
+	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
+	archive recursiveDelete.
+	backupDir copyTo: archive pathName.
+	backupDir recursiveDelete.
+	DyUserData current directory copyTo: backupDir pathName! !
 
 !Dybo methodsFor: 'actions settings' stamp: 'hlsf 28/Apr/2026 10:23:08'!
 calibratorView
@@ -1872,7 +1883,7 @@ calibratorView
 		addMorphUseAll: DyControlsManager spacer.
 	^ column! !
 
-!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 7/May/2026 15:42:05'!
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 8/May/2026 10:10:07'!
 exchangeDataView
 	| column row label morph |
 	column := LayoutMorph newColumn color: Color transparent.
@@ -1888,11 +1899,11 @@ exchangeDataView
 	row addMorph: morph.	
 	column addMorphKeepMorphHeight: row.
 	row := LayoutMorph newRow color: Color transparent.
-	morph := PluggableButtonMorph model: self dyboPresenter action: #exportAll label: 'Back Up' translated ::
+	morph := PluggableButtonMorph model: self dyboPresenter action: #backupUserData label: 'Back Up' translated ::
 		setBalloonText: 'Save a complete copy of all local data to the exchange folder.
 Warning: This will ovewrite the previous backup.' translated.
 	row addMorph: morph.
-	morph := PluggableButtonMorph model: self dyboPresenter action: #importAll label: 'Restore' translated ::
+	morph := PluggableButtonMorph model: self dyboPresenter action: #restoreUserData label: 'Restore' translated ::
 		setBalloonText: 'Restore all data from the exchange folder. 
 Warning: This will overwrite your current local data.' translated.
 	row addMorph: morph.
