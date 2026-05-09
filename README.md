@@ -53,8 +53,8 @@ These data are created directly from the DyboApp, with the settings
 tool (the gear button at the right of the toolbar).
 
 ```bash
-cd DyboApp/resources/data
-cp data_sample.obj data.obj
+cd DyboApp/resources/
+cp refData/data_sample.obj userData/data.obj
 cd -
 ```
 
@@ -83,4 +83,4 @@ Have an interesting exploration!
 # License
 GNU Less General Public License
 
-Copyright 2023--2025  Hilaire Fernandes 
+Copyright 2023--2026  Hilaire Fernandes 
