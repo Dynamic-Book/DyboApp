@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7911] on 8 May 2026 at 11:00:29 am'!
+'From Cuis7.7 [latest update: #7912] on 9 May 2026 at 6:20:55 pm'!
 'Description '!
-!provides: 'Dybo' 1 218!
+!provides: 'Dybo' 1 219!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1447,10 +1447,10 @@ tasksRelPath
 " the location of the user documents "
 	^ 'tasks'! !
 
-!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:28:41'!
+!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/May/2026 18:19:56'!
 userDataPath
 " the location of the user data and documents "
-	^ (platform userPath / 'data') assureExistence ! !
+	^ (platform userPath / 'userData') assureExistence ! !
 
 !DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026 10:23:38'!
 renameClassGroup: aClassGroup from: prevName to: newName
