@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7912] on 10 May 2026 at 1:04:59 pm'!
+'From Cuis7.7 [latest update: #7912] on 10 May 2026 at 3:28:17 pm'!
 'Description '!
-!provides: 'Dybo' 1 220!
+!provides: 'Dybo' 1 221!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -969,6 +969,63 @@ saveDocument: aDocument
 	binderView := controlsManager activeView.
 	aDocument saveDocument ifTrue: [binderView updateView]! !
 
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 12:54:05'!
+backupUserData
+	| backupDir archive |
+	self isExchangePath ifFalse: [^ self].
+	WaitSpinner start.
+	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
+	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
+	archive recursiveDelete.
+	backupDir copyTo: archive pathName.
+	backupDir recursiveDelete.
+	DyboSystem userDataPath copyTo: backupDir pathName.
+	WaitSpinner stop! !
+
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 10:41:48'!
+chooseExchangePath: label
+	| answer exchangeDirecotry |
+	exchangeDirecotry := DyboSystem exchangePath 
+		ifNil: [DirectoryEntry userBaseDirectory]
+		ifNotNil: [:path | path asDirectoryEntry].	
+	answer := (StandardFileMenu new newDirectoryFrom: exchangeDirecotry)
+		startUpWithCaption: 'Select the exchange folder' translated.
+	answer ifNil: [^ self].
+	exchangeDirecotry := answer directory name = answer name 
+		ifTrue: [answer directory ]
+		ifFalse: [	answer directory / answer name].  " The user input a new directory name "
+	DyboSystem exchangePath: exchangeDirecotry.
+	controlsManager setExchangePathIn: label
+	! !
+
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 12:54:33'!
+restoreUserData
+	| backupDir archive warningMsg |
+	self isExchangePath ifFalse: [^ self].
+	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
+	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
+"	1. Ensure we have a valid backup "	
+	(backupDir // 'data.obj') exists ifFalse: [
+		^ PopUpMenu inform: 'No backup was found to restore.' translated].
+"	2. Warning about the destructive operation on the local user data "	
+	warningMsg := 'You are about to restore your user data from the backup at:
+{1}
+All current local data will be replaced.
+Do you really want to proceed?' translated format: { backupDir pathName }.
+	(PopUpMenu 
+		confirm: warningMsg 
+		trueChoice: 'Restore' translated
+ 		falseChoice: 'Cancel' translated) ifFalse: [^ self].
+	WaitSpinner start.
+"	3. Delete the archive and make a copy of the local data in the archvie "
+	archive recursiveDelete.
+	DyboSystem userDataPath copyTo: archive pathName.
+"	4. Delete the local user data, restore it from the backup and load the new data "
+	DyboSystem userDataPath recursiveDelete.
+	backupDir copyTo: DyboSystem userDataPath pathName.
+	DyUserData load.
+	WaitSpinner stop.! !
+
 !Dybo methodsFor: 'actions task' stamp: 'hlsf 17/Apr/2026 12:12:36'!
 deleteTask: aDyTask 
 	(PopUpMenu 
@@ -1056,63 +1113,6 @@ isView: aSymbolView
 !Dybo methodsFor: 'tool' stamp: 'hlsf 14/Dec/2024 14:27:18'!
 isTool: aToolName
 	^ controlsManager docPresenter isTool: aToolName ! !
-
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 12:54:05'!
-backupUserData
-	| backupDir archive |
-	self isExchangePath ifFalse: [^ self].
-	WaitSpinner start.
-	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
-	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
-	archive recursiveDelete.
-	backupDir copyTo: archive pathName.
-	backupDir recursiveDelete.
-	DyboSystem userDataPath copyTo: backupDir pathName.
-	WaitSpinner stop! !
-
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 10:41:48'!
-chooseExchangePath: label
-	| answer exchangeDirecotry |
-	exchangeDirecotry := DyboSystem exchangePath 
-		ifNil: [DirectoryEntry userBaseDirectory]
-		ifNotNil: [:path | path asDirectoryEntry].	
-	answer := (StandardFileMenu new newDirectoryFrom: exchangeDirecotry)
-		startUpWithCaption: 'Select the exchange folder' translated.
-	answer ifNil: [^ self].
-	exchangeDirecotry := answer directory name = answer name 
-		ifTrue: [answer directory ]
-		ifFalse: [	answer directory / answer name].  " The user input a new directory name "
-	DyboSystem exchangePath: exchangeDirecotry.
-	controlsManager setExchangePathIn: label
-	! !
-
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 12:54:33'!
-restoreUserData
-	| backupDir archive warningMsg |
-	self isExchangePath ifFalse: [^ self].
-	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
-	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
-"	1. Ensure we have a valid backup "	
-	(backupDir // 'data.obj') exists ifFalse: [
-		^ PopUpMenu inform: 'No backup was found to restore.' translated].
-"	2. Warning about the destructive operation on the local user data "	
-	warningMsg := 'You are about to restore your user data from the backup at:
-{1}
-All current local data will be replaced.
-Do you really want to proceed?' translated format: { backupDir pathName }.
-	(PopUpMenu 
-		confirm: warningMsg 
-		trueChoice: 'Restore' translated
- 		falseChoice: 'Cancel' translated) ifFalse: [^ self].
-	WaitSpinner start.
-"	3. Delete the archive and make a copy of the local data in the archvie "
-	archive recursiveDelete.
-	DyboSystem userDataPath copyTo: archive pathName.
-"	4. Delete the local user data, restore it from the backup and load the new data "
-	DyboSystem userDataPath recursiveDelete.
-	backupDir copyTo: DyboSystem userDataPath pathName.
-	DyUserData load.
-	WaitSpinner stop.! !
 
 !Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:33:07'!
 about
