@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7912] on 9 May 2026 at 6:20:55 pm'!
+'From Cuis7.7 [latest update: #7912] on 10 May 2026 at 1:04:59 pm'!
 'Description '!
-!provides: 'Dybo' 1 219!
+!provides: 'Dybo' 1 220!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -809,10 +809,6 @@ defaultColor
 domain
 	^ domain! !
 
-!Dybo methodsFor: 'accessing' stamp: 'hlsf 28/Apr/2026 10:13:07'!
-icons
-	^ DyboSystem icons! !
-
 !Dybo methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:02:49'!
 view
 	^ controlsManager dyboView! !
@@ -861,42 +857,6 @@ goTasks
 toggleFullscreen
 	DyboSystem toggleFullscreen ! !
 
-!Dybo methodsFor: 'actions settings' stamp: 'hlsf 8/May/2026 10:50:26'!
-backupUserData
-	| backupDir archive |
-	self isExchangePath ifFalse: [^ self].
-	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
-	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
-	archive recursiveDelete.
-	backupDir copyTo: archive pathName.
-	backupDir recursiveDelete.
-	DyUserData current directory copyTo: backupDir pathName! !
-
-!Dybo methodsFor: 'actions settings' stamp: 'hlsf 28/Apr/2026 10:23:08'!
-calibratorView
-	^ controlsManager calibratorView! !
-
-!Dybo methodsFor: 'actions settings' stamp: 'hlsf 5/May/2026 19:34:42'!
-chooseExchangePath: label
-	| answer defaultDirecotry |
-	defaultDirecotry := DyboSystem exchangePath 
-		ifNil: [DirectoryEntry userBaseDirectory]
-		ifNotNil: [:path | path asDirectoryEntry].	
-	answer := (StandardFileMenu new newDirectoryFrom: defaultDirecotry)
-		startUpWithCaption: 'Select the exchange folder' translated.
-	answer ifNil: [^ self].
-	DyboSystem exchangePath: answer directory.
-	controlsManager setExchangePathIn: label
-	! !
-
-!Dybo methodsFor: 'actions settings' stamp: 'hlsf 4/May/2026 21:44:15'!
-exchangeDataView
-	^ controlsManager exchangeDataView ! !
-
-!Dybo methodsFor: 'actions settings' stamp: 'hlsf 28/Apr/2026 10:23:39'!
-userDataView
-	^ controlsManager userDataView ! !
-
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026 10:49:21'!
 deleteDocument: aDocument 
  | topic binderView |
@@ -929,7 +889,7 @@ Do you want to overwrite it?' translated
 	aDocument model path asDirectoryEntry copyTo: exportedDocDirectory pathName
 	! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026 14:57:59'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 10/May/2026 11:32:28'!
 importDocument
 	| answer importedDocument |
 	self isExchangePath ifFalse: [^ self].
@@ -937,15 +897,14 @@ importDocument
 	answer := (StandardFileMenu new oldDirectoryFrom: DyboSystem exchangePath asDirectoryEntry / 'exports')
 		startUpWithCaption: 'Select a document' translated.
 	answer ifNil: [^ self].
-
 "	2. Check it is a valid document, with a doc.obj file "
 	(answer directory // 'doc.obj') exists ifFalse: [^ PopUpMenu inform: 'Not a valid document.'].
 "	3. Check it does not exist in current topic "
 	(currentTopic directory / answer name) existsAsDirectory ifTrue: [
 		(PopUpMenu 
-		    confirm: 'This document has already been imported.
-Do you want to re-import it?' translated
-		    trueChoice: 'Re-import' translated
+		    confirm: 'This document already exists.
+Do you want to overwrite it?' translated
+		    trueChoice: 'Overwrite' translated
  		falseChoice: 'Cancel' translated) 
 				ifTrue: ["delete previous import"
 					DyUserData current deleteDocumentNamed: answer name from: currentTopic] 
@@ -1097,6 +1056,63 @@ isView: aSymbolView
 !Dybo methodsFor: 'tool' stamp: 'hlsf 14/Dec/2024 14:27:18'!
 isTool: aToolName
 	^ controlsManager docPresenter isTool: aToolName ! !
+
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 12:54:05'!
+backupUserData
+	| backupDir archive |
+	self isExchangePath ifFalse: [^ self].
+	WaitSpinner start.
+	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
+	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
+	archive recursiveDelete.
+	backupDir copyTo: archive pathName.
+	backupDir recursiveDelete.
+	DyboSystem userDataPath copyTo: backupDir pathName.
+	WaitSpinner stop! !
+
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 10:41:48'!
+chooseExchangePath: label
+	| answer exchangeDirecotry |
+	exchangeDirecotry := DyboSystem exchangePath 
+		ifNil: [DirectoryEntry userBaseDirectory]
+		ifNotNil: [:path | path asDirectoryEntry].	
+	answer := (StandardFileMenu new newDirectoryFrom: exchangeDirecotry)
+		startUpWithCaption: 'Select the exchange folder' translated.
+	answer ifNil: [^ self].
+	exchangeDirecotry := answer directory name = answer name 
+		ifTrue: [answer directory ]
+		ifFalse: [	answer directory / answer name].  " The user input a new directory name "
+	DyboSystem exchangePath: exchangeDirecotry.
+	controlsManager setExchangePathIn: label
+	! !
+
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 12:54:33'!
+restoreUserData
+	| backupDir archive warningMsg |
+	self isExchangePath ifFalse: [^ self].
+	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
+	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
+"	1. Ensure we have a valid backup "	
+	(backupDir // 'data.obj') exists ifFalse: [
+		^ PopUpMenu inform: 'No backup was found to restore.' translated].
+"	2. Warning about the destructive operation on the local user data "	
+	warningMsg := 'You are about to restore your user data from the backup at:
+{1}
+All current local data will be replaced.
+Do you really want to proceed?' translated format: { backupDir pathName }.
+	(PopUpMenu 
+		confirm: warningMsg 
+		trueChoice: 'Restore' translated
+ 		falseChoice: 'Cancel' translated) ifFalse: [^ self].
+	WaitSpinner start.
+"	3. Delete the archive and make a copy of the local data in the archvie "
+	archive recursiveDelete.
+	DyboSystem userDataPath copyTo: archive pathName.
+"	4. Delete the local user data, restore it from the backup and load the new data "
+	DyboSystem userDataPath recursiveDelete.
+	backupDir copyTo: DyboSystem userDataPath pathName.
+	DyUserData load.
+	WaitSpinner stop.! !
 
 !Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026 11:33:07'!
 about
@@ -1432,10 +1448,10 @@ myPDFPath
 " the location of the user resources as PDF or other media files "
 	^ (platform userPath/ 'myPDF') assureExistence ! !
 
-!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:34:11'!
+!DyboSystem class methodsFor: 'path' stamp: 'hlsf 10/May/2026 12:38:57'!
 myScriptsPath
 " the location of the user DKM scripts "
-	^ (platform userPath/ 'myScripts') assureExistence ! !
+	^ (self userDataPath / 'myScripts') assureExistence ! !
 
 !DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:37:22'!
 scriptsPath
@@ -1648,7 +1664,7 @@ handStroke: squareWidth width: width color: color
 	^ aForm
 ! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/May/2026 10:35:54'!
 highlighterColorTools
 " Data to build the circular sub toolbar of highlighter colors "
 	| size help |
@@ -1659,7 +1675,7 @@ highlighterColorTools
 	^ #('yellow' 'red' 'blue' 'green') collect: [:aColor | 
 		Array 
 			with: (#highlighter, aColor capitalized) asSymbol
-			with: (DyboSystem icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (self icons getForm: HighlighterTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
 			with: (help format: {aColor translated})]! !
 
 !DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 22/Feb/2026 10:00:34'!
@@ -1686,7 +1702,7 @@ nibSizeTools
 			with: (self handStroke: size width: nibSize color: Color black)
 			with: (help format: {nibSize })		 	]! !
 
-!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 10/May/2026 10:36:04'!
 penColorTools
 " Data to build the circular sub toolbar of pen colors "
 	| size help |
@@ -1697,7 +1713,7 @@ penColorTools
 	^ #('black' 'blue' 'green' 'red' 'white') collect: [:aColor | 
 		Array 
 			with: (#pen, aColor capitalized) asSymbol
-			with: (DyboSystem icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
+			with: (self icons getForm: PenTool iconName ofSize: size fill: (Color perform: aColor asSymbol))
 			with: (help format: {aColor translated})]! !
 
 !DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 15/Oct/2024 21:10:56'!
@@ -1735,6 +1751,10 @@ dyboPresenter
 !DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 1/Dec/2024 17:02:49'!
 dyboView
 	^ dyboView! !
+
+!DyControlsManager methodsFor: 'accessing' stamp: 'hlsf 10/May/2026 10:35:44'!
+icons
+	^ DyboSystem icons! !
 
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 24/Feb/2026 09:04:37'!
 binderButtonData
@@ -1800,12 +1820,15 @@ defaultColor
 installDyboFullscreenView: aPresenter
 	self installDyboView: aPresenter in: DyboFullscreenView ! !
 
-!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:49:23'!
+!DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 10/May/2026 12:23:38'!
 installDyboView: aPresenter in: aDyboViewClass
 	dyboView := aDyboViewClass for: aPresenter.
 	dyboView 
 		addMorph: self dyboToolbar 
 		layoutSpec: (LayoutSpec fixedHeight: DyboSystem iconToolbarSize + 4).
+	dyboView layoutMorph
+		gap: 20;
+		padding: 5@5. 
 	self plugStart! !
 
 !DyControlsManager methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026 09:49:51'!
@@ -1847,7 +1870,7 @@ plugInDyboView: aView
 	dyboView changed.
 	self triggerEvent: #switchView! !
 
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 4/May/2026 21:58:48'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 10/May/2026 10:32:46'!
 plugSettings
 	| categories categoriesView |
 	categories := {
@@ -1855,7 +1878,8 @@ plugSettings
 		{ 'Exchange Data' translated . #exchangeDataView . #exchange }.
 		{ 'Calibrate' translated . #calibratorView . #calibrate} .
 	}.
-	self plugInDyboView: (categoriesView := SidePane on: self dyboPresenter with: categories).
+	categories := categories sort: [:arrayA :arrayB | arrayA first < arrayB first].
+	self plugInDyboView: (categoriesView := SidePane on: self with: categories).
 	categoriesView selectFirstCategory ! !
 
 !DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 7/May/2026 10:49:21'!
@@ -1944,7 +1968,7 @@ dyboToolbar
 dyboToolbarSpec
 	^ #(start tasks binder page spacer fullscreen settings)! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 10/May/2026 10:35:59'!
 on: aPresenter button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
@@ -1957,7 +1981,7 @@ on: aPresenter button: symbol state: stateGetter size: size
 		stateGetter: stateGetter
 		action: array third ::
 		stateArgument: (stateGetter isUnary ifTrue: [nil] ifFalse: [array second]);
-		icon: (DyboSystem icons getForm: array second ofSize: size);
+		icon: (self icons getForm: array second ofSize: size);
 		setBalloonText: array fourth;
 		color: self defaultColor ;
 		selectedColor: self buttonColor ;
@@ -3957,12 +3981,12 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 17/Apr/2026 12:21:11'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 10/May/2026 12:10:06'!
 previewFor: aDocument
 	| buttons preview decorated docModel classGroup indicativeColor title |
 	docModel := aDocument model.
 	title := docModel isCourse ifTrue: [docModel title] ifFalse: [docModel owner printString].
-	indicativeColor := docModel isCourse ifTrue: [self defaultColor muchDarker] ifFalse: [Color blue].
+	indicativeColor := docModel isCourse ifTrue: [Color blue darker] ifFalse: [Color red darker].
 	classGroup := DyUserData current classGroupOf: docModel.
 	buttons := OrderedCollection new.
 	buttons add: 
@@ -3978,7 +4002,7 @@ previewFor: aDocument
 	preview setBalloonText: (Text streamContents: [:str |
 		str nextPutAll: title bold;
 			nextPut: Character lf;
-			nextPutAll: (docModel description format: {classGroup});
+			nextPutAll: ((docModel description format: {classGroup}) color: indicativeColor) ;
 			nextPut: Character lf;
 			nextPutAll: (('Creation time: ' translated, docModel dirName italic) pointSize: FontFamily defaultPointSize - 2);
 			nextPut: Character lf;

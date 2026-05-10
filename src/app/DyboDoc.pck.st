@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7899] on 4 May 2026 at 10:01:51 pm'!
+'From Cuis7.7 [latest update: #7912] on 10 May 2026 at 1:05:10 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 239!
-!requires: 'DyboTools-Geometry' 1 26 nil!
+!provides: 'DyboDoc' 1 240!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -2702,20 +2702,18 @@ description
 		ifTrue:  [self descriptionCourse ]
 		ifFalse: [self descriptionTask ]! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026 20:10:55'!
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 10/May/2026 11:56:41'!
 descriptionCourse
 	^ String streamContents: [:str | str 
-		nextPutAll: 'Educational document from class {1}' translated;	" Class group "
+		nextPutAll: 'Document in class {1}' translated;	" Class group "
 		nextPut: Character lf;
 		print: self owner course;											" Course " 
 		nextPut: $/; print: self owner]										" Topic "! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026 20:11:01'!
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 10/May/2026 11:59:25'!
 descriptionTask
 	^ String streamContents: [:str | str 
-		nextPutAll: 'Homework assignment for class {1}' translated;
-		nextPut: Character lf;
-		print: self owner]! !
+		nextPutAll: 'Homework for class {1}' translated]! !
 
 !DocumentModel methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026 20:11:19'!
 printOn: str
