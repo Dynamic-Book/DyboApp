@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7912] on 10 May 2026 at 3:28:17 pm'!
+'From Cuis7.7 [latest update: #7937] on 15 May 2026 at 5:04:46 pm'!
 'Description '!
-!provides: 'Dybo' 1 221!
+!provides: 'Dybo' 1 222!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -982,19 +982,19 @@ backupUserData
 	DyboSystem userDataPath copyTo: backupDir pathName.
 	WaitSpinner stop! !
 
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026 10:41:48'!
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 15/May/2026 17:04:00'!
 chooseExchangePath: label
 	| answer exchangeDirecotry |
 	exchangeDirecotry := DyboSystem exchangePath 
-		ifNil: [DirectoryEntry userBaseDirectory]
-		ifNotNil: [:path | path asDirectoryEntry].	
+		ifEmpty: [DirectoryEntry userBaseDirectory]
+		ifNotEmpty: [:path | path asDirectoryEntry].	
 	answer := (StandardFileMenu new newDirectoryFrom: exchangeDirecotry)
 		startUpWithCaption: 'Select the exchange folder' translated.
 	answer ifNil: [^ self].
 	exchangeDirecotry := answer directory name = answer name 
 		ifTrue: [answer directory ]
 		ifFalse: [	answer directory / answer name].  " The user input a new directory name "
-	DyboSystem exchangePath: exchangeDirecotry.
+	DyboSystem exchangePath: exchangeDirecotry printString.
 	controlsManager setExchangePathIn: label
 	! !
 
@@ -1098,9 +1098,9 @@ load
 reset
 	controlsManager := activeViewType := currentTopic := nil! !
 
-!Dybo methodsFor: 'testing' stamp: 'hlsf 6/May/2026 19:30:55'!
+!Dybo methodsFor: 'testing' stamp: 'hlsf 15/May/2026 17:00:40'!
 isExchangePath
-	^ DyboSystem exchangePath notNil or: [
+	^ DyboSystem exchangePath notEmpty or: [
 		PopUpMenu inform: 'No exchange path defined.
 Go to Settings/Exchange Data to set one.' translated.
 		false]! !
@@ -1376,12 +1376,15 @@ rootPath
 userPath
 	^ self rootPath / 'resources'! !
 
-!DyDevelopment methodsFor: 'preferences' stamp: 'hlsf 5/May/2026 14:45:38'!
+!DyDevelopment methodsFor: 'preferences' stamp: 'hlsf 15/May/2026 17:03:28'!
 desktopPreferences
 	Preferences 
 		at: #fullScreenLeavesDeskMargins put: true;
 		at: #worldMenu put: TheWorldMenu.
-	DyboSystem ppcm: 59! !
+"	For test purpose. In deployment, set at image installation "
+	Preferences name: #useUserPrefsFile category: #system value: true.
+	Preferences name: #ppcm category: #dybo value: 59.
+	Preferences name: #exchangePath category: #dybo value: ''.! !
 
 !DyDevelopment methodsFor: 'initialize-release' stamp: 'hlsf 5/May/2026 14:48:23'!
 initialize
@@ -1424,9 +1427,8 @@ miniToolbarSize
 ppcm
 	^ Preferences at: #ppcm! !
 
-!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 3/May/2026 12:58:54'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 15/May/2026 16:56:42'!
 ppcm: number
-	Preferences name: #useUserPrefsFile category: #system value: true.
 	Preferences name: #ppcm category: #dybo value: number.
 	Preferences saveToDisk: #ppcm
 	! !
@@ -1523,14 +1525,13 @@ convert: destEntry pages: interval dpi: integer
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 5/May/2026 15:26:35'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 15/May/2026 16:58:26'!
 exchangePath
-	^ [Preferences at: #exchangePath] on: Error do: [nil]! !
+	^ Preferences at: #exchangePath! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/May/2026 22:23:49'!
-exchangePath: aDirectory
-	Preferences name: #useUserPrefsFile category: #system value: true.
-	Preferences name: #exchangePath category: #dybo value: aDirectory printString.
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 15/May/2026 17:04:13'!
+exchangePath: aPath
+	Preferences name: #exchangePath category: #dybo value: aPath.
 	Preferences saveToDisk: #exchangePath! !
 
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Apr/2026 16:28:05'!
@@ -1574,10 +1575,11 @@ saveData
 		dumpOnCompressedFile: (DyboSystem userDataPath // 'data.obj') 
 		object: DyUserData current! !
 
-!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 3/May/2026 13:10:00'!
+!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 15/May/2026 16:52:43'!
 install
 	Preferences name: #useUserPrefsFile category: #system value: true.
-	Preferences name: #ppcm category: #dybo value: 59.! !
+	Preferences name: #ppcm category: #dybo value: 59.
+	Preferences name: #exchangePath category: #dybo value: ''.! !
 
 !DyboSystem class methodsFor: 'system startup' stamp: 'hlsf 22/Feb/2026 10:01:43'!
 launch
@@ -1934,14 +1936,14 @@ Warning: This will overwrite your current local data.' translated.
 	column addMorphKeepMorphHeight: row.
 	^ column ! !
 
-!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 5/May/2026 19:31:50'!
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 15/May/2026 17:01:30'!
 setExchangePathIn: label
 	| tips |
 	label 
-		contents: (DyboSystem exchangePath ifNil: ['Exchange folder not set' translated]) 
+		contents: (DyboSystem exchangePath ifEmpty: ['Exchange folder not set' translated]) 
 		constrainedTo: 400.
 	tips := Text streamContents: [:str |
-		DyboSystem exchangePath ifNotNil: [:path | str nextPutAll: path bold; newLine].
+		DyboSystem exchangePath ifNotEmpty: [:path | str nextPutAll: path bold; newLine].
 			str nextPutAll: 'Directory for import/export documents and data backup. If using a remote directory or USB device, ensure it is mounted or plugged in before proceeding.' translated].
 	label setBalloonText: tips! !
 
