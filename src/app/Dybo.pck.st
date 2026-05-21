@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7955] on 21 May 2026 at 12:02:53 pm'!
+'From Cuis7.7 [latest update: #7955] on 21 May 2026 at 7:51:19 pm'!
 'Description '!
-!provides: 'Dybo' 1 223!
+!provides: 'Dybo' 1 224!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -124,7 +124,7 @@ DyViewerVisitor class
 
 !classDefinition: #DyClassCourse category: #'Dybo-Wizard'!
 Object subclass: #DyClassCourse
-	instanceVariableNames: 'classGroup course'
+	instanceVariableNames: 'classNumber courseName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Wizard'!
@@ -392,7 +392,7 @@ I visit the model of user data to provide an editor!
 I visit the model of user data to provide a viewer linked to an editor.!
 
 !DyClassCourse commentStamp: '<historical>' prior: 0!
-DyClassCourse is the the model to set the pair Class group and Course. For example (1035, Mathematics). The user can input several identical class groupe, i.e. (1035, CS)!
+DyClassCourse is the the model to set the pair Class group and Course. For example (1035, Mathematics). The user can input several identical class group, i.e. (1035, CS)!
 
 !DyNewUser commentStamp: '<historical>' prior: 0!
 I am a minimal model to install new user with minimal data!
@@ -1240,13 +1240,13 @@ load
 	^ self basicNew
 		load! !
 
-!Dybo class methodsFor: 'instance creation' stamp: 'hlsf 21/May/2026 11:18:22'!
+!Dybo class methodsFor: 'instance creation' stamp: 'hlsf 21/May/2026 19:28:09'!
 start
 " 	I am starting operation,  
 	if user data does not exist I start the Dybo Wiizard, otherwise I just load the data "
 	DyboSystem isUserData 
 		ifTrue: [self load] 
-		ifFalse: [DyWizardNewUser open: DyNewUser :: centered]! !
+		ifFalse: [DyWizardNewUser open: DyNewUser new :: centered]! !
 
 !DyPlatform methodsFor: 'user interface' stamp: 'hlsf 29/Aug/2024 11:50:31'!
 iconToolbarSize
@@ -2431,53 +2431,45 @@ visitUserData: userData
 		addMorph: (self paneFor: userData agenda label: 'Agenda' translated).
 	^ self plugView: column! !
 
-!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:19:58'!
-classGroup
-	"Answer the value of classGroup"
+!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 21/May/2026 19:05:18'!
+classNumber
+	^ classNumber! !
 
-	^ classGroup! !
+!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 21/May/2026 19:04:15'!
+classNumber: aName
+	classNumber := aName ! !
 
-!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:19:58'!
-classGroup: anObject
-	"Set the value of classGroup"
+!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 21/May/2026 19:06:20'!
+courseName
+	^ courseName! !
 
-	classGroup := anObject! !
+!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 21/May/2026 19:06:20'!
+courseName: aName
+	courseName := aName ! !
 
-!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:19:58'!
-course
-	"Answer the value of course"
-
-	^ course! !
-
-!DyClassCourse methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 11:19:58'!
-course: anObject
-	"Set the value of course"
-
-	course := anObject! !
-
-!DyClassCourse methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026 15:07:54'!
+!DyClassCourse methodsFor: 'ui' stamp: 'hlsf 21/May/2026 19:05:52'!
 mold
 	| mold |
 	mold := Mold new.
 	mold stringField
 		label: 'Class' translated;
-		on: #classGroup of: self;
+		on: #classNumber of: self;
 		addCondition: [:input | input ~= 'Unnamed class' translated] 
 			labeled: 'Input a meaningful name (6eA, 1011,...)' translated;
 		beRequired.
 	mold stringField
 		label: 'Course' translated;
-		on: #course of: self;
+		on: #courseName of: self;
 		addCondition: [:input | input ~= 'Unnamed course' translated] 
 			labeled: 'Input a meaningful name (Geography, Math,...)' translated;		
 		beRequired.
 	^ mold! !
 
-!DyClassCourse methodsFor: 'printing' stamp: 'hlsf 19/Apr/2026 12:51:24'!
+!DyClassCourse methodsFor: 'printing' stamp: 'hlsf 21/May/2026 19:06:20'!
 printOn: str
-	str nextPutAll: classGroup ;
+	str nextPutAll: classNumber ;
 		nextPutAll: ' (';
-		nextPutAll: course ;
+		nextPutAll: courseName ;
 		nextPut: $)! !
 
 !DyClassCourse class methodsFor: 'as yet unclassified' stamp: 'hlsf 21/Apr/2026 14:56:09'!
@@ -2494,13 +2486,13 @@ classCourses
 
 	^ classCourses! !
 
-!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:53:24'!
+!DyNewUser methodsFor: 'accessing' stamp: 'hlsf 21/May/2026 19:29:12'!
 initialize
 	classCourses := OrderedCollection new.
 	classCourses add: ( 
 		DyClassCourse new
-			classGroup: 'Unnamed class' translated;
-			course: 'Unnamed course' translated;
+			classNumber: 'Unnamed class' translated;
+			courseName: 'Unnamed course' translated;
 			yourself)! !
 
 !DyNewUser methodsFor: 'accessing' stamp: 'hlsf 19/Apr/2026 14:08:45'!
@@ -2846,6 +2838,14 @@ initialize
 	teacher := DyTeacher new.
 	subject := 'Unnamed course' translated! !
 
+!DyCourse methodsFor: 'initialization' stamp: 'hlsf 21/May/2026 19:39:01'!
+setDefaultTopics
+	{'Theories' translated . 'Exercises' translated} do: [:topicTitle |
+		topics add: (DyTopic new 
+			owner: self;
+			title: topicTitle;
+			yourself) ]! !
+
 !DyCourse methodsFor: 'ui' stamp: 'hlsf 3/Jul/2023 11:30:36'!
 mold
 	| mold |
@@ -2989,11 +2989,11 @@ initialize
 	classGroups := OrderedCollection new.
 	name := 'Unknown school' translated! !
 
-!DySchool methodsFor: 'accessing' stamp: 'hlsf 21/May/2026 12:02:43'!
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 21/May/2026 19:08:11'!
 classGroup: withNumber
 	^ classGroups 
 		detect: [:classGroup | classGroup number = withNumber ]
-		 ifNone: [nil]! !
+		ifNone: [nil]! !
 
 !DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:49:32'!
 classGroups
@@ -4374,7 +4374,7 @@ isReadyToApply
 minimumExtent
 	^ 800 @ (600 max: super minimumExtent y)! !
 
-!DyWizardNewUser methodsFor: 'actions' stamp: 'hlsf 21/May/2026 11:50:28'!
+!DyWizardNewUser methodsFor: 'actions' stamp: 'hlsf 21/May/2026 19:39:46'!
 apply
 	| mySchool |
 	self delete.
@@ -4390,8 +4390,22 @@ apply
 	DyUserData current user
 		firstName: model userFirstname;
 		lastName: model userLastname.
-	mySchool := DyUserData current schools first.
-	mySchool schoolName: model schoolName.! !
+	mySchool := DySchool new schoolName: model schoolName.
+	DyUserData current schools add: mySchool.
+	model classCourses do: [:classCourse | | classGroup |
+		"search if class exist in school "
+		classGroup := (mySchool classGroup: classCourse classNumber) 
+			ifNotNil:  [:theClassGroup | theClassGroup ]
+			ifNil: [mySchool classGroups add: (DyClassGroup new 
+				owner: mySchool;
+				number: classCourse classNumber;
+				yourself)].
+		classGroup courses add: (DyCourse new	
+			owner: classGroup;
+			subject: classCourse courseName;
+			setDefaultTopics ;
+			yourself) ].
+	DyboSystem saveData ! !
 
 !DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 28/Sep/2023 21:28:52'!
 tearDown
