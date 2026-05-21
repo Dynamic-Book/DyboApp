@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7937] on 15 May 2026 at 5:04:46 pm'!
+'From Cuis7.7 [latest update: #7955] on 21 May 2026 at 12:02:53 pm'!
 'Description '!
-!provides: 'Dybo' 1 222!
+!provides: 'Dybo' 1 223!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -324,7 +324,7 @@ DyboWindow class
 
 !classDefinition: #DyWizardNewUser category: #'Dybo-Wizard'!
 WizardPanel subclass: #DyWizardNewUser
-	instanceVariableNames: 'user'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Dybo-Wizard'!
@@ -640,10 +640,10 @@ accept: aVisitor
 current
 	^ Current ifNil: [Current := self basicNew initialize]! !
 
-!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 12:46:05'!
+!DyUserData class methodsFor: 'accessing' stamp: 'hlsf 21/May/2026 10:27:31'!
 load
 	Current := nil.
-	Current := ReferenceStream restoreFromCompressedFile: DyboSystem userDataPath // 'data.obj'! !
+	Current := ReferenceStream restoreFromCompressedFile: DyboSystem userDataFile! !
 
 !DyUserData class methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026 11:58:10'!
 new
@@ -1098,10 +1098,10 @@ load
 reset
 	controlsManager := activeViewType := currentTopic := nil! !
 
-!Dybo methodsFor: 'testing' stamp: 'hlsf 15/May/2026 17:00:40'!
+!Dybo methodsFor: 'testing' stamp: 'hlsf 21/May/2026 10:20:19'!
 isExchangePath
 	^ DyboSystem exchangePath notEmpty or: [
-		PopUpMenu inform: 'No exchange path defined.
+		PopUpMenu inform: 'No exchange folder defined.
 Go to Settings/Exchange Data to set one.' translated.
 		false]! !
 
@@ -1239,6 +1239,14 @@ load
 " load the user data in a new Dybo window "
 	^ self basicNew
 		load! !
+
+!Dybo class methodsFor: 'instance creation' stamp: 'hlsf 21/May/2026 11:18:22'!
+start
+" 	I am starting operation,  
+	if user data does not exist I start the Dybo Wiizard, otherwise I just load the data "
+	DyboSystem isUserData 
+		ifTrue: [self load] 
+		ifFalse: [DyWizardNewUser open: DyNewUser :: centered]! !
 
 !DyPlatform methodsFor: 'user interface' stamp: 'hlsf 29/Aug/2024 11:50:31'!
 iconToolbarSize
@@ -1441,31 +1449,44 @@ screenSize
 toggleFullscreen
 	platform toggleFullscreen ! !
 
-!DyboSystem class methodsFor: 'path' stamp: 'hlsf 11/Feb/2026 18:11:45'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 15/May/2026 16:58:26'!
+exchangePath
+	^ Preferences at: #exchangePath! !
+
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 15/May/2026 17:04:13'!
+exchangePath: aPath
+	Preferences name: #exchangePath category: #dybo value: aPath.
+	Preferences saveToDisk: #exchangePath! !
+
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 11/Feb/2026 18:11:45'!
 iconsPath
 	^ platform iconsPath! !
 
-!DyboSystem class methodsFor: 'path' stamp: 'hlsf 23/Feb/2026 12:39:37'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 23/Feb/2026 12:39:37'!
 myPDFPath
 " the location of the user resources as PDF or other media files "
 	^ (platform userPath/ 'myPDF') assureExistence ! !
 
-!DyboSystem class methodsFor: 'path' stamp: 'hlsf 10/May/2026 12:38:57'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 10/May/2026 12:38:57'!
 myScriptsPath
 " the location of the user DKM scripts "
 	^ (self userDataPath / 'myScripts') assureExistence ! !
 
-!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/Feb/2026 18:37:22'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 9/Feb/2026 18:37:22'!
 scriptsPath
 " the location of the DKM scripts shipped with DyboApp"
 	^ platform resourcesPath / 'scripts'! !
 
-!DyboSystem class methodsFor: 'path' stamp: 'hlsf 16/Dec/2024 21:43:05'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 16/Dec/2024 21:43:05'!
 tasksRelPath
 " the location of the user documents "
 	^ 'tasks'! !
 
-!DyboSystem class methodsFor: 'path' stamp: 'hlsf 9/May/2026 18:19:56'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 21/May/2026 10:27:13'!
+userDataFile
+	^ self userDataPath // 'data.obj'! !
+
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 9/May/2026 18:19:56'!
 userDataPath
 " the location of the user data and documents "
 	^ (platform userPath / 'userData') assureExistence ! !
@@ -1525,15 +1546,6 @@ convert: destEntry pages: interval dpi: integer
 			destEntry pathName }].
 	^ OSProcess command: converstionCommand ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 15/May/2026 16:58:26'!
-exchangePath
-	^ Preferences at: #exchangePath! !
-
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 15/May/2026 17:04:13'!
-exchangePath: aPath
-	Preferences name: #exchangePath category: #dybo value: aPath.
-	Preferences saveToDisk: #exchangePath! !
-
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Apr/2026 16:28:05'!
 import: pdfEntry to: destEntry pages: interval
 "
@@ -1569,10 +1581,10 @@ rename: oldName to: newName in: parentDir
 				ifTrue: [dir rename: newName asFileName ] 
 				ifFalse: [(parentDir / newName asFileName ) assureExistence]]! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 19/Mar/2026 10:08:13'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 21/May/2026 10:27:45'!
 saveData
 	ReferenceStream 
-		dumpOnCompressedFile: (DyboSystem userDataPath // 'data.obj') 
+		dumpOnCompressedFile: DyboSystem userDataFile
 		object: DyUserData current! !
 
 !DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 15/May/2026 16:52:43'!
@@ -1591,6 +1603,10 @@ launch
 !DyboSystem class methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026 09:14:16'!
 isDeployment
 	^ platform isDeployment ! !
+
+!DyboSystem class methodsFor: 'testing' stamp: 'hlsf 21/May/2026 10:28:40'!
+isUserData
+	^ self userDataFile exists! !
 
 !DyControlsManager methodsFor: 'circular toolbar' stamp: 'hlsf 13/Oct/2024 17:11:46'!
 addChevron: data to: aToolbar
@@ -2973,6 +2989,12 @@ initialize
 	classGroups := OrderedCollection new.
 	name := 'Unknown school' translated! !
 
+!DySchool methodsFor: 'accessing' stamp: 'hlsf 21/May/2026 12:02:43'!
+classGroup: withNumber
+	^ classGroups 
+		detect: [:classGroup | classGroup number = withNumber ]
+		 ifNone: [nil]! !
+
 !DySchool methodsFor: 'accessing' stamp: 'hlsf 30/Jun/2023 21:49:32'!
 classGroups
 	^ classGroups ! !
@@ -3652,7 +3674,7 @@ taskIndex: anIndex
 tasks
 	^ DyUserData current tasks! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 7/Dec/2024 11:08:09'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 21/May/2026 09:46:03'!
 tasksWidget
 	^ self tasks collect: [:aTask | | label |
 		label := self labelForTask: aTask.
@@ -3661,6 +3683,7 @@ tasksWidget
 			gap: 8;
 			addMorph: (PluggableButtonMorph model: presenter action: #deleteTask: actionArgument: aTask ::
 				icon: Theme current cancelIcon;
+				buttonStyle: #none;
 				setBalloonText: ('Delete the task {1}?' translated format: {label bold}));
 			addMorph: (LabelMorph contents: label)
 			yourself		]
@@ -4294,20 +4317,20 @@ userPage
 		yourself.
 	^ (WizardPage standardPage: 'School & User' translated on: self) contents: pane! !
 
-!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 22/Apr/2026 22:52:13'!
+!DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 21/May/2026 10:15:48'!
 validatePage
 	^ (WizardPage applyPage: 'Validate' translated on: self) contents: 
 'Have you finished entering your information?
 
 If your information is valid, click on the "Apply" button; otherwise, go back and correct it.
 
-After clicking on the "Apply" button, you will be able to edit additional information such as the class schedules and the course topics.' translated justified
+After clicking on the "Apply" button, you will be able to edit additional information such as the school year calendar, the class schedules and the course topics in the "Settings" panel, button at the right in the DyboApp toolbar.' translated justified
 
 "
 Vous avez fini de saisir vos informations ?
 Si vos informations sont valides, cliquer sur le bouton ""appliquer"". Sinon, revenir en arrière et corriger.
 
-Après avoir cliqué sur le bouton ""appliquer"", vous pourrez éditer des informations supplémentaires comme l'emploi du temps des classes et les sujets de vos cours.
+Après avoir cliqué sur le bouton ""appliquer"", vous pourrez éditer des informations supplémentaires comme le calendrier scolaire, l''emploi du temps des classes et les sujets de vos cours depuis the panneau de préférences, bouton à droite dans le barre d''outils de la DyboApp.
 "! !
 
 !DyWizardNewUser methodsFor: 'pages' stamp: 'hlsf 22/Apr/2026 22:53:18'!
@@ -4335,16 +4358,25 @@ Une fois terminé, vous pourrez saisir des informations complémentaires comme l
 defaultColor
 	^ Theme current transcript! !
 
+!DyWizardNewUser methodsFor: 'initialization' stamp: 'hlsf 21/May/2026 10:02:48'!
+defaultSeparation
+	^ 20! !
+
+!DyWizardNewUser methodsFor: 'testing' stamp: 'hlsf 21/May/2026 11:27:41'!
+isCancellingPossible
+	^ false! !
+
 !DyWizardNewUser methodsFor: 'testing' stamp: 'hlsf 19/Apr/2026 14:52:27'!
 isReadyToApply
 	^ model mold isValid and: [model classCourses first mold isValid]! !
 
-!DyWizardNewUser methodsFor: 'open/close' stamp: 'hlsf 22/Apr/2026 22:49:38'!
+!DyWizardNewUser methodsFor: 'open/close' stamp: 'hlsf 21/May/2026 10:45:52'!
 minimumExtent
-	^ 600 @ (400 max: super minimumExtent y)! !
+	^ 800 @ (600 max: super minimumExtent y)! !
 
-!DyWizardNewUser methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Apr/2026 23:29:36'!
+!DyWizardNewUser methodsFor: 'actions' stamp: 'hlsf 21/May/2026 11:50:28'!
 apply
+	| mySchool |
 	self delete.
 "	TODO
 	1.  Create the User data according to the informatiion in the user instance: 
@@ -4353,7 +4385,13 @@ apply
 		- class group and course
 		- for each course, create two topics: Lessons and Exercises
 	2. Open the DyboApp Settings tool to let the user input additional information
-"! !
+"
+	DyUserData reset.
+	DyUserData current user
+		firstName: model userFirstname;
+		lastName: model userLastname.
+	mySchool := DyUserData current schools first.
+	mySchool schoolName: model schoolName.! !
 
 !DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 28/Sep/2023 21:28:52'!
 tearDown
