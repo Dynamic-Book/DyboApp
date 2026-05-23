@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7955] on 21 May 2026 at 7:51:19 pm'!
+'From Cuis7.7 [latest update: #7963] on 23 May 2026 at 3:59:48 pm'!
 'Description '!
-!provides: 'Dybo' 1 224!
+!provides: 'Dybo' 1 225!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -4374,9 +4374,9 @@ isReadyToApply
 minimumExtent
 	^ 800 @ (600 max: super minimumExtent y)! !
 
-!DyWizardNewUser methodsFor: 'actions' stamp: 'hlsf 21/May/2026 19:39:46'!
+!DyWizardNewUser methodsFor: 'actions' stamp: 'hlsf 23/May/2026 15:52:39'!
 apply
-	| mySchool |
+	| mySchool dybo |
 	self delete.
 "	TODO
 	1.  Create the User data according to the informatiion in the user instance: 
@@ -4405,7 +4405,11 @@ apply
 			subject: classCourse courseName;
 			setDefaultTopics ;
 			yourself) ].
-	DyboSystem saveData ! !
+	DyboSystem saveData.
+	dybo := Dybo load.
+	dybo goSettings.
+	dybo activeView selectCategoryNamed: #userDataView
+	! !
 
 !DyboTestCase methodsFor: 'setUp/tearDown' stamp: 'hlsf 28/Sep/2023 21:28:52'!
 tearDown
