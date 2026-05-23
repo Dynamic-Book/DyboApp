@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7963] on 23 May 2026 at 3:59:48 pm'!
+'From Cuis7.7 [latest update: #7963] on 23 May 2026 at 4:28:30 pm'!
 'Description '!
-!provides: 'Dybo' 1 225!
+!provides: 'Dybo' 1 226!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1281,10 +1281,10 @@ userPath
 Global variable userPath may be set by Dybo start-up script "
 	^ Smalltalk at: #userPath ifAbsent: [self userPathPreference]! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 23/Feb/2026 12:35:48'!
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 23/May/2026 16:27:29'!
 userPathPreference
 "	Is there a user prefrerence where to save user data ?"
-	^ (self preferences at: #userPath) 
+	^ (Preferences at: #userPath) 
 		ifNotEmpty: [:userPath | | userDirectoryEntry |
 			userDirectoryEntry := userPath asDirectoryEntry .
 			" Check if it is a relative path or an absolute path "
