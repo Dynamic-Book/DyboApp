@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7963] on 23 May 2026 at 4:28:30 pm'!
+'From Cuis7.7 [latest update: #7963] on 23 May 2026 at 4:38:18 pm'!
 'Description '!
-!provides: 'Dybo' 1 226!
+!provides: 'Dybo' 1 227!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -4840,7 +4840,3 @@ replaceView: aPluggablePane byView: aLinearLayoutMorph
 	self replaceSubmorph: aPluggablePane by: aLinearLayoutMorph .
 	self morphExtent: self minimumExtent.
 	self adoptWidgetsColor: self defaultBorderColor ! !
-
-!WorldMorph methodsFor: '*Dybo' stamp: 'hlsf 26/Feb/2026 11:10:57'!
-isStepping: aMorph
-	^ stepList anySatisfy: [:stepMsg | stepMsg receiver == aMorph]! !
