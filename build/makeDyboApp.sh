@@ -12,7 +12,7 @@ rel="26.02a"
 
 # Path
 dyboAppRepo=`echo "$0" | cut -d / -f 2`
-iStoaRepo=."/iStoa"
+iStoaRepo=./iStoa
 buildPath="$dyboAppRepo/build"
 bundlesPath="$buildPath/bundles"
 imagePath=./CuisImage
@@ -90,7 +90,7 @@ makeBundle () {
     echo "Installing user directories and files, icons"
     rsync -a $dyboAppRepo/resources/scripts $bundleResources
     rsync -a $dyboAppRepo/resources/graphics/icons $bundleResources/graphics
-    mkdir  $bundleResources/myPDF $bundleResources/myScripts $bundleResources/data
+    mkdir -p  $bundleResources/myPDF $bundleResources/userData/myScripts
 
     
     echo "Copy license terms of each dkm..."
