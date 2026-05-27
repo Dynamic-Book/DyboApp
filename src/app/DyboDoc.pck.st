@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 9:33:12 pm'!
+'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 10:11:14 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 241!
+!provides: 'DyboDoc' 1 242!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -3735,18 +3735,17 @@ endWritingAt: localPosition
 	
 	^ strokeGroup ! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 1/Mar/2025 15:13:21'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026 22:10:24'!
 addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 	"Add standard halo items to the menu"
 	self isWorldMorph ifTrue:
 		[^ self addWorldHaloMenuItemsTo: aMenu hand: aHandMorph].
 	aMenu 
-		add: 'Bring to front' translated 
-		action: #comeToFront
+		add: 'Bring to front' translated action: #comeToFront
 		icon: (Theme current fetch: #('16x16' 'actions' 'go-top'));
-		add: 'Send to back' translated 
-		action: #goBehind
-		icon: (Theme current fetch: #('16x16' 'actions' 'go-bottom')).
+		add: 'Send to back' translated action: #goBehind
+		icon: (Theme current fetch: #('16x16' 'actions' 'go-bottom'));
+		add: 'Clean-up' action: #removeStrokes icon: Theme current deleteIcon.
 	
 	(aMenu 
 		addUpdating: #frozenString 
