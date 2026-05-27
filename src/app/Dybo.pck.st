@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7963] on 23 May 2026 at 4:38:18 pm'!
+'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 9:33:05 pm'!
 'Description '!
-!provides: 'Dybo' 1 227!
+!provides: 'Dybo' 1 228!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -4833,10 +4833,10 @@ asTimeSlot
 isStepping
 	^ self world ifNotNil: [ :w | w isStepping: self]! !
 
-!LinearLayoutMorph methodsFor: '*Dybo' stamp: 'hlsf 21/Apr/2026 14:45:14'!
+!LinearLayoutMorph methodsFor: '*Dybo' stamp: 'hlsf 27/May/2026 21:29:11'!
 replaceView: aPluggablePane byView: aLinearLayoutMorph 
 " Replace a view in the pane with another viewer and shrink the panel "
-	aPluggablePane releaseActionMap.
+	aPluggablePane removeAllActions .
 	self replaceSubmorph: aPluggablePane by: aLinearLayoutMorph .
 	self morphExtent: self minimumExtent.
 	self adoptWidgetsColor: self defaultBorderColor ! !

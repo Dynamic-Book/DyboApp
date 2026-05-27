@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7912] on 10 May 2026 at 1:05:10 pm'!
+'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 9:33:12 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 240!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 241!
+!requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'SimplifiedDebugger' 1 0 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1847,9 +1847,9 @@ presenter: aPresenter
 toolName
 	^ self class iconName! !
 
-!PageTool methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2024 16:39:56'!
+!PageTool methodsFor: 'initialization' stamp: 'hlsf 27/May/2026 21:28:53'!
 release
-	self releaseActionMap ! !
+	self removeAllActions ! !
 
 !PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024 15:35:10'!
 handleMouseAt: localPosition in: page
