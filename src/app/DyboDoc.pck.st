@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 10:56:16 pm'!
+'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 11:11:06 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 243!
+!provides: 'DyboDoc' 1 244!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -3602,14 +3602,14 @@ script
 script: aDyboScript
 	script := aDyboScript ! !
 
-!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 27/May/2026 22:29:02'!
+!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 27/May/2026 23:06:17'!
 drawOn: aCanvas 
 	self halo ifNotNil: [
 		aCanvas 
 			frameRectangle: self localBounds 
 			borderWidth: self frameWidth 
 			color: `Color gray alpha: 0.2`].
-	frozenForm ifNotNil: [aCanvas image: frozenForm at: 0@0]! !
+	frozenForm ifNotNil: [aCanvas image: frozenForm at: self frameWidth asPoint]! !
 
 !AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024 19:03:41'!
 handlesMouseDown: event
@@ -3762,11 +3762,11 @@ buildHandleMenu: aHand
 	script addCustomMenuItems: menu annoted: annotatedMorph.
 	^ menu! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026 22:53:01'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026 23:04:55'!
 freeze: aBoolean
 	aBoolean 
 		ifTrue: [annotatedMorph triggerEvent: #leaveAnnotator.
-			frozenForm := self imageForm.
+			frozenForm := annotatedMorph imageForm.
 			annotatedMorph hide]
 		ifFalse: [frozenForm := nil.
 			annotatedMorph show.
