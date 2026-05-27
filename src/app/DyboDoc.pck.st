@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 10:11:14 pm'!
+'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 10:56:16 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 242!
+!provides: 'DyboDoc' 1 243!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -520,7 +520,7 @@ PaperMorph class
 
 !classDefinition: #AnnotatorMorph category: #'DyboDoc-View'!
 PaperMorph subclass: #AnnotatorMorph
-	instanceVariableNames: 'annotatedMorph script'
+	instanceVariableNames: 'annotatedMorph script frozenForm'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-View'!
@@ -3561,7 +3561,7 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 19:02:59'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 27/May/2026 22:42:58'!
 annotate: aPlacedMorph
 | annotedExtent formerExtent |
 	annotatedMorph ifNotNil: [
@@ -3574,7 +3574,9 @@ annotate: aPlacedMorph
 		ifNotNil: [annotatedMorph displayBounds extent].		
 	annotatedMorph removeProperty: #bitMask.
 	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
-	self addMorphBack: annotatedMorph position: self frameWidth asPoint! !
+	self addMorphBack: annotatedMorph position: self frameWidth asPoint.
+"	Were we in frozen state, if so update the cache "
+	self freeze: self isFrozen! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025 11:26:04'!
 annotated
@@ -3600,13 +3602,14 @@ script
 script: aDyboScript
 	script := aDyboScript ! !
 
-!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 9/Feb/2025 19:46:35'!
+!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 27/May/2026 22:29:02'!
 drawOn: aCanvas 
 	self halo ifNotNil: [
 		aCanvas 
 			frameRectangle: self localBounds 
 			borderWidth: self frameWidth 
-			color: `Color gray alpha: 0.2`]! !
+			color: `Color gray alpha: 0.2`].
+	frozenForm ifNotNil: [aCanvas image: frozenForm at: 0@0]! !
 
 !AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024 19:03:41'!
 handlesMouseDown: event
@@ -3717,16 +3720,13 @@ canResizeAnnoted
 " can the the annotated morph be resized ? only kind of BoxMorph can"
 	^ annotatedMorph is: #BoxMorph! !
 
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 27/May/2026 22:37:35'!
+canResizeOrScaleAnnoted
+	^ self isFrozen not! !
+
 !AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024 11:15:37'!
 is: aSymbol
 	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
-
-!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 5/Feb/2026 19:43:28'!
-isOverFrame: localPosition
-" Is this local position over my gray surrounding frame? "
-	^ ((self localBounds insetBy: self frameWidth) containsPoint: localPosition) not
-	and: [self localBounds containsPoint: localPosition]
-	! !
 
 !AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 28/Sep/2024 16:10:48'!
 endWritingAt: localPosition
@@ -3762,12 +3762,15 @@ buildHandleMenu: aHand
 	script addCustomMenuItems: menu annoted: annotatedMorph.
 	^ menu! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 31/Aug/2025 11:25:11'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026 22:53:01'!
 freeze: aBoolean
-	self setProperty: #frozen toValue: aBoolean.
 	aBoolean 
-		ifTrue: [self lockAnnoted]
-		ifFalse: [ annotatedMorph unlock]! !
+		ifTrue: [annotatedMorph triggerEvent: #leaveAnnotator.
+			frozenForm := self imageForm.
+			annotatedMorph hide]
+		ifFalse: [frozenForm := nil.
+			annotatedMorph show.
+			annotatedMorph unlock]! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 19/Feb/2025 19:14:24'!
 freezeUnfreezeMorph
@@ -3784,9 +3787,9 @@ frozenString
 goBehind
 	presenter currentPage addMorph: self inFrontOf: presenter currentPage paper! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 19/Feb/2025 19:13:20'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026 22:17:37'!
 isFrozen
-	^ self valueOfProperty: #frozen ifAbsent: [ false ]! !
+	^ frozenForm notNil! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/Feb/2026 09:47:07'!
 reconcileToFrozeenState
@@ -3812,11 +3815,11 @@ noteNewOwner: newOwner
 wantsToBeDroppedInto: aMorph 
 	^ aMorph is: #PageMorph ! !
 
-!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Mar/2026 16:03:32'!
+!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026 16:03:32'!
 balloonText
 	^ script description ! !
 
-!AnnotatorMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Mar/2026 16:08:11'!
+!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026 16:08:11'!
 wantsBalloon
 	^ false! !
 
@@ -5172,9 +5175,9 @@ filenamePrintOn: aStream
 		nextPutAll: (self second printString padded: #left to: 2 with: $0);
 		nextPut: $s! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 31/Aug/2025 11:26:45'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 27/May/2026 22:34:30'!
 addEditAnnotatedHandle: aHaloSpec 
-		(self addHandle: aHaloSpec )
+	(self addHandle: aHaloSpec )
 		mouseDownSelector: #doEdit
 ! !
 
@@ -5184,15 +5187,15 @@ addInspectHandle: handleSpec
 		mouseDownSelector: #doInspect
 ! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 31/Aug/2025 11:27:47'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 27/May/2026 22:38:06'!
 addResizeAnnotatedHandle: haloSpec
 
-	target annotated okayToResizeEasily ifTrue: [
+	(target canResizeOrScaleAnnoted and: [target annotated okayToResizeEasily]) ifTrue: [
 		^(self addHandle: haloSpec)
 			mouseDownSelector: #startResize:with:;
 			mouseMoveSelector: #doResizeAnnotated:with: ].
 
-	target annotated okayToScaleEasily ifTrue: [
+	(target canResizeOrScaleAnnoted and: [target annotated okayToScaleEasily]) ifTrue: [
 		^(self addHandle: haloSpec)
 			mouseDownSelector: #startScaleAnnotated:with:;
 			mouseMoveSelector: #doScaleAnnotated:with: ].! !
