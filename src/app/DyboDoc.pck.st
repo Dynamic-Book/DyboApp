@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 11:11:06 pm'!
+'From Cuis7.7 [latest update: #7965] on 28 May 2026 at 10:14:12 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 244!
+!provides: 'DyboDoc' 1 245!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -2352,6 +2352,11 @@ handlePress: localPosition in: aPaper
 	context startPoint: localPosition in: aPaper ;
 		switchState: ShapeToolStateDrawing ! !
 
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 28/May/2026 10:35:19'!
+author
+	^ DyUserData current user printString
+! !
+
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 12:04:20'!
 code
 	^ code ifNil: [code := presenter codeSampleWithHeader ]! !
@@ -3602,14 +3607,14 @@ script
 script: aDyboScript
 	script := aDyboScript ! !
 
-!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 27/May/2026 23:06:17'!
+!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 28/May/2026 22:11:41'!
 drawOn: aCanvas 
 	self halo ifNotNil: [
 		aCanvas 
 			frameRectangle: self localBounds 
 			borderWidth: self frameWidth 
 			color: `Color gray alpha: 0.2`].
-	frozenForm ifNotNil: [aCanvas image: frozenForm at: self frameWidth asPoint]! !
+	frozenForm ifNotNil: [aCanvas image: frozenForm at: annotatedMorph morphPosition]! !
 
 !AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024 19:03:41'!
 handlesMouseDown: event

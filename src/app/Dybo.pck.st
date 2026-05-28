@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7964] on 27 May 2026 at 9:33:05 pm'!
+'From Cuis7.7 [latest update: #7965] on 28 May 2026 at 10:14:07 pm'!
 'Description '!
-!provides: 'Dybo' 1 228!
+!provides: 'Dybo' 1 229!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -4785,6 +4785,10 @@ Return the backup "
 		self instVarNamed: each].
 	self unsavedAttributes do: [:attr | 	self instVarNamed: attr put: nil].
 	^ backup! !
+
+!Object methodsFor: '*Dybo' stamp: 'hlsf 28/May/2026 21:34:21'!
+dyboUser
+	^ DyUserData current user printString! !
 
 !Object methodsFor: '*Dybo' stamp: 'hlsf 20/Aug/2023 16:05:49'!
 registerEvents! !
