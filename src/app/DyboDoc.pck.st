@@ -1,15 +1,15 @@
-'From Cuis7.7 [latest update: #7965] on 28 May 2026 at 10:14:12 pm'!
+'From Cuis7.9 [latest update: #7995] on 11 June 2026 at 11:54:18 am'!
 'Description '!
-!provides: 'DyboDoc' 1 245!
-!requires: 'SimplifiedDebugger' 1 0 nil!
+!provides: 'DyboDoc' 1 246!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
+!requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -520,7 +520,7 @@ PaperMorph class
 
 !classDefinition: #AnnotatorMorph category: #'DyboDoc-View'!
 PaperMorph subclass: #AnnotatorMorph
-	instanceVariableNames: 'annotatedMorph script frozenForm'
+	instanceVariableNames: 'annotatedMorph script'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-View'!
@@ -3607,14 +3607,13 @@ script
 script: aDyboScript
 	script := aDyboScript ! !
 
-!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 28/May/2026 22:11:41'!
+!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 11/Jun/2026 11:43:52'!
 drawOn: aCanvas 
 	self halo ifNotNil: [
 		aCanvas 
 			frameRectangle: self localBounds 
 			borderWidth: self frameWidth 
-			color: `Color gray alpha: 0.2`].
-	frozenForm ifNotNil: [aCanvas image: frozenForm at: annotatedMorph morphPosition]! !
+			color: `Color gray alpha: 0.2`]! !
 
 !AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024 19:03:41'!
 handlesMouseDown: event
@@ -3627,10 +3626,10 @@ handlesMouseDown: event
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 10/Mar/2026 19:02:40'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 11/Jun/2026 11:50:42'!
 mouseEnter: evt
 	| myInnerFrame |
-	annotatedMorph triggerEvent: #enterAnnotator.
+	self isFrozen ifFalse: [annotatedMorph triggerEvent: #enterAnnotator].
 	myInnerFrame := (self externalizeBoundsToWorld: self localBounds) insetBy: 20.
 	(myInnerFrame containsPoint: evt eventPosition) ifTrue: [^ self].
 	self removeAlarm: #removeHalo.
@@ -3767,15 +3766,12 @@ buildHandleMenu: aHand
 	script addCustomMenuItems: menu annoted: annotatedMorph.
 	^ menu! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026 23:04:55'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 11/Jun/2026 11:44:38'!
 freeze: aBoolean
 	aBoolean 
 		ifTrue: [annotatedMorph triggerEvent: #leaveAnnotator.
-			frozenForm := annotatedMorph imageForm.
-			annotatedMorph hide]
-		ifFalse: [frozenForm := nil.
-			annotatedMorph show.
-			annotatedMorph unlock]! !
+			self lockAnnoted]
+		ifFalse: [	annotatedMorph unlock]! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 19/Feb/2025 19:14:24'!
 freezeUnfreezeMorph
@@ -3792,9 +3788,9 @@ frozenString
 goBehind
 	presenter currentPage addMorph: self inFrontOf: presenter currentPage paper! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026 22:17:37'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 11/Jun/2026 11:46:56'!
 isFrozen
-	^ frozenForm notNil! !
+	^ annotatedMorph isLocked! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/Feb/2026 09:47:07'!
 reconcileToFrozeenState
