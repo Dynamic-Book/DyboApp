@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7965] on 28 May 2026 at 10:14:07 pm'!
+'From Cuis7.9 [latest update: #7995] on 11 June 2026 at 10:58:21 am'!
 'Description '!
-!provides: 'Dybo' 1 229!
+!provides: 'Dybo' 1 230!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -951,7 +951,7 @@ newDocument
 openDocument: aDocument
 	self goDocument: aDocument view! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 14/Apr/2026 12:35:38'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 11/Jun/2026 10:50:55'!
 renameDocument: aPreviewMorph 
 	StringRequestMorph 
 		request:  'Rename the document' translated
@@ -960,7 +960,8 @@ renameDocument: aPreviewMorph
 			aString ifNotEmpty: [
 				aPreviewMorph object model title: aString.
 				aPreviewMorph relabel: aString.
-				aPreviewMorph object saveDocument]
+				aPreviewMorph object saveDocument.
+				controlsManager activeView updateView]
 			]! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026 10:49:21'!
@@ -3475,18 +3476,26 @@ courseIndex: anIndex
 presenter: aPresenter
 	presenter := aPresenter ! !
 
+!DyView methodsFor: 'accessing' stamp: 'hlsf 11/Jun/2026 10:45:12'!
+sortBloc
+" Respond sorting block depending on the selected osrt option "
+	^ {	[:docA :docB | docA model modificationTime > docB model modificationTime].
+		[:docA :docB | docA model modificationTime < docB model modificationTime].
+		[:docA :docB | docA model title < docB model title ] } at: sortIndex ! !
+
 !DyView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 11:58:00'!
 sortIndex
 	^ sortIndex! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 11:58:07'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 11/Jun/2026 10:42:10'!
 sortIndex: anIndex
-	sortIndex := 	anIndex.
-	self changed: #sortIndex:! !
+	sortIndex := anIndex.
+	self changed: #sortIndex:.
+	self updateView! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 11:57:39'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 11/Jun/2026 10:24:06'!
 sortOptions
-	^ `Array with: 'Newer' translated with: 'Older' translated with: 'Title' translated`! !
+	^ `Array with: 'Newer first' translated with: 'Older first' translated with: 'Name' translated`! !
 
 !DyView methodsFor: 'GUI building' stamp: 'hlsf 26/May/2024 16:34:08'!
 classGroupCoursesListMorph
@@ -3526,14 +3535,6 @@ sortListMorph
 		indexGetter: #sortIndex
 		indexSetter: #sortIndex: ::
 		autoDeselect: false.! !
-
-!DyView methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026 16:07:50'!
-isSortingNewer
-	^ sortIndex = 1! !
-
-!DyView methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026 16:08:06'!
-isSortingOlder
-	^ sortIndex = 2! !
 
 !DyView methodsFor: 'initialization' stamp: 'hlsf 7/Oct/2023 15:56:04'!
 initialize
@@ -3816,7 +3817,7 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 7/May/2026 15:01:53'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 11/Jun/2026 10:47:01'!
 previewFor: aDocument
 	| buttons preview |
 	buttons := OrderedCollection new.
@@ -3849,9 +3850,6 @@ previewFor: aDocument
 		borderWidth: 2;
 		borderColor: (aDocument isSaved ifTrue: [self defaultColor muchDarker] ifFalse: [Color red]).
 	preview when: #doubleClick send: #renameDocument: to: presenter.
-	" To be compted when balloon text is shown. May neeed a dedicated PreviewMorph
-	preview setBalloonText: aDocument model title asText,  String lf, aDocument model dirName italic, String lf,
-		(Text withForm: (aDocument view currentPage imageForm magnifyBy: 0.5))."
 	^ preview ! !
 
 !DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 7/May/2026 15:04:30'!
@@ -3901,11 +3899,12 @@ initialize
 	self addMorphUseAll: self previewsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 7/May/2026 10:49:21'!
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 11/Jun/2026 10:38:05'!
 updateView
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	documents := self topic ifNil: [`Array new`] ifNotNil: [:aTopic | aTopic documents].
+	documents := documents sort: self sortBloc.
 	previewPanel removeAllMorphs.
 	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + DocumentView previewGap).
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
@@ -3952,14 +3951,9 @@ quantityIndex: anIndex
 	self changed: #quantityIndex:.
 	self updateView! !
 
-!DyStartView methodsFor: 'accessing' stamp: 'hlsf 7/May/2026 10:49:21'!
-sortIndex: anIndex
-	super sortIndex: anIndex.
-	self updateView! !
-
-!DyStartView methodsFor: 'accessing' stamp: 'hlsf 16/Apr/2026 10:09:47'!
+!DyStartView methodsFor: 'accessing' stamp: 'hlsf 11/Jun/2026 10:25:00'!
 sortOptions
-	^ `Array with: 'Newer' translated with: 'Older' translated`! !
+	^ super sortOptions first: 2! !
 
 !DyStartView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 14:35:38'!
 type
@@ -4072,19 +4066,19 @@ typeListMorph
 		indexSetter: #typeIndex: ::
 		autoDeselect: false.! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 17/Apr/2026 12:20:58'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 11/Jun/2026 09:47:20'!
 classGroupsQuery
 	| classGroups |
 	classGroups := OrderedCollection new.
 	classGroupIndex = 1
-		ifTrue:  [classGroups addAll: DyUserData current classGroups ]
-		ifFalse: [classGroups add: self classGroup].	
+		ifTrue:  [classGroups addAll: DyUserData current classGroups ]	"All classes "
+		ifFalse: [classGroups add: self classGroup].						"A specific class "
 	^ classGroups ! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 17/Apr/2026 12:21:05'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 11/Jun/2026 10:35:36'!
 documentsQuery
 	" Documents according to the user selection "
-	| classGroups types documents sortBloc |
+	| classGroups types documents |
 	documents := OrderedCollection new.
 	classGroups := self classGroupsQuery.
 	types := self typesQuery.
@@ -4096,10 +4090,7 @@ documentsQuery
 				ifTrue: [documents addAll: (
 					(DyUserData current tasksOf: aClassGroup) collect: [:aTask | aTask document]
 			) ] ] ].
-	sortBloc := self isSortingNewer 
-		ifTrue: [ [:docA :docB | docA model modificationTime > docB model modificationTime] ]
-		ifFalse: [ [:docA :docB | docA model modificationTime < docB model modificationTime] ].
-	documents := documents sort: sortBloc.
+	documents := documents sort: self sortBloc.
 	^ documents size <= self quantity 
 		ifTrue: [documents]
 		ifFalse: [documents first: self quantity]! !
