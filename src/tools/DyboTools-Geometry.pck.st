@@ -1,6 +1,6 @@
-'From Cuis7.7 [latest update: #7880] on 28 April 2026 at 12:16:56 pm'!
+'From Cuis7.9 [latest update: #7995] on 11 June 2026 at 11:26:47 am'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 59!
+!provides: 'DyboTools-Geometry' 1 60!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -352,7 +352,7 @@ drawCompassPoint
 	pen become: altPen 
 	! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 27/Feb/2026 11:29:24'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 11/Jun/2026 11:22:02'!
 drawOn: canvas
 	| symmetricLeg |
 	self legVertices.
@@ -366,7 +366,7 @@ drawOn: canvas
 	" Leg holding the compass point "
 	canvas strokeWidth: 1.5 color: `Color black` fillColor:`Color yellow` do: [canvas polyLine: symmetricLeg allButLast ].
 	" Compass point "
-	canvas strokeWidth: 1 color: `Color white` fillColor: `Color grey` do: [canvas polyLine: (symmetricLeg last: 3)].
+	canvas strokeWidth: 0.5 color: `Color black` fillColor: `Color grey` do: [canvas polyLine: (symmetricLeg last: 3)].
 	" Handle "
 	canvas strokeWidth: 1.5 color: `Color black` fillColor: `Color yellow` do: [ canvas polyLine: self handleZone ]! !
 
@@ -1002,11 +1002,11 @@ etalon: form
 ppcm
 	^ ppcm ! !
 
-!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 22:02:15'!
+!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 11/Jun/2026 11:15:29'!
 initialize
 	super initialize.
 	ppcm := DyboSystem ppcm.
-	step := 0.1.
+	step := 0.05.
 	ruler := Ruler new 
 		ppcm: ppcm;
 		length: 10;
