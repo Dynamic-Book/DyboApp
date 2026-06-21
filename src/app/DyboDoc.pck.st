@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8014] on 21 June 2026 at 10:16:09 am'!
+'From Cuis7.9 [latest update: #8014] on 21 June 2026 at 12:14:37 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 247!
+!provides: 'DyboDoc' 1 248!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -4210,6 +4210,20 @@ initialize
 	pages add: currentPage.
 ! !
 
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 10:11:16 am (UTC)'!
+installGeometryToolsFlap
+	| flap tools |
+	tools := Array 
+		with: Ruler new
+		with: SetSquare new
+		with: Protractor new 
+		with: Compass new.
+	flap := Flap label: ' Geometry Tools ' translated objects: tools.
+	container addMorph: flap.
+	flap borderColor: Color yellow darker;
+		target: PageMorph.
+	^ flap! !
+
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026, 7:57:35 am (UTC)'!
 installMiniView
 " Install the minimalist view, for assignment (task) "
@@ -4222,13 +4236,13 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026, 8:04:39 am (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 8:25:52 am (UTC)'!
 installPageContainer
 	container := PageContainer for: currentPage.
 	self installScriptsFlap;
-		installToolsFlap! !
+		installGeometryToolsFlap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Mar/2026, 7:07:12 pm (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 10:08:15 am (UTC)'!
 installScriptsFlap
 	| flap items |
 	items := Array 
@@ -4241,20 +4255,6 @@ installScriptsFlap
 	container addMorph: flap.
 	flap 
 		borderColor: self defaultColor twiceDarker ;
-		target: PageMorph.
-	^ flap! !
-
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Mar/2026, 7:17:24 pm (UTC)'!
-installToolsFlap
-	| flap tools |
-	tools := Array 
-		with: (Ruler new length: 5 )
-		with: (SetSquare new length: 3@5)
-		with: Protractor new 
-		with: Compass new.
-	flap := Flap label: ' Geometry Tools ' translated objects: tools.
-	container addMorph: flap.
-	flap borderColor: Color yellow darker;
 		target: PageMorph.
 	^ flap! !
 
@@ -5319,7 +5319,7 @@ handlesMouseOver: evt
 mouseEnter: evt
 	owner target removeAlarm: #removeHalo! !
 
-!Flap methodsFor: '*DyboDoc' stamp: 'hlsf 4/Feb/2026, 2:15:54 pm (UTC)'!
+!Flap methodsFor: '*DyboDoc' stamp: 'hlsf 21/Jun/2026, 10:10:30 am (UTC)'!
 scripts: dyboScripts
 	objects := dyboScripts collect: [:each | | item |
 		item := FlapItem 
@@ -5335,8 +5335,12 @@ scripts: dyboScripts
 		item imageMorph setBalloonText: each description.
 		item]! !
 
-!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 16/Feb/2025, 9:02:55 pm (UTC)'!
+!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 21/Jun/2026, 10:10:30 am (UTC)'!
 label: aString emphasis: emphasis scripts: dyboScripts
+"	label: the name of the flap 
+ 	emphasis: Text emphasis applyed to the label, nil for none 
+	iconicObjects: array of PlacedMorphs of this flap, these understand the #icon message as view in the flap
+"
 	| flap |
 	flap := self contents: aString font: nil emphasis: emphasis.
 	flap scripts: dyboScripts.
@@ -5344,7 +5348,7 @@ label: aString emphasis: emphasis scripts: dyboScripts
 	
 ! !
 
-!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 16/Feb/2025, 9:06:03 pm (UTC)'!
+!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 21/Jun/2026, 10:08:31 am (UTC)'!
 label: aString scripts: dyboScripts
 	^ self label: aString emphasis: 0 scripts: dyboScripts 
 ! !

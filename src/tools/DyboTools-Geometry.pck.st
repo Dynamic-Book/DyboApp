@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #7995] on 11 June 2026 at 11:26:47 am'!
+'From Cuis7.9 [latest update: #8014] on 21 June 2026 at 12:14:42 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 60!
+!provides: 'DyboTools-Geometry' 1 61!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -55,18 +55,8 @@ GeometryTool subclass: #SetSquare
 SetSquare class
 	instanceVariableNames: ''!
 
-!classDefinition: #CalibratorMorph category: #'DyboTools-Geometry'!
-BoxMorph subclass: #CalibratorMorph
-	instanceVariableNames: 'etalon ruler ppcm step'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'DyboTools-Geometry'!
-!classDefinition: 'CalibratorMorph class' category: #'DyboTools-Geometry'!
-CalibratorMorph class
-	instanceVariableNames: ''!
 
-
-!GeometryTool commentStamp: 'hlsf 9/16/2025 21:21:36' prior: 0!
+!GeometryTool commentStamp: '<historical>' prior: 0!
 Abstract class for tools with straight linear metric graduation. 
 Those tools can be dragged, rotated and resized.
 A tool view is divided in two zones: 
@@ -77,27 +67,30 @@ it is painted with a plain color (non transparent) and the graduations.
 Various kind of straight line can be drawn when a mouse stroke occures in its strokeZone(s)
 
 - font : used font to draw the graduation
-- extent: a point, tool extent in its own coordinates system, rounded to the nearest 0.5 cm
-- length: a number or point, length in ox and/or oy directions, expressed in pixels
+- extent: a point in pixel, tool extent in its own coordinates system. Its exact definition depends on the tool.
+- length: a number or point, length in ox and/or oy directions, expressed in cm. Its exact definition depends on the tool
 - lastHandPosition: used when rotating, moving or changing the extent!
 
-!Compass commentStamp: '<historical>' prior: 0!
+!Compass commentStamp: 'hlsf 21/Jun/2026, 8:49:28 am (UTC)' prior: 0!
 The two legs of the compass are symnetric to each other along the oy axis.
 A leg has a rectangular shape.
 
 - extent: a number, the distance between the compass legs extremities
-- length, width: numbers, length and width in cm of each compass legs (identical)
+- length: length in cm of each compass legs
 - width: width in pixels of each legs
 - legVertices : vertices of the leg holding the pen
 !
 
+!Protractor commentStamp: 'hlsf 21/Jun/2026, 9:24:33 am (UTC)' prior: 0!
+An interactive Protractor. It can be rotated, scaled and its grads reversed
+extent :
+	- x is inner radius
+	- y is outer radius!
+
 !SetSquare commentStamp: '<historical>' prior: 0!
 A set square with two sensible zones to draw straight lines!
 
-!CalibratorMorph commentStamp: '<historical>' prior: 0!
-A tool to calibrate manually screen and metric units.!
-
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025 22:00:16'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025, 8:00:16 pm (UTC)'!
 detectNearby: toolSymbol
 | myBounds |
 	myBounds := self fullBoundsInOwner.
@@ -105,52 +98,56 @@ detectNearby: toolSymbol
 		detect: [:aMorph | (aMorph is: toolSymbol) and: [myBounds intersects: aMorph fullBoundsInOwner]]
 		ifNone: [nil].! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2025 11:05:02'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 9:56:03 am (UTC)'!
+extent
+	^ extent! !
+
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2025, 9:05:02 am (UTC)'!
 length: aNumberOrPoint
 	self subclassResponsibility ! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2025 09:10:52'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2025, 7:10:52 am (UTC)'!
 paper
 	" The paper I may hand stroke into "
 	^ owner paper! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026 15:07:51'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026, 1:07:51 pm (UTC)'!
 ppcm
 " pixels per cm "
 	^ ppcm! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026 17:21:09'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026, 3:21:09 pm (UTC)'!
 ppcm: aNumber
 " pixels per cm "
 	ppcm := aNumber asFloat! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 09:53:57'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025, 7:53:57 am (UTC)'!
 writingTool
 
 	^ self paper writingTool! !
 
-!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 22:04:18'!
+!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026, 8:04:18 pm (UTC)'!
 initialize
 	super initialize.
 	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
 	ppcm := DyboSystem ppcm! !
 
-!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025 09:11:59'!
+!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025, 7:11:59 am (UTC)'!
 insertButtons
 	self subclassResponsibility ! !
 
-!GeometryTool methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025 16:37:42'!
+!GeometryTool methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025, 2:37:42 pm (UTC)'!
 constrainToDirection: localHandPosition
 "
  When drawing in the sketch zone, the handPosition is constrained to follow a straight line, 
  by following the closest border of the tool. Return this constrained position "
 	self subclassResponsibility ! !
 
-!GeometryTool methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025 09:13:42'!
+!GeometryTool methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 7:13:42 am (UTC)'!
 rotationCenter
 	^ `0@0`! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025 09:53:57'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025, 7:53:57 am (UTC)'!
 mouseButton1Down: event localPosition: localPosition
 	(self writingTool notNil and: [self inStrokeZone: localPosition])
 		ifTrue: [" initiate stroke along the tool "
@@ -160,7 +157,7 @@ mouseButton1Down: event localPosition: localPosition
 		ifFalse: ["Initate a drag of the tool " 
 			lastHandPosition := self externalize: localPosition ]! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025 11:37:24'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025, 9:37:24 am (UTC)'!
 mouseButton1Up: event localPosition: localPosition
 	lastHandPosition 
 		ifNil: [^ self paper mouseButton1Up: event localPosition: (self externalize: (self constrainToDirection: localPosition))]
@@ -169,7 +166,7 @@ mouseButton1Up: event localPosition: localPosition
 			lastHandPosition := nil]
 		! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 23/Sep/2025 17:59:59'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 23/Sep/2025, 3:59:59 pm (UTC)'!
 mouseMove: event localPosition: localPosition 
 	| externalposition |
 	event anyButtonPressed ifFalse: [ ^ self ].
@@ -180,15 +177,15 @@ mouseMove: event localPosition: localPosition
 			self morphPosition: self morphPosition  + externalposition - lastHandPosition.
 			lastHandPosition := externalposition ]! !
 
-!GeometryTool methodsFor: 'testing' stamp: 'hlsf 11/Sep/2025 09:32:22'!
+!GeometryTool methodsFor: 'testing' stamp: 'hlsf 11/Sep/2025, 7:32:22 am (UTC)'!
 inStrokeZone: localPosition
 	self subclassResponsibility ! !
 
-!GeometryTool methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025 21:20:09'!
+!GeometryTool methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025, 7:20:09 pm (UTC)'!
 alignToNearbyTool
 	" Some tool may want to be aligned to each other "! !
 
-!GeometryTool methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025 21:57:31'!
+!GeometryTool methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025, 7:57:31 pm (UTC)'!
 alignToNearbyTool: aToolSymbol
 	(self detectNearby: aToolSymbol) ifNotNil: [:aTool |
 		" Align my ox and ruler's ox "				
@@ -215,7 +212,7 @@ alignToNearbyTool: aToolSymbol
 				
 		 ! !
 
-!GeometryTool methodsFor: 'actions' stamp: 'hlsf 21/Sep/2025 11:57:11'!
+!GeometryTool methodsFor: 'actions' stamp: 'hlsf 21/Sep/2025, 9:57:11 am (UTC)'!
 rotateMe
 	| event p1 v1 v2|
 	"any thing new to do?"
@@ -230,15 +227,15 @@ rotateMe
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
 		ifFalse: [lastHandPosition := event eventPosition]! !
 
-!GeometryTool methodsFor: 'event handling testing' stamp: 'hlsf 1/Mar/2026 17:47:30'!
+!GeometryTool methodsFor: 'event handling testing' stamp: 'hlsf 1/Mar/2026, 3:47:30 pm (UTC)'!
 handlesMouseDown: evt
 	^ true! !
 
-!GeometryTool methodsFor: 'as yet unclassified' stamp: 'hlsf 2/Mar/2026 22:20:44'!
+!GeometryTool methodsFor: 'as yet unclassified' stamp: 'hlsf 2/Mar/2026, 8:20:44 pm (UTC)'!
 postCopy
 	ppcm := DyboSystem ppcm.! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 15:55:14'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025, 1:55:14 pm (UTC)'!
 extent: newExtent
 " The new extent can't excess the the two legs length "
 	extent := newExtent min: length * 2 max: 0.
@@ -246,50 +243,32 @@ extent: newExtent
 	self positioningButtons.
 	self redrawNeeded ! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 10:15:19'!
-handleZone
-	| pt |
-	^ Array 
-		with:  ( pt := self legVertices first - (0@10) )
-		with:  ( pt := pt + (width @ 10) )
-		with:  ( pt := pt + (0 @ (3 * width)) )
-		with:  ( pt := pt - (2 * width @ 0) )
-		with:  pt - (0 @ (3 * width))! !
-
-!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 10:59:10'!
-legVertices
-	^ legVertices ifNil: [ | u |
-		legVertices := Array new: 5.
-		 "pen extremity"
-		legVertices at: 5 put: (extent / 2.0 * self ppcm) @ 0.
-		"junction of the two legs"
-		legVertices at: 1 put: 0 @ ((length * self ppcm) squared - legVertices fifth x squared) sqrt.
-		u := (legVertices first - legVertices fifth) normalized.
-		legVertices at: 4 put: legVertices fifth + (u * 20).
-		u := (u y @ u x negated) * width.
-		legVertices at: 3 put: legVertices fourth + u.
-		legVertices at: 2 put: legVertices first + u.
-		legVertices]! !
-
-!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 11:55:08'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025, 9:55:08 am (UTC)'!
 length: newLength
 	length := newLength min: 10 max: 0.
 	legVertices := nil.
 	self positioningButtons.
 	self redrawNeeded ! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 21:42:03'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025, 7:42:03 pm (UTC)'!
 penColor
 	^ self writingTool 
 		ifNotNil: [:pen | pen color] ifNil: [Color white]! !
 
-!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025 21:49:56'!
+!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 8:51:45 am (UTC)'!
+width: pixels
+	width := pixels.
+	legVertices := nil.
+	self positioningButtons.
+	self redrawNeeded ! !
+
+!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025, 7:49:56 pm (UTC)'!
 writingTool
 	^ (owner is: #PageMorph) 	
 		ifTrue:  [self paper writingTool]
 		ifFalse: [nil]! !
 
-!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Sep/2025 10:42:32'!
+!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Sep/2025, 8:42:32 am (UTC)'!
 initialize
 	super initialize.
 	extent := 0.
@@ -297,40 +276,46 @@ initialize
 	width := 16.
 	self insertButtons! !
 
-!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Sep/2025 11:46:10'!
+!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 9:02:37 am (UTC)'!
 insertButtons
 	| btn |
+"	Rotate button "
 	btn := ButtonMorph model: self action: #rotateMe ::
 		actWhen: #buttonStillDown;
 		color: Color yellow darker;
-		selectedColor: Color yellow;
-		morphExtent:  2 * width @ (3 * width) - (4@4).
+		selectedColor: Color yellow.
 	self addMorph: btn.
-	btn := ButtonMorph model: self action: #adjustExtent ::
+"	Apperture button "
+	btn := ButtonMorph model: self action: #adjustAperture ::
 		actWhen: #buttonStillDown;
 		color: Color yellow darker;
-		selectedColor: Color yellow;
-		morphExtent:  (width + 4) asPoint.
+		selectedColor: Color yellow.
 	self addMorph: btn.
 	
 	self positioningButtons ! !
 
-!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Sep/2025 15:12:50'!
+!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 9:06:19 am (UTC)'!
 positioningButtons 
+	| rotatorBtn apertureBtn |
 	submorphs isEmptyOrNil ifTrue: [^ self].
+	rotatorBtn := submorphs last.
+	apertureBtn := submorphs first.
 	" holder button: to rotate the compass"
-	submorphs last morphPosition: self legVertices first + (width negated @ (3 * width)) + (2 @ -2).
+	rotatorBtn 
+		morphPosition: self legVertices first + (width negated @ (3 * width)) + (2 @ -2);
+		morphExtent:  2 * width @ (3 * width) - (4@4).
 	" positionning button: to adjust the compass extent "
-	submorphs first morphPosition: 
+	apertureBtn morphPosition: 
 		legVertices third + legVertices fourth // 2 
 		+ ( (legVertices third - legVertices fourth) normalized normal * 15 )
-		- (10@-10)! !
+		- (8@-10);
+		morphExtent:  (width + 4) asPoint! !
 
-!Compass methodsFor: 'geometry testing' stamp: 'hlsf 20/Sep/2025 21:44:20'!
+!Compass methodsFor: 'geometry testing' stamp: 'hlsf 20/Sep/2025, 7:44:20 pm (UTC)'!
 yAxisPointsUp
 	^ true ! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 27/Feb/2026 10:22:30'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 27/Feb/2026, 8:22:30 am (UTC)'!
 drawCompassPoint
 " the user should know where is the center of the sketched arc or circle "
 	| pen altPen event compassPoint |
@@ -352,49 +337,81 @@ drawCompassPoint
 	pen become: altPen 
 	! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 11/Jun/2026 11:22:02'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 9:12:27 am (UTC)'!
 drawOn: canvas
 	| symmetricLeg |
 	self legVertices.
 	" Leg holding the pen "
-	canvas strokeWidth: 1.5 color: `Color black` fillColor: `Color yellow` do: [canvas polyLine: (legVertices allButLast)].
+	canvas strokeWidth: 1 color: `Color black` fillColor: `Color yellow` do: [canvas polyLine: (legVertices allButLast)].
 	" Pen "
 	canvas fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
 	" Aperture "
-	canvas drawString: (self aperture printStringFractionDigits: 2) at: legVertices fifth + (10@0) font: font color: `Color black`.
+	canvas drawString: ((self aperture roundTo: 0.1) printStringFractionDigits: 1) at: legVertices fifth + (10@0) font: font color: `Color black`.
 	symmetricLeg := legVertices * (-1 @ 1).
 	" Leg holding the compass point "
-	canvas strokeWidth: 1.5 color: `Color black` fillColor:`Color yellow` do: [canvas polyLine: symmetricLeg allButLast ].
+	canvas strokeWidth: 1 color: `Color black` fillColor:`Color yellow` do: [canvas polyLine: symmetricLeg allButLast ].
 	" Compass point "
 	canvas strokeWidth: 0.5 color: `Color black` fillColor: `Color grey` do: [canvas polyLine: (symmetricLeg last: 3)].
 	" Handle "
-	canvas strokeWidth: 1.5 color: `Color black` fillColor: `Color yellow` do: [ canvas polyLine: self handleZone ]! !
+	canvas strokeWidth: 1 color: `Color black` fillColor: `Color yellow` do: [ canvas polyLine: self handleZone ]! !
 
-!Compass methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026 10:30:34'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 9:03:16 am (UTC)'!
+icon
+	^ (self class new 
+		length: 1;
+		width: 10;
+		yourself) imageForm: 32 ! !
+
+!Compass methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026, 8:30:34 am (UTC)'!
 aperture
 	^ self legVertices fifth x * 2 / self ppcm ! !
 
-!Compass methodsFor: 'geometry' stamp: 'hlsf 21/Sep/2025 21:06:56'!
+!Compass methodsFor: 'geometry' stamp: 'hlsf 21/Sep/2025, 7:06:56 pm (UTC)'!
 constrainToDirection: localHandPosition
 	^ self legVertices fifth ! !
 
-!Compass methodsFor: 'geometry' stamp: 'hlsf 20/Sep/2025 22:46:10'!
+!Compass methodsFor: 'geometry' stamp: 'hlsf 21/Sep/2025, 8:15:19 am (UTC)'!
+handleZone
+	| pt |
+	^ Array 
+		with:  ( pt := self legVertices first - (0@10) )
+		with:  ( pt := pt + (width @ 10) )
+		with:  ( pt := pt + (0 @ (3 * width)) )
+		with:  ( pt := pt - (2 * width @ 0) )
+		with:  pt - (0 @ (3 * width))! !
+
+!Compass methodsFor: 'geometry' stamp: 'hlsf 21/Sep/2025, 8:59:10 am (UTC)'!
+legVertices
+	^ legVertices ifNil: [ | u |
+		legVertices := Array new: 5.
+		 "pen extremity"
+		legVertices at: 5 put: (extent / 2.0 * self ppcm) @ 0.
+		"junction of the two legs"
+		legVertices at: 1 put: 0 @ ((length * self ppcm) squared - legVertices fifth x squared) sqrt.
+		u := (legVertices first - legVertices fifth) normalized.
+		legVertices at: 4 put: legVertices fifth + (u * 20).
+		u := (u y @ u x negated) * width.
+		legVertices at: 3 put: legVertices fourth + u.
+		legVertices at: 2 put: legVertices first + u.
+		legVertices]! !
+
+!Compass methodsFor: 'geometry' stamp: 'hlsf 20/Sep/2025, 8:46:10 pm (UTC)'!
 rotationCenter
 	^ self legVertices fifth * (-1 @ 0)! !
 
-!Compass methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026 10:25:05'!
+!Compass methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026, 8:25:05 am (UTC)'!
 writingPosition
 	^ self legVertices fifth! !
 
-!Compass methodsFor: 'testing' stamp: 'hlsf 21/Sep/2025 11:09:13'!
+!Compass methodsFor: 'testing' stamp: 'hlsf 21/Sep/2025, 9:09:13 am (UTC)'!
 inStrokeZone: localPosition
 	 ^ localPosition 
 		insideTriangle: self legVertices third 
 		with: legVertices fourth 
 		with: legVertices fifth ! !
 
-!Compass methodsFor: 'actions' stamp: 'hlsf 27/Feb/2026 10:52:08'!
-adjustExtent
+!Compass methodsFor: 'actions' stamp: 'hlsf 21/Jun/2026, 8:59:50 am (UTC)'!
+adjustAperture
 	| event compassPoint pen newPen newExtent p1 v1 v2 |
 	"any thing new to do?"
 	event := self activeHand lastMouseEvent.
@@ -419,7 +436,7 @@ adjustExtent
 			] 
 		ifFalse: [lastHandPosition := event eventPosition]! !
 
-!Compass methodsFor: 'actions' stamp: 'hlsf 21/Sep/2025 11:25:26'!
+!Compass methodsFor: 'actions' stamp: 'hlsf 21/Sep/2025, 9:25:26 am (UTC)'!
 rotateMeSave
 	| event p1 v1 v2 angle |
 	"any thing new to do?"
@@ -437,7 +454,7 @@ rotateMeSave
 			self redrawNeeded ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
 
-!Compass methodsFor: 'event handling' stamp: 'hlsf 23/Sep/2025 21:23:23'!
+!Compass methodsFor: 'event handling' stamp: 'hlsf 23/Sep/2025, 7:23:23 pm (UTC)'!
 mouseButton1Down: event localPosition: localPosition
 " See parent " 	
 	(self writingTool notNil and: [self inStrokeZone: localPosition])
@@ -447,12 +464,12 @@ mouseButton1Down: event localPosition: localPosition
 			self paper mouseButton1Down: event  localPosition: (self externalize: (self constrainToDirection: localPosition))]
 		ifFalse: [	lastHandPosition := self externalize: localPosition ]! !
 
-!Compass methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025 21:20:19'!
+!Compass methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025, 7:20:19 pm (UTC)'!
 mouseButton1Up: event localPosition: localPosition 
 	super mouseButton1Up: event localPosition: localPosition.
 	lastHandPenPosition := nil! !
 
-!Compass methodsFor: 'event handling' stamp: 'hlsf 23/Sep/2025 18:00:07'!
+!Compass methodsFor: 'event handling' stamp: 'hlsf 23/Sep/2025, 4:00:07 pm (UTC)'!
 mouseMove: event localPosition: localPosition
 	| p1 v1 v2 externalposition |
 	event anyButtonPressed ifFalse: [ ^ self ].
@@ -472,11 +489,23 @@ mouseMove: event localPosition: localPosition
 		self morphPosition: self morphPosition  + externalposition - lastHandPosition.
 		lastHandPosition := externalposition]! !
 
-!Compass methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026 11:34:45'!
+!Compass methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:34:45 am (UTC)'!
 name
 	^ 'Compass' translated! !
 
-!Protractor methodsFor: 'drawing' stamp: 'hlsf 20/Sep/2025 22:05:25'!
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 13/Sep/2025, 2:54:47 pm (UTC)'!
+addLabel: string font: aFont centeredAt: position rotationDegrees: angle
+"Add a label top-centered at position and rotated of angle degrees"
+	| p label |
+	p := position - (position normal * (aFont widthOfString: string asString) / 2). 
+	label := LabelMorph contents: string font: aFont.
+	label rotationDegrees: 90 - angle.
+	self addMorph: label.
+	label morphPosition: p.
+	label lock.
+	^ label! !
+
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 20/Sep/2025, 8:05:25 pm (UTC)'!
 drawOn: canvas
 |  p1 p2 innerR outerR|
 	innerR := extent x.
@@ -513,7 +542,11 @@ drawOn: canvas
 			p2 := Point r: outerR - 8 degrees: degree.
 			engine moveTo: p1; lineTo: p2 ]]! !
 
-!Protractor methodsFor: 'initialization' stamp: 'hlsf 13/Sep/2025 16:22:38'!
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 9:25:18 am (UTC)'!
+icon
+	^ (self imageForm: 32) magnifyBy: 100.0 / (extent y * 2)! !
+
+!Protractor methodsFor: 'initialization' stamp: 'hlsf 13/Sep/2025, 2:22:38 pm (UTC)'!
 initialize
 	super initialize .
 	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 7.
@@ -522,7 +555,7 @@ initialize
 	self updateGraduations.
 	self insertButtons ! !
 
-!Protractor methodsFor: 'initialization' stamp: 'hlsf 14/Sep/2025 19:18:13'!
+!Protractor methodsFor: 'initialization' stamp: 'hlsf 14/Sep/2025, 5:18:13 pm (UTC)'!
 insertButtons
 | btn buttonExtent pos |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
@@ -566,23 +599,12 @@ insertButtons
 
 ! !
 
-!Protractor methodsFor: 'initialization' stamp: 'hlsf 13/Sep/2025 16:19:12'!
-updateGraduations
-	self graduations do: [:each | each delete].
-	10 to: 170 by: 10 do: [:angle | 
-		self 
-			addLabel: (zeroAtRight ifTrue: [angle] ifFalse: [180 - angle]) asString 
-			font: font 
-			centeredAt: (Point r: extent y - 12 degrees: angle negated)
-			rotationDegrees: angle].
-! !
-
-!Protractor methodsFor: 'action' stamp: 'hlsf 14/Jan/2021 21:10:10'!
+!Protractor methodsFor: 'action' stamp: 'hlsf 14/Jan/2021, 7:10:10 pm (UTC)'!
 reverseGraduations
 	zeroAtRight _ zeroAtRight not.
 	self updateGraduations ! !
 
-!Protractor methodsFor: 'action' stamp: 'hlsf 13/Sep/2025 16:51:38'!
+!Protractor methodsFor: 'action' stamp: 'hlsf 13/Sep/2025, 2:51:38 pm (UTC)'!
 scaleMe
 	| event p1 v1 v2|
 	"any thing new to do?"
@@ -598,27 +620,15 @@ scaleMe
 		ifFalse: [
 			lastHandPosition := event eventPosition].! !
 
-!Protractor methodsFor: 'accessing' stamp: 'hlsf 13/Sep/2025 16:54:47'!
-addLabel: string font: aFont centeredAt: position rotationDegrees: angle
-"Add a label top-centered at position and rotated of angle degrees"
-	| p label |
-	p := position - (position normal * (aFont widthOfString: string asString) / 2). 
-	label := LabelMorph contents: string font: aFont.
-	label rotationDegrees: 90 - angle.
-	self addMorph: label.
-	label morphPosition: p.
-	label lock.
-	^ label! !
-
-!Protractor methodsFor: 'accessing' stamp: 'hlsf 15/Jan/2021 10:10:30'!
+!Protractor methodsFor: 'accessing' stamp: 'hlsf 15/Jan/2021, 8:10:30 am (UTC)'!
 buttons
 	^ self submorphsSatisfying: [:each | each is: #PluggableButtonMorph ]! !
 
-!Protractor methodsFor: 'accessing' stamp: 'hlsf 14/Jan/2021 20:52:10'!
+!Protractor methodsFor: 'accessing' stamp: 'hlsf 14/Jan/2021, 6:52:10 pm (UTC)'!
 graduations
 	^ self submorphsSatisfying: [:each | each class == LabelMorph]! !
 
-!Protractor methodsFor: 'testing' stamp: 'hlsf 14/Sep/2025 11:11:26'!
+!Protractor methodsFor: 'testing' stamp: 'hlsf 14/Sep/2025, 9:11:26 am (UTC)'!
 inStrokeZone: localPosition
 	localPosition r > extent x	ifTrue: [
 		strokeAngle := localPosition degrees rounded degreesToRadians .
@@ -626,19 +636,30 @@ inStrokeZone: localPosition
 	strokeAngle := nil.
 	^ false! !
 
-!Protractor methodsFor: 'testing' stamp: 'hlsf 13/Sep/2025 16:33:56'!
+!Protractor methodsFor: 'testing' stamp: 'hlsf 13/Sep/2025, 2:33:56 pm (UTC)'!
 is: aSymbol
 	^ aSymbol == #Protractor or: [super is: aSymbol]! !
 
-!Protractor methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025 16:43:31'!
+!Protractor methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025, 2:43:31 pm (UTC)'!
 constrainToDirection: localHandPosition
 	^ Point rho: localHandPosition rho theta: strokeAngle ! !
 
-!Protractor methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026 11:34:54'!
+!Protractor methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025, 2:19:12 pm (UTC)'!
+updateGraduations
+	self graduations do: [:each | each delete].
+	10 to: 170 by: 10 do: [:angle | 
+		self 
+			addLabel: (zeroAtRight ifTrue: [angle] ifFalse: [180 - angle]) asString 
+			font: font 
+			centeredAt: (Point r: extent y - 12 degrees: angle negated)
+			rotationDegrees: angle].
+! !
+
+!Protractor methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:34:54 am (UTC)'!
 name
 	^ 'Protractor' translated! !
 
-!Ruler methodsFor: 'drawing' stamp: 'hlsf 11/Sep/2025 21:40:29'!
+!Ruler methodsFor: 'drawing' stamp: 'hlsf 11/Sep/2025, 7:40:29 pm (UTC)'!
 drawOn: canvas
 	| posX step roundedLength |
 	roundedLength := length rounded.
@@ -670,25 +691,27 @@ drawOn: canvas
 		step := step + 1.
 		posX := posX + self ppcm].! !
 
-!Ruler methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025 21:56:02'!
-alignToNearbyTool
-	^ self alignToNearbyTool: #SetSquare! !
+!Ruler methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 10:00:07 am (UTC)'!
+icon
+	| smallMorph |
+	smallMorph := self class new length: 4.
+	^ (smallMorph imageForm: 32) magnifyBy: 100 / smallMorph extent x! !
 
-!Ruler methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025 12:08:24'!
+!Ruler methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025, 10:08:24 am (UTC)'!
 length: newLength
 	length := newLength max: 1.
 	extent := length rounded * self ppcm + (self ppcm / 2) @ 60.
 	self positioningButtons.
 	self redrawNeeded ! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025 13:11:15'!
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025, 11:11:15 am (UTC)'!
 initialize
 	super initialize.
 	self length: 10.
 	self insertButtons 
 	! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 14/Sep/2025 19:25:38'!
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 14/Sep/2025, 5:25:38 pm (UTC)'!
 insertButtons
 | btn buttonExtent |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
@@ -718,7 +741,7 @@ insertButtons
 	self positioningButtons 
 	! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 14/Sep/2025 19:24:38'!
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 14/Sep/2025, 5:24:38 pm (UTC)'!
 positioningButtons
 | buttonWidth position |
 	submorphs isEmptyOrNil ifTrue: [^ self].
@@ -729,7 +752,7 @@ positioningButtons
 		position :=  position translatedBy:  - 4 - buttonWidth @ 0 ]
 		! !
 
-!Ruler methodsFor: 'actions' stamp: 'hlsf 11/Sep/2025 13:25:26'!
+!Ruler methodsFor: 'actions' stamp: 'hlsf 11/Sep/2025, 11:25:26 am (UTC)'!
 resizeMe
 	| event prev |
 	"any thing new to do?"
@@ -741,43 +764,47 @@ resizeMe
 			self length: length + (lastHandPosition x - prev x / self ppcm)] 
 		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
 
-!Ruler methodsFor: 'copying' stamp: 'hlsf 2/Mar/2026 22:08:57'!
+!Ruler methodsFor: 'copying' stamp: 'hlsf 2/Mar/2026, 8:08:57 pm (UTC)'!
 copy
 	^ super copy postCopy! !
 
-!Ruler methodsFor: 'copying' stamp: 'hlsf 2/Mar/2026 22:21:00'!
+!Ruler methodsFor: 'copying' stamp: 'hlsf 2/Mar/2026, 8:21:00 pm (UTC)'!
 postCopy
 	super postCopy.
 	self length: length! !
 
-!Ruler methodsFor: 'testing' stamp: 'hlsf 11/Sep/2025 09:32:55'!
+!Ruler methodsFor: 'testing' stamp: 'hlsf 11/Sep/2025, 7:32:55 am (UTC)'!
 inStrokeZone: localPosition
 
 	^ self strokeZone containsPoint: localPosition! !
 
-!Ruler methodsFor: 'testing' stamp: 'hlsf 13/Sep/2025 16:33:42'!
+!Ruler methodsFor: 'testing' stamp: 'hlsf 13/Sep/2025, 2:33:42 pm (UTC)'!
 is: aSymbol
 	^ aSymbol == #Ruler or: [super is: aSymbol]! !
 
-!Ruler methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025 16:37:42'!
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 16/Sep/2025, 7:56:02 pm (UTC)'!
+alignToNearbyTool
+	^ self alignToNearbyTool: #SetSquare! !
+
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025, 2:37:42 pm (UTC)'!
 constrainToDirection: localHandPosition
 	^ localHandPosition x @ 0! !
 
-!Ruler methodsFor: 'geometry' stamp: 'hlsf 7/Sep/2025 12:09:35'!
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 7/Sep/2025, 10:09:35 am (UTC)'!
 dragZone
 
 	^ -5@25 corner: extent! !
 
-!Ruler methodsFor: 'geometry' stamp: 'hlsf 7/Sep/2025 12:09:09'!
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 7/Sep/2025, 10:09:09 am (UTC)'!
 strokeZone
 
 	^ -5@0 corner: extent x @ 25! !
 
-!Ruler methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026 11:35:01'!
+!Ruler methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:35:01 am (UTC)'!
 name
 	^  'Ruler' translated! !
 
-!SetSquare methodsFor: 'drawing' stamp: 'hlsf 11/Sep/2025 21:49:52'!
+!SetSquare methodsFor: 'drawing' stamp: 'hlsf 11/Sep/2025, 7:49:52 pm (UTC)'!
 drawOn: canvas
 	| roundedLength  step pos |
 	roundedLength := length rounded.
@@ -836,13 +863,22 @@ drawOn: canvas
 		step := step + 1.
 		pos := pos + self ppcm].! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025 16:37:42'!
+!SetSquare methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 10:02:54 am (UTC)'!
+icon
+	| smallMorph |
+	smallMorph := self class new ::
+		 length: 4@4;
+		rotationDegrees: 270.
+	^ (smallMorph imageForm: 32) 
+		magnifyBy: 100 / smallMorph extent x! !
+
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025, 2:37:42 pm (UTC)'!
 constrainToDirection: localHandPosition
 	^ strokeSide == #ox
 		ifTrue: [localHandPosition x @ 0]
 		ifFalse: [ 0 @ localHandPosition y]! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025 11:11:19'!
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 9:11:19 am (UTC)'!
 dragZone
 	^ Array 
 		with: 25@25
@@ -850,7 +886,7 @@ dragZone
 		with: (strokeZone at: 6)
 ! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025 10:44:55'!
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 8:44:55 am (UTC)'!
 strokeZone
 	^ strokeZone ifNil: [ 
 		strokeZone := Array 
@@ -861,21 +897,21 @@ strokeZone
 			with: 25 @ ( extent y - (25 * extent y / extent x) )
 			with: 0 @ extent y]! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025 15:51:59'!
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 1:51:59 pm (UTC)'!
 strokeZoneX
 " The stroke zone along the x-axis "
 	^ Rectangle origin: 0@0 corner: extent x @ 25! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025 15:52:16'!
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 1:52:16 pm (UTC)'!
 strokeZoneY
 " The stroke zone along the y-axis "
 	^ Rectangle origin: 0@0 corner: 25 @ extent y! !
 
-!SetSquare methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025 21:55:49'!
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025, 7:55:49 pm (UTC)'!
 alignToNearbyTool
 	^ self alignToNearbyTool: #Ruler! !
 
-!SetSquare methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025 19:06:06'!
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025, 5:06:06 pm (UTC)'!
 length: newLength
 	length := newLength max: 2@2.
 	extent := length rounded * self ppcm + (self ppcm / 2).
@@ -883,7 +919,7 @@ length: newLength
 	self positioningButtons.
 	self redrawNeeded ! !
 
-!SetSquare methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025 19:22:01'!
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025, 5:22:01 pm (UTC)'!
 resizeIcon
 	| icon canvas iconExtent c |
 	c := 50 * (extent x / extent y) sqrt.
@@ -897,14 +933,14 @@ resizeIcon
 			lineTo: 0@0].
 	^ icon! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025 13:29:16'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025, 11:29:16 am (UTC)'!
 initialize
 	super initialize.
 	self length: 5@10.
 	self insertButtons 
 	! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 16/Sep/2025 19:00:10'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 16/Sep/2025, 5:00:10 pm (UTC)'!
 insertButtons
 | btn buttonExtent |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
@@ -939,7 +975,7 @@ insertButtons
 		
 	self positioningButtons ! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 16/Sep/2025 19:00:27'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 16/Sep/2025, 5:00:27 pm (UTC)'!
 positioningButtons
 | rotateBtn icon |
 	submorphs isEmptyOrNil ifTrue: [^ self].
@@ -953,7 +989,7 @@ positioningButtons
 		icon: icon;
 		morphPosition: -2 @ (extent y - icon extent y - 2).! !
 
-!SetSquare methodsFor: 'testing' stamp: 'hlsf 11/Sep/2025 15:50:55'!
+!SetSquare methodsFor: 'testing' stamp: 'hlsf 11/Sep/2025, 1:50:55 pm (UTC)'!
 inStrokeZone: localPosition
 	(self strokeZoneX containsPoint: localPosition) ifTrue: [
 		strokeSide := #ox.
@@ -964,11 +1000,11 @@ inStrokeZone: localPosition
 	strokeSide := nil.
 	^ false! !
 
-!SetSquare methodsFor: 'testing' stamp: 'hlsf 13/Sep/2025 16:34:05'!
+!SetSquare methodsFor: 'testing' stamp: 'hlsf 13/Sep/2025, 2:34:05 pm (UTC)'!
 is: aSymbol
 	^ aSymbol == #SetSquare or: [super is: aSymbol]! !
 
-!SetSquare methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025 19:03:21'!
+!SetSquare methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025, 5:03:21 pm (UTC)'!
 resizeOX
 	| event prev |
 	event := self activeHand lastMouseEvent.
@@ -979,7 +1015,7 @@ resizeOX
 			self length: (length x + (lastHandPosition x - prev x / self ppcm)) @ length y] 
 		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
 
-!SetSquare methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025 19:04:01'!
+!SetSquare methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025, 5:04:01 pm (UTC)'!
 resizeOY
 	| event prev |
 	event := self activeHand lastMouseEvent.
@@ -990,74 +1026,6 @@ resizeOY
 			self length: (length x @ (length y + (lastHandPosition y - prev y / self ppcm)) )] 
 		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
 
-!SetSquare methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026 11:35:13'!
+!SetSquare methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:35:13 am (UTC)'!
 name
 	^  'Set square' translated! !
-
-!CalibratorMorph methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026 15:04:16'!
-etalon: form
-	etalon := form! !
-
-!CalibratorMorph methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026 15:04:41'!
-ppcm
-	^ ppcm ! !
-
-!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 11/Jun/2026 11:15:29'!
-initialize
-	super initialize.
-	ppcm := DyboSystem ppcm.
-	step := 0.05.
-	ruler := Ruler new 
-		ppcm: ppcm;
-		length: 10;
-		lock.
-	self	addMorph: ruler position: 22.5@80.
-	self insertButtons! !
-
-!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026 18:00:16'!
-insertButtons
-	| btn buttonExtent |
-	buttonExtent := Theme current listAddIcon extent * 1.5. 
-	btn := ButtonMorph model: self action: #increasePPCM ::
-		actWhen: #buttonStillDown;
-		icon: Theme current listAddIcon ;
-		morphExtent: buttonExtent.
-	self addMorph: btn position: 290@150.
-	
-	btn := ButtonMorph model: self action: #decreasePPCM ::
-		actWhen: #buttonStillDown;
-		icon: Theme current listRemoveIcon ;
-		morphExtent: buttonExtent.
-	self addMorph: btn position: (295 + buttonExtent x) @150
-! !
-
-!CalibratorMorph methodsFor: 'drawing' stamp: 'hlsf 28/Apr/2026 11:11:20'!
-drawOn: canvas
-	canvas
-		fillRectangle: self localBounds
-		color: `Color transparent`.
-	canvas image: etalon at: 0@0.! !
-
-!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026 18:06:00'!
-decreasePPCM
-	ppcm < 20 ifTrue: [^ self].
-	ppcm := ppcm - step.
-	ruler ppcm: ppcm;
-		length: 10.
-	self redrawNeeded ! !
-
-!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026 22:06:18'!
-increasePPCM
-	ppcm > 70 ifTrue: [^ self].
-	ppcm := ppcm + step.
-	ruler ppcm: ppcm;
-		length: 10.
-	self redrawNeeded ! !
-
-!CalibratorMorph methodsFor: 'geometry testing' stamp: 'hlsf 1/Mar/2026 22:06:01'!
-clipsSubmorphs
-	^ true! !
-
-!CalibratorMorph methodsFor: 'geometry' stamp: 'hlsf 1/Mar/2026 22:08:29'!
-minimumExtent
-	^ `700@180`! !
