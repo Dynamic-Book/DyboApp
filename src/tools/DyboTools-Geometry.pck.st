@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8014] on 21 June 2026 at 12:14:42 pm'!
+'From Cuis7.9 [latest update: #8014] on 21 June 2026 at 5:04:01 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 61!
+!provides: 'DyboTools-Geometry' 1 62!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -23,6 +23,16 @@ GeometryTool subclass: #Compass
 	category: 'DyboTools-Geometry'!
 !classDefinition: 'Compass class' category: #'DyboTools-Geometry'!
 Compass class
+	instanceVariableNames: ''!
+
+!classDefinition: #Geodreieck category: #'DyboTools-Geometry'!
+GeometryTool subclass: #Geodreieck
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'Geodreieck class' category: #'DyboTools-Geometry'!
+Geodreieck class
 	instanceVariableNames: ''!
 
 !classDefinition: #Protractor category: #'DyboTools-Geometry'!
@@ -81,6 +91,18 @@ A leg has a rectangular shape.
 - legVertices : vertices of the leg holding the pen
 !
 
+!Geodreieck commentStamp: 'hlsf 21/Jun/2026, 2:03:06 pm (UTC)' prior: 0!
+"In some European countries a common form of set square combines a 90-45-45 triangle, a ruler and a protractor into a single tool made of stiff or slightly flexible transparent plastic. Being a mandatory tool used by pupils in middle school and higher in German-speaking and neighbouring countries, this specific design is named Geodreieck (short form of Geometrie-Dreieck)." Wikipedia (https://en.wikipedia.org/wiki/Set_square#Geodreieck)
+
+To optimize rendering time, part of the Morph is drawn by submorps and other within the drawOn: method.
+
+The geodreieck is centered at the center of the protractor. Its shape is an isocele rectangle triangle.
+- length: usally 8 cm, for both the apex from 0 and the demi-ruler length
+- extent (in pixel):
+	x: the ruler length in the ox direction
+	y: the apex position in the oy direction, also half the ruler length (1/2 x)
+!
+
 !Protractor commentStamp: 'hlsf 21/Jun/2026, 9:24:33 am (UTC)' prior: 0!
 An interactive Protractor. It can be rotated, scaled and its grads reversed
 extent :
@@ -89,6 +111,14 @@ extent :
 
 !SetSquare commentStamp: '<historical>' prior: 0!
 A set square with two sensible zones to draw straight lines!
+
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:23:23 pm (UTC)'!
+color
+	^ `Color yellow`! !
+
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:29:53 pm (UTC)'!
+darkerColor
+	^ `Color yellow darker`! !
 
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025, 8:00:16 pm (UTC)'!
 detectNearby: toolSymbol
@@ -106,10 +136,10 @@ extent
 length: aNumberOrPoint
 	self subclassResponsibility ! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2025, 7:10:52 am (UTC)'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 2:28:54 pm (UTC)'!
 paper
 	" The paper I may hand stroke into "
-	^ owner paper! !
+	^ [owner paper] on: MessageNotUnderstood do: [owner]! !
 
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026, 1:07:51 pm (UTC)'!
 ppcm
@@ -121,10 +151,14 @@ ppcm: aNumber
 " pixels per cm "
 	ppcm := aNumber asFloat! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025, 7:53:57 am (UTC)'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:25:35 pm (UTC)'!
+transparentColor
+	^ `Color yellow alpha: 0.5`! !
+
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 2:30:13 pm (UTC)'!
 writingTool
 
-	^ self paper writingTool! !
+	^ [self paper writingTool] on: MessageNotUnderstood do:[ nil]! !
 
 !GeometryTool methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026, 8:04:18 pm (UTC)'!
 initialize
@@ -231,7 +265,7 @@ rotateMe
 handlesMouseDown: evt
 	^ true! !
 
-!GeometryTool methodsFor: 'as yet unclassified' stamp: 'hlsf 2/Mar/2026, 8:20:44 pm (UTC)'!
+!GeometryTool methodsFor: 'active model behavior' stamp: 'hlsf 2/Mar/2026, 8:20:44 pm (UTC)'!
 postCopy
 	ppcm := DyboSystem ppcm.! !
 
@@ -276,40 +310,23 @@ initialize
 	width := 16.
 	self insertButtons! !
 
-!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 9:02:37 am (UTC)'!
+!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:31:20 pm (UTC)'!
 insertButtons
 	| btn |
 "	Rotate button "
 	btn := ButtonMorph model: self action: #rotateMe ::
 		actWhen: #buttonStillDown;
-		color: Color yellow darker;
-		selectedColor: Color yellow.
+		color: self darkerColor ;
+		selectedColor: self color.
 	self addMorph: btn.
 "	Apperture button "
 	btn := ButtonMorph model: self action: #adjustAperture ::
 		actWhen: #buttonStillDown;
-		color: Color yellow darker;
-		selectedColor: Color yellow.
+		color: self darkerColor;
+		selectedColor: self color.
 	self addMorph: btn.
 	
 	self positioningButtons ! !
-
-!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 9:06:19 am (UTC)'!
-positioningButtons 
-	| rotatorBtn apertureBtn |
-	submorphs isEmptyOrNil ifTrue: [^ self].
-	rotatorBtn := submorphs last.
-	apertureBtn := submorphs first.
-	" holder button: to rotate the compass"
-	rotatorBtn 
-		morphPosition: self legVertices first + (width negated @ (3 * width)) + (2 @ -2);
-		morphExtent:  2 * width @ (3 * width) - (4@4).
-	" positionning button: to adjust the compass extent "
-	apertureBtn morphPosition: 
-		legVertices third + legVertices fourth // 2 
-		+ ( (legVertices third - legVertices fourth) normalized normal * 15 )
-		- (8@-10);
-		morphExtent:  (width + 4) asPoint! !
 
 !Compass methodsFor: 'geometry testing' stamp: 'hlsf 20/Sep/2025, 7:44:20 pm (UTC)'!
 yAxisPointsUp
@@ -337,23 +354,23 @@ drawCompassPoint
 	pen become: altPen 
 	! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 9:12:27 am (UTC)'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 1:24:49 pm (UTC)'!
 drawOn: canvas
 	| symmetricLeg |
 	self legVertices.
 	" Leg holding the pen "
-	canvas strokeWidth: 1 color: `Color black` fillColor: `Color yellow` do: [canvas polyLine: (legVertices allButLast)].
+	canvas strokeWidth: 1 color: `Color black` fillColor: self color do: [canvas polyLine: (legVertices allButLast)].
 	" Pen "
 	canvas fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
 	" Aperture "
 	canvas drawString: ((self aperture roundTo: 0.1) printStringFractionDigits: 1) at: legVertices fifth + (10@0) font: font color: `Color black`.
 	symmetricLeg := legVertices * (-1 @ 1).
 	" Leg holding the compass point "
-	canvas strokeWidth: 1 color: `Color black` fillColor:`Color yellow` do: [canvas polyLine: symmetricLeg allButLast ].
+	canvas strokeWidth: 1 color: `Color black` fillColor: self color do: [canvas polyLine: symmetricLeg allButLast ].
 	" Compass point "
 	canvas strokeWidth: 0.5 color: `Color black` fillColor: `Color grey` do: [canvas polyLine: (symmetricLeg last: 3)].
 	" Handle "
-	canvas strokeWidth: 1 color: `Color black` fillColor: `Color yellow` do: [ canvas polyLine: self handleZone ]! !
+	canvas strokeWidth: 1 color: `Color black` fillColor: self color do: [ canvas polyLine: self handleZone ]! !
 
 !Compass methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 9:03:16 am (UTC)'!
 icon
@@ -394,6 +411,23 @@ legVertices
 		legVertices at: 3 put: legVertices fourth + u.
 		legVertices at: 2 put: legVertices first + u.
 		legVertices]! !
+
+!Compass methodsFor: 'geometry' stamp: 'hlsf 21/Jun/2026, 9:06:19 am (UTC)'!
+positioningButtons 
+	| rotatorBtn apertureBtn |
+	submorphs isEmptyOrNil ifTrue: [^ self].
+	rotatorBtn := submorphs last.
+	apertureBtn := submorphs first.
+	" holder button: to rotate the compass"
+	rotatorBtn 
+		morphPosition: self legVertices first + (width negated @ (3 * width)) + (2 @ -2);
+		morphExtent:  2 * width @ (3 * width) - (4@4).
+	" positionning button: to adjust the compass extent "
+	apertureBtn morphPosition: 
+		legVertices third + legVertices fourth // 2 
+		+ ( (legVertices third - legVertices fourth) normalized normal * 15 )
+		- (8@-10);
+		morphExtent:  (width + 4) asPoint! !
 
 !Compass methodsFor: 'geometry' stamp: 'hlsf 20/Sep/2025, 8:46:10 pm (UTC)'!
 rotationCenter
@@ -493,6 +527,66 @@ mouseMove: event localPosition: localPosition
 name
 	^ 'Compass' translated! !
 
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:19:19 pm (UTC)'!
+initialize
+	super initialize.
+	self length: 8.
+	self insertButtons! !
+
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:20:29 pm (UTC)'!
+insertButtons
+	! !
+
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:19:41 pm (UTC)'!
+length: aNumber
+	length := aNumber rounded max: 8.
+	extent := ((2 * length) * self ppcm) @ (length * self ppcm).
+	self positioningButtons.
+	self redrawNeeded! !
+
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 2:42:45 pm (UTC)'!
+transparentColor
+	^ `Color lightGreen muchLighter alpha: 0.4`! !
+
+!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 21/Jun/2026, 1:39:32 pm (UTC)'!
+positioningButtons! !
+
+!Geodreieck methodsFor: 'as yet unclassified' stamp: 'hlsf 21/Jun/2026, 3:01:41 pm (UTC)'!
+drawOn: canvas
+	| apex pos gradQty step |
+	apex := extent y.
+	canvas fillColor: self transparentColor do: [
+		canvas moveTo: apex negated @ 0;
+			lineTo: apex @ 0; lineTo: 0 @ apex].
+" Ruler cm graduation "
+	" half centimer grad "
+	pos := extent y negated + self ppcm.
+	gradQty := (length - 1) * 2.
+	step := self ppcm / 2.
+	gradQty := (length -1) * 4 + 1.
+	canvas strokeWidth: 0.8 color: `Color black` do: [
+		gradQty timesRepeat: [
+			canvas moveTo: pos @ 0.5; lineToY: 10.
+			pos := pos + step ] ].
+	" millimeter grad"
+	pos := extent y negated + self ppcm.
+	step := self ppcm / 10.
+	canvas strokeWidth: 0.3 color: `Color black` do: [
+		gradQty -1 timesRepeat: [
+			4 timesRepeat: [
+				pos := pos + step.
+				canvas moveTo: pos @ 0.2; lineToY: 4].
+			pos := pos + step] ].
+	pos := extent y negated + self ppcm.
+	(length - 1) negated to: length - 1 do: [:grad |
+		canvas drawString: grad abs asString atCenterX: pos @5 font: font color: `Color black`.
+		pos := pos + self ppcm]
+	! !
+
+!Geodreieck methodsFor: 'as yet unclassified' stamp: 'hlsf 21/Jun/2026, 2:26:42 pm (UTC)'!
+yAxisPointsUp
+	^ true ! !
+
 !Protractor methodsFor: 'drawing' stamp: 'hlsf 13/Sep/2025, 2:54:47 pm (UTC)'!
 addLabel: string font: aFont centeredAt: position rotationDegrees: angle
 "Add a label top-centered at position and rotated of angle degrees"
@@ -505,17 +599,17 @@ addLabel: string font: aFont centeredAt: position rotationDegrees: angle
 	label lock.
 	^ label! !
 
-!Protractor methodsFor: 'drawing' stamp: 'hlsf 20/Sep/2025, 8:05:25 pm (UTC)'!
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 1:25:51 pm (UTC)'!
 drawOn: canvas
 |  p1 p2 innerR outerR|
 	innerR := extent x.
 	outerR := extent y.
-	canvas fillColor: `Color yellow alpha: 0.5` do: [
+	canvas fillColor: self transparentColor do: [
 		canvas moveTo: innerR negated @ 0.
 		canvas arcTo: innerR @ 0 radius: innerR @ innerR angleOfXAxis: 0 largeFlag: true sweepFlag: true.
 		canvas lineTo: innerR negated @ 0].
 
-	canvas fillColor: `Color yellow` do: [		
+	canvas fillColor: self color do: [		
 		canvas moveTo: innerR negated@ 0.
 		canvas arcTo: innerR @ 0 radius: innerR @ innerR angleOfXAxis: 0 largeFlag: true sweepFlag: true.
 		canvas lineTo: outerR @0.
@@ -555,7 +649,7 @@ initialize
 	self updateGraduations.
 	self insertButtons ! !
 
-!Protractor methodsFor: 'initialization' stamp: 'hlsf 14/Sep/2025, 5:18:13 pm (UTC)'!
+!Protractor methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:32:02 pm (UTC)'!
 insertButtons
 | btn buttonExtent pos |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
@@ -563,7 +657,7 @@ insertButtons
 		actWhen: #buttonStillDown;
 		icon: Theme current refreshIcon;
 		color: Color transparent;
-		selectedColor: Color yellow darker;
+		selectedColor: self darkerColor ;
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	pos := extent x - buttonExtent x.
@@ -573,7 +667,7 @@ insertButtons
 		actWhen: #buttonStillDown; action: #scaleMe;
 		icon: (Theme current fetch: #('16x16' 'mimetypes' 'video-x-generic'));
 		color: Color transparent;
-		selectedColor: Color yellow darker;		
+		selectedColor: self darkerColor ;		
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	pos := pos - buttonExtent x.
@@ -583,7 +677,7 @@ insertButtons
 	btn := ButtonMorph model: self action: #delete ::
 		icon: Theme current closeIcon ;
 		color: Color transparent;
-		selectedColor: Color yellow darker;		
+		selectedColor: self darkerColor ;		
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	pos := extent x negated + 5.
@@ -592,7 +686,7 @@ insertButtons
 	btn := ButtonMorph model: self action: #reverseGraduations ::
 		icon: (Theme current fetch: #('16x16' 'actions' 'go-jump'));
 		color: Color transparent;
-		selectedColor: Color yellow darker;
+		selectedColor: self darkerColor ;
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	btn morphPosition: pos + buttonExtent x @ buttonExtent y negated
@@ -659,26 +753,25 @@ updateGraduations
 name
 	^ 'Protractor' translated! !
 
-!Ruler methodsFor: 'drawing' stamp: 'hlsf 11/Sep/2025, 7:40:29 pm (UTC)'!
+!Ruler methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 2:48:24 pm (UTC)'!
 drawOn: canvas
 	| posX step roundedLength |
 	roundedLength := length rounded.
 	
-	canvas fillRectangle: self strokeZone color: `Color yellow`.
-	canvas fillRectangle: self dragZone color: `Color yellow alpha: 0.5`.
-	canvas frameRectangle: (-5@0 corner: extent) borderWidth: 0.5 color: `Color yellow darker` .
+	canvas fillRectangle: self strokeZone color: self color.
+	canvas fillRectangle: self dragZone color: self transparentColor .
+	canvas frameRectangle: (-5@0 corner: extent) borderWidth: 0.5 color: self darkerColor.
 
 	step :=  self ppcm / 2. " half centimeter step "
+	posX := 0.
 	canvas strokeWidth: 0.8 color: `Color black` do: [
-		posX := 0.
 		roundedLength + 1 timesRepeat: [
 			canvas moveTo: posX @ 0.5; lineToY: 10.
 			canvas moveTo: (posX  + step) @ 0.5 ; lineToY: 6.
 			posX := posX + self ppcm] ].
 
-	step := self ppcm / 10. "millimeter step "
+	posX := step := self ppcm / 10. "millimeter step "
 	canvas strokeWidth: 0.3 color: `Color black` do: [
-		posX := step.
 		roundedLength * 2 + 1 timesRepeat: [
 			4 timesRepeat: [
 				canvas moveTo: posX @ 0.2; lineToY: 4.
@@ -741,17 +834,6 @@ insertButtons
 	self positioningButtons 
 	! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 14/Sep/2025, 5:24:38 pm (UTC)'!
-positioningButtons
-| buttonWidth position |
-	submorphs isEmptyOrNil ifTrue: [^ self].
-	buttonWidth := submorphs first morphWidth.
-	position := length rounded * self ppcm -4 @ 30.
-	(submorphs first: 2) do: [:btn |
-		btn morphPosition: position.
-		position :=  position translatedBy:  - 4 - buttonWidth @ 0 ]
-		! !
-
 !Ruler methodsFor: 'actions' stamp: 'hlsf 11/Sep/2025, 11:25:26 am (UTC)'!
 resizeMe
 	| event prev |
@@ -795,6 +877,17 @@ dragZone
 
 	^ -5@25 corner: extent! !
 
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 14/Sep/2025, 5:24:38 pm (UTC)'!
+positioningButtons
+| buttonWidth position |
+	submorphs isEmptyOrNil ifTrue: [^ self].
+	buttonWidth := submorphs first morphWidth.
+	position := length rounded * self ppcm -4 @ 30.
+	(submorphs first: 2) do: [:btn |
+		btn morphPosition: position.
+		position :=  position translatedBy:  - 4 - buttonWidth @ 0 ]
+		! !
+
 !Ruler methodsFor: 'geometry' stamp: 'hlsf 7/Sep/2025, 10:09:09 am (UTC)'!
 strokeZone
 
@@ -804,13 +897,13 @@ strokeZone
 name
 	^  'Ruler' translated! !
 
-!SetSquare methodsFor: 'drawing' stamp: 'hlsf 11/Sep/2025, 7:49:52 pm (UTC)'!
+!SetSquare methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 1:33:07 pm (UTC)'!
 drawOn: canvas
 	| roundedLength  step pos |
 	roundedLength := length rounded.
-	canvas fillColor: `Color yellow` do: [canvas polyLine: self strokeZone].
-	canvas fillColor: `Color yellow alpha: 0.5` do: [	canvas polyLine: self dragZone].
-	canvas 	strokeWidth: 0.5 color:  `Color yellow darker` do: [
+	canvas fillColor: self color do: [canvas polyLine: self strokeZone].
+	canvas fillColor: self transparentColor do: [	canvas polyLine: self dragZone].
+	canvas 	strokeWidth: 0.5 color: self darkerColor do: [
 		canvas moveTo: 0@0;
 			lineTo: extent x @ 0;
 			lineTo: 0 @ extent y;
@@ -886,6 +979,20 @@ dragZone
 		with: (strokeZone at: 6)
 ! !
 
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 16/Sep/2025, 5:00:27 pm (UTC)'!
+positioningButtons
+| rotateBtn icon |
+	submorphs isEmptyOrNil ifTrue: [^ self].
+	rotateBtn := submorphs last.
+	rotateBtn morphPosition: (extent // 3) - (rotateBtn morphWidth asPoint // 2 ).
+	icon := self resizeIcon.
+	oxButton 
+		icon: icon;
+		morphPosition: extent x - icon extent x - 2 @ -2.
+	oyButton 
+		icon: icon;
+		morphPosition: -2 @ (extent y - icon extent y - 2).! !
+
 !SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 8:44:55 am (UTC)'!
 strokeZone
 	^ strokeZone ifNil: [ 
@@ -940,7 +1047,7 @@ initialize
 	self insertButtons 
 	! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 16/Sep/2025, 5:00:10 pm (UTC)'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:33:49 pm (UTC)'!
 insertButtons
 | btn buttonExtent |
 	buttonExtent := Theme current refreshIcon extent * 1.5. 
@@ -948,13 +1055,13 @@ insertButtons
 		actWhen: #buttonStillDown;
 		icon: Theme current refreshIcon;
 		color: Color transparent;
-		selectedColor: Color yellow darker;
+		selectedColor: self darkerColor;
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	btn := ButtonMorph model: self action: #delete ::
 		icon: Theme current closeIcon ;
 		color: Color transparent;
-		selectedColor: Color yellow darker;		
+		selectedColor: self darkerColor ;		
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 	btn morphPosition: 25 @ 25.
@@ -974,20 +1081,6 @@ insertButtons
 	self addMorph: oyButton.
 		
 	self positioningButtons ! !
-
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 16/Sep/2025, 5:00:27 pm (UTC)'!
-positioningButtons
-| rotateBtn icon |
-	submorphs isEmptyOrNil ifTrue: [^ self].
-	rotateBtn := submorphs last.
-	rotateBtn morphPosition: (extent // 3) - (rotateBtn morphWidth asPoint // 2 ).
-	icon := self resizeIcon.
-	oxButton 
-		icon: icon;
-		morphPosition: extent x - icon extent x - 2 @ -2.
-	oyButton 
-		icon: icon;
-		morphPosition: -2 @ (extent y - icon extent y - 2).! !
 
 !SetSquare methodsFor: 'testing' stamp: 'hlsf 11/Sep/2025, 1:50:55 pm (UTC)'!
 inStrokeZone: localPosition
