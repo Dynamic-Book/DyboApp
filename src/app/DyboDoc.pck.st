@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #7995] on 11 June 2026 at 11:54:18 am'!
+'From Cuis7.9 [latest update: #8014] on 21 June 2026 at 10:16:09 am'!
 'Description '!
-!provides: 'DyboDoc' 1 246!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 247!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -871,54 +871,54 @@ An editor to edit DKM script.
 - debugger: a debugger window whose content is plug in the editor when appropriate
 !
 
-!Pen methodsFor: 'accessing' stamp: 'hlsf 11/Apr/2023 09:04:47'!
+!Pen methodsFor: 'accessing' stamp: 'hlsf 11/Apr/2023, 7:04:47 am (UTC)'!
 adjustWidth
 	^ adjustWidth ! !
 
-!Pen methodsFor: 'accessing' stamp: 'hlsf 11/Apr/2023 09:04:56'!
+!Pen methodsFor: 'accessing' stamp: 'hlsf 11/Apr/2023, 7:04:56 am (UTC)'!
 adjustWidth: boolean
 	adjustWidth := boolean ! !
 
-!Pen methodsFor: 'accessing' stamp: 'hlsf 11/Apr/2023 09:09:31'!
+!Pen methodsFor: 'accessing' stamp: 'hlsf 11/Apr/2023, 7:09:31 am (UTC)'!
 adjustWidthOnOff
 	adjustWidth := adjustWidth not! !
 
-!Pen methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:50:10'!
+!Pen methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 12:50:10 pm (UTC)'!
 color
 	^ color! !
 
-!Pen methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:50:01'!
+!Pen methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 12:50:01 pm (UTC)'!
 color: aColor
 	color := 	aColor ! !
 
-!Pen methodsFor: 'accessing' stamp: 'hlsf 7/Apr/2023 14:16:06'!
+!Pen methodsFor: 'accessing' stamp: 'hlsf 7/Apr/2023, 12:16:06 pm (UTC)'!
 threshold
 	^ threshold ! !
 
-!Pen methodsFor: 'accessing' stamp: 'hlsf 7/Apr/2023 14:16:16'!
+!Pen methodsFor: 'accessing' stamp: 'hlsf 7/Apr/2023, 12:16:16 pm (UTC)'!
 threshold: anInteger
 	threshold := anInteger ! !
 
-!Pen methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:50:17'!
+!Pen methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 12:50:17 pm (UTC)'!
 width
 	^ width ! !
 
-!Pen methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:50:29'!
+!Pen methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 12:50:29 pm (UTC)'!
 width: aNumber
 	width := aNumber ! !
 
-!Pen methodsFor: 'user interface' stamp: 'hlsf 11/Apr/2023 09:15:50'!
+!Pen methodsFor: 'user interface' stamp: 'hlsf 11/Apr/2023, 7:15:50 am (UTC)'!
 adjustWidthString
 	^ adjustWidth asMenuItemTextPrefix , 		'adjust width'! !
 
-!Pen methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2024 11:48:27'!
+!Pen methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2024, 9:48:27 am (UTC)'!
 initialize
 	color := Color black.
 	threshold := 4 squared.
 	width := 2. 
 	adjustWidth := false! !
 
-!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026 10:09:40'!
+!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026, 8:09:40 am (UTC)'!
 averageDistance: samples
 	| dist |
 	dist := 0.
@@ -926,7 +926,7 @@ averageDistance: samples
 		dist := dist + ( (samples at: i) dist: (samples at: i + 1) )].
 	^ dist / (samples size - 1)! !
 
-!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026 10:09:28'!
+!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026, 8:09:28 am (UTC)'!
 intersectionOrigin1: p1 vector1: v1 origin2: p2 vector2: v2
 | det c1 c2 |
 	det := v1 crossProduct: v2.
@@ -935,7 +935,7 @@ intersectionOrigin1: p1 vector1: v1 origin2: p2 vector2: v2
 	c2 := p2 crossProduct: v2.
 	^ ((c2 * v1 x - (c1 * v2 x) ) / det) @ ((v1 y * c2 - (v2 y * c1)) / det)! !
 
-!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026 10:25:58'!
+!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026, 8:25:58 am (UTC)'!
 maxDistance: samples
 	| dist |
 	dist := Array new: samples size - 1.
@@ -943,7 +943,7 @@ maxDistance: samples
 		dist at: i put: ( (samples at: i) dist: (samples at: i + 1) )].
 	^ dist max! !
 
-!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026 10:09:08'!
+!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026, 8:09:08 am (UTC)'!
 widthFor: samples prev: lastStroke
 	| penWidth prevWidth strokeDist min max f a b  | 
 	penWidth := self penWidth.
@@ -960,47 +960,47 @@ widthFor: samples prev: lastStroke
 	strokeDist := (self maxDistance: samples) min: max max: min.
 	^ (a * strokeDist + b) * 0.6 + (prevWidth * 0.4)! !
 
-!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:10:01'!
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026, 8:10:01 am (UTC)'!
 adjustWidth
 	^ paper strokeTool adjustWidth ! !
 
-!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:07'!
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026, 8:26:07 am (UTC)'!
 paper: aPaperMorph
 	paper := aPaperMorph ! !
 
-!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:14'!
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026, 8:26:14 am (UTC)'!
 penColor
 	^ paper strokeTool color! !
 
-!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:19'!
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026, 8:26:19 am (UTC)'!
 penThreshold
 	^ paper strokeTool threshold ! !
 
-!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:23'!
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026, 8:26:23 am (UTC)'!
 penWidth
 	^ paper strokeTool width! !
 
-!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:29'!
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026, 8:26:29 am (UTC)'!
 samples
 "samples used to compute a new stroke"
 	^ paper samples! !
 
-!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026 10:26:48'!
+!StrokerBezier methodsFor: 'accessing' stamp: 'hlsf 26/Mar/2026, 8:26:48 am (UTC)'!
 samplesQty
 "Quantity of samples used to compute a new stroke"
 	self subclassResponsibility ! !
 
-!StrokerBezier methodsFor: 'testing' stamp: 'hlsf 26/Mar/2026 10:24:24'!
+!StrokerBezier methodsFor: 'testing' stamp: 'hlsf 26/Mar/2026, 8:24:24 am (UTC)'!
 isSamplesValid
 	^ true! !
 
-!StrokerBezier class methodsFor: 'instance creation' stamp: 'hlsf 26/Mar/2026 10:31:03'!
+!StrokerBezier class methodsFor: 'instance creation' stamp: 'hlsf 26/Mar/2026, 8:31:03 am (UTC)'!
 on: aPaperMorph
 	^ self new ::
 		paper: aPaperMorph ;
 		yourself! !
 
-!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 26/Mar/2026 10:37:28'!
+!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 26/Mar/2026, 8:37:28 am (UTC)'!
 newStroke
 	| lastStroke samples  |
 	samples := self samples.
@@ -1014,19 +1014,19 @@ newStroke
 		yourself
 	! !
 
-!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 14:44:49'!
+!StrokerBezier2 methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 12:44:49 pm (UTC)'!
 samplesQty
 "Quantity of samples used to compute a new stroke"
 	^ 3! !
 
-!StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!StrokerBezier2 methodsFor: 'testing' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 isSamplesValid
 " 
 Do we consider valid the current samples, Subclasses may implement differently to discard
 "
 	^ (self samples first squaredDistanceTo: self samples second) > paper strokeTool threshold! !
 
-!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 14/Mar/2026 13:20:58'!
+!StrokerBezier2XP methodsFor: 'instance' stamp: 'hlsf 14/Mar/2026, 11:20:58 am (UTC)'!
 newStroke
 	| newStroke lastStroke junctionPoint samples migratedControl middle c1 |
 	samples := self samples.
@@ -1058,14 +1058,14 @@ newStroke
 	
 	! !
 
-!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 26/Mar/2026 10:27:37'!
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 26/Mar/2026, 8:27:37 am (UTC)'!
 isLocalC1at: m between: c1 and: c2
 "
 	We check if local C1 continuity is desirable ? 
 "
 	^ true! !
 
-!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 20/Oct/2024 16:05:21'!
+!StrokerBezier2XP methodsFor: 'testing' stamp: 'hlsf 20/Oct/2024, 2:05:21 pm (UTC)'!
 isSamplesValid
 " 
 Do we consider valid the current samples, reason to discard :
@@ -1084,7 +1084,7 @@ Do we consider valid the current samples, reason to discard :
 "
 	! !
 
-!StrokerBezier3 methodsFor: 'instance' stamp: 'hlsf 26/Mar/2026 10:44:43'!
+!StrokerBezier3 methodsFor: 'instance' stamp: 'hlsf 26/Mar/2026, 8:44:43 am (UTC)'!
 newStroke
 	| lastStroke samples |
 	samples := self samples.
@@ -1100,12 +1100,12 @@ newStroke
 	
 	! !
 
-!StrokerBezier3 methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 14:44:41'!
+!StrokerBezier3 methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 12:44:41 pm (UTC)'!
 samplesQty
 "Quantity of samples used to compute a new stroke"
 	^ 4! !
 
-!StrokerBezier3XP methodsFor: 'as yet unclassified' stamp: 'hlsf 3/May/2026 19:05:16'!
+!StrokerBezier3XP methodsFor: 'as yet unclassified' stamp: 'hlsf 3/May/2026, 5:05:16 pm (UTC)'!
 newStroke
 	| newStroke lastStroke junctionPoint samples migratedControl1 migratedControl2 factor |
 	samples := self samples.
@@ -1132,31 +1132,31 @@ newStroke
 	
 	! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024 21:45:16'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024, 7:45:16 pm (UTC)'!
 commandsManager
 	^ commandsManager ifNil: [commandsManager := CommandManager new]! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024 22:16:59'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024, 8:16:59 pm (UTC)'!
 controlsManager
 	^ controlsManager! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024 22:16:59'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024, 8:16:59 pm (UTC)'!
 controlsManager: aControlManager
 	controlsManager := aControlManager ! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 26/Oct/2024 14:40:39'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 26/Oct/2024, 12:40:39 pm (UTC)'!
 currentPage
 	^ self view currentPage! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 12/Nov/2024 21:51:00'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 12/Nov/2024, 7:51:00 pm (UTC)'!
 model
 	^ model! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 12:42:08'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:42:08 am (UTC)'!
 selectedTool
 	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 04:52:22'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026, 2:52:22 am (UTC)'!
 strokeTool
 	" Depends on the selected tool "
 	^  self selectedTool 
@@ -1168,19 +1168,19 @@ strokeTool
 		}
 		otherwise: [nil]! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024 19:36:54'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024, 5:36:54 pm (UTC)'!
 view
 	^ view! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024 19:36:47'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024, 5:36:47 pm (UTC)'!
 view: aMorph
 	view := aMorph ! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 11/Oct/2025 18:46:41'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 11/Oct/2025, 4:46:41 pm (UTC)'!
 window
 	^ self view owner owner! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 04:50:55'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026, 2:50:55 am (UTC)'!
 writingTool
 	" Depends on the selected tool "
 	^  self selectedTool 
@@ -1191,7 +1191,7 @@ writingTool
 		}
 		otherwise: [nil]! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 4/Mar/2026 16:00:03'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 4/Mar/2026, 2:00:03 pm (UTC)'!
 chooseBackground
 	| menu |
 	menu := MenuMorph entitled: 'Type of background' translated.
@@ -1203,15 +1203,15 @@ chooseBackground
 			argumentList: {aBackground }].
 	menu popUpInWorld ! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 16:04:43'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 2:04:43 pm (UTC)'!
 deletePage
 	self view deletePage! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:45:38'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:45:38 pm (UTC)'!
 firstPage
 	self view firstPage! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 12/Oct/2024 11:18:01'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 12/Oct/2024, 9:18:01 am (UTC)'!
 fitWidthPage
 	" Take PageContainer width for our current page "
 	| page |
@@ -1221,15 +1221,15 @@ fitWidthPage
 		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
 	! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:38:17'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:38:17 pm (UTC)'!
 insertPage
 	self view insertPage! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:45:29'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:45:29 pm (UTC)'!
 lastPage
 	self view lastPage! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 24/Dec/2024 14:39:54'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 24/Dec/2024, 12:39:54 pm (UTC)'!
 moveOXAction: increment
 	| page |
 	page := self currentPage.
@@ -1237,7 +1237,7 @@ moveOXAction: increment
 		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 24/Dec/2024 14:39:48'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 24/Dec/2024, 12:39:48 pm (UTC)'!
 moveOYAction: increment
 	| page |
 	page := self currentPage.
@@ -1245,15 +1245,15 @@ moveOYAction: increment
 		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:46:24'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:46:24 pm (UTC)'!
 nextPage
 	self view nextPage! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 3/Mar/2026 17:23:28'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 3/Mar/2026, 3:23:28 pm (UTC)'!
 pageBackgroundString: pageBackground
 	^ (self currentPage isBackground: pageBackground) asMenuItemTextPrefix , pageBackground title! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 14:28:44'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 12:28:44 pm (UTC)'!
 pageFitScreen
 	" Make the page entirely visible in the PageContainer "
 	| page scaleX scaleY |
@@ -1266,15 +1266,15 @@ pageFitScreen
 		scale: (scaleX min: scaleY)
 	! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024 15:46:33'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:46:33 pm (UTC)'!
 previousPage
 	self view previousPage! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 13/Feb/2025 10:30:00'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 13/Feb/2025, 8:30:00 am (UTC)'!
 zoomAction: increment	
 	self zoomAction: increment at: view container morphCenter! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 3/Jan/2025 14:57:51'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 3/Jan/2025, 12:57:51 pm (UTC)'!
 zoomAction: increment	 at: referencePoint
 " zoom centered at the referencePoint position in the container "
 	|  center page |
@@ -1284,72 +1284,72 @@ zoomAction: increment	 at: referencePoint
 	center := page externalize: center.
 	page morphPosition: page morphPosition - center + referencePoint ! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 4/Jan/2025 18:12:35'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 4/Jan/2025, 4:12:35 pm (UTC)'!
 zoomPageTo100
 	self currentPage 
 		morphPosition: 0@0;
 		scale: 1.001! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 browseDKM
 	DyboSystem scriptLibrary browseFor: self currentPage! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024 19:28:13'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024, 5:28:13 pm (UTC)'!
 eraserSize: aNumber
 	self eraserTool.
 	eraser width: aNumber ! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024 19:29:02'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024, 5:29:02 pm (UTC)'!
 eraserSize16
 	self eraserSize: 16.! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024 23:06:48'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024, 9:06:48 pm (UTC)'!
 eraserSize4
 	self eraserSize: 4! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024 19:28:45'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024, 5:28:45 pm (UTC)'!
 eraserSize8
 	self eraserSize: 8.! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:39:35'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:39:35 pm (UTC)'!
 highlighterBlue
 	self highlighterColor: Color blue! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:39:25'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:39:25 pm (UTC)'!
 highlighterColor: aColor
 	self highlighterTool.
 	highlighter color: (aColor alpha: 0.3)! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:39:46'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:39:46 pm (UTC)'!
 highlighterGreen
 	self highlighterColor: Color green! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024 23:09:21'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024, 9:09:21 pm (UTC)'!
 highlighterRed
 	self highlighterColor: Color red! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024 18:46:25'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024, 4:46:25 pm (UTC)'!
 highlighterSize: aNumber
 	self highlighterTool.
 	highlighter width: aNumber ! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024 18:46:35'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024, 4:46:35 pm (UTC)'!
 highlighterSize10
 	self highlighterSize: 10! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024 18:47:01'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024, 4:47:01 pm (UTC)'!
 highlighterSize20
 	self highlighterSize: 20! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024 18:47:29'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Oct/2024, 4:47:29 pm (UTC)'!
 highlighterSize40
 	self highlighterSize: 40! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024 23:49:17'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024, 9:49:17 pm (UTC)'!
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Mar/2026 19:37:37'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Mar/2026, 5:37:37 pm (UTC)'!
 importPDF: aFileEntry
 	| process |
 	process := DyboSystem 
@@ -1362,69 +1362,69 @@ importPDF: aFileEntry
 		self view insertPage: newPage	]
 	! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:37:58'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:37:58 pm (UTC)'!
 nibSize: aNumber
 	self penTool.
 	pen width: aNumber ! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:40:53'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:40:53 pm (UTC)'!
 nibSize05
 	self nibSize: 0.5! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:11'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:43:11 pm (UTC)'!
 nibSize08
 	self nibSize: 0.8! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:16'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:43:16 pm (UTC)'!
 nibSize1
 	self nibSize: 1! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:21'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:43:21 pm (UTC)'!
 nibSize2
 	self nibSize: 2! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:25'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:43:25 pm (UTC)'!
 nibSize4
 	self nibSize: 4! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:29'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:43:29 pm (UTC)'!
 nibSize6
 	self nibSize: 6! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:43:32'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:43:32 pm (UTC)'!
 nibSize8
 	self nibSize: 8! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:38:24'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:38:24 pm (UTC)'!
 penBlack
 	self penColor: Color black! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024 23:22:18'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 19/Oct/2024, 9:22:18 pm (UTC)'!
 penBlue
 	self penColor: Color blue! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:38:13'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:38:13 pm (UTC)'!
 penColor: aColor
 	self penTool.
 	pen color: aColor! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:38:44'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:38:44 pm (UTC)'!
 penGreen
 	self penColor: Color green! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:38:53'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:38:53 pm (UTC)'!
 penRed
 	self penColor: Color red! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024 21:39:01'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:39:01 pm (UTC)'!
 penWhite
 	self penColor: Color white! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024 17:12:39'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024, 3:12:39 pm (UTC)'!
 redoAction
 	self commandsManager redo ifTrue: [self modified]! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Apr/2026 14:42:55'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Apr/2026, 12:42:55 pm (UTC)'!
 saveDocument
 	savesReal := true.
 	self saveToDisk.
@@ -1433,16 +1433,16 @@ saveDocument
 	self currentPage redrawNeeded.
 	^ true! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 3/Mar/2026 17:27:42'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 3/Mar/2026, 3:27:42 pm (UTC)'!
 switchToPageBackground: aClass
 	self currentPage replaceBackgroundBy: aClass new! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024 17:12:27'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024, 3:12:27 pm (UTC)'!
 undoAction
 	self commandsManager undo ifTrue: [self modified].
 	self resetTool! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025 17:51:46'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025, 3:51:46 pm (UTC)'!
 initialize
 	super initialize.
 	self initializeStrokeTools .
@@ -1450,7 +1450,7 @@ initialize
 	savesReal := false. "Read comment in objectForDataStream:"
 	isSaved := true! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025 17:51:46'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025, 3:51:46 pm (UTC)'!
 initializeStrokeTools
 	pen := Pen new threshold: 4.
 	highlighter := Pen new ::
@@ -1460,22 +1460,22 @@ initializeStrokeTools
 	eraser := Pen new width: 2
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 7/Sep/2025 17:51:46'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 7/Sep/2025, 3:51:46 pm (UTC)'!
 comeFullyUpOnReload: smartRefStream
 	self initializeStrokeTools.
 	savesReal := false.
 	isSaved := true.
 	'presenter came to life' print! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 8/Dec/2024 13:00:55'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 8/Dec/2024, 11:00:55 am (UTC)'!
 isSaved
 	^ isSaved ifNil: [true]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026 21:15:36'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026, 7:15:36 pm (UTC)'!
 loadFromDisk
 	^ ReferenceStream restoreFromCompressedFile: model path // 'doc.obj'! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 4/Jan/2025 18:24:38'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 4/Jan/2025, 4:24:38 pm (UTC)'!
 modified
 	" get notified the page was modified recently, ie changes not saved to disk "
 	isSaved ifFalse: [^ self].
@@ -1484,7 +1484,7 @@ modified
 	view currentPage paper redrawNeeded 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026 09:19:40'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026, 7:19:40 am (UTC)'!
 objectForDataStream: str
 " 	
 A Document is serialized on disk in its own directory. A document may be asked to be serialized under two circumstances, 
@@ -1504,7 +1504,7 @@ those we have two states when saving a document.
 		ifTrue: [	Transcript show: '   full object on disk: '; show: self; cr.
 			self]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026 21:15:04'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026, 7:15:04 pm (UTC)'!
 saveToDisk
 " NEVER SEND MESSAGE DIRECTLY, use saveDocument if necessary 
 Save me in my model disk location "
@@ -1514,61 +1514,61 @@ Save me in my model disk location "
 		object: self
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 18/Dec/2024 21:44:09'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 18/Dec/2024, 7:44:09 pm (UTC)'!
 storeDataOn: aDataStream
 	| backup |
 	backup := self backupThenNilAttributes.
 	super storeDataOn: aDataStream.
 	self restoreAttributes: backup! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 24/Dec/2024 16:17:11'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 24/Dec/2024, 2:17:11 pm (UTC)'!
 unsavedAttributes
 	^ #(commandsManager controlsManager isSaved pen highlighter eraser tool)! !
 
-!Document methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:45:30'!
+!Document methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026, 8:45:30 am (UTC)'!
 printOn: aStream
 	super printOn: aStream.
 	aStream nextPutAll: ' P. (';
 		nextPutAll: model dirName;
 		nextPut: $)! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 14:34:33'!
+!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024, 12:34:33 pm (UTC)'!
 eraserTool
 	self tool: EraserTool ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024 10:29:11'!
+!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024, 8:29:11 am (UTC)'!
 groupTool
 	self tool: GroupTool ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 14:34:47'!
+!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024, 12:34:47 pm (UTC)'!
 highlighterTool
 	self tool:HighlighterTool ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 4/Jan/2025 18:47:34'!
+!Document methodsFor: 'tool' stamp: 'hlsf 4/Jan/2025, 4:47:34 pm (UTC)'!
 isTool: aToolName
 	^ self selectedTool == aToolName ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!Document methodsFor: 'tool' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 isToolColor: toolName
 " Check if pen or hightlighter and which color - for the circular toolbar 
 toolName takes value penRed,  hightlighterYellow, etc.  "
 	^ (toolName includesSubString: self selectedTool) 
 	and: [toolName includesSubString: (self strokeTool color alpha: 1) colorName capitalized ]! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 10:38:17'!
+!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024, 8:38:17 am (UTC)'!
 penTool
 	self tool: PenTool ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024 10:52:29'!
+!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024, 8:52:29 am (UTC)'!
 pointerTool
 	self tool: PointerTool .! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 26/Oct/2024 15:56:47'!
+!Document methodsFor: 'tool' stamp: 'hlsf 26/Oct/2024, 1:56:47 pm (UTC)'!
 resetTool
 " reselect to tool remove intermediate state in the tool "
 	self tool: tool class ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 14:04:18'!
+!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026, 12:04:18 pm (UTC)'!
 shapeTool
 	| menu |
 	menu := MenuMorph new.
@@ -1577,24 +1577,24 @@ shapeTool
 		add: 'Rectangle' translated target: self action: #shapeTool: argument: RectangularShape;
 		popUpInWorld! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026 14:04:46'!
+!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026, 12:04:46 pm (UTC)'!
 shapeTool: shapeClass
 	self tool: ShapeTool.
 	tool shapeClass: shapeClass 
 ! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024 15:09:27'!
+!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024, 1:09:27 pm (UTC)'!
 tool
 	^ tool! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 4/Jan/2025 19:09:41'!
+!Document methodsFor: 'tool' stamp: 'hlsf 4/Jan/2025, 5:09:41 pm (UTC)'!
 tool: aToolClass
 	tool ifNotNil: [tool release].
 	tool := aToolClass presenter: self.
 	view statusBarMessage: aToolClass description.
 	self changed: #isTool:! !
 
-!Document class methodsFor: 'object serialization' stamp: 'hlsf 16/Apr/2026 22:19:52'!
+!Document class methodsFor: 'object serialization' stamp: 'hlsf 16/Apr/2026, 8:19:52 pm (UTC)'!
 loadDocument: relativePath
 "
 	Once restored, the controlManager needs to be associated back and 
@@ -1607,42 +1607,42 @@ loadDocument: relativePath
 		ifFalse: [self error: 'Document not on disk: ', relativePath	] 
 	! !
 
-!Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024 21:05:57'!
+!Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024, 7:05:57 pm (UTC)'!
 execute
 	self subclassResponsibility ! !
 
-!Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024 21:06:19'!
+!Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024, 7:06:19 pm (UTC)'!
 unexecute
 	self subclassResponsibility ! !
 
-!Command methodsFor: 'accessing' stamp: 'hlsf 10/Sep/2024 21:05:50'!
+!Command methodsFor: 'accessing' stamp: 'hlsf 10/Sep/2024, 7:05:50 pm (UTC)'!
 domain: aDomain
 	domain := aDomain! !
 
-!Command methodsFor: 'initialize-release' stamp: 'hlsf 10/Sep/2024 21:06:12'!
+!Command methodsFor: 'initialize-release' stamp: 'hlsf 10/Sep/2024, 7:06:12 pm (UTC)'!
 release
 "Let my child do some clean up"! !
 
-!ErasingCommand methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024 21:02:30'!
+!ErasingCommand methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024, 7:02:30 pm (UTC)'!
 deletedStrokes: aDictionnary
 " Read EraserToolStateErasing>>handleMouseAt:in: "
 	deletedStrokes := aDictionnary ! !
 
-!ErasingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024 17:23:49'!
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 3:23:49 pm (UTC)'!
 execute
 	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
 		aCollection == aStrokeGroup 
 			ifTrue:  [domain removeMorph: aStrokeGroup ]
 			ifFalse: [ aStrokeGroup removeAllMorphsIn: aCollection ] 		]! !
 
-!ErasingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024 17:23:35'!
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 3:23:35 pm (UTC)'!
 unexecute
 	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
 		aCollection == aStrokeGroup 
 			ifTrue:  [domain addMorph: aStrokeGroup ]
 			ifFalse: [ aStrokeGroup addAllMorphs: aCollection ] 		]! !
 
-!ErasingCommand class methodsFor: 'instance creation' stamp: 'hlsf 11/Sep/2024 20:57:11'!
+!ErasingCommand class methodsFor: 'instance creation' stamp: 'hlsf 11/Sep/2024, 6:57:11 pm (UTC)'!
 deletedStrokes: aDictionayOfStroke in: aPage
 	^ self basicNew
 		domain: aPage;
@@ -1650,39 +1650,39 @@ deletedStrokes: aDictionayOfStroke in: aPage
 		initialize
 		! !
 
-!ErasingAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 16/Nov/2024 17:14:02'!
+!ErasingAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 16/Nov/2024, 3:14:02 pm (UTC)'!
 initialize
 	super initialize.
 	bounds := domain fullBoundsInOwner.
 	domain adjustBounds! !
 
-!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024 18:13:53'!
+!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 4:13:53 pm (UTC)'!
 execute
 	super execute.
 	domain adjustBounds ! !
 
-!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024 22:33:02'!
+!ErasingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 8:33:02 pm (UTC)'!
 unexecute
 	domain adjustBoundsTo: bounds.
 	super unexecute! !
 
-!MoveAnnotatorCommand methodsFor: 'accessing' stamp: 'hlsf 24/Oct/2024 12:34:12'!
+!MoveAnnotatorCommand methodsFor: 'accessing' stamp: 'hlsf 24/Oct/2024, 10:34:12 am (UTC)'!
 annotator: aMorph
 	annotator := aMorph ! !
 
-!MoveAnnotatorCommand methodsFor: 'accessing' stamp: 'hlsf 24/Oct/2024 12:34:24'!
+!MoveAnnotatorCommand methodsFor: 'accessing' stamp: 'hlsf 24/Oct/2024, 10:34:24 am (UTC)'!
 delta: aPoint
 	delta := aPoint ! !
 
-!MoveAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 24/Oct/2024 14:00:49'!
+!MoveAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 24/Oct/2024, 12:00:49 pm (UTC)'!
 execute
 	annotator morphPosition: annotator morphPosition + delta! !
 
-!MoveAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 24/Oct/2024 14:00:54'!
+!MoveAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 24/Oct/2024, 12:00:54 pm (UTC)'!
 unexecute
 	annotator morphPosition: annotator morphPosition - delta! !
 
-!MoveAnnotatorCommand class methodsFor: 'instance creation' stamp: 'hlsf 24/Oct/2024 12:32:11'!
+!MoveAnnotatorCommand class methodsFor: 'instance creation' stamp: 'hlsf 24/Oct/2024, 10:32:11 am (UTC)'!
 move: anAnnotator to: aPoint in: aPage
 	^ self basicNew
 		domain: aPage ;
@@ -1691,23 +1691,23 @@ move: anAnnotator to: aPoint in: aPage
 		initialize;
 		yourself! !
 
-!MoveGroupCommand methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024 11:35:35'!
+!MoveGroupCommand methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024, 9:35:35 am (UTC)'!
 delta: aPoint
 	delta := aPoint! !
 
-!MoveGroupCommand methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024 11:35:45'!
+!MoveGroupCommand methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024, 9:35:45 am (UTC)'!
 selection: aCollection
 	selection := aCollection ! !
 
-!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024 11:42:09'!
+!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024, 9:42:09 am (UTC)'!
 execute
 	selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition + delta		 ]! !
 
-!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024 12:17:55'!
+!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024, 10:17:55 am (UTC)'!
 unexecute
 	selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition - delta		 ].! !
 
-!MoveGroupCommand class methodsFor: 'instance creation' stamp: 'hlsf 24/Oct/2024 12:26:59'!
+!MoveGroupCommand class methodsFor: 'instance creation' stamp: 'hlsf 24/Oct/2024, 10:26:59 am (UTC)'!
 moveGroup: aCollection to: aPoint in: aPaper
 	^ self basicNew
 		domain: aPaper;
@@ -1716,71 +1716,71 @@ moveGroup: aCollection to: aPoint in: aPaper
 		initialize;
 		yourself! !
 
-!MoveGroupInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024 11:45:40'!
+!MoveGroupInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024, 9:45:40 am (UTC)'!
 execute
 	domain adjustBoundsTo: bounds.
 	super execute! !
 
-!MoveGroupInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024 11:45:49'!
+!MoveGroupInAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024, 9:45:49 am (UTC)'!
 unexecute
 	bounds := domain fullBoundsInOwner.
 	super unexecute.
 	domain adjustBounds! !
 
-!MoveGroupInAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 19/Oct/2024 11:45:27'!
+!MoveGroupInAnnotatorCommand methodsFor: 'initialization' stamp: 'hlsf 19/Oct/2024, 9:45:27 am (UTC)'!
 initialize
 	super initialize.
 	domain adjustBounds.
 	bounds := domain fullBoundsInOwner.
 ! !
 
-!WritingCommand methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024 17:43:08'!
+!WritingCommand methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024, 3:43:08 pm (UTC)'!
 strokeGroup: aStrokeGroup
 	strokeGroup := 	aStrokeGroup ! !
 
-!WritingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024 15:45:10'!
+!WritingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 1:45:10 pm (UTC)'!
 execute
 	domain addMorph: strokeGroup! !
 
-!WritingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024 15:45:21'!
+!WritingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 1:45:21 pm (UTC)'!
 unexecute
 	domain removeMorph: strokeGroup! !
 
-!WritingCommand class methodsFor: 'instance creation' stamp: 'hlsf 11/Sep/2024 17:43:50'!
+!WritingCommand class methodsFor: 'instance creation' stamp: 'hlsf 11/Sep/2024, 3:43:50 pm (UTC)'!
 strokeGroup: aStrokeGroup in: aPaper
 	^ self basicNew
 		domain: aPaper;
 		strokeGroup: aStrokeGroup;
 		initialize! !
 
-!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024 16:55:26'!
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 2:55:26 pm (UTC)'!
 execute
 	domain adjustBoundsTo: bounds.
 	super execute! !
 
-!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024 22:32:48'!
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 8:32:48 pm (UTC)'!
 initialize
 	super initialize.
 	domain adjustBounds.
 	bounds := domain fullBoundsInOwner.
 ! !
 
-!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024 22:32:40'!
+!WritingAnnotatorCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 8:32:40 pm (UTC)'!
 unexecute
 	bounds := domain fullBoundsInOwner.
 	super unexecute.
 	domain adjustBounds! !
 
-!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 10/Sep/2024 21:03:49'!
+!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 10/Sep/2024, 7:03:49 pm (UTC)'!
 initialize
 	stack := CommandStack new! !
 
-!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 26/Oct/2024 14:57:40'!
+!CommandManager methodsFor: 'initialize-release' stamp: 'hlsf 26/Oct/2024, 12:57:40 pm (UTC)'!
 release
 	stack contents do: [:c | c release].
 	stack reset! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 19/Oct/2024 11:24:14'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 19/Oct/2024, 9:24:14 am (UTC)'!
 deletedStrokes: aDictionayOfStroke in: aPaper
 " Read EraserToolStateErasing>>handleMouseAt:in: "
 	| command |
@@ -1789,12 +1789,12 @@ deletedStrokes: aDictionayOfStroke in: aPaper
 		ifFalse: [ErasingCommand].
 	stack nextPut: (command deletedStrokes: aDictionayOfStroke in: aPaper )! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Oct/2024 14:02:16'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Oct/2024, 12:02:16 pm (UTC)'!
 move: aAnnotator to: delta in: aPage
 	aAnnotator ifNil: [^self]. " The whole page was moved, not undo there "
 	stack nextPut: (MoveAnnotatorCommand move: aAnnotator to: delta in: aPage )! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Oct/2024 12:27:51'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Oct/2024, 10:27:51 am (UTC)'!
 moveGroup: aCollection to: delta in: aPaper
 	| command |
 	aCollection ifEmpty: [^self]. " Nothing to undo "
@@ -1803,7 +1803,7 @@ moveGroup: aCollection to: delta in: aPaper
 		ifFalse: [MoveGroupCommand ].
 	stack nextPut: (command moveGroup: aCollection to: delta in: aPaper )! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Dec/2024 17:11:37'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Dec/2024, 3:11:37 pm (UTC)'!
 redo
 	| command |
 	command := stack next.
@@ -1813,7 +1813,7 @@ redo
 			true]
 		ifNil: [false]! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 19/Oct/2024 11:23:59'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 19/Oct/2024, 9:23:59 am (UTC)'!
 strokeGroup: aStrokeGroup in: aPaper
 	| command |
 	command := (aPaper is: #AnnotatorMorph) 
@@ -1821,7 +1821,7 @@ strokeGroup: aStrokeGroup in: aPaper
 		ifFalse: [WritingCommand].
 	stack nextPut: (command strokeGroup: aStrokeGroup in: aPaper )! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Dec/2024 17:11:42'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Dec/2024, 3:11:42 pm (UTC)'!
 undo
 	| command |
 	command := stack previous.
@@ -1831,120 +1831,120 @@ undo
 			true]
 		ifNil: [false]! !
 
-!PageTool methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024 16:15:48'!
+!PageTool methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024, 2:15:48 pm (UTC)'!
 currentPage
 	^ presenter currentPage! !
 
-!PageTool methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024 17:36:26'!
+!PageTool methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024, 3:36:26 pm (UTC)'!
 presenter
 	^ presenter! !
 
-!PageTool methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 11:04:16'!
+!PageTool methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 9:04:16 am (UTC)'!
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!PageTool methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 11:37:34'!
+!PageTool methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 9:37:34 am (UTC)'!
 toolName
 	^ self class iconName! !
 
-!PageTool methodsFor: 'initialization' stamp: 'hlsf 27/May/2026 21:28:53'!
+!PageTool methodsFor: 'initialization' stamp: 'hlsf 27/May/2026, 7:28:53 pm (UTC)'!
 release
 	self removeAllActions ! !
 
-!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024 15:35:10'!
+!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:10 pm (UTC)'!
 handleMouseAt: localPosition in: page
 	state handleMouseAt: localPosition in: page! !
 
-!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024 15:35:15'!
+!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:15 pm (UTC)'!
 handlePress: localPosition in: page
 	state handlePress: localPosition in: page! !
 
-!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024 15:35:27'!
+!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:27 pm (UTC)'!
 handleRelease: localPosition in:page
 	state handleRelease: localPosition in: page! !
 
-!PageTool methodsFor: 'state' stamp: 'hlsf 19/Oct/2024 16:21:20'!
+!PageTool methodsFor: 'state' stamp: 'hlsf 19/Oct/2024, 2:21:20 pm (UTC)'!
 switchState: aStateClass
 	state := aStateClass basicNew 
 		context: self;
 		initialize;
 		yourself! !
 
-!PageTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 12:47:02'!
+!PageTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:47:02 am (UTC)'!
 action
 " A symbol to identify me, also the message name sent to the presenter "
 	self subclassResponsibility ! !
 
-!PageTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 12:43:40'!
+!PageTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:43:40 am (UTC)'!
 description
 	self subclassResponsibility ! !
 
-!PageTool class methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 11:36:37'!
+!PageTool class methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 9:36:37 am (UTC)'!
 iconName
 " also the name to identify the tool sent to the presenter "
 	self subclassResponsibility ! !
 
-!PageTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 12:43:36'!
+!PageTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:43:36 am (UTC)'!
 title
 	self subclassResponsibility ! !
 
-!PageTool class methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2024 11:40:29'!
+!PageTool class methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2024, 9:40:29 am (UTC)'!
 toolName
 	^ self iconName! !
 
-!PageTool class methodsFor: 'instance creation' stamp: 'hlsf 1/Sep/2024 11:03:33'!
+!PageTool class methodsFor: 'instance creation' stamp: 'hlsf 1/Sep/2024, 9:03:33 am (UTC)'!
 new
 	self error: 'Use #presenter:'! !
 
-!PageTool class methodsFor: 'instance creation' stamp: 'hlsf 1/Sep/2024 11:03:52'!
+!PageTool class methodsFor: 'instance creation' stamp: 'hlsf 1/Sep/2024, 9:03:52 am (UTC)'!
 presenter: aPresenter
 	^ self basicNew
 		presenter: aPresenter;
 		initialize;
 		yourself! !
 
-!EraserTool methodsFor: 'initialization' stamp: 'hlsf 17/Feb/2025 22:40:57'!
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 17/Feb/2025, 8:40:57 pm (UTC)'!
 deleteBitMasks
 	presenter view deleteBitMasks ! !
 
-!EraserTool methodsFor: 'initialization' stamp: 'hlsf 17/Feb/2025 22:41:08'!
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 17/Feb/2025, 8:41:08 pm (UTC)'!
 initialize
 	super initialize.
 	self deleteBitMasks. "Need by annotated morph"
 	self currentPage lockAnnoted.
 	self switchState: EraserToolStateNeutral ! !
 
-!EraserTool methodsFor: 'initialization' stamp: 'hlsf 17/Feb/2025 22:41:12'!
+!EraserTool methodsFor: 'initialization' stamp: 'hlsf 17/Feb/2025, 8:41:12 pm (UTC)'!
 release
 	super release.
 	" We need to remove the Morph bitMask used to detect the individual strokes "
 	self deleteBitMasks ! !
 
-!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 12:47:25'!
+!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:47:25 am (UTC)'!
 action
 	^ #eraserTool! !
 
-!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 10/Oct/2024 10:42:14'!
+!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 10/Oct/2024, 8:42:14 am (UTC)'!
 description
 	^ 'An eraser to delete some of your handwriting.' translated! !
 
-!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 11:36:52'!
+!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 9:36:52 am (UTC)'!
 iconName
 	^ #eraser! !
 
-!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 10:02:21'!
+!EraserTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 8:02:21 am (UTC)'!
 title
 	^ 'Eraser' translated! !
 
-!GroupTool methodsFor: 'accessing' stamp: 'hlsf 18/Oct/2024 21:18:31'!
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 18/Oct/2024, 7:18:31 pm (UTC)'!
 corner
 	^ corner! !
 
-!GroupTool methodsFor: 'accessing' stamp: 'hlsf 18/Oct/2024 21:18:31'!
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 18/Oct/2024, 7:18:31 pm (UTC)'!
 corner: aPoint
 	corner := aPoint ! !
 
-!GroupTool methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 10:45:46'!
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 8:45:46 am (UTC)'!
 grabMorphsIn: kindOfPaper inside: rect
 " kind of paper can be a Paper or an Annotator "
 	| rectFitToSelection |
@@ -1955,103 +1955,103 @@ grabMorphsIn: kindOfPaper inside: rect
 	kindOfPaper selectionArea: rectFitToSelection.
 	rectFitToSelection ifNotNil: [kindOfPaper selectionMorph borderWidth: 0.5]! !
 
-!GroupTool methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024 12:10:20'!
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024, 10:10:20 am (UTC)'!
 paper
 	^ paper! !
 
-!GroupTool methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024 12:10:16'!
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 19/Oct/2024, 10:10:16 am (UTC)'!
 paper: aKindOfPaper
 	paper := aKindOfPaper ! !
 
-!GroupTool methodsFor: 'accessing' stamp: 'hlsf 17/Oct/2024 22:13:26'!
+!GroupTool methodsFor: 'accessing' stamp: 'hlsf 17/Oct/2024, 8:13:26 pm (UTC)'!
 selection
 	^ selection! !
 
-!GroupTool methodsFor: 'initialization' stamp: 'hlsf 19/Oct/2024 12:08:58'!
+!GroupTool methodsFor: 'initialization' stamp: 'hlsf 19/Oct/2024, 10:08:58 am (UTC)'!
 clearSelection
 	presenter currentPage clearSelection.
 	paper := nil.
 	selection := #()! !
 
-!GroupTool methodsFor: 'initialization' stamp: 'hlsf 24/Jan/2025 19:47:04'!
+!GroupTool methodsFor: 'initialization' stamp: 'hlsf 24/Jan/2025, 5:47:04 pm (UTC)'!
 initialize
 	super initialize.
 	self currentPage lockAnnoted.
 	self switchState: GroupToolStateNeutral.
 	self clearSelection ! !
 
-!GroupTool methodsFor: 'initialization' stamp: 'hlsf 19/Oct/2024 10:08:15'!
+!GroupTool methodsFor: 'initialization' stamp: 'hlsf 19/Oct/2024, 8:08:15 am (UTC)'!
 release
 	super release.
 	presenter currentPage clearSelection! !
 
-!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 10:29:11'!
+!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 8:29:11 am (UTC)'!
 action
 	^ #groupTool! !
 
-!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 10:27:46'!
+!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 8:27:46 am (UTC)'!
 description
 	^ 'Select a group of objects and drag them around.' translated ! !
 
-!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 10:27:21'!
+!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 8:27:21 am (UTC)'!
 iconName
 	^ #group! !
 
-!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 10:27:55'!
+!GroupTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 8:27:55 am (UTC)'!
 title
 	^ 'Group' translated! !
 
-!HighlighterTool methodsFor: 'initialization' stamp: 'hlsf 24/Jan/2025 19:47:18'!
+!HighlighterTool methodsFor: 'initialization' stamp: 'hlsf 24/Jan/2025, 5:47:18 pm (UTC)'!
 initialize
 	super initialize.
 	self currentPage lockAnnoted.
 	self switchState: HighligtherToolStateNeutral ! !
 
-!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 12:48:04'!
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:48:04 am (UTC)'!
 action
 	^ #highlighterTool! !
 
-!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 10/Oct/2024 10:42:19'!
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 10/Oct/2024, 8:42:19 am (UTC)'!
 description
 	^ 'A highlighter to emphasis some of your handwritings.' translated ! !
 
-!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 11:37:56'!
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 9:37:56 am (UTC)'!
 iconName
 	^ #highlighter! !
 
-!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 10:03:16'!
+!HighlighterTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 8:03:16 am (UTC)'!
 title
 	^ 'Highlighter' translated! !
 
-!PenTool methodsFor: 'initialization' stamp: 'hlsf 24/Jan/2025 19:47:24'!
+!PenTool methodsFor: 'initialization' stamp: 'hlsf 24/Jan/2025, 5:47:24 pm (UTC)'!
 initialize
 	super initialize.
 	self currentPage lockAnnoted.
 	self switchState: PenToolStateNeutral ! !
 
-!PenTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 12:48:37'!
+!PenTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:48:37 am (UTC)'!
 action
 	^ #penTool! !
 
-!PenTool class methodsFor: 'accessing' stamp: 'hlsf 10/Oct/2024 10:42:25'!
+!PenTool class methodsFor: 'accessing' stamp: 'hlsf 10/Oct/2024, 8:42:25 am (UTC)'!
 description
 	^ 'A pen for your handwriting.' translated ! !
 
-!PenTool class methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 11:38:17'!
+!PenTool class methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 9:38:17 am (UTC)'!
 iconName
 	^ #pen! !
 
-!PenTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 10:03:57'!
+!PenTool class methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 8:03:57 am (UTC)'!
 title
 	^ 'Pencil' translated! !
 
-!PointerTool methodsFor: 'initialization' stamp: 'hlsf 24/Jan/2025 19:47:32'!
+!PointerTool methodsFor: 'initialization' stamp: 'hlsf 24/Jan/2025, 5:47:32 pm (UTC)'!
 initialize
 	super initialize.
 	self currentPage unlockAnnoted.	
 	self switchState: PointerToolStateNeutral ! !
 
-!PointerTool methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 19:04:56'!
+!PointerTool methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 5:04:56 pm (UTC)'!
 grabAnnotatorsIn: page at: localPosition
 	| selection |
 	selection := page grabAnnotatorsAt: localPosition.
@@ -2062,106 +2062,106 @@ grabAnnotatorsIn: page at: localPosition
 		
 		! !
 
-!PointerTool methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 16:42:06'!
+!PointerTool methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 2:42:06 pm (UTC)'!
 grabbed
 	^ grabbed ! !
 
-!PointerTool methodsFor: 'accessing' stamp: 'hlsf 11/Oct/2025 17:37:37'!
+!PointerTool methodsFor: 'accessing' stamp: 'hlsf 11/Oct/2025, 3:37:37 pm (UTC)'!
 grabbed: aMorph
 	grabbed := aMorph ! !
 
-!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 10:50:18'!
+!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 8:50:18 am (UTC)'!
 action
 	^ #pointerTool! !
 
-!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 10:49:50'!
+!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 8:49:50 am (UTC)'!
 description
 	^ 'Drag and interact with objects.' translated! !
 
-!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 10:50:06'!
+!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 8:50:06 am (UTC)'!
 iconName
 	^ #pointer! !
 
-!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 10:47:40'!
+!PointerTool class methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 8:47:40 am (UTC)'!
 title
 	^ 'Interact' translated! !
 
-!ShapeTool methodsFor: 'initialization' stamp: 'hlsf 14/Mar/2026 05:01:22'!
+!ShapeTool methodsFor: 'initialization' stamp: 'hlsf 14/Mar/2026, 3:01:22 am (UTC)'!
 initialize
 	super initialize.
 	self currentPage lockAnnoted.
 	self switchState: ShapeToolStateNeutral! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 13:40:05'!
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026, 11:40:05 am (UTC)'!
 asStrokeGroupsIn: aPaper
 	^ shape asStrokeGroupsIn: aPaper! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 04:58:19'!
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026, 2:58:19 am (UTC)'!
 endPoint: point
 	shape endPoint: point.
 	self currentPage redrawNeeded ! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 22/Mar/2026 15:55:27'!
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 22/Mar/2026, 1:55:27 pm (UTC)'!
 removeShape
 	shape owner removeMorph: shape! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:50:17'!
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:50:17 pm (UTC)'!
 shapeClass
 	^ shapeClass ifNil: [LineShape]! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026 21:51:21'!
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 10/Mar/2026, 7:51:21 pm (UTC)'!
 shapeClass: aClass
 	shapeClass := aClass 
 	! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:10:00'!
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026, 7:10:00 pm (UTC)'!
 startPoint
 	^ shape startPoint! !
 
-!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 22/Mar/2026 15:53:38'!
+!ShapeTool methodsFor: 'accessing' stamp: 'hlsf 22/Mar/2026, 1:53:38 pm (UTC)'!
 startPoint: point in: aPaper
 	shape := self shapeClass startPoint: point endPoint: point.
 	shape width: presenter writingTool width;
 		color: presenter writingTool color.
 	aPaper addMorph: shape.! !
 
-!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 04:46:53'!
+!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026, 2:46:53 am (UTC)'!
 action
 	^ #shapeTool! !
 
-!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 14:09:26'!
+!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026, 12:09:26 pm (UTC)'!
 description
 	^ 'Draw a shape defined by two positions, I use the Pen color and width.' translated! !
 
-!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:54:36'!
+!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026, 7:54:36 pm (UTC)'!
 iconName
 	^ #lineShape! !
 
-!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026 14:05:10'!
+!ShapeTool class methodsFor: 'accessing' stamp: 'hlsf 14/Mar/2026, 12:05:10 pm (UTC)'!
 title
 	^ 'Shape' translated! !
 
-!PageToolState methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024 17:25:29'!
+!PageToolState methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024, 3:25:29 pm (UTC)'!
 commandsManager
 	^ context presenter commandsManager! !
 
-!PageToolState methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 15:04:07'!
+!PageToolState methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 1:04:07 pm (UTC)'!
 context: aTool
 	context := aTool! !
 
-!PageToolState methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024 15:35:35'!
+!PageToolState methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:35 pm (UTC)'!
 handleMouseAt: localPosition in: page
 ! !
 
-!PageToolState methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024 15:35:43'!
+!PageToolState methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:43 pm (UTC)'!
 handlePress: localPosition in: page
 ! !
 
-!PageToolState methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024 15:35:52'!
+!PageToolState methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:52 pm (UTC)'!
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025 23:16:51'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 9:16:51 pm (UTC)'!
 handleMouseAt: localPosition in: paper
 " From time to time, strokeGroups are not detected. Activating their halo makes it work again...
 "
@@ -2177,7 +2177,7 @@ handleMouseAt: localPosition in: paper
 			"... then we don't need the individual strokes, we remember of the whole group "
 			deletedStrokes at: aGroup put: aGroup] 	]! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025 22:41:16'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:41:16 pm (UTC)'!
 handleRelease: localPosition in: paper
 	paper redrawNeeded.
 	context deleteBitMasks.
@@ -2188,18 +2188,18 @@ handleRelease: localPosition in: paper
 	context presenter modified.
 	context switchState: EraserToolStateNeutral ! !
 
-!EraserToolStateErasing methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2024 20:48:01'!
+!EraserToolStateErasing methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2024, 6:48:01 pm (UTC)'!
 initialize
 	super initialize.
 	deletedStrokes := Dictionary new.! !
 
-!EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025 22:42:30'!
+!EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:42:30 pm (UTC)'!
 handlePress: localPosition in: paper
 	context 
 		switchState: EraserToolStateErasing; 	" Prepare to erase... "
 		handleMouseAt: localPosition in: paper "...then start erasing "! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025 22:23:23'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:23:23 pm (UTC)'!
 handleMouseAt: localPosition in: paper
 	| delta pickupSelectionMorph worldPosition |
 	worldPosition := paper externalizeToWorld: localPosition.
@@ -2210,7 +2210,7 @@ handleMouseAt: localPosition in: paper
 		pickupSelectionMorph morphPosition: pickupSelectionMorph morphPosition + delta.
 		prevPosition := worldPosition ]! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025 22:23:45'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:23:45 pm (UTC)'!
 handlePress: localPosition in: paper
 	| pickUpSelectionMorph |
 	" problem when selecting an annotator: selectionMorph is in Paper, 
@@ -2221,7 +2221,7 @@ handlePress: localPosition in: paper
 			context switchState: GroupToolStateNeutral.
 			^ context handlePress: localPosition in: paper ]! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025 22:24:09'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:24:09 pm (UTC)'!
 handleRelease: locaPosition in: paper
 	self commandsManager 
 		moveGroup: context selection 
@@ -2229,14 +2229,14 @@ handleRelease: locaPosition in: paper
 		in: context paper.
 	context presenter modified.! !
 
-!GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 18/Oct/2024 21:18:50'!
+!GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 18/Oct/2024, 7:18:50 pm (UTC)'!
 handleMouseAt: localPosition in: paper
 	paper selectionArea: (
 		Rectangle encompassingInteger: (Array
 			with: context corner
 			with: localPosition) )! !
 
-!GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/Mar/2026 19:24:35'!
+!GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 10/Mar/2026, 5:24:35 pm (UTC)'!
 handleRelease: localPosition in: paper
 	| selectionRect |
 	selectionRect := Rectangle encompassingInteger: {
@@ -2251,37 +2251,37 @@ handleRelease: localPosition in: paper
 				ifNotEmpty: [context switchState: GroupToolStateDragging] "We catched some morph, go..."
 		]! !
 
-!GroupToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 23/Oct/2024 10:30:15'!
+!GroupToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 23/Oct/2024, 8:30:15 am (UTC)'!
 handlePress: localPosition in: aPaper
 	context corner: localPosition;
 		paper: aPaper;
 		switchState: GroupToolStateGrabbing! !
 
-!GroupToolStateNeutral methodsFor: 'initialization' stamp: 'hlsf 19/Oct/2024 10:13:08'!
+!GroupToolStateNeutral methodsFor: 'initialization' stamp: 'hlsf 19/Oct/2024, 8:13:08 am (UTC)'!
 initialize
 	super initialize.
 	context clearSelection ! !
 
-!HighligtherToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 7/Sep/2024 12:13:40'!
+!HighligtherToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 7/Sep/2024, 10:13:40 am (UTC)'!
 handlePress: localPosition in: paper
 	" Prepare to receive user handwriting... "
 	paper startWritingAt: localPosition.
 	"...then "
 	context switchState: HighligtherToolStateWriting ! !
 
-!PenToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 5/Sep/2024 15:40:31'!
+!PenToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 5/Sep/2024, 1:40:31 pm (UTC)'!
 handlePress: localPosition in: paper
 	" Prepare to receive user handwriting... "
 	paper startWritingAt: localPosition.
 	"...then "
 	context switchState: PenToolStateWriting ! !
 
-!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 19/Oct/2024 16:29:58'!
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 19/Oct/2024, 2:29:58 pm (UTC)'!
 handleMouseAt: localPosition in: paper
 	paper writingAt: localPosition
 	! !
 
-!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 8/Dec/2024 19:58:51'!
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 8/Dec/2024, 5:58:51 pm (UTC)'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
@@ -2290,7 +2290,7 @@ handleRelease: localPosition in: paper
 	context switchState: PenToolStateNeutral 
 	! !
 
-!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 8/Dec/2024 19:58:51'!
+!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 8/Dec/2024, 5:58:51 pm (UTC)'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
@@ -2299,7 +2299,7 @@ handleRelease: localPosition in: paper
 	context switchState: HighligtherToolStateNeutral 
 	! !
 
-!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 11/Oct/2025 17:34:55'!
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 11/Oct/2025, 3:34:55 pm (UTC)'!
 handleMouseAt: localPosition in: paper
 	| delta page worldPosition |
 	worldPosition := paper externalizeToWorld: localPosition.
@@ -2312,11 +2312,11 @@ handleMouseAt: localPosition in: paper
 			ifNil: [page morphPosition: page morphPosition + delta ].
 		prevPosition := worldPosition ]! !
 
-!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 23/Oct/2024 19:50:59'!
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 23/Oct/2024, 5:50:59 pm (UTC)'!
 handlePress: localPosition in: paper
 	initialPosition := prevPosition := paper externalizeToWorld: localPosition ! !
 
-!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 8/Dec/2024 19:58:51'!
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 8/Dec/2024, 5:58:51 pm (UTC)'!
 handleRelease: localPosition in: paper
 	self commandsManager 
 		move: context grabbed 
@@ -2325,7 +2325,7 @@ handleRelease: localPosition in: paper
 	context grabbed ifNotNil: [context presenter modified].
 	context switchState: PointerToolStateNeutral ! !
 
-!PointerToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 23/Oct/2024 19:04:20'!
+!PointerToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 23/Oct/2024, 5:04:20 pm (UTC)'!
 handlePress: localPosition in: paper
 	context 
 		grabAnnotatorsIn: paper owner at: localPosition;
@@ -2333,11 +2333,11 @@ handlePress: localPosition in: paper
 		handlePress: localPosition in: paper
 	! !
 
-!ShapeToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 10/Mar/2026 22:01:38'!
+!ShapeToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 10/Mar/2026, 8:01:38 pm (UTC)'!
 handleMouseAt: localPosition in: paper
 	context endPoint: localPosition ! !
 
-!ShapeToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 14/Mar/2026 13:45:58'!
+!ShapeToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 14/Mar/2026, 11:45:58 am (UTC)'!
 handleRelease: localPosition in: paper
 	context endPoint: localPosition.
 	(context asStrokeGroupsIn: paper) do: [:aStrokeGroup |
@@ -2347,47 +2347,47 @@ handleRelease: localPosition in: paper
 	context switchState: ShapeToolStateNeutral 
 ! !
 
-!ShapeToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 22/Mar/2026 15:54:08'!
+!ShapeToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 22/Mar/2026, 1:54:08 pm (UTC)'!
 handlePress: localPosition in: aPaper
 	context startPoint: localPosition in: aPaper ;
 		switchState: ShapeToolStateDrawing ! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 28/May/2026 10:35:19'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 28/May/2026, 8:35:19 am (UTC)'!
 author
 	^ DyUserData current user printString
 ! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 12:04:20'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 10:04:20 am (UTC)'!
 code
 	^ code ifNil: [code := presenter codeSampleWithHeader ]! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 16:00:18'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025, 2:00:18 pm (UTC)'!
 code: aUnicodeString 
 	code := aUnicodeString ! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:38:58'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 8:38:58 am (UTC)'!
 description
 	^ description ifNil: [presenter description]! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:38:46'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 8:38:46 am (UTC)'!
 description: aText
 	description := aText! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:02:30'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 1:02:30 pm (UTC)'!
 file
 	^ file! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:03:04'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 1:03:04 pm (UTC)'!
 file: aFileEntry
 	file := aFileEntry ! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:52:50'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025, 1:52:50 pm (UTC)'!
 icon
 	^ icon ifNil: [
 		self icon: presenter svgIcon.
 		icon]! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 4/Feb/2026 16:12:43'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 4/Feb/2026, 2:12:43 pm (UTC)'!
 icon: svgDescription
 	| svg iconExtent |
 	svg := [SVGMainMorph fromStream: (ReadStream on: svgDescription)] 
@@ -2397,43 +2397,43 @@ icon: svgDescription
 	icon := svg imageForm: (iconExtent normalized * 64) rounded depth: 32
 		! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 myPath
 	^ (DyboSystem myScriptsPath / presenter title asFileName) assureExistence ! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026 10:52:41'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026, 8:52:41 am (UTC)'!
 presenter
 	^ presenter! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025 15:51:46'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025, 1:51:46 pm (UTC)'!
 presenter: aPresenterClass
 	presenter := aPresenterClass ! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:39:28'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 8:39:28 am (UTC)'!
 title
 	^ title ifNil: [presenter title]! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 10:39:10'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 8:39:10 am (UTC)'!
 title: aText
 	title := aText ! !
 
-!DKMScript methodsFor: 'updating' stamp: 'hlsf 9/Feb/2026 12:22:16'!
+!DKMScript methodsFor: 'updating' stamp: 'hlsf 9/Feb/2026, 10:22:16 am (UTC)'!
 execute
 	| scriptView |
 	scriptView :=  Compiler evaluate: self code.
 	DKMScript triggerEvent: #compiledDKMScript with: scriptView.
 	^ scriptView! !
 
-!DKMScript methodsFor: 'menu' stamp: 'hlsf 12/Oct/2025 16:14:15'!
+!DKMScript methodsFor: 'menu' stamp: 'hlsf 12/Oct/2025, 2:14:15 pm (UTC)'!
 addCustomMenuItems: menu annoted: view
 	(presenter respondsTo: #pragmaMenu) 
 		ifTrue: [(CommandBuilder on: presenter pragmaMenu with: view) addToMenu: menu]! !
 
-!DKMScript methodsFor: 'testing' stamp: 'hlsf 9/Feb/2026 12:21:19'!
+!DKMScript methodsFor: 'testing' stamp: 'hlsf 9/Feb/2026, 10:21:19 am (UTC)'!
 is: aSymbol
 	^ aSymbol == #DKMScript or: [super is: aSymbol ]! !
 
-!DKMScript methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 15:09:19'!
+!DKMScript methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026, 1:09:19 pm (UTC)'!
 header
 " Read the header from the edited code "
 	| data |
@@ -2441,7 +2441,7 @@ header
 	DKMScript headerFrom: code readStream into: data.
 	^ data! !
 
-!DKMScript class methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 13:12:34'!
+!DKMScript class methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026, 11:12:34 am (UTC)'!
 headerFrom: stream into: data
 "	Read the header of this code stream, and install the metadata into the data dictionary"
 	stream next = Character doubleQuote ifTrue: [ | header |
@@ -2450,7 +2450,7 @@ headerFrom: stream into: data
 			(self metadataFrom: headerLine) ifNotNil: [:someData | data add: someData] ] ]
 ! !
 
-!DKMScript class methodsFor: 'scan' stamp: 'hlsf 19/Mar/2026 22:59:20'!
+!DKMScript class methodsFor: 'scan' stamp: 'hlsf 19/Mar/2026, 8:59:20 pm (UTC)'!
 metadataFrom: line
 "	Read *one* metadata "
 	| str key data |
@@ -2463,12 +2463,12 @@ metadataFrom: line
 	key = #class ifTrue: [data := Smalltalk at: data asSymbol ifAbsent: [DKMPresenter]].
 	^ key -> data! !
 
-!DKMScript class methodsFor: 'instance creation' stamp: 'hlsf 12/Oct/2025 15:51:16'!
+!DKMScript class methodsFor: 'instance creation' stamp: 'hlsf 12/Oct/2025, 1:51:16 pm (UTC)'!
 for: aPresenterClass
 	^ self new ::
 		presenter: aPresenterClass ! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026 19:01:51'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 15/Feb/2026, 5:01:51 pm (UTC)'!
 headerFrom: fileEntry
 "	Read the header of this script, and scan its metadata "
 	| data |
@@ -2480,24 +2480,24 @@ headerFrom: fileEntry
 	data at: #category ifAbsentPut: [fileEntry parent baseName].
 	^ data! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026 10:35:52'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 14/Feb/2026, 8:35:52 am (UTC)'!
 scanDirectory: dirEnrty
 	dirEnrty 
 		allFilesDo:  [:file | scripts add: (self headerFrom: file)]
 		matches: [:file | file extension = #st]! !
 
-!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DKMScriptLibrary methodsFor: 'scan' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 scanForScripts
 	scripts := OrderedCollection new.
 	self scanDirectory: DyboSystem scriptsPath.
 	self scanDirectory: DyboSystem myScriptsPath.
 	^ scripts ! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026 15:16:02'!
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 14/Feb/2026, 1:16:02 pm (UTC)'!
 browse
 	self browseFor: nil! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 21/Feb/2026 11:14:54'!
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 21/Feb/2026, 9:14:54 am (UTC)'!
 browseFor: currentPage
 " Open a menu to browse the scripts and drop any selected on in the currentPage"
 	| mainMenu subMenu categories |
@@ -2513,7 +2513,7 @@ browseFor: currentPage
 		setBalloonText: 'Scan again the existing model on the disks, in your "myDybo/myScripts directory". Necessary when manually adding models from external sources.'. 
 	mainMenu popUpInWorld ! !
 
-!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 22/Mar/2026 15:23:22'!
+!DKMScriptLibrary methodsFor: 'menus' stamp: 'hlsf 22/Mar/2026, 1:23:22 pm (UTC)'!
 tagMenuFor: scriptsByCategory
 	| tags tagMenu |
 	tagMenu := MenuMorph new.
@@ -2534,12 +2534,12 @@ tagMenuFor: scriptsByCategory
 
 	! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:54:42'!
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026, 6:54:42 pm (UTC)'!
 categories
 	^ self scripts groupBy: [:aScript | aScript at: #category]
 	! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 6/Mar/2026 20:09:46'!
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 6/Mar/2026, 6:09:46 pm (UTC)'!
 descriptionOf: metadata
 	^ Text streamContents: [:str |
 		str nextPutAll: (metadata at: #title ifAbsent: ['no description' translated]) capitalized bold; lf.
@@ -2552,19 +2552,19 @@ descriptionOf: metadata
 		metadata at: #author ifPresent: [:description | str nextPutAll: description italic] ]
 	! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 21/Feb/2026 11:03:07'!
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 21/Feb/2026, 9:03:07 am (UTC)'!
 resetScripts
 	scripts := nil! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026 20:41:57'!
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 12/Feb/2026, 6:41:57 pm (UTC)'!
 scripts
 	^ scripts ifNil: [self scanForScripts]! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 22/Mar/2026 15:22:35'!
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 22/Mar/2026, 1:22:35 pm (UTC)'!
 tagsOf: scriptRecord
 	^ scriptRecord at: #tags ifAbsent: [Array with: 'no tag' translated]! !
 
-!DKMScriptLibrary methodsFor: 'updating' stamp: 'hlsf 24/Feb/2026 21:05:59'!
+!DKMScriptLibrary methodsFor: 'updating' stamp: 'hlsf 24/Feb/2026, 7:05:59 pm (UTC)'!
 scriptSaved: dkmScript
 "	We are informed a script has just been saved on disk.
 	Decide what to do with this information"
@@ -2584,7 +2584,7 @@ scriptSaved: dkmScript
 			scripts add: metadata]
 	! !
 
-!DKMScriptLibrary methodsFor: 'action' stamp: 'hlsf 15/Feb/2026 19:22:48'!
+!DKMScriptLibrary methodsFor: 'action' stamp: 'hlsf 15/Feb/2026, 5:22:48 pm (UTC)'!
 openScript: scriptMetadata
 	| dkmScript annotator |
 	dkmScript := DKMScript for: (scriptMetadata at: #class).
@@ -2596,7 +2596,7 @@ openScript: scriptMetadata
 	annotator := AnnotatorMorph newOn: targetPage presenter for: dkmScript.
 	annotator openInHand.! !
 
-!CommandStack methodsFor: 'private' stamp: 'hlsf 10/Sep/2024 21:00:31'!
+!CommandStack methodsFor: 'private' stamp: 'hlsf 10/Sep/2024, 7:00:31 pm (UTC)'!
 truncate
 	|oldReadLimit|
 	oldReadLimit := readLimit.
@@ -2605,109 +2605,109 @@ truncate
 			[readLimit to: oldReadLimit do:
 				[:index| collection at: index + 1 put: nil]]! !
 
-!CommandStack methodsFor: 'accessing' stamp: 'hlsf 10/Sep/2024 21:00:20'!
+!CommandStack methodsFor: 'accessing' stamp: 'hlsf 10/Sep/2024, 7:00:20 pm (UTC)'!
 nextPut: aCommand
 	super nextPut: aCommand.
 	self truncate.
 	^ aCommand ! !
 
-!CommandStack methodsFor: 'accessing' stamp: 'hlsf 10/Sep/2024 21:00:26'!
+!CommandStack methodsFor: 'accessing' stamp: 'hlsf 10/Sep/2024, 7:00:26 pm (UTC)'!
 previous
 	self position = 0 ifTrue: [^nil].
 	self position: self position - 1.
 	^self peek.! !
 
-!CommandStack methodsFor: 'as yet unclassified' stamp: 'hlsf 26/Oct/2024 14:58:31'!
+!CommandStack methodsFor: 'as yet unclassified' stamp: 'hlsf 26/Oct/2024, 12:58:31 pm (UTC)'!
 reset
 	super reset.
 	self truncate! !
 
-!CommandStack class methodsFor: 'instance creation' stamp: 'hlsf 10/Sep/2024 21:01:01'!
+!CommandStack class methodsFor: 'instance creation' stamp: 'hlsf 10/Sep/2024, 7:01:01 pm (UTC)'!
 new
 	^self on: Array new! !
 
-!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026 10:17:02'!
+!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026, 8:17:02 am (UTC)'!
 initialize
 	super initialize.
 	dirName := String streamContents: [:s | DateAndTime now filenamePrintOn: s].
 	pageBackground := PageBackgroundHL ! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026 21:08:17'!
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:08:17 pm (UTC)'!
 jpegFilePages
 	^ (self path children select: [:each | each extension = 'jpg'])
 		sort: [:f1 :f2 | f1 name < f2 name]! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026 21:32:06'!
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:32:06 pm (UTC)'!
 pdfBackgroundForPage: aPageNumber
 	| pdfPageBackground |
 	pdfPageBackground := PageBackgroundPdf newOn: (self pdfPageAt: aPageNumber).
 	^ pdfPageBackground ! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026 21:08:17'!
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:08:17 pm (UTC)'!
 pdfNumberOfPages
 	^ self jpegFilePages size! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026 21:10:11'!
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:10:11 pm (UTC)'!
 pdfPageAt: integer
 	^ ImageReadWriter formFromFileEntry: (self jpegFilePages at: integer)! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 10:17:17'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026, 8:17:17 am (UTC)'!
 dirName
 	^ dirName ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026 15:42:39'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026, 1:42:39 pm (UTC)'!
 modificationTime
 	^ (self path // 'doc.obj') modificationTime ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 3/Mar/2026 17:06:49'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 3/Mar/2026, 3:06:49 pm (UTC)'!
 newPageBackground
 	^ pageBackground new! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 22:20:59'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026, 8:20:59 pm (UTC)'!
 owner
 	^ owner ifNil: [
 		owner := DyUserData current documentOwner: self.
 		owner ifNil: [self error: 'Document model without an owner'].
 		owner]! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026 16:04:49'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026, 2:04:49 pm (UTC)'!
 owner: anObject
 " a Topic or a Task"
 	owner := anObject ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 path
 	^ DyboSystem userDataPath / self relPath ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026 20:11:24'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026, 6:11:24 pm (UTC)'!
 relPath
 	^ self owner relPath, '/', self dirName! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 12:31:01'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026, 10:31:01 am (UTC)'!
 title
 	^ title ifNil: [dirName]! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 12:31:18'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026, 10:31:18 am (UTC)'!
 title: aString
 	title := aString ! !
 
-!DocumentModel methodsFor: 'testing' stamp: 'hlsf 17/Apr/2026 20:11:07'!
+!DocumentModel methodsFor: 'testing' stamp: 'hlsf 17/Apr/2026, 6:11:07 pm (UTC)'!
 isCourse
 " Is the document a teaching document, therefore part of a course/topic "
 	^ self owner class = DyTopic! !
 
-!DocumentModel methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026 19:57:41'!
+!DocumentModel methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026, 5:57:41 pm (UTC)'!
 isTask
 " Is the document a task document, therefore part of a task in the agenda "
 	^ self isCourse not! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026 10:55:53'!
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026, 8:55:53 am (UTC)'!
 description
 	^ self isCourse 
 		ifTrue:  [self descriptionCourse ]
 		ifFalse: [self descriptionTask ]! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 10/May/2026 11:56:41'!
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 10/May/2026, 9:56:41 am (UTC)'!
 descriptionCourse
 	^ String streamContents: [:str | str 
 		nextPutAll: 'Document in class {1}' translated;	" Class group "
@@ -2715,12 +2715,12 @@ descriptionCourse
 		print: self owner course;											" Course " 
 		nextPut: $/; print: self owner]										" Topic "! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 10/May/2026 11:59:25'!
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 10/May/2026, 9:59:25 am (UTC)'!
 descriptionTask
 	^ String streamContents: [:str | str 
 		nextPutAll: 'Homework for class {1}' translated]! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026 20:11:19'!
+!DocumentModel methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026, 6:11:19 pm (UTC)'!
 printOn: str
 	self isCourse 
 		ifTrue: [str 
@@ -2730,60 +2730,60 @@ printOn: str
 			print: self owner course classGroup]
 		ifFalse: [str nextPutAll: 'Document in task '; print: self owner]! !
 
-!DocumentModel methodsFor: 'persistence' stamp: 'hlsf 17/Apr/2026 20:15:28'!
+!DocumentModel methodsFor: 'persistence' stamp: 'hlsf 17/Apr/2026, 6:15:28 pm (UTC)'!
 storeDataOn: aDataStream
 	| backup |
 	backup := self backupThenNilAttributes.
 	super storeDataOn: aDataStream.
 	self restoreAttributes: backup! !
 
-!DocumentModel methodsFor: 'persistence' stamp: 'hlsf 17/Apr/2026 20:13:43'!
+!DocumentModel methodsFor: 'persistence' stamp: 'hlsf 17/Apr/2026, 6:13:43 pm (UTC)'!
 unsavedAttributes
 	^ #(owner)! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:51:46'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 12:51:46 pm (UTC)'!
 color
 	^ color! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:51:39'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 12:51:39 pm (UTC)'!
 color: aColor
 	color := aColor ! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 10:38:09'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 8:38:09 am (UTC)'!
 control1
 	^ c1! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 21:21:04'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 7:21:04 pm (UTC)'!
 end
 	^ p2! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 1/Apr/2023 22:44:40'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 1/Apr/2023, 8:44:40 pm (UTC)'!
 end: aPoint
 	 p2 := aPoint ! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 21:20:59'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 7:20:59 pm (UTC)'!
 start
 	^ p1! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 1/Apr/2023 22:44:51'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 1/Apr/2023, 8:44:51 pm (UTC)'!
 start: aPoint
 	p1 := aPoint ! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 10:39:07'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 8:39:07 am (UTC)'!
 start: startPoint end: endPoint control1: controlPoint
 	p1 := startPoint.
 	p2 := endPoint .
 	c1 := controlPoint ! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:51:54'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 12:51:54 pm (UTC)'!
 width
 	^ width ! !
 
-!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023 14:52:12'!
+!Bezier2Morph methodsFor: 'accessing' stamp: 'hlsf 23/Mar/2023, 12:52:12 pm (UTC)'!
 width: aNumber
 	width := aNumber ! !
 
-!Bezier2Morph methodsFor: 'printing' stamp: 'hlsf 12/May/2024 18:21:56'!
+!Bezier2Morph methodsFor: 'printing' stamp: 'hlsf 12/May/2024, 4:21:56 pm (UTC)'!
 printOn: str
 	super printOn: str.
 	str nextPutAll: ' p1: ';
@@ -2795,18 +2795,18 @@ printOn: str
 	
 ! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:58:59'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025, 7:58:59 am (UTC)'!
 drawControlsOn: canvas
 	canvas fillColor: `Color red` do: [
 		canvas circleCenter: c1 radius: 1.5]! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:56:19'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025, 7:56:19 am (UTC)'!
 drawCurveOn: canvas
 	canvas 
 		moveTo: p1;
 		quadraticBezierTo: p2 control: c1! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 8/Apr/2023 13:11:24'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 8/Apr/2023, 11:11:24 am (UTC)'!
 drawOn: canvas
 	canvas strokeWidth: width color: color do: [self drawCurveOn: canvas ].
 	self showTangents ifTrue: [self drawTangentsOn: canvas].
@@ -2814,12 +2814,12 @@ drawOn: canvas
 	self showPoints ifTrue: [self drawPointsOn: canvas]
 	! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 1/Apr/2023 15:57:18'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 1/Apr/2023, 1:57:18 pm (UTC)'!
 drawPointsOn: canvas
 	canvas fillColor: Color blue do: [canvas circleCenter: p1 radius: 1.5].
 	canvas fillColor: Color blue do: [canvas circleCenter: p2 radius: 1.5]! !
 
-!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:58:04'!
+!Bezier2Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025, 7:58:04 am (UTC)'!
 drawTangentsOn: canvas
 	canvas strokeWidth: 0.8 color: `Color green` do: [		
 			canvas 
@@ -2827,42 +2827,42 @@ drawTangentsOn: canvas
 				lineTo: c1;
 				lineTo: p2]! !
 
-!Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 3/Apr/2023 19:33:00'!
+!Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 3/Apr/2023, 5:33:00 pm (UTC)'!
 is: aSymbol
 	^ aSymbol == #BezierMorph or: [ super is: aSymbol ]! !
 
-!Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023 12:20:10'!
+!Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023, 10:20:10 am (UTC)'!
 showControls
 	^ [owner showControls] on: MessageNotUnderstood do: [false]! !
 
-!Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023 12:20:15'!
+!Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023, 10:20:15 am (UTC)'!
 showPoints
 	^ [owner showPoints] on: MessageNotUnderstood do: [false]! !
 
-!Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023 12:20:20'!
+!Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023, 10:20:20 am (UTC)'!
 showTangents
 	^ [owner showTangents] on: MessageNotUnderstood do: [false]! !
 
-!Bezier2Morph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:33:33'!
+!Bezier2Morph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:33:33 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
 
-!Bezier3Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 14:35:57'!
+!Bezier3Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 12:35:57 pm (UTC)'!
 control2
 	^ c2! !
 
-!Bezier3Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 14:37:13'!
+!Bezier3Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 12:37:13 pm (UTC)'!
 start: startPoint end: endPoint control1: controlPoint1 
 	self shouldNotImplement ! !
 
-!Bezier3Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 14:29:51'!
+!Bezier3Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 12:29:51 pm (UTC)'!
 start: startPoint end: endPoint control1: controlPoint1 control2: controlPoint2
 	p1 := startPoint.
 	p2 := endPoint .
 	c1 := controlPoint1.
 	c2 := controlPoint2 ! !
 
-!Bezier3Morph methodsFor: 'printing' stamp: 'hlsf 12/May/2024 18:21:42'!
+!Bezier3Morph methodsFor: 'printing' stamp: 'hlsf 12/May/2024, 4:21:42 pm (UTC)'!
 printOn: str
 	super printOn: str.
 	str
@@ -2871,21 +2871,21 @@ printOn: str
 	
 ! !
 
-!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:59:33'!
+!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025, 7:59:33 am (UTC)'!
 drawControlsOn: canvas
 	canvas fillColor: `Color red` do: [
 		canvas 
 			circleCenter: c1 radius: 1.5;
 			circleCenter: c2 radius: 1.5]! !
 
-!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:56:04'!
+!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025, 7:56:04 am (UTC)'!
 drawCurveOn: canvas
 	canvas moveTo: p1.
 	c1 
 		ifNil: [canvas lineTo: p2]
 		ifNotNil: [canvas cubicBezierTo: p2 control1: c1 control2: c2]! !
 
-!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 09:58:32'!
+!Bezier3Morph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025, 7:58:32 am (UTC)'!
 drawTangentsOn: canvas
 	canvas strokeWidth: 0.8 color: `Color green` do: [		
 				canvas moveTo: p1;
@@ -2893,7 +2893,7 @@ drawTangentsOn: canvas
 					moveTo: p2;
 					lineTo: c2] ! !
 
-!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!LineStrokeMorph methodsFor: 'drawing' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 drawOn: canvas
 	| samples lastIndex |
 	owner class ~= PaperMorph ifTrue: [^ self].
@@ -2907,55 +2907,55 @@ drawOn: canvas
 		]
 	]! !
 
-!LineStrokeMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:33:58'!
+!LineStrokeMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:33:58 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
 
-!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:30:23'!
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026, 7:30:23 pm (UTC)'!
 color: aColor
 	color := aColor! !
 
-!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:29:55'!
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026, 7:29:55 pm (UTC)'!
 endPoint: aPoint
 	endPoint := aPoint! !
 
-!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:29:42'!
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026, 7:29:42 pm (UTC)'!
 startPoint
 	^ startPoint! !
 
-!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:29:35'!
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026, 7:29:35 pm (UTC)'!
 startPoint: aPoint
 	startPoint := aPoint! !
 
-!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026 21:30:37'!
+!ShapeMorph methodsFor: 'accessing' stamp: 'hlsf 12/Mar/2026, 7:30:37 pm (UTC)'!
 width: number
 	width := number! !
 
-!ShapeMorph methodsFor: 'converting' stamp: 'hlsf 14/Mar/2026 13:40:05'!
+!ShapeMorph methodsFor: 'converting' stamp: 'hlsf 14/Mar/2026, 11:40:05 am (UTC)'!
 asStrokeGroupsIn: aPaper
 
 	self subclassResponsibility! !
 
-!ShapeMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/Mar/2026 21:29:18'!
+!ShapeMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 12/Mar/2026, 7:29:18 pm (UTC)'!
 startPoint: start endPoint: end
 	^ self new
 		startPoint: start;
 		endPoint: end;
 		yourself! !
 
-!LineShape methodsFor: 'drawing' stamp: 'hlsf 12/Mar/2026 21:32:09'!
+!LineShape methodsFor: 'drawing' stamp: 'hlsf 12/Mar/2026, 7:32:09 pm (UTC)'!
 drawOn: canvas
 	canvas line: startPoint to:endPoint width: width color: color! !
 
-!LineShape methodsFor: 'converting' stamp: 'hlsf 5/Apr/2026 16:30:33'!
+!LineShape methodsFor: 'converting' stamp: 'hlsf 5/Apr/2026, 2:30:33 pm (UTC)'!
 asStrokeGroupsIn: aPaper
 	^ Array with: (aPaper lineWritingFrom: startPoint to: endPoint)! !
 
-!RectangularShape methodsFor: 'geometry' stamp: 'hlsf 14/Mar/2026 13:10:33'!
+!RectangularShape methodsFor: 'geometry' stamp: 'hlsf 14/Mar/2026, 11:10:33 am (UTC)'!
 encompassingRectangle
 	^ Rectangle encompassingInteger: (Array with: startPoint with: endPoint)! !
 
-!RectangularShape methodsFor: 'converting' stamp: 'hlsf 5/Apr/2026 16:31:25'!
+!RectangularShape methodsFor: 'converting' stamp: 'hlsf 5/Apr/2026, 2:31:25 pm (UTC)'!
 asStrokeGroupsIn: aPaper
 	| rect strokeGroups corners |
 	rect := self encompassingRectangle.
@@ -2966,14 +2966,14 @@ asStrokeGroupsIn: aPaper
 			to: (rect perform: (corners atWrap: cornerIndex + 1))].
 	^ strokeGroups ! !
 
-!RectangularShape methodsFor: 'drawing' stamp: 'hlsf 14/Mar/2026 13:43:13'!
+!RectangularShape methodsFor: 'drawing' stamp: 'hlsf 14/Mar/2026, 11:43:13 am (UTC)'!
 drawOn: canvas 
 	canvas 
 		frameRectangle: (self encompassingRectangle outsetBy: width / 2.0)
 		borderWidth: width 
 		color: color! !
 
-!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 29/Dec/2024 10:36:25'!
+!StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 29/Dec/2024, 8:36:25 am (UTC)'!
 drawOn: canvas
 " I draw manually my submorphs "
 	| nextIndex endIndex strokesQty stroke color width |
@@ -2997,46 +2997,46 @@ drawOn: canvas
 	self showControls ifTrue: [submorphs do: [:each | each drawControlsOn: canvas] ].
 	self showPoints ifTrue: [submorphs do: [:each | each drawPointsOn: canvas] ]! !
 
-!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 12/May/2024 18:11:04'!
+!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 12/May/2024, 4:11:04 pm (UTC)'!
 is: aSymbol
 	^ aSymbol == #StrokeGroupMorph or: [ super is: aSymbol ]! !
 
-!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023 12:18:06'!
+!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023, 10:18:06 am (UTC)'!
 showControls
 	^ [owner showControls] on: MessageNotUnderstood do: [false]! !
 
-!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023 12:18:22'!
+!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023, 10:18:22 am (UTC)'!
 showPoints
 	^ [owner showPoints] on: MessageNotUnderstood do: [false]! !
 
-!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023 12:18:38'!
+!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023, 10:18:38 am (UTC)'!
 showTangents
 	^ [owner showTangents] on: MessageNotUnderstood do: [false]! !
 
-!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 8/Apr/2023 15:55:34'!
+!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 8/Apr/2023, 1:55:34 pm (UTC)'!
 color: aColor
 	submorphs do: [:each | each color: aColor].
 	self redrawNeeded ! !
 
-!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 18:22:24'!
+!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 4:22:24 pm (UTC)'!
 lastStroke
 	^ submorphs ifEmpty: [nil] ifNotEmpty: [self firstSubmorph]! !
 
-!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 strokeTool
 	^ owner strokeTool ! !
 
-!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 8/Apr/2023 15:56:04'!
+!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 8/Apr/2023, 1:56:04 pm (UTC)'!
 width: aNumber
 	submorphs do: [:each | each width: aNumber ].
 	self redrawNeeded ! !
 
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 8/Sep/2024 16:14:23'!
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 8/Sep/2024, 2:14:23 pm (UTC)'!
 addStroke: aStroke
 	self addMorph: aStroke.
 	aStroke visible: false! !
 
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 removeStrokesAt: positionInWorld
 " Remove the strokes under this positionInWorld "
 	| toDelete |
@@ -3045,89 +3045,89 @@ removeStrokesAt: positionInWorld
 	self removeAllMorphsIn: toDelete.
 	^ toDelete! !
 
-!StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 29/Sep/2024 22:22:48'!
+!StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 29/Sep/2024, 8:22:48 pm (UTC)'!
 isCloserThan: distance toPixel: positionInWorld
 	^ submorphs anySatisfy: [:each | 
 		each bitMask.
 		each isCloserThan: distance toPixel: positionInWorld]! !
 
-!StrokeGroupMorph methodsFor: 'clean up' stamp: 'hlsf 8/Sep/2024 19:03:55'!
+!StrokeGroupMorph methodsFor: 'clean up' stamp: 'hlsf 8/Sep/2024, 5:03:55 pm (UTC)'!
 deleteBitMasks
 	submorphs do: [:each| each removeProperty: #bitMask]! !
 
-!StrokeGroupMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 21/Jan/2025 22:17:21'!
+!StrokeGroupMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 21/Jan/2025, 8:17:21 pm (UTC)'!
 haloShowsCoordinateSystem
 	^ false! !
 
-!StrokeGroupMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Feb/2026 19:10:34'!
+!StrokeGroupMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Feb/2026, 5:10:34 pm (UTC)'!
 initialize
 	super initialize.
 	self lock: true! !
 
-!StrokeGroupMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:34:47'!
+!StrokeGroupMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:34:47 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
 
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026 08:48:31'!
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026, 6:48:31 am (UTC)'!
 scale: newScale
 	(pageBackground is: #PageBackgroundPdf) ifTrue: [
 		pageBackground resampleFrom: self scale to: newScale in: self documentModel path].
 	super scale: newScale! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2024 11:35:01'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2024, 9:35:01 am (UTC)'!
 annotators
 	^submorphs select: [:morph | morph is: #AnnotatorMorph]! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026 08:50:11'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026, 6:50:11 am (UTC)'!
 background: aPageBackground
 	pageBackground := aPageBackground ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:27:26'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024, 8:27:26 pm (UTC)'!
 documentModel
 	^ presenter model! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024 16:32:26'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 23/Oct/2024, 2:32:26 pm (UTC)'!
 grabAnnotatorsAt: localPosition
 " Select the annotators under the local position  "
 	^ self annotators select: [:aMorph | aMorph fullBoundsInOwner containsPoint: localPosition]
 	
 	! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 24/Jan/2025 19:49:55'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 24/Jan/2025, 5:49:55 pm (UTC)'!
 lockAnnoted
 	self annotators do: #lockAnnoted ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:30:49'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:30:49 pm (UTC)'!
 number
 	^ presenter view pageNumber: self! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024 11:17:04'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024, 9:17:04 am (UTC)'!
 pageContainer
 	^ owner! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024 16:13:35'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 2:13:35 pm (UTC)'!
 paper
 	^ paper ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 23/Sep/2025 21:26:45'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 23/Sep/2025, 7:26:45 pm (UTC)'!
 presenter
 	^ presenter! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 16:00:16'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 2:00:16 pm (UTC)'!
 presenter: documentPresenter
 	presenter := documentPresenter ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 19/Feb/2025 19:23:00'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 19/Feb/2025, 5:23:00 pm (UTC)'!
 unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 16/Mar/2026 19:43:48'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 16/Mar/2026, 5:43:48 pm (UTC)'!
 viewport
 " I represent my visible surface to the user, in own coordinates system "
 	^ ((self internalize: 0@0) max: 0@0) corner: ((self internalize: owner morphExtent) min: extent)! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026 16:21:28'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026, 2:21:28 pm (UTC)'!
 initialize
 	super initialize.
 	paper := PaperMorph newOn: presenter.
@@ -3137,38 +3137,38 @@ initialize
 	self morphExtent: pageBackground morphExtent.
 	paper morphExtent: pageBackground morphExtent! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026 20:52:12'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 6:52:12 pm (UTC)'!
 release
 " Free any ressource I am using when I am deleted"
 	pageBackground release! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 17:28:05'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026, 3:28:05 pm (UTC)'!
 replaceBackgroundBy: newPageBackground
 	self replaceSubmorph: pageBackground by: newPageBackground.
 	pageBackground := newPageBackground ! !
 
-!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025 17:14:50'!
+!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025, 3:14:50 pm (UTC)'!
 clipsSubmorphs
 	^ false! !
 
-!PageMorph methodsFor: 'drawing' stamp: 'hlsf 8/Dec/2024 18:57:15'!
+!PageMorph methodsFor: 'drawing' stamp: 'hlsf 8/Dec/2024, 4:57:15 pm (UTC)'!
 drawOn: canvas! !
 
-!PageMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024 10:25:19'!
+!PageMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024, 8:25:19 am (UTC)'!
 is: aSymbol
 	^ aSymbol == #PageMorph or: [super is: aSymbol ]! !
 
-!PageMorph methodsFor: 'testing' stamp: 'hlsf 3/Mar/2026 17:22:24'!
+!PageMorph methodsFor: 'testing' stamp: 'hlsf 3/Mar/2026, 3:22:24 pm (UTC)'!
 isBackground: aClass
 	^ pageBackground class = aClass ! !
 
-!PageMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024 10:08:01'!
+!PageMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024, 8:08:01 am (UTC)'!
 clearSelection
 	" Annotators are kind of Paper "
 	self annotators do: [:each | each clearSelection].
 	paper clearSelection.! !
 
-!PageMorph methodsFor: 'selection' stamp: 'hlsf 18/Oct/2024 23:32:03'!
+!PageMorph methodsFor: 'selection' stamp: 'hlsf 18/Oct/2024, 9:32:03 pm (UTC)'!
 grabMorphsIn: rect
 " Select the morph in the rect and which are grabbable: StrokeGroup in the paper and Annotator in self "
 	| grabbed |
@@ -3178,11 +3178,11 @@ grabMorphsIn: rect
 	^ grabbed
 	! !
 
-!PageMorph methodsFor: 'event handling testing' stamp: 'hlsf 24/Oct/2024 15:05:09'!
+!PageMorph methodsFor: 'event handling testing' stamp: 'hlsf 24/Oct/2024, 1:05:09 pm (UTC)'!
 handlesMouseScroll: scrollEvent
 	^ true! !
 
-!PageMorph methodsFor: 'events' stamp: 'hlsf 24/Oct/2024 15:21:03'!
+!PageMorph methodsFor: 'events' stamp: 'hlsf 24/Oct/2024, 1:21:03 pm (UTC)'!
 mouseScroll: evt localPosition: localEventPosition
 	evt direction == #down
 		ifTrue: [ presenter zoomAction: -0.02 at: (self externalize:  localEventPosition) ].
@@ -3190,7 +3190,7 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Apr/2026 14:47:06'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Apr/2026, 12:47:06 pm (UTC)'!
 acceptDroppingAnnotator: annotator event: dropEvent
 	presenter pointerTool.
 	self addMorphFront: annotator.
@@ -3198,7 +3198,7 @@ acceptDroppingAnnotator: annotator event: dropEvent
 	presenter modified
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Apr/2026 14:47:16'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Apr/2026, 12:47:16 pm (UTC)'!
 acceptDroppingFromFlap: flapItem event: dropEvent
 	| dropMorph |
 	dropMorph := (flapItem object is: #DKMScript) 
@@ -3210,21 +3210,21 @@ acceptDroppingFromFlap: flapItem event: dropEvent
 	flapItem flap fold.
 	presenter modified! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026 17:05:58'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026, 3:05:58 pm (UTC)'!
 acceptDroppingMorph: aMorph event: dropEvent
 	(aMorph is: #FlapItem) ifTrue: [self acceptDroppingFromFlap: aMorph event: dropEvent].
 	(aMorph is: #AnnotatorMorph) ifTrue: [self acceptDroppingAnnotator: aMorph event: dropEvent]! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/Feb/2025 18:15:45'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/Feb/2025, 4:15:45 pm (UTC)'!
 allowsMorphDrop
 	^ true! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026 17:37:18'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026, 3:37:18 pm (UTC)'!
 wantsDroppedMorph: aMorph event: evt
 	^ (aMorph is: #FlapItem)
 	or: [aMorph is: #AnnotatorMorph]! !
 
-!PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 27/Feb/2026 09:24:08'!
+!PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 27/Feb/2026, 7:24:08 am (UTC)'!
 newOn: documentPresenter background: aPageBackground
 	^ self basicNew
 		background: aPageBackground ;
@@ -3232,80 +3232,80 @@ newOn: documentPresenter background: aPageBackground
 		initialize;
 		yourself! !
 
-!PageMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:34:29'!
+!PageMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:34:29 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 18/Aug/2024 16:43:08'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 18/Aug/2024, 2:43:08 pm (UTC)'!
 lastMousePosition
 "In local coordinate "
 	^ lastMousePosition ! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 4/Jan/2025 10:48:55'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 4/Jan/2025, 8:48:55 am (UTC)'!
 lastStroke
 " Return the last strokes, if any, added to the last stroke group "
 	^ currentStrokeGroup lastStroke 
 
 ! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 16:01:24'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 2:01:24 pm (UTC)'!
 presenter: documentPresenter
 	presenter := documentPresenter ! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 3/Apr/2023 19:19:43'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 3/Apr/2023, 5:19:43 pm (UTC)'!
 sampleIndex
 	^ sampleIndex ! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 1/Apr/2023 12:54:30'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 1/Apr/2023, 10:54:30 am (UTC)'!
 samples
 	^ samples! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 12:39:15'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 10:39:15 am (UTC)'!
 samplesQty
 "Number of samples before instantiating a new hand stroke"
 	^ samples size! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 strokeTool
 	^ presenter strokeTool ! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023 14:28:07'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 12:28:07 pm (UTC)'!
 stroker: aStrokerClass
 	stroker := aStrokerClass on: self.
 	samples := Array new: stroker samplesQty.
 	sampleIndex := 1.! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 16:01:33'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 2:01:33 pm (UTC)'!
 tool
 	^ presenter tool! !
 
-!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025 17:54:29'!
+!PaperMorph methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025, 3:54:29 pm (UTC)'!
 writingTool
 	^ presenter writingTool ! !
 
-!PaperMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024 19:02:49'!
+!PaperMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024, 5:02:49 pm (UTC)'!
 handlesMouseDown: event
 	^ true
 ! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 11/Oct/2025 17:49:17'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 11/Oct/2025, 3:49:17 pm (UTC)'!
 mouseButton1Down: event localPosition: localPosition
 	self tool handlePress: localPosition in: self! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 5/Sep/2024 15:38:15'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 5/Sep/2024, 1:38:15 pm (UTC)'!
 mouseButton1Up: event localPosition: localPosition
 	self tool handleRelease: localPosition in: self! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 14/Dec/2024 09:28:42'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 14/Dec/2024, 7:28:42 am (UTC)'!
 mouseButton2Up: evt localPosition: localPosition
 	presenter view  openCircularToolbar! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 24/Sep/2025 14:39:24'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 24/Sep/2025, 12:39:24 pm (UTC)'!
 mouseMove: event localPosition: localPosition
 	event mouseButton1Pressed not ifTrue: [^ self ].
 	self tool handleMouseAt: localPosition in: self! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 mouseMove2: event localPosition: endPosition
 " With mouse trail  enabled "
 	| needUpdate |
@@ -3323,34 +3323,34 @@ mouseMove2: event localPosition: endPosition
 				self resetSamplingTo: localPosition] 		] ].
 	needUpdate ifTrue: [self redrawNeeded]! !
 
-!PaperMorph methodsFor: 'geometry testing' stamp: 'hlsf 23/Mar/2023 21:23:17'!
+!PaperMorph methodsFor: 'geometry testing' stamp: 'hlsf 23/Mar/2023, 7:23:17 pm (UTC)'!
 requiresVectorCanvas
 	^ true! !
 
-!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 20/Oct/2024 16:02:48'!
+!PaperMorph methodsFor: 'initialization' stamp: 'hlsf 20/Oct/2024, 2:02:48 pm (UTC)'!
 initialize
 	super initialize.
 	self stroker: StrokerBezier2XP.
 	self 
 		addMorph: (lineMorphs := LineStrokeMorph new)! !
 
-!PaperMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024 10:42:28'!
+!PaperMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024, 8:42:28 am (UTC)'!
 is: aSymbol
 	^ aSymbol == #PaperMorph or: [super is: aSymbol ]! !
 
-!PaperMorph methodsFor: 'testing' stamp: 'hlsf 27/Mar/2023 21:48:57'!
+!PaperMorph methodsFor: 'testing' stamp: 'hlsf 27/Mar/2023, 7:48:57 pm (UTC)'!
 showControls
 	^ self valueOfProperty: #showControls ifAbsent: [false]! !
 
-!PaperMorph methodsFor: 'testing' stamp: 'hlsf 27/Mar/2023 21:48:31'!
+!PaperMorph methodsFor: 'testing' stamp: 'hlsf 27/Mar/2023, 7:48:31 pm (UTC)'!
 showPoints
 	^ self valueOfProperty: #showPoints ifAbsent: [false]! !
 
-!PaperMorph methodsFor: 'testing' stamp: 'hlsf 27/Mar/2023 21:47:26'!
+!PaperMorph methodsFor: 'testing' stamp: 'hlsf 27/Mar/2023, 7:47:26 pm (UTC)'!
 showTangents
 	^ self valueOfProperty: #showTangents ifAbsent: [false]! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 addStandardHaloMenuItemsTo: aCustomMenu hand: aHandMorph
 	aCustomMenu 
 		add: 'sampling threshold' action: #setThreshold;
@@ -3362,35 +3362,35 @@ addStandardHaloMenuItemsTo: aCustomMenu hand: aHandMorph
 		addUpdating: #tangentsString action: #tangentsOnOff;
 		add: 'clear' action: #removeStrokes! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 27/Mar/2023 21:52:11'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 27/Mar/2023, 7:52:11 pm (UTC)'!
 controlsOnOff
 	self 
 		setProperty: #showControls
 		toValue: self showControls not.
 	self redrawNeeded ! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 11/Apr/2023 09:12:39'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 11/Apr/2023, 7:12:39 am (UTC)'!
 controlsString
 	^ self showControls asMenuItemTextPrefix , 
 		'show controls'! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 27/Mar/2023 21:52:05'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 27/Mar/2023, 7:52:05 pm (UTC)'!
 pointsOnOff
 	self 
 		setProperty: #showPoints
 		toValue: self showPoints not.
 	self redrawNeeded ! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 11/Apr/2023 09:12:54'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 11/Apr/2023, 7:12:54 am (UTC)'!
 pointsString
 	^ self showPoints asMenuItemTextPrefix , 
 		'show points'! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 12/May/2024 18:11:09'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 12/May/2024, 4:11:09 pm (UTC)'!
 removeStrokes
 	self removeAllMorphsIn: (submorphs select: [:aMorph | aMorph is: #StrokeGroupMorph])! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 setColor
 	self 
 		request: 'Color (i.e. ''Color red'')'
@@ -3400,7 +3400,7 @@ setColor
 			aColor := Compiler evaluate: aString.
 			(aColor isKindOf: Color) ifTrue: [self strokeTool color: aColor ] ]! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 setThreshold
 	self 
 		request: 'Minimum screen distance between two consecutive samples'
@@ -3412,7 +3412,7 @@ setThreshold
 				self strokeTool threshold: integer squared] 
 			]! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 setWidth
 	self 
 		request: 'Pen width in pixel, float in ]0 ; 20]'
@@ -3423,19 +3423,19 @@ setWidth
 			(theWidth notNil and: [theWidth >0 and: [theWidth <= 20] ]) 	ifTrue: [
 				self strokeTool width: theWidth ] ]! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 27/Mar/2023 21:52:18'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 27/Mar/2023, 7:52:18 pm (UTC)'!
 tangentsOnOff
 	self 
 		setProperty: #showTangents
 		toValue: self showTangents not.
 	self redrawNeeded ! !
 
-!PaperMorph methodsFor: 'menus' stamp: 'hlsf 11/Apr/2023 09:13:03'!
+!PaperMorph methodsFor: 'menus' stamp: 'hlsf 11/Apr/2023, 7:13:03 am (UTC)'!
 tangentsString
 	^ self showTangents asMenuItemTextPrefix , 
 		'show tangents'! !
 
-!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 8/Apr/2023 11:45:22'!
+!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 8/Apr/2023, 9:45:22 am (UTC)'!
 resetSamplingTo: aPoint
 " We start sampling mouse position, an initial mouse position may be given "
 	sampleIndex := 1.
@@ -3444,17 +3444,17 @@ resetSamplingTo: aPoint
 		sampleIndex := sampleIndex + 1]
 ! !
 
-!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 8/Sep/2024 16:47:08'!
+!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 8/Sep/2024, 2:47:08 pm (UTC)'!
 strokeGroups
 	^ submorphs select: [:each | each is: #StrokeGroupMorph ]! !
 
-!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 7/Sep/2025 17:52:33'!
+!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
 strokeGroupsAt: worldPosition
 	^ submorphs select: [:each |
 		(each is: #StrokeGroupMorph) 
 		and: [each isCloserThan: self strokeTool width toPixel: worldPosition ] ]! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 14/Mar/2026 13:26:03'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 14/Mar/2026, 11:26:03 am (UTC)'!
 endWritingAt: localPosition
 	samples at: sampleIndex put: localPosition.
 	sampleIndex := sampleIndex + 1.
@@ -3470,7 +3470,7 @@ endWritingAt: localPosition
 	^ currentStrokeGroup 
 ! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 5/Apr/2026 16:28:21'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 5/Apr/2026, 2:28:21 pm (UTC)'!
 lineWritingFrom: startPoint to: endPoint
 	| legacyStroker result |	
 	legacyStroker := stroker class.
@@ -3480,7 +3480,7 @@ lineWritingFrom: startPoint to: endPoint
 	self stroker: legacyStroker.
 	^ result! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 4/Jan/2025 15:44:43'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 4/Jan/2025, 1:44:43 pm (UTC)'!
 startWritingAt: localPosition
 " Initilize the user writing "
 	self resetSamplingTo: localPosition.
@@ -3488,7 +3488,7 @@ startWritingAt: localPosition
 	"Minium squared distance to accept a new sample "
 	distanceThreshold := 16.0 / owner scale! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 4/Jan/2025 14:55:34'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 4/Jan/2025, 12:55:34 pm (UTC)'!
 writingAt: localPosition
 " the user is still writing "
 	((samples at: sampleIndex -1) squaredDistanceTo: localPosition) > distanceThreshold ifTrue: [	
@@ -3511,22 +3511,22 @@ writingAt: localPosition
 						sampleIndex := sampleIndex +1 ] ] ] ].
 		lineMorphs redrawNeeded! !
 
-!PaperMorph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025 10:00:17'!
+!PaperMorph methodsFor: 'drawing' stamp: 'hlsf 3/Jan/2025, 8:00:17 am (UTC)'!
 drawOn: canvas
 	presenter isSaved ifFalse: [
 		canvas frameRectangle: self localBounds borderWidth: 2 color: `Color red`]! !
 
-!PaperMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024 10:07:27'!
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024, 8:07:27 am (UTC)'!
 clearSelection
 	self selectionArea: nil! !
 
-!PaperMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024 15:16:38'!
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024, 1:16:38 pm (UTC)'!
 grabMorphsIn: rect
 " Select stroke group inside a Rectangle "
 	^ submorphs select: [:aMorph |
 		(aMorph is: #StrokeGroupMorph) and: [rect containsRect: aMorph displayFullBounds] ]! !
 
-!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/Mar/2026 19:27:05'!
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 10/Mar/2026, 5:27:05 pm (UTC)'!
 selectionArea: rect
 "set, update or discard the selection area"
 	(rect isNil and: [selectionMorph notNil]) ifTrue: [
@@ -3548,25 +3548,25 @@ selectionArea: rect
 			
 			! !
 
-!PaperMorph methodsFor: 'selection' stamp: 'hlsf 18/Oct/2024 21:24:00'!
+!PaperMorph methodsFor: 'selection' stamp: 'hlsf 18/Oct/2024, 7:24:00 pm (UTC)'!
 selectionMorph
 	^ selectionMorph ! !
 
-!PaperMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 21/Jan/2025 22:17:02'!
+!PaperMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 21/Jan/2025, 8:17:02 pm (UTC)'!
 haloShowsCoordinateSystem
 	^ false! !
 
-!PaperMorph class methodsFor: 'instance creation' stamp: 'hlsf 5/Sep/2024 15:58:40'!
+!PaperMorph class methodsFor: 'instance creation' stamp: 'hlsf 5/Sep/2024, 1:58:40 pm (UTC)'!
 newOn: documentPresenter
 	^ self new
 		presenter: documentPresenter;
 		yourself! !
 
-!PaperMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:34:39'!
+!PaperMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:34:39 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 27/May/2026 22:42:58'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 27/May/2026, 8:42:58 pm (UTC)'!
 annotate: aPlacedMorph
 | annotedExtent formerExtent |
 	annotatedMorph ifNotNil: [
@@ -3583,15 +3583,15 @@ annotate: aPlacedMorph
 "	Were we in frozen state, if so update the cache "
 	self freeze: self isFrozen! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025 11:26:04'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025, 9:26:04 am (UTC)'!
 annotated
 	^ annotatedMorph ! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026 12:05:59'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026, 10:05:59 am (UTC)'!
 frameWidth
 	^ 12  / ((self scale max: 0.8) * (owner ifNotNil: [ owner scale max: 0.8] ifNil: [1]))! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025 11:25:11'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025, 9:25:11 am (UTC)'!
 lockAnnoted
 	annotatedMorph 
 		lock;
@@ -3599,15 +3599,15 @@ lockAnnoted
 	" Ensure the keyboard focus is really lost "
 	annotatedMorph submorphsDo: [:each | each keyboardFocusChange: false]! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:18:23'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025, 9:18:23 am (UTC)'!
 script
 	^ script! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2025 23:14:52'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2025, 9:14:52 pm (UTC)'!
 script: aDyboScript
 	script := aDyboScript ! !
 
-!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 11/Jun/2026 11:43:52'!
+!AnnotatorMorph methodsFor: 'drawing' stamp: 'hlsf 11/Jun/2026, 9:43:52 am (UTC)'!
 drawOn: aCanvas 
 	self halo ifNotNil: [
 		aCanvas 
@@ -3615,18 +3615,18 @@ drawOn: aCanvas
 			borderWidth: self frameWidth 
 			color: `Color gray alpha: 0.2`]! !
 
-!AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024 19:03:41'!
+!AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024, 5:03:41 pm (UTC)'!
 handlesMouseDown: event
 " We do not interact directly with annotator when pointer tool. 
   We interect through the tool "
 	^ (presenter isTool: #pointer) not
 	! !
 
-!AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 25/Jan/2025 19:12:57'!
+!AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 25/Jan/2025, 5:12:57 pm (UTC)'!
 handlesMouseOver: event
 	^ presenter isTool: #pointer! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 11/Jun/2026 11:50:42'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 11/Jun/2026, 9:50:42 am (UTC)'!
 mouseEnter: evt
 	| myInnerFrame |
 	self isFrozen ifFalse: [annotatedMorph triggerEvent: #enterAnnotator].
@@ -3637,12 +3637,12 @@ mouseEnter: evt
 	self addHalo.
 ! !
 
-!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 10/Mar/2026 19:02:52'!
+!AnnotatorMorph methodsFor: 'events' stamp: 'hlsf 10/Mar/2026, 5:02:52 pm (UTC)'!
 mouseLeave: evt
 	self addAlarm: #removeHalo after: 2000.
 	annotatedMorph triggerEvent: #leaveAnnotator! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 31/Aug/2025 11:25:31'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 31/Aug/2025, 9:25:31 am (UTC)'!
 adjustBounds
 " Adjust my extent and position so that all my submoprhs are whithin my bounds.
   We ensure the annotated position is not shifted in the page!!
@@ -3654,7 +3654,7 @@ adjustBounds
 	self morphPosition: self morphPosition + deltaPosition
 		! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 24/Jan/2025 19:37:14'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 24/Jan/2025, 5:37:14 pm (UTC)'!
 adjustBoundsTo: newBoundsInOwner
 " adjust my bounds and translate my submoprhs accordingly
  " 
@@ -3663,7 +3663,7 @@ adjustBoundsTo: newBoundsInOwner
 	self fitInto: (newBoundsInOwner origin asIntegerPoint corner: newBoundsInOwner corner asIntegerPoint). 
 	self submorphsDo: [:each | each morphPosition: each morphPosition - translate ]! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 24/Jan/2025 19:39:03'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 24/Jan/2025, 5:39:03 pm (UTC)'!
 bottomRightCorner
 " 
 	the bottom right corner of the rectangle surrounding all my submorphs
@@ -3674,15 +3674,15 @@ bottomRightCorner
 	^ corner + self frameWidth
 	! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 23/Jan/2025 19:17:47'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 23/Jan/2025, 5:17:47 pm (UTC)'!
 morphCenter
 	^ self fullBoundsInOwner center! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 23/Jan/2025 19:19:43'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 23/Jan/2025, 5:19:43 pm (UTC)'!
 morphCenter: newCenter
 	^ self morphPosition: self  morphPosition + (newCenter - self morphCenter)! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 31/Aug/2025 11:06:32'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 31/Aug/2025, 9:06:32 am (UTC)'!
 topLeftCorner
 " 
 	the top left corner of the rectangle surrounding all my submorphs
@@ -3693,7 +3693,7 @@ topLeftCorner
 	^ corner - self frameWidth
 	! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 9/Feb/2026 12:22:31'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 9/Feb/2026, 10:22:31 am (UTC)'!
 editAnnoted
 	| editor | 
 	editor := DKMScriptEditor open: script label: script title ::
@@ -3702,7 +3702,7 @@ editAnnoted
 	self removeHalo.
 	^ editor! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 7/Feb/2026 11:11:16'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 7/Feb/2026, 9:11:16 am (UTC)'!
 haloSpecifications
 	^ {	"selector 						horiz 			vert 			color info 			icon key	"
 		{#addDismissHandle:.			#left.			#top.			#(red).				#haloAnnDismissIcon. 	'Remove' translated}.
@@ -3715,31 +3715,27 @@ haloSpecifications
 		{#addHelpHandle:.				#center.		#bottom.		#(lightBlue).		#haloAnnHelpIcon. 	'Help' translated}
 	} collect: [:anArray | HaloSpec from: anArray]! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 31/Aug/2025 11:25:11'!
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 31/Aug/2025, 9:25:11 am (UTC)'!
 inspectAnnoted
 	^ annotatedMorph inspect! !
 
-!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 31/Aug/2025 11:25:11'!
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 31/Aug/2025, 9:25:11 am (UTC)'!
 canResizeAnnoted
 " can the the annotated morph be resized ? only kind of BoxMorph can"
 	^ annotatedMorph is: #BoxMorph! !
 
-!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 27/May/2026 22:37:35'!
-canResizeOrScaleAnnoted
-	^ self isFrozen not! !
-
-!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024 11:15:37'!
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024, 9:15:37 am (UTC)'!
 is: aSymbol
 	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
 
-!AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 28/Sep/2024 16:10:48'!
+!AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 28/Sep/2024, 2:10:48 pm (UTC)'!
 endWritingAt: localPosition
 	| strokeGroup |
 	strokeGroup := super endWritingAt: localPosition.
 	
 	^ strokeGroup ! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026 22:10:24'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026, 8:10:24 pm (UTC)'!
 addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 	"Add standard halo items to the menu"
 	self isWorldMorph ifTrue:
@@ -3755,7 +3751,7 @@ addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 		addUpdating: #frozenString 
 		action: #freezeUnfreezeMorph) setBalloonText: 'When "frozen", I am inert to all user interactions.' translated! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 15/Feb/2026 11:36:30'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 15/Feb/2026, 9:36:30 am (UTC)'!
 buildHandleMenu: aHand
 	| menu |
 	menu := MenuMorph new defaultTarget: self.
@@ -3766,69 +3762,69 @@ buildHandleMenu: aHand
 	script addCustomMenuItems: menu annoted: annotatedMorph.
 	^ menu! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 11/Jun/2026 11:44:38'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 11/Jun/2026, 9:44:38 am (UTC)'!
 freeze: aBoolean
 	aBoolean 
 		ifTrue: [annotatedMorph triggerEvent: #leaveAnnotator.
 			self lockAnnoted]
 		ifFalse: [	annotatedMorph unlock]! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 19/Feb/2025 19:14:24'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 19/Feb/2025, 5:14:24 pm (UTC)'!
 freezeUnfreezeMorph
 	self freeze: self isFrozen not! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 1/Mar/2025 15:10:49'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 1/Mar/2025, 1:10:49 pm (UTC)'!
 frozenString
 	"Answer the string to be shown in a menu to represent the frozen status"
 	^ (self isFrozen
 		ifTrue: ['<on>']
 		ifFalse: ['<off>']), 'Be frozen' translated! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 18/Feb/2025 23:02:58'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 18/Feb/2025, 9:02:58 pm (UTC)'!
 goBehind
 	presenter currentPage addMorph: self inFrontOf: presenter currentPage paper! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 11/Jun/2026 11:46:56'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 11/Jun/2026, 9:46:56 am (UTC)'!
 isFrozen
 	^ annotatedMorph isLocked! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/Feb/2026 09:47:07'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/Feb/2026, 7:47:07 am (UTC)'!
 reconcileToFrozeenState
 " 	Annotator may freeze the annoted object. 
 	Frozen state is a necessary additional state to distingish from the lower lock property 
 "
 	annotatedMorph lock: self isFrozen! !
 
-!AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 22/Feb/2025 23:30:37'!
+!AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 22/Feb/2025, 9:30:37 pm (UTC)'!
 shortPrintString
 	^script title translated contractTo: 20! !
 
-!AnnotatorMorph methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2025 23:15:33'!
+!AnnotatorMorph methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2025, 9:15:33 pm (UTC)'!
 initialize
 	super initialize.
 	self annotate: script execute! !
 
-!AnnotatorMorph methodsFor: 'submorphs-accessing' stamp: 'hlsf 7/Sep/2025 11:08:13'!
+!AnnotatorMorph methodsFor: 'submorphs-accessing' stamp: 'hlsf 7/Sep/2025, 9:08:13 am (UTC)'!
 noteNewOwner: newOwner
 	self adjustBounds ! !
 
-!AnnotatorMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 26/Feb/2026 10:16:13'!
+!AnnotatorMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 26/Feb/2026, 8:16:13 am (UTC)'!
 wantsToBeDroppedInto: aMorph 
 	^ aMorph is: #PageMorph ! !
 
-!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026 16:03:32'!
+!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026, 2:03:32 pm (UTC)'!
 balloonText
 	^ script description ! !
 
-!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026 16:08:11'!
+!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026, 2:08:11 pm (UTC)'!
 wantsBalloon
 	^ false! !
 
-!AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 26/Sep/2024 11:33:10'!
+!AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 26/Sep/2024, 9:33:10 am (UTC)'!
 newOn: aPresenter
 	self error: 'Use #newOn:annotate:'! !
 
-!AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 28/Sep/2024 14:24:16'!
+!AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 28/Sep/2024, 12:24:16 pm (UTC)'!
 newOn: documentPresenter annotate: aPlacedMorph
 	aPlacedMorph isPlacedMorph ifFalse: [self error: 'Only kind of PlacedMoprh can be annotated'].
 	^ self new
@@ -3836,7 +3832,7 @@ newOn: documentPresenter annotate: aPlacedMorph
 		annotate: aPlacedMorph;
 		yourself! !
 
-!AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 22/Feb/2025 23:19:56'!
+!AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 22/Feb/2025, 9:19:56 pm (UTC)'!
 newOn: documentPresenter for: aDyboScript
 	^ self basicNew
 		presenter: documentPresenter;
@@ -3844,59 +3840,59 @@ newOn: documentPresenter for: aDyboScript
 		initialize;
 		yourself! !
 
-!PageBackground methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026 19:13:36'!
+!PageBackground methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026, 5:13:36 pm (UTC)'!
 defaultColor
 	^ Color blue! !
 
-!PageBackground methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!PageBackground methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 defaultExtent
 	^ DyboSystem defaultPaperSize ! !
 
-!PageBackground methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026 20:50:13'!
+!PageBackground methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 6:50:13 pm (UTC)'!
 release
 " Free any used resources when I am discarded "! !
 
-!PageBackground methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:26:57'!
+!PageBackground methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:26:57 pm (UTC)'!
 documentModel
 	^ self page documentModel ! !
 
-!PageBackground methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:26:49'!
+!PageBackground methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:26:49 pm (UTC)'!
 page
 	^ owner! !
 
-!PageBackground methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026 11:27:01'!
+!PageBackground methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026, 9:27:01 am (UTC)'!
 drawOn: canvas
 	viewport := owner viewport.
 	canvas
 		fillRectangle: viewport "self localBounds"
 		color: `Color white`.! !
 
-!PageBackground methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026 15:53:28'!
+!PageBackground methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026, 1:53:28 pm (UTC)'!
 lineWidth: cmNumber
 	^  cmNumber / owner scale min: cmNumber ! !
 
-!PageBackground methodsFor: 'geometry testing' stamp: 'hlsf 3/Mar/2026 16:01:25'!
+!PageBackground methodsFor: 'geometry testing' stamp: 'hlsf 3/Mar/2026, 2:01:25 pm (UTC)'!
 requiresVectorCanvas
 	^ true! !
 
-!PageBackground class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:34:58'!
+!PageBackground class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:34:58 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
 
-!PageBackground class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 16:08:05'!
+!PageBackground class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 2:08:05 pm (UTC)'!
 title
 	self subclassResponsibility ! !
 
-!PageBackgroundBlank class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 17:08:40'!
+!PageBackgroundBlank class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 3:08:40 pm (UTC)'!
 title
 	^ 'A blank background' translated! !
 
-!PageBackgroundGrid methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 15:57:11'!
+!PageBackgroundGrid methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026, 1:57:11 pm (UTC)'!
 initialize
 	super initialize.
 	step := DyboSystem ppcm / 2  "5 mm"! !
 
-!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026 13:49:56'!
+!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026, 11:49:56 am (UTC)'!
 drawOn: canvas 
 	| x y width end |
 	super drawOn: canvas.
@@ -3916,16 +3912,16 @@ drawOn: canvas
 		y := y + step ] 
 	! !
 
-!PageBackgroundGrid class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 15:47:29'!
+!PageBackgroundGrid class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 1:47:29 pm (UTC)'!
 title
 	^ 'Millimeter grid (5x5)' translated! !
 
-!PageBackgroundHL methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026 15:58:21'!
+!PageBackgroundHL methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026, 1:58:21 pm (UTC)'!
 initialize
 	super initialize.
 	step := DyboSystem ppcm.! !
 
-!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026 13:44:03'!
+!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026, 11:44:03 am (UTC)'!
 drawOn: canvas 
 	| y  width bottom |
 	super drawOn: canvas.
@@ -3937,11 +3933,11 @@ drawOn: canvas
 			canvas moveTo: viewport origin x @ y; lineTo: viewport corner x @ y].
 		y := y + step ]! !
 
-!PageBackgroundHL class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026 15:44:25'!
+!PageBackgroundHL class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 1:44:25 pm (UTC)'!
 title
 	^ 'Horizontal line' translated! !
 
-!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026 13:49:11'!
+!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026, 11:49:11 am (UTC)'!
 drawOn: canvas 
 	| x y width subStep startX startY end |
 	super drawOn: canvas.
@@ -4003,49 +3999,49 @@ drawOn: canvas
 				y := y + subStep ] ].
 		y := y + subStep] ! !
 
-!PageBackgroundMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026 19:19:28'!
+!PageBackgroundMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026, 5:19:28 pm (UTC)'!
 defaultColor
 	^ Color fromHexString: '#FF9E7D'! !
 
-!PageBackgroundMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026 15:51:45'!
+!PageBackgroundMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026, 1:51:45 pm (UTC)'!
 initialize
 	super initialize.
 	step := DyboSystem ppcm	! !
 
-!PageBackgroundMillimeter class methodsFor: 'as yet unclassified' stamp: 'hlsf 4/Mar/2026 15:55:33'!
+!PageBackgroundMillimeter class methodsFor: 'as yet unclassified' stamp: 'hlsf 4/Mar/2026, 1:55:33 pm (UTC)'!
 title
 	^ 'Graph paper' translated! !
 
-!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024 13:31:16'!
+!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024, 11:31:16 am (UTC)'!
 dpi
 	^ dpi ifNil: [dpi := 150]! !
 
-!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026 21:31:01'!
+!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:31:01 pm (UTC)'!
 form
 	^ form ifNil: [form := self documentModel pdfPageAt: self page number ]! !
 
-!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024 22:50:23'!
+!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024, 8:50:23 pm (UTC)'!
 form: aForm
 	form := aForm ! !
 
-!PageBackgroundPdf methodsFor: 'initialization' stamp: 'hlsf 24/Nov/2024 17:36:44'!
+!PageBackgroundPdf methodsFor: 'initialization' stamp: 'hlsf 24/Nov/2024, 3:36:44 pm (UTC)'!
 defaultExtent
 	^ self form extent! !
 
-!PageBackgroundPdf methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026 21:44:54'!
+!PageBackgroundPdf methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 7:44:54 pm (UTC)'!
 release
 	(self documentModel jpegFilePages at: self page number) delete! !
 
-!PageBackgroundPdf methodsFor: 'drawing' stamp: 'hlsf 4/Jan/2025 11:02:33'!
+!PageBackgroundPdf methodsFor: 'drawing' stamp: 'hlsf 4/Jan/2025, 9:02:33 am (UTC)'!
 drawOn: canvas
   "   Display reverse: canvas clipRect."
 	canvas image: self form at: 0@0! !
 
-!PageBackgroundPdf methodsFor: 'testing' stamp: 'hlsf 27/Feb/2026 08:44:01'!
+!PageBackgroundPdf methodsFor: 'testing' stamp: 'hlsf 27/Feb/2026, 6:44:01 am (UTC)'!
 is: aSymbol
 	^ aSymbol == #PageBackgroundPdf or: [super is: aSymbol ]! !
 
-!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026 21:53:30'!
+!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026, 7:53:30 pm (UTC)'!
 resampleFrom: oldScale to: newScale in: documentPath
 	" Do I need to be resampled "
 	| newDpi |
@@ -4066,7 +4062,7 @@ resampleFrom: oldScale to: newScale in: documentPath
 		extent := form extent.
 		dpi := newDpi ]! !
 
-!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026 21:31:46'!
+!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026, 7:31:46 pm (UTC)'!
 sampleAt: newDpi in: documentPath
 	| process number |
 	number := self page number.
@@ -4077,93 +4073,93 @@ sampleAt: newDpi in: documentPath
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
 	form := self documentModel pdfPageAt: number! !
 
-!PageBackgroundPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024 19:09:38'!
+!PageBackgroundPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024, 5:09:38 pm (UTC)'!
 prepareToBeSaved
 	form := nil! !
 
-!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025 14:46:25'!
+!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:46:25 pm (UTC)'!
 knowsOwnLocalBounds
 	^ true! !
 
-!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025 14:47:10'!
+!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:47:10 pm (UTC)'!
 requiresVectorCanvas
 	^ false! !
 
-!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025 14:47:55'!
+!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:47:55 pm (UTC)'!
 wantsContour
 	^ false! !
 
-!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026 20:02:02'!
+!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026, 6:02:02 pm (UTC)'!
 new
 	self error: 'Use #newOn: to create new instance'! !
 
-!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026 20:08:05'!
+!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026, 6:08:05 pm (UTC)'!
 newOn: aForm
 	^ self basicNew
 		form: aForm;
 		initialize! !
 
-!PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025 17:27:48'!
+!PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025, 3:27:48 pm (UTC)'!
 clipsSubmorphs
 	^ true! !
 
-!PageContainer methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2024 18:25:58'!
+!PageContainer methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2024, 4:25:58 pm (UTC)'!
 defaultColor
 	^ Color lightGray muchLighter! !
 
-!PageContainer methodsFor: 'accessing' stamp: 'hlsf 9/Feb/2025 17:41:40'!
+!PageContainer methodsFor: 'accessing' stamp: 'hlsf 9/Feb/2025, 3:41:40 pm (UTC)'!
 flaps
 	^ submorphs select: [:aMorph | aMorph is: #Flap]! !
 
-!PageContainer methodsFor: 'geometry' stamp: 'hlsf 9/Feb/2025 17:43:06'!
+!PageContainer methodsFor: 'geometry' stamp: 'hlsf 9/Feb/2025, 3:43:06 pm (UTC)'!
 extentChanged: oldExtent
 	super extentChanged: oldExtent.
 	self flaps do: #fold! !
 
-!PageContainer methodsFor: 'geometry' stamp: 'hlsf 18/Apr/2026 10:18:54'!
+!PageContainer methodsFor: 'geometry' stamp: 'hlsf 18/Apr/2026, 8:18:54 am (UTC)'!
 minimumExtent
 	^ DocumentView previewExtent * 4! !
 
-!PageContainer methodsFor: 'geometry' stamp: 'hlsf 13/Feb/2025 10:29:51'!
+!PageContainer methodsFor: 'geometry' stamp: 'hlsf 13/Feb/2025, 8:29:51 am (UTC)'!
 morphCenter
 	^ self fullBoundsInOwner center! !
 
-!PageContainer class methodsFor: 'instance creation' stamp: 'hlsf 8/Sep/2024 18:24:18'!
+!PageContainer class methodsFor: 'instance creation' stamp: 'hlsf 8/Sep/2024, 4:24:18 pm (UTC)'!
 for: aPage
 	^ self new
 		addMorphFront: aPage position: 0@0! !
 
-!PageContainer class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:34:09'!
+!PageContainer class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:34:09 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 09:52:14'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 7:52:14 am (UTC)'!
 adoptWidgetsColor: aColor 
 	super adoptWidgetsColor: aColor.
 	color := Theme current paneBackgroundFrom: aColor.! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 26/Oct/2024 15:10:11'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 26/Oct/2024, 1:10:11 pm (UTC)'!
 container
 	^ container ! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024 22:16:33'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 18/Dec/2024, 8:16:33 pm (UTC)'!
 controlsManager
 	^ presenter controlsManager! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024 11:01:30'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024, 9:01:30 am (UTC)'!
 model
 " The DocumentModel "
 	^ presenter model! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2024 10:34:28'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2024, 8:34:28 am (UTC)'!
 presenter
 	^ presenter ! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 2/Sep/2024 21:23:41'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 2/Sep/2024, 7:23:41 pm (UTC)'!
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026 16:41:20'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026, 2:41:20 pm (UTC)'!
 preview
 " Shrinkg a bit then cut a piece from the origin with a given extent "
 	| shrinkFactorX shrinkFactorY form |
@@ -4174,7 +4170,7 @@ preview
 		form := form magnifyBy: (shrinkFactorX max: shrinkFactorY).
 		preview := form copy: (0@0 corner: DocumentView previewExtent)]! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024 19:51:30'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024, 5:51:30 pm (UTC)'!
 statusBarMessage: aString
 	statusBar ifNotNil: [
 		statusBar contents: aString;
@@ -4182,29 +4178,29 @@ statusBarMessage: aString
 			redrawNeeded]
 		! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024 15:09:59'!
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 1:09:59 pm (UTC)'!
 tool
 	^ presenter tool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026 11:55:01'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 28/Apr/2026, 9:55:01 am (UTC)'!
 buttonColor
 	^ Theme current buttonColorFrom: self defaultBorderColor! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2024 09:52:25'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2024, 7:52:25 am (UTC)'!
 defaultBorderColor
 	^ Theme current transcript! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2024 09:52:31'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2024, 7:52:31 am (UTC)'!
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 4/Jan/2025 18:47:19'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 4/Jan/2025, 4:47:19 pm (UTC)'!
 deleteBitMasks
 " Remove all the bitmask of the Stroke Morph "
 	pages do: [:aPage |
 		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026 10:04:39'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026, 8:04:39 am (UTC)'!
 initialize
 	super initialize.
 	self beColumn.
@@ -4214,7 +4210,7 @@ initialize
 	pages add: currentPage.
 ! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026 09:57:35'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026, 7:57:35 am (UTC)'!
 installMiniView
 " Install the minimalist view, for assignment (task) "
 	viewType := #mini.
@@ -4226,13 +4222,13 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026 10:04:39'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026, 8:04:39 am (UTC)'!
 installPageContainer
 	container := PageContainer for: currentPage.
 	self installScriptsFlap;
 		installToolsFlap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Mar/2026 21:07:12'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Mar/2026, 7:07:12 pm (UTC)'!
 installScriptsFlap
 	| flap items |
 	items := Array 
@@ -4248,7 +4244,7 @@ installScriptsFlap
 		target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Mar/2026 21:17:24'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Mar/2026, 7:17:24 pm (UTC)'!
 installToolsFlap
 	| flap tools |
 	tools := Array 
@@ -4262,7 +4258,7 @@ installToolsFlap
 		target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026 09:57:28'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026, 7:57:28 am (UTC)'!
 installView
 " Install the complete view, for course document "
 	| row col |
@@ -4292,15 +4288,15 @@ installView
 	presenter penTool.
 	self adjustPageCounter! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 14:34:50'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 12:34:50 pm (UTC)'!
 currentPage
 	^ currentPage ! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 14:37:15'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 12:37:15 pm (UTC)'!
 currentPageIndex
 	^ pages indexOf: currentPage ! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 17/Mar/2026 21:15:46'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 17/Mar/2026, 7:15:46 pm (UTC)'!
 deletePage
 " delete the current page "
 	| newIndex |
@@ -4310,11 +4306,11 @@ deletePage
 		pages remove: currentPage.
 		self goPage: (self pageAt: newIndex)]! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 15:45:59'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 1:45:59 pm (UTC)'!
 firstPage
 	^ self goPage: pages first! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 18/Dec/2024 19:11:49'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 18/Dec/2024, 5:11:49 pm (UTC)'!
 goPage: aPage
 " I alway return the current page, whether the document jump to a new page or not "
 	(aPage notNil and: [aPage ~= currentPage]) ifTrue: [
@@ -4325,11 +4321,11 @@ goPage: aPage
 		presenter resetTool].
 	^ currentPage! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 3/Mar/2026 17:06:49'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 3/Mar/2026, 3:06:49 pm (UTC)'!
 insertPage
 	self insertPage: (PageMorph newOn: presenter background: self model newPageBackground)! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 16/Nov/2024 11:22:11'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 16/Nov/2024, 9:22:11 am (UTC)'!
 insertPage: aPage
 " insert a page after the current page "
 	^ self goPage: (
@@ -4337,33 +4333,33 @@ insertPage: aPage
 			add: aPage 
 			after: currentPage)! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 15:39:43'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 1:39:43 pm (UTC)'!
 lastPage
 	^ self goPage: pages last! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 15:40:09'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 1:40:09 pm (UTC)'!
 nextPage
 	^ self goPage: (self pageAt: self currentPageIndex + 1)
 ! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 14:39:00'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 12:39:00 pm (UTC)'!
 numberOfPages
 	^ pages size! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 15:14:37'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 1:14:37 pm (UTC)'!
 pageAt: anIndex
 	^ pages at: anIndex ifAbsent: nil! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 17/Mar/2026 21:24:42'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 17/Mar/2026, 7:24:42 pm (UTC)'!
 pageNumber: aPageMorph
 	^ pages indexOf: aPageMorph ! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024 15:39:57'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 1:39:57 pm (UTC)'!
 previousPage
 	^ self goPage: (self pageAt: self currentPageIndex - 1)
 ! !
 
-!DocumentView methodsFor: 'update' stamp: 'hlsf 18/Dec/2024 19:11:49'!
+!DocumentView methodsFor: 'update' stamp: 'hlsf 18/Dec/2024, 5:11:49 pm (UTC)'!
 adjustPageCounter
 	self pageCounter 
 		contents: (String streamContents: [:str | 
@@ -4371,12 +4367,12 @@ adjustPageCounter
 				nextPutAll: '/';
 				nextPutAll: self numberOfPages printString 		])! !
 
-!DocumentView methodsFor: 'update' stamp: 'hlsf 22/Dec/2024 11:53:16'!
+!DocumentView methodsFor: 'update' stamp: 'hlsf 22/Dec/2024, 9:53:16 am (UTC)'!
 resetPreview
 	preview := nil
 	! !
 
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 19/Apr/2026 19:12:18'!
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 19/Apr/2026, 5:12:18 pm (UTC)'!
 comeFullyUpOnReload: smartRefStream
 	submorphs := #().
 	self installPageContainer.
@@ -4385,22 +4381,22 @@ comeFullyUpOnReload: smartRefStream
 		ifFalse: [	self installView].
 	'view came to life' print! !
 
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 28/Dec/2024 20:34:59'!
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 28/Dec/2024, 6:34:59 pm (UTC)'!
 prepareToBeSaved
 	preview := nil! !
 
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 23/Dec/2024 13:52:58'!
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 23/Dec/2024, 11:52:58 am (UTC)'!
 storeDataOn: aDataStream
 	| backup |
 	backup := self backupThenNilAttributes.
 	super storeDataOn: aDataStream.
 	self restoreAttributes: backup! !
 
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 18/Apr/2026 09:54:16'!
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 18/Apr/2026, 7:54:16 am (UTC)'!
 unsavedAttributes
 	^# (submorphs statusBar pageCount container)! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 button: symbol state: stateGetter size: size
 	"array first = menu label or button label
 	array second = button form = section mode
@@ -4422,7 +4418,7 @@ button: symbol state: stateGetter size: size
 		morphExtent: (size  * 1.3) rounded asPoint;
 		yourself	! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 27/Sep/2025 13:02:15'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 27/Sep/2025, 11:02:15 am (UTC)'!
 horizontalWheel 
 	^ (WheelMorph target: presenter actionSelector: #moveOXAction:)
 		beHorizontal; 
@@ -4433,13 +4429,13 @@ horizontalWheel
 		borderColor: Color black;
 		yourself! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 18/Dec/2024 22:16:33'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 18/Dec/2024, 8:16:33 pm (UTC)'!
 openCircularToolbar
 	self controlsManager documentCircularToolbar 
 		morphPosition: self activeHand morphPosition ;
 		openInWorld ! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Nov/2024 19:52:15'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Nov/2024, 5:52:15 pm (UTC)'!
 pageCounter
 "a view of the opage count"
 	^ pageCount ifNil: [
@@ -4451,7 +4447,7 @@ pageCounter
 	
 	! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Nov/2024 19:53:57'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Nov/2024, 5:53:57 pm (UTC)'!
 statusBar
 "A bar to print contextual information"
 	^ statusBar ifNil: [
@@ -4463,7 +4459,7 @@ statusBar
 	
 	! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Nov/2024 19:54:03'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Nov/2024, 5:54:03 pm (UTC)'!
 statusBarInScroller
 	^ PluggableScrollPane new scroller: self statusBar; 
 		borderWidth: 2;
@@ -4471,7 +4467,7 @@ statusBarInScroller
 		color: Color transparent;
 		yourself! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 toolbarWith: aSpec
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow separation: 2.
@@ -4486,7 +4482,7 @@ toolbarWith: aSpec
 					self 	button: aTool  state: #isTool: size: buttonWidth )] ].
 	^ toolbar! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Dec/2024 14:10:09'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Dec/2024, 12:10:09 pm (UTC)'!
 verticalWheel 
 	^  (WheelMorph target: self presenter actionSelector: #moveOYAction:)
 		beVertical; 
@@ -4498,7 +4494,7 @@ verticalWheel
 		yourself		
 		! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Dec/2024 14:10:18'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Dec/2024, 12:10:18 pm (UTC)'!
 zoomWheel 
 	^  (WheelMorph target: self presenter actionSelector: #zoomAction:)
 		beVertical; 
@@ -4509,21 +4505,21 @@ zoomWheel
 		borderColor: Color black;
 		yourself! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 3/Mar/2026 14:16:13'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 3/Mar/2026, 12:16:13 pm (UTC)'!
 backgroundButtonData
 	^ {'Background' translated . 
 	#background . 
 	#chooseBackground . 
 	'Select the type of page background for the current page.' translated }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:20:03'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:03 pm (UTC)'!
 deletePageButtonData
 	^ {'Delete page' translated . 
 	#deletePage . 
 	#deletePage . 
 	'Delete the current page.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/Feb/2026 11:54:29'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 12/Feb/2026, 9:54:29 am (UTC)'!
 dkmButtonData
 " label - iconName - callback - description "
 	^ {'DKM' translated . 
@@ -4531,119 +4527,119 @@ dkmButtonData
 	#browseDKM . 
 	'Browse the Dynamic Knowledge Models from the system and your personnal collection, then insert one in your current document.' translated }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:20:12'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:12 pm (UTC)'!
 eraserButtonData
 	^ {EraserTool title. 
 	EraserTool iconName . 
 	EraserTool action . 
 	EraserTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:20:20'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:20 pm (UTC)'!
 firstPageButtonData
 	^ {'First page' translated . 
 	#firstPage . 
 	#firstPage . 
 	'Go to the FIRST page of the document.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:20:32'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:32 pm (UTC)'!
 fitScreenButtonData
 	^ {'Fit screen' translated . 
 	#fitScreen . 
 	#pageFitScreen . 
 	'Scale the page to make it entirely visible.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:20:41'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:41 pm (UTC)'!
 fitWidthButtonData
 	^ {'Fit width' translated . 
 	#fitWidth . 
 	#fitWidthPage . 
 	'Scale the page to fit the window width.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:20:49'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:49 pm (UTC)'!
 groupButtonData
 	^ {GroupTool title. 
 	GroupTool iconName . 
 	GroupTool action . 
 	GroupTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:20:55'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:55 pm (UTC)'!
 highlighterButtonData
 	^ {HighlighterTool title. 
 	HighlighterTool iconName . 
 	HighlighterTool action. 
 	HighlighterTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:21:11'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:21:11 pm (UTC)'!
 insertPageButtonData
 	^ {'New page' translated . 
 	#insertPage . 
 	#insertPage . 
 	'Insert a new page after the current one.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:22:31'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:22:31 pm (UTC)'!
 lastPageButtonData
 	^ {'Last page' translated . 
 	#lastPage . 
 	#lastPage . 
 	'Go to the LAST page of the document.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:22:38'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:22:38 pm (UTC)'!
 loadDocButtonData
 	^ {'Save document' translated . 
 	#load . 
 	#loadDocument . 
 	'Load a document from my data.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026 04:41:19'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026, 2:41:19 am (UTC)'!
 miniToolbarSpec
 " Toolbar for a one page document "
 	^ #(pen eraser highlighter undo redo 
 	blank
 	pointer group)! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:22:44'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:22:44 pm (UTC)'!
 nextPageButtonData
 	^ {'Next page' translated . 
 	#nextObject . 
 	#nextPage . 
 	'Go to the next page of the document.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:22:58'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:22:58 pm (UTC)'!
 penButtonData
 	^ {PenTool title. 
 	PenTool iconName . 
 	PenTool action . 
 	PenTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:23:05'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:05 pm (UTC)'!
 pointerButtonData
 	^ {PointerTool title. 
 	PointerTool iconName . 
 	PointerTool action . 
 	PointerTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:23:12'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:12 pm (UTC)'!
 previousPageButtonData
 	^ {'Previous page' translated . 
 	#previousObject . 
 	#previousPage . 
 	'Go to the previous page of the document.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:23:19'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:19 pm (UTC)'!
 redoButtonData
 	^ {'Redo' translated . 
 	#redo . 
 	#redoAction . 
 	'Redo your last undone action.' translated }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:23:25'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:25 pm (UTC)'!
 saveDocButtonData
 	^ {'Save document' translated . 
 	#save . 
 	#saveDocument . 
 	'Save the current document in my data.' translated } ! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026 04:50:55'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026, 2:50:55 am (UTC)'!
 shapeButtonData
 " label - iconName - callback - description "
 	^ {ShapeTool title .
@@ -4651,7 +4647,7 @@ shapeButtonData
 	ShapeTool action .
 	ShapeTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026 04:41:30'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026, 2:41:30 am (UTC)'!
 toolbarSpec
 	^ #(saveDoc
 	blank
@@ -4661,41 +4657,41 @@ toolbarSpec
 	blank
 	firstPage previousPage insertPage deletePage nextPage lastPage background)! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:23:31'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:31 pm (UTC)'!
 undoButtonData
 	^ {'Undo' translated . 
 	#undo . 
 	#undoAction . 
 	'Undo your last action.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024 14:23:38'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:38 pm (UTC)'!
 zoom100ButtonData
 	^ {'Zoom 100%' translated . 
 	#zoom100 . 
 	#zoomPageTo100 . 
 	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
 
-!DocumentView class methodsFor: 'ui' stamp: 'hlsf 23/Dec/2024 10:24:19'!
+!DocumentView class methodsFor: 'ui' stamp: 'hlsf 23/Dec/2024, 8:24:19 am (UTC)'!
 previewExtent
 	^ `1920@1080 // 10`! !
 
-!DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/Dec/2024 19:00:25'!
+!DocumentView class methodsFor: 'ui' stamp: 'hlsf 12/Dec/2024, 5:00:25 pm (UTC)'!
 previewGap
 " Gap between two previews in a row "
 	^ 12! !
 
-!DocumentView class methodsFor: 'instance creation' stamp: 'hlsf 24/Dec/2024 15:16:19'!
+!DocumentView class methodsFor: 'instance creation' stamp: 'hlsf 24/Dec/2024, 1:16:19 pm (UTC)'!
 presenter: aPresenter
 	^ self basicNew 
 		presenter: aPresenter;
 		initialize;
 		yourself! !
 
-!DocumentView class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025 20:32:52'!
+!DocumentView class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:32:52 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 21/Jul/2024 23:00:38'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 21/Jul/2024, 9:00:38 pm (UTC)'!
 buildMorphicWindow
 	super buildMorphicWindow.
 	titleMorph showButtonsNamed: #(close collapse expand).
@@ -4703,7 +4699,7 @@ buildMorphicWindow
 	self activeHand newKeyboardFocus: codeView scroller.
 	layoutMorph adoptWidgetsColor: self widgetsColor! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 button: iconSymbol action: actionSelector help: helpString
 	^ (ButtonMorph model: self action: actionSelector)
 			icon: (DyboSystem icons getForm: iconSymbol ofSize: DyboSystem iconToolbarSize);
@@ -4715,7 +4711,7 @@ button: iconSymbol action: actionSelector help: helpString
 			morphExtent: (DyboSystem iconToolbarSize * 1.3) rounded asPoint;
 			yourself! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 button: iconSymbol action: actionSelector state: getStateSel help: helpString
 	^ (ButtonMorph model: self stateGetter: getStateSel action: actionSelector)
 			icon: (DyboSystem icons getForm: iconSymbol ofSize: DyboSystem iconToolbarSize);
@@ -4727,7 +4723,7 @@ button: iconSymbol action: actionSelector state: getStateSel help: helpString
 			morphExtent: (DyboSystem iconToolbarSize * 1.3) rounded asPoint;
 			yourself! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 8/Mar/2025 18:18:06'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 8/Mar/2025, 4:18:06 pm (UTC)'!
 newButtonArea
 	buttonArea := LayoutMorph newRow 
 		axisEdgeWeight: #rowRight;
@@ -4741,7 +4737,7 @@ newButtonArea
 			label: 'Cancel' translated).
 	^ buttonArea! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025 19:46:36'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 4/Mar/2025, 5:46:36 pm (UTC)'!
 newCodeAndView
 	^ LayoutMorph newRow
 		separation: self defaultSeparation;
@@ -4754,7 +4750,7 @@ newCodeAndView
 		addMorph: plugView proportionalWidth: 0.5;
 		yourself! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 19/Oct/2022 21:31:20'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 19/Oct/2022, 7:31:20 pm (UTC)'!
 newPane
 	^ LayoutMorph newColumn
 		separation: self defaultSeparation ;
@@ -4762,7 +4758,7 @@ newPane
 		addMorphUseAll: self newCodeAndView;
 		yourself! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 12/Feb/2026 09:22:11'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 12/Feb/2026, 7:22:11 am (UTC)'!
 newToolbar
 	^ LayoutMorph newRow
 		separation: 5@0 ;
@@ -4775,20 +4771,20 @@ newToolbar
 		addMorph: (self button: #doc action: #toggleHelp state: #isDocVisible help: 'Script help' translated)
 		yourself! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 1/May/2024 11:08:16'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 1/May/2024, 9:08:16 am (UTC)'!
 plugDebugger
 " Install the debugger window at the place of the code viewer "
 	debugger layoutMorph borderWidth: 1.
 	codeAndViewPanel replaceSubmorph: codeView by: debugger layoutMorph.			
 	debugger model when: #closeViews send: #stopDebbuger to: self.! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 9/May/2024 11:20:31'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 9/May/2024, 9:20:31 am (UTC)'!
 plugDebugger: aDebugger
 	self stopDebbuger.
 	debugger := aDebugger.
 	self plugDebugger ! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 switchToPauseButton
 " 
 Switch to pause sketch action 
@@ -4799,7 +4795,7 @@ Switch to pause sketch action
 		setBalloonText: 'Pause the Smalltalk sketch.' translated;
 		redrawNeeded ! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 switchToPlayButton
 " 
 Switch to play sketch action 
@@ -4810,7 +4806,7 @@ Switch to play sketch action
 		setBalloonText: 'Play the Smalltalk sketch.' translated;
 		redrawNeeded.! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 switchToResumeButton
 " 
 Switch to resume sketch action
@@ -4821,25 +4817,25 @@ Switch to resume sketch action
 		setBalloonText: 'Resume the Smalltalk sketch.' translated;
 		redrawNeeded ! !
 
-!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 18/Sep/2024 21:03:16'!
+!DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 18/Sep/2024, 7:03:16 pm (UTC)'!
 transparentMorph
 	^ ColoredBoxMorph new 
 		color: Color transparent; 
 		yourself! !
 
-!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2025 19:30:33'!
+!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2025, 5:30:33 pm (UTC)'!
 buttonColor
 	^ Theme current buttonColorFrom: self defaultColor ! !
 
-!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2025 19:28:34'!
+!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2025, 5:28:34 pm (UTC)'!
 defaultBorderColor
 	^self defaultColor darker! !
 
-!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 28/Jul/2024 10:25:47'!
+!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 28/Jul/2024, 8:25:47 am (UTC)'!
 defaultColor
 	^ Theme current workspace ! !
 
-!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 6/Mar/2025 20:21:50'!
+!DKMScriptEditor methodsFor: 'initialization' stamp: 'hlsf 6/Mar/2025, 6:21:50 pm (UTC)'!
 initialize
 	| book |
 	super initialize.
@@ -4858,39 +4854,39 @@ initialize
 		borderWidth: 1;
 		layoutSpec: LayoutSpec useAll! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025 11:23:24'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 8/Mar/2025, 9:23:24 am (UTC)'!
 annotator: anAnnotatorMorph
 	annotator := anAnnotatorMorph ! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 30/Oct/2022 20:39:21'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 30/Oct/2022, 6:39:21 pm (UTC)'!
 isDocVisible
 	^ docView visible! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 4/Mar/2025 20:17:18'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 4/Mar/2025, 6:17:18 pm (UTC)'!
 model: aDyboScript
 " Set the DyboScript we are operating on "
 	model := aDyboScript 
 ! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:55:58'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 9:55:58 am (UTC)'!
 scriptName
 	^ model title! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 30/Oct/2022 20:45:35'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 30/Oct/2022, 6:45:35 pm (UTC)'!
 separator
 "The adjuster/separator between the codeView and docView"
 	^ codeView owner submorphs second
 ! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 15:05:35'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 1:05:35 pm (UTC)'!
 sketchName
 	^ model file ifNil: [''] ifNotNil: [model file baseName]! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:56:04'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 9:56:04 am (UTC)'!
 sourceCode
 	^ model code! !
 
-!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026 11:56:10'!
+!DKMScriptEditor methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 9:56:10 am (UTC)'!
 sourceCode: aText
 	model code: aText asString.
 	self changed: #clearUserEdits.
@@ -4899,52 +4895,52 @@ sourceCode: aText
 	plugView removeAllMorphs
 ! !
 
-!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 15/Apr/2022 15:12:50'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 15/Apr/2022, 1:12:50 pm (UTC)'!
 autoCompleterClassFor: textGetter
 	^SmalltalkCompleter! !
 
-!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:45:04'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022, 7:45:04 pm (UTC)'!
 computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofBlockArgNamed: aString 
 	aDynamicTypingSmalltalkCompleter 
 		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
 
-!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:45:36'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022, 7:45:36 pm (UTC)'!
 computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofBlockTempVarNamed: aString 
 	aDynamicTypingSmalltalkCompleter 
 		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
 
-!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:45:25'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022, 7:45:25 pm (UTC)'!
 computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofInstVarNamed: aString 
 	aDynamicTypingSmalltalkCompleter 
 		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
 
-!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022 21:40:20'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 22/Dec/2022, 7:40:20 pm (UTC)'!
 computeMessageEntriesIn: aDynamicTypingSmalltalkCompleter ofTempVarNamed: aString 
 	aDynamicTypingSmalltalkCompleter 
 		computeMessageEntriesForClassOrNil: (DrGeoSystem preferences at: #programmingCodeCompletion)! !
 
-!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 15/Apr/2022 15:10:56'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 15/Apr/2022, 1:10:56 pm (UTC)'!
 editorClassFor: textGetter
     ^SmalltalkEditor! !
 
-!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 14/Apr/2022 16:40:23'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 14/Apr/2022, 2:40:23 pm (UTC)'!
 shouldStyle: aText with: aSHTextStylerST80 
 	
 	^true! !
 
-!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 23/Nov/2023 17:27:30'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 23/Nov/2023, 3:27:30 pm (UTC)'!
 styleByParagraphs
 	^ false! !
 
-!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 14/Apr/2022 16:40:27'!
+!DKMScriptEditor methodsFor: 'user interface support' stamp: 'hlsf 14/Apr/2022, 2:40:27 pm (UTC)'!
 textStylerClassFor: object
 	^ SHTextStylerST80 ! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 22/Mar/2026 11:27:25'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 22/Mar/2026, 9:27:25 am (UTC)'!
 copyAIprompt
 	Clipboard storeObject: model presenter AI_Prompt ! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 18:24:45'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025, 4:24:45 pm (UTC)'!
 debugScript
 " Execute the sketch step by step in a debugger "
 	model ifNil: [^ self].
@@ -4965,7 +4961,7 @@ debugScript
 				self plugDebugger ]]
 		ifFail: []! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026 11:57:13'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 15/Feb/2026, 9:57:13 am (UTC)'!
 executeScript
 	self stopScript.
 	codeView scroller acceptContents.
@@ -4999,7 +4995,7 @@ Script stopped' translated.
 		name: '[Dybo] Smalltalk Script execution';
 		resume.! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 6/Mar/2026 20:08:57'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 6/Mar/2026, 6:08:57 pm (UTC)'!
 keepScript
 	| scriptView metadata |
 	codeView scroller acceptContents.
@@ -5010,7 +5006,7 @@ keepScript
 	annotator annotate: scriptView.
 	self delete! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 4/Mar/2025 19:54:47'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 4/Mar/2025, 5:54:47 pm (UTC)'!
 pauseScript
     scriptProcess isTerminated ifTrue: [
         self stopScript.
@@ -5018,12 +5014,12 @@ pauseScript
     scriptProcess suspend.
     self switchToResumeButton.! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 4/Mar/2025 19:54:33'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 4/Mar/2025, 5:54:33 pm (UTC)'!
 resumeScript
 	scriptProcess resume.
 	self switchToPauseButton! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 saveScript
 	| modelName |
 	codeView scroller acceptContents.
@@ -5038,14 +5034,14 @@ saveScript
 		morphCenter: self fullBoundsInOwner center;
 		setProperty: #layerNumber toValue: self layerNumber - 1! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025 12:14:23'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 8/Mar/2025, 10:14:23 am (UTC)'!
 scriptView: aView
 	self releaseMiniView.
 	plugView 
 		removeAllMorphs;
 		addMorph: aView ! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 9/May/2024 11:26:05'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 9/May/2024, 9:26:05 am (UTC)'!
 stopDebbuger
 	debugger ifNotNil: [
 		codeAndViewPanel replaceSubmorph: debugger layoutMorph by: codeView.
@@ -5055,7 +5051,7 @@ stopDebbuger
 		
 		! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 11/Oct/2025 13:46:27'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 11/Oct/2025, 11:46:27 am (UTC)'!
 stopScript
 	ActiveModel flushEventSystem.
 	scriptProcess ifNotNil: [
@@ -5065,7 +5061,7 @@ stopScript
 	self stopDebbuger 
 	! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 2/Nov/2022 19:48:07'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 2/Nov/2022, 5:48:07 pm (UTC)'!
 toggleHelp
 "Show/unshow the doc pane"
 	debugger ifNotNil: [^ self]. "No doc while debugging, the pane does not like it"
@@ -5082,61 +5078,61 @@ toggleHelp
 	self changed: #isDocVisible
 ! !
 
-!DKMScriptEditor methodsFor: 'geometry' stamp: 'hlsf 23/Apr/2022 14:19:25'!
+!DKMScriptEditor methodsFor: 'geometry' stamp: 'hlsf 23/Apr/2022, 12:19:25 pm (UTC)'!
 expand
 	super expand.
 	self fullScreen! !
 
-!DKMScriptEditor methodsFor: 'geometry' stamp: 'hlsf 6/Mar/2025 20:22:56'!
+!DKMScriptEditor methodsFor: 'geometry' stamp: 'hlsf 6/Mar/2025, 6:22:56 pm (UTC)'!
 minimumExtent
 	^ 800@600! !
 
-!DKMScriptEditor methodsFor: 'testing' stamp: 'hlsf 18/May/2023 17:07:27'!
+!DKMScriptEditor methodsFor: 'testing' stamp: 'hlsf 18/May/2023, 3:07:27 pm (UTC)'!
 shouldAutoHighlight
 	^ false! !
 
-!DKMScriptEditor methodsFor: 'testing' stamp: 'hlsf 18/May/2023 17:09:35'!
+!DKMScriptEditor methodsFor: 'testing' stamp: 'hlsf 18/May/2023, 3:09:35 pm (UTC)'!
 shoutMustKeepContentsSize
 	^ true! !
 
-!DKMScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 4/Mar/2025 19:54:47'!
+!DKMScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 4/Mar/2025, 5:54:47 pm (UTC)'!
 delete
 	self stopScript .
 	super delete.
 	self releaseMiniView ! !
 
-!DKMScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 8/Mar/2025 18:12:05'!
+!DKMScriptEditor methodsFor: 'submorphs-add/remove' stamp: 'hlsf 8/Mar/2025, 4:12:05 pm (UTC)'!
 releaseMiniView
 	plugView submorphCount = 1 ifTrue: [
 		plugView firstSubmorph ifNotNil: [:miniView| miniView delete]]! !
 
-!DKMScriptEditor methodsFor: 'label' stamp: 'hlsf 12/Feb/2026 10:18:38'!
+!DKMScriptEditor methodsFor: 'label' stamp: 'hlsf 12/Feb/2026, 8:18:38 am (UTC)'!
 restoreLabel
 	| defaultLabel |
 	defaultLabel := self scriptName ifEmpty: ['Edit Script' translated].
 	self label == defaultLabel ifFalse: [self setLabel: defaultLabel]! !
 
-!DKMScriptEditor methodsFor: 'shout' stamp: 'hlsf 8/Sep/2024 19:55:01'!
+!DKMScriptEditor methodsFor: 'shout' stamp: 'hlsf 8/Sep/2024, 5:55:01 pm (UTC)'!
 aboutToStyleWith: aSHTextStylerST80 
 	! !
 
-!DKMScriptEditor methodsFor: 'shout' stamp: 'hlsf 8/Sep/2024 19:54:15'!
+!DKMScriptEditor methodsFor: 'shout' stamp: 'hlsf 8/Sep/2024, 5:54:15 pm (UTC)'!
 allowsStylingFor: aSymbol isTextDirty: aFalse 
 	^ true! !
 
-!DKMScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 12/Jan/2025 13:10:44'!
+!DKMScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 12/Jan/2025, 11:10:44 am (UTC)'!
 doItContext
 	^ nil! !
 
-!DKMScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 12/Jan/2025 13:09:57'!
+!DKMScriptEditor methodsFor: 'evaluation' stamp: 'hlsf 12/Jan/2025, 11:09:57 am (UTC)'!
 doItReceiver
 	^ nil! !
 
-!Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 31/Mar/2023 22:22:27'!
+!Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 31/Mar/2023, 8:22:27 pm (UTC)'!
 covariance: y
 	^ (self * y) sum / self size - (self mean * y mean)! !
 
-!Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 1/Apr/2023 15:28:39'!
+!Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 1/Apr/2023, 1:28:39 pm (UTC)'!
 regression: y
 "Linear regression (least-squares), return a, b of y=ax+b"
 	| a b v |
@@ -5146,11 +5142,11 @@ regression: y
 	b := y mean - (a * self mean).
 	^ Array with: a with: b! !
 
-!Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 31/Mar/2023 22:01:21'!
+!Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 31/Mar/2023, 8:01:21 pm (UTC)'!
 variance
 	^ self squared sum / self size - self mean squared! !
 
-!DateAndTime methodsFor: '*DyboDoc' stamp: 'hlsf 2/Oct/2025 21:46:31'!
+!DateAndTime methodsFor: '*DyboDoc' stamp: 'hlsf 2/Oct/2025, 7:46:31 pm (UTC)'!
 filenamePrintOn: aStream
 	"
 	As filename that can be sorted, with an accuraccy  of 1 second
@@ -5176,40 +5172,40 @@ filenamePrintOn: aStream
 		nextPutAll: (self second printString padded: #left to: 2 with: $0);
 		nextPut: $s! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 27/May/2026 22:34:30'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 27/May/2026, 8:34:30 pm (UTC)'!
 addEditAnnotatedHandle: aHaloSpec 
 	(self addHandle: aHaloSpec )
 		mouseDownSelector: #doEdit
 ! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 22/Jan/2025 22:42:00'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 22/Jan/2025, 8:42:00 pm (UTC)'!
 addInspectHandle: handleSpec
 	(self addHandle: handleSpec)
 		mouseDownSelector: #doInspect
 ! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 27/May/2026 22:38:06'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 21/Jun/2026, 8:15:42 am (UTC)'!
 addResizeAnnotatedHandle: haloSpec
-
-	(target canResizeOrScaleAnnoted and: [target annotated okayToResizeEasily]) ifTrue: [
+	target isFrozen ifTrue: [^ self].
+	(target annotated okayToResizeEasily) ifTrue: [
 		^(self addHandle: haloSpec)
 			mouseDownSelector: #startResize:with:;
 			mouseMoveSelector: #doResizeAnnotated:with: ].
 
-	(target canResizeOrScaleAnnoted and: [target annotated okayToScaleEasily]) ifTrue: [
+	(target annotated okayToScaleEasily) ifTrue: [
 		^(self addHandle: haloSpec)
 			mouseDownSelector: #startScaleAnnotated:with:;
 			mouseMoveSelector: #doScaleAnnotated:with: ].! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 6/Mar/2025 20:14:59'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 6/Mar/2025, 6:14:59 pm (UTC)'!
 doEdit
 	^ target editAnnoted ! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 22/Jan/2025 22:48:01'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 22/Jan/2025, 8:48:01 pm (UTC)'!
 doInspect
 	^ target inspectAnnoted ! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 31/Aug/2025 11:27:22'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 31/Aug/2025, 9:27:22 am (UTC)'!
 doResizeAnnotated: evt with: resizeHandle
 	"Called while the mouse is down in the grow handle"
 
@@ -5224,7 +5220,7 @@ doResizeAnnotated: evt with: resizeHandle
 	resizeHandle positionInWorld: evt eventPosition - (resizeHandle morphExtent // 2).
 	self redrawNeeded.! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 31/Aug/2025 11:27:32'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 31/Aug/2025, 9:27:32 am (UTC)'!
 doScaleAnnotated: evt with: scaleHandle
 	"Update the scale of my target if it is scalable."
 	| scale center |
@@ -5242,7 +5238,7 @@ doScaleAnnotated: evt with: scaleHandle
 	scaleHandle positionInWorld: evt eventPosition - (scaleHandle morphExtent // 2).
 	self redrawNeeded.! !
 
-!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 31/Aug/2025 11:27:47'!
+!HaloMorph methodsFor: '*DyboDoc' stamp: 'hlsf 31/Aug/2025, 9:27:47 am (UTC)'!
 startScaleAnnotated: evt with: scaleHandle
 	"Initialize scale of my target if it is scalable."
 
@@ -5251,7 +5247,7 @@ startScaleAnnotated: evt with: scaleHandle
 	self removeAllHandlesBut: scaleHandle.  "remove all other handles"
 	scaleOffset := target scale / (evt eventPosition - target annotated positionInWorld) rho.! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 haloAnnDismissIcon
 	^ self icons
 		at: #haloDismissAnnIcon
@@ -5260,7 +5256,7 @@ haloAnnDismissIcon
 				getForm: #discard
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 haloAnnDragIcon
 	^ self icons
 		at: #haloAnnDragIcon
@@ -5269,7 +5265,7 @@ haloAnnDragIcon
 				getForm: #drag
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 haloAnnEditIcon
 "Edit annoted document "
 	^ self icons
@@ -5279,7 +5275,7 @@ haloAnnEditIcon
 				getForm: #edit
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 haloAnnHelpIcon
 	^ self icons
 		at: #haloAnnHelpIcon
@@ -5288,7 +5284,7 @@ haloAnnHelpIcon
 				getForm: #help
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 haloAnnInspectIcon
 	^ self icons
 		at: #haloAnnInspectIcon
@@ -5297,7 +5293,7 @@ haloAnnInspectIcon
 				getForm: #inspect
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 haloAnnResizeIcon
 	^ self icons
 		at: #haloAnnResizeIcon
@@ -5306,7 +5302,7 @@ haloAnnResizeIcon
 				getForm: #resize
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026 10:00:34'!
+!HaloMorph class methodsFor: '*DyboDoc' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 haloAnnRotateIcon
 	^ self icons
 		at: #haloAnnRotateIcon
@@ -5315,15 +5311,15 @@ haloAnnRotateIcon
 				getForm: #rotate
 				ofSize: (Preferences at: #haloHandleSize)) asFormOfDepth: 1 ]! !
 
-!HaloHandleMorph methodsFor: '*DyboDoc' stamp: 'hlsf 25/Jan/2025 19:07:05'!
+!HaloHandleMorph methodsFor: '*DyboDoc' stamp: 'hlsf 25/Jan/2025, 5:07:05 pm (UTC)'!
 handlesMouseOver: evt
 	^ true! !
 
-!HaloHandleMorph methodsFor: '*DyboDoc' stamp: 'hlsf 25/Jan/2025 19:14:00'!
+!HaloHandleMorph methodsFor: '*DyboDoc' stamp: 'hlsf 25/Jan/2025, 5:14:00 pm (UTC)'!
 mouseEnter: evt
 	owner target removeAlarm: #removeHalo! !
 
-!Flap methodsFor: '*DyboDoc' stamp: 'hlsf 4/Feb/2026 16:15:54'!
+!Flap methodsFor: '*DyboDoc' stamp: 'hlsf 4/Feb/2026, 2:15:54 pm (UTC)'!
 scripts: dyboScripts
 	objects := dyboScripts collect: [:each | | item |
 		item := FlapItem 
@@ -5339,7 +5335,7 @@ scripts: dyboScripts
 		item imageMorph setBalloonText: each description.
 		item]! !
 
-!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 16/Feb/2025 23:02:55'!
+!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 16/Feb/2025, 9:02:55 pm (UTC)'!
 label: aString emphasis: emphasis scripts: dyboScripts
 	| flap |
 	flap := self contents: aString font: nil emphasis: emphasis.
@@ -5348,7 +5344,7 @@ label: aString emphasis: emphasis scripts: dyboScripts
 	
 ! !
 
-!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 16/Feb/2025 23:06:03'!
+!Flap class methodsFor: '*DyboDoc' stamp: 'hlsf 16/Feb/2025, 9:06:03 pm (UTC)'!
 label: aString scripts: dyboScripts
 	^ self label: aString emphasis: 0 scripts: dyboScripts 
 ! !
