@@ -1,9 +1,29 @@
-'From Cuis7.9 [latest update: #8014] on 21 June 2026 at 5:04:01 pm'!
+'From Cuis7.9 [latest update: #8014] on 22 June 2026 at 7:09:03 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 62!
+!provides: 'DyboTools-Geometry' 1 64!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
+
+!classDefinition: #GradMorph category: #'DyboTools-Geometry'!
+Morph subclass: #GradMorph
+	instanceVariableNames: 'start end'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'GradMorph class' category: #'DyboTools-Geometry'!
+GradMorph class
+	instanceVariableNames: ''!
+
+!classDefinition: #SubGradMorph category: #'DyboTools-Geometry'!
+GradMorph subclass: #SubGradMorph
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'SubGradMorph class' category: #'DyboTools-Geometry'!
+SubGradMorph class
+	instanceVariableNames: ''!
 
 !classDefinition: #GeometryTool category: #'DyboTools-Geometry'!
 PlacedMorph subclass: #GeometryTool
@@ -65,6 +85,16 @@ GeometryTool subclass: #SetSquare
 SetSquare class
 	instanceVariableNames: ''!
 
+!classDefinition: #CalibratorMorph category: #'DyboTools-Geometry'!
+BoxMorph subclass: #CalibratorMorph
+	instanceVariableNames: 'etalon ruler ppcm step'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'CalibratorMorph class' category: #'DyboTools-Geometry'!
+CalibratorMorph class
+	instanceVariableNames: ''!
+
 
 !GeometryTool commentStamp: '<historical>' prior: 0!
 Abstract class for tools with straight linear metric graduation. 
@@ -111,6 +141,31 @@ extent :
 
 !SetSquare commentStamp: '<historical>' prior: 0!
 A set square with two sensible zones to draw straight lines!
+
+!CalibratorMorph commentStamp: '<historical>' prior: 0!
+A tool to calibrate manually screen and metric units.!
+
+!GradMorph methodsFor: 'accessing' stamp: 'hlsf 22/Jun/2026, 3:02:09 pm (UTC)'!
+end: aPoint
+	end := aPoint! !
+
+!GradMorph methodsFor: 'accessing' stamp: 'hlsf 22/Jun/2026, 3:02:04 pm (UTC)'!
+start: aPoint
+	start := aPoint! !
+
+!GradMorph methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 3:04:54 pm (UTC)'!
+drawOn: canvas
+	canvas strokeWidth: 0.8 color: `Color black` do: [canvas moveTo: start; lineTo: end]! !
+
+!GradMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Jun/2026, 3:50:50 pm (UTC)'!
+from: point1 to: point2
+	^ self new
+		start: point1;
+		end: point2! !
+
+!SubGradMorph methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 3:05:55 pm (UTC)'!
+drawOn: canvas
+	canvas strokeWidth: 0.3 color: `Color black` do: [canvas moveTo: start; lineTo: end]! !
 
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:23:23 pm (UTC)'!
 color
@@ -268,6 +323,18 @@ handlesMouseDown: evt
 !GeometryTool methodsFor: 'active model behavior' stamp: 'hlsf 2/Mar/2026, 8:20:44 pm (UTC)'!
 postCopy
 	ppcm := DyboSystem ppcm.! !
+
+!GeometryTool methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:48:39 pm (UTC)'!
+addLabel: string font: aFont centeredAt: position rotationDegrees: angle
+"Add a label top-centered at position and rotated of angle degrees"
+	| p label |
+	p := position - (position normal * (aFont widthOfString: string asString) / 2). 
+	label := LabelMorph contents: string font: aFont.
+	label rotationDegrees: angle.
+	self addMorph: label.
+	label morphPosition: p.
+	label lock.
+	^ label! !
 
 !Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025, 1:55:14 pm (UTC)'!
 extent: newExtent
@@ -527,11 +594,12 @@ mouseMove: event localPosition: localPosition
 name
 	^ 'Compass' translated! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:19:19 pm (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 22/Jun/2026, 3:53:52 pm (UTC)'!
 initialize
 	super initialize.
 	self length: 8.
-	self insertButtons! !
+	self insertButtons.
+	self setSquareGrads ! !
 
 !Geodreieck methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:20:29 pm (UTC)'!
 insertButtons
@@ -551,7 +619,35 @@ transparentColor
 !Geodreieck methodsFor: 'geometry' stamp: 'hlsf 21/Jun/2026, 1:39:32 pm (UTC)'!
 positioningButtons! !
 
-!Geodreieck methodsFor: 'as yet unclassified' stamp: 'hlsf 21/Jun/2026, 3:01:41 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 5:06:59 pm (UTC)'!
+addGradAt: angle
+	| mark line |
+	mark := self gradMarkAt: angle length: 12.
+	line := GradMorph from: mark first to: mark second.
+	self addMorph: line.
+	line lock.
+	" do we want graduation number? "
+	(angle \\ 10) isZero ifTrue: [
+		| u rotation |	
+		u := (mark second - mark first) normalized.
+		rotation := 135.
+		angle = 90 ifTrue: [rotation := 180].
+		angle > 90 ifTrue: [rotation := rotation + 90].
+		self addLabel: angle asString font: font centeredAt: mark second + (u * 50) rotationDegrees: rotation].
+
+	^ line! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:25:47 pm (UTC)'!
+addSubGradAt: angle
+	| mark line |
+
+	mark := self gradMarkAt: angle length: 6.
+	line := GradMorph from: mark first to: mark second.
+	self addMorph: line.
+	line lock.
+	^ line! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 3:01:41 pm (UTC)'!
 drawOn: canvas
 	| apex pos gradQty step |
 	apex := extent y.
@@ -583,23 +679,73 @@ drawOn: canvas
 		pos := pos + self ppcm]
 	! !
 
-!Geodreieck methodsFor: 'as yet unclassified' stamp: 'hlsf 21/Jun/2026, 2:26:42 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:24:40 pm (UTC)'!
+gradMarkAt: angle length: d
+"	Compute a graduation mark (start and end position) given an angle
+	 on the set square and its length at apex "
+	| anglePt apex x startGrad endGrad k |
+	
+	k := angle > 90 ifTrue: [-1] ifFalse: [1].
+	apex := extent y.
+	anglePt := Point r: apex degrees: angle.
+	""
+	x := apex / (anglePt y / anglePt x + k ). 
+	startGrad := x @ (apex - (x * k) ).
+	""
+	apex := apex - d. "pixels"
+	x := apex / (anglePt y / anglePt x + k) . 
+	endGrad := x @ (apex - (x * k) ).
+	^ Array with: startGrad with: endGrad 
+! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:25:58 pm (UTC)'!
+setSquareGrads
+"	The set square graduations 
+	For the record: 'extent x' is the raidus (usually 8 cm) expressed in pixels
+"
+	5 to: 175 by: 5 do: [:angle | self addGradAt: angle].
+		
+	1 to: 179 by: 5 do: [:angle | 
+		0 to: 3 do: [:subAngle | self addSubGradAt: angle + subAngle] ]! !
+
+!Geodreieck methodsFor: 'geometry testing' stamp: 'hlsf 21/Jun/2026, 2:26:42 pm (UTC)'!
 yAxisPointsUp
 	^ true ! !
 
-!Protractor methodsFor: 'drawing' stamp: 'hlsf 13/Sep/2025, 2:54:47 pm (UTC)'!
-addLabel: string font: aFont centeredAt: position rotationDegrees: angle
-"Add a label top-centered at position and rotated of angle degrees"
-	| p label |
-	p := position - (position normal * (aFont widthOfString: string asString) / 2). 
-	label := LabelMorph contents: string font: aFont.
-	label rotationDegrees: 90 - angle.
-	self addMorph: label.
-	label morphPosition: p.
-	label lock.
-	^ label! !
+!Protractor methodsFor: 'accessing' stamp: 'hlsf 15/Jan/2021, 8:10:30 am (UTC)'!
+buttons
+	^ self submorphsSatisfying: [:each | each is: #PluggableButtonMorph ]! !
 
-!Protractor methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 1:25:51 pm (UTC)'!
+!Protractor methodsFor: 'accessing' stamp: 'hlsf 14/Jan/2021, 6:52:10 pm (UTC)'!
+graduations
+	^ self submorphsSatisfying: [:each | each class == LabelMorph]! !
+
+!Protractor methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:34:54 am (UTC)'!
+name
+	^ 'Protractor' translated! !
+
+!Protractor methodsFor: 'action' stamp: 'hlsf 14/Jan/2021, 7:10:10 pm (UTC)'!
+reverseGraduations
+	zeroAtRight _ zeroAtRight not.
+	self updateGraduations ! !
+
+!Protractor methodsFor: 'action' stamp: 'hlsf 13/Sep/2025, 2:51:38 pm (UTC)'!
+scaleMe
+	| event p1 v1 v2|
+	"any thing new to do?"
+	event := self activeHand lastMouseEvent.
+	event isMouseMove 
+		ifTrue: [
+			p1 := self externalizeToWorld: self rotationCenter.
+			v1 := self internalizeDistance: lastHandPosition - p1.
+			lastHandPosition := event eventPosition.
+			v2 := self internalizeDistance: lastHandPosition - p1.
+			v1 = v2 ifTrue: [^self].
+			self scaleBy:  v2 r /  v1 r ] 
+		ifFalse: [
+			lastHandPosition := event eventPosition].! !
+
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:12:31 pm (UTC)'!
 drawOn: canvas
 |  p1 p2 innerR outerR|
 	innerR := extent x.
@@ -617,7 +763,7 @@ drawOn: canvas
 		canvas lineTo: innerR negated @ 0].
 	
 	
-	" graduation Unmatched comment quote ->"
+	" graduation"
 	canvas strokeWidth: 1 color: `Color black` do: [
 		canvas moveTo: 0 @ -0.5; lineTo: 0 @ -8].
 	-179 to: -1 do: [:degree |
@@ -639,6 +785,21 @@ drawOn: canvas
 !Protractor methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 9:25:18 am (UTC)'!
 icon
 	^ (self imageForm: 32) magnifyBy: 100.0 / (extent y * 2)! !
+
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:53:21 pm (UTC)'!
+updateGraduations
+	self graduations do: [:each | each delete].
+	10 to: 170 by: 10 do: [:angle | 
+		self 
+			addLabel: (zeroAtRight ifTrue: [angle] ifFalse: [180 - angle]) asString 
+			font: font 
+			centeredAt: (Point r: extent y - 12 degrees: angle negated)
+			rotationDegrees: 90 - angle].
+! !
+
+!Protractor methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025, 2:43:31 pm (UTC)'!
+constrainToDirection: localHandPosition
+	^ Point rho: localHandPosition rho theta: strokeAngle ! !
 
 !Protractor methodsFor: 'initialization' stamp: 'hlsf 13/Sep/2025, 2:22:38 pm (UTC)'!
 initialize
@@ -693,35 +854,6 @@ insertButtons
 
 ! !
 
-!Protractor methodsFor: 'action' stamp: 'hlsf 14/Jan/2021, 7:10:10 pm (UTC)'!
-reverseGraduations
-	zeroAtRight _ zeroAtRight not.
-	self updateGraduations ! !
-
-!Protractor methodsFor: 'action' stamp: 'hlsf 13/Sep/2025, 2:51:38 pm (UTC)'!
-scaleMe
-	| event p1 v1 v2|
-	"any thing new to do?"
-	event := self activeHand lastMouseEvent.
-	event isMouseMove 
-		ifTrue: [
-			p1 := self externalizeToWorld: self rotationCenter.
-			v1 := self internalizeDistance: lastHandPosition - p1.
-			lastHandPosition := event eventPosition.
-			v2 := self internalizeDistance: lastHandPosition - p1.
-			v1 = v2 ifTrue: [^self].
-			self scaleBy:  v2 r /  v1 r ] 
-		ifFalse: [
-			lastHandPosition := event eventPosition].! !
-
-!Protractor methodsFor: 'accessing' stamp: 'hlsf 15/Jan/2021, 8:10:30 am (UTC)'!
-buttons
-	^ self submorphsSatisfying: [:each | each is: #PluggableButtonMorph ]! !
-
-!Protractor methodsFor: 'accessing' stamp: 'hlsf 14/Jan/2021, 6:52:10 pm (UTC)'!
-graduations
-	^ self submorphsSatisfying: [:each | each class == LabelMorph]! !
-
 !Protractor methodsFor: 'testing' stamp: 'hlsf 14/Sep/2025, 9:11:26 am (UTC)'!
 inStrokeZone: localPosition
 	localPosition r > extent x	ifTrue: [
@@ -733,25 +865,6 @@ inStrokeZone: localPosition
 !Protractor methodsFor: 'testing' stamp: 'hlsf 13/Sep/2025, 2:33:56 pm (UTC)'!
 is: aSymbol
 	^ aSymbol == #Protractor or: [super is: aSymbol]! !
-
-!Protractor methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025, 2:43:31 pm (UTC)'!
-constrainToDirection: localHandPosition
-	^ Point rho: localHandPosition rho theta: strokeAngle ! !
-
-!Protractor methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025, 2:19:12 pm (UTC)'!
-updateGraduations
-	self graduations do: [:each | each delete].
-	10 to: 170 by: 10 do: [:angle | 
-		self 
-			addLabel: (zeroAtRight ifTrue: [angle] ifFalse: [180 - angle]) asString 
-			font: font 
-			centeredAt: (Point r: extent y - 12 degrees: angle negated)
-			rotationDegrees: angle].
-! !
-
-!Protractor methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:34:54 am (UTC)'!
-name
-	^ 'Protractor' translated! !
 
 !Ruler methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 2:48:24 pm (UTC)'!
 drawOn: canvas
@@ -1122,3 +1235,71 @@ resizeOY
 !SetSquare methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:35:13 am (UTC)'!
 name
 	^  'Set square' translated! !
+
+!CalibratorMorph methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026, 1:04:16 pm (UTC)'!
+etalon: form
+	etalon := form! !
+
+!CalibratorMorph methodsFor: 'accessing' stamp: 'hlsf 1/Mar/2026, 1:04:41 pm (UTC)'!
+ppcm
+	^ ppcm ! !
+
+!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 11/Jun/2026, 9:15:29 am (UTC)'!
+initialize
+	super initialize.
+	ppcm := DyboSystem ppcm.
+	step := 0.05.
+	ruler := Ruler new 
+		ppcm: ppcm;
+		length: 10;
+		lock.
+	self	addMorph: ruler position: 22.5@80.
+	self insertButtons! !
+
+!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026, 4:00:16 pm (UTC)'!
+insertButtons
+	| btn buttonExtent |
+	buttonExtent := Theme current listAddIcon extent * 1.5. 
+	btn := ButtonMorph model: self action: #increasePPCM ::
+		actWhen: #buttonStillDown;
+		icon: Theme current listAddIcon ;
+		morphExtent: buttonExtent.
+	self addMorph: btn position: 290@150.
+	
+	btn := ButtonMorph model: self action: #decreasePPCM ::
+		actWhen: #buttonStillDown;
+		icon: Theme current listRemoveIcon ;
+		morphExtent: buttonExtent.
+	self addMorph: btn position: (295 + buttonExtent x) @150
+! !
+
+!CalibratorMorph methodsFor: 'drawing' stamp: 'hlsf 28/Apr/2026, 9:11:20 am (UTC)'!
+drawOn: canvas
+	canvas
+		fillRectangle: self localBounds
+		color: `Color transparent`.
+	canvas image: etalon at: 0@0.! !
+
+!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026, 4:06:00 pm (UTC)'!
+decreasePPCM
+	ppcm < 20 ifTrue: [^ self].
+	ppcm := ppcm - step.
+	ruler ppcm: ppcm;
+		length: 10.
+	self redrawNeeded ! !
+
+!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026, 8:06:18 pm (UTC)'!
+increasePPCM
+	ppcm > 70 ifTrue: [^ self].
+	ppcm := ppcm + step.
+	ruler ppcm: ppcm;
+		length: 10.
+	self redrawNeeded ! !
+
+!CalibratorMorph methodsFor: 'geometry testing' stamp: 'hlsf 1/Mar/2026, 8:06:01 pm (UTC)'!
+clipsSubmorphs
+	^ true! !
+
+!CalibratorMorph methodsFor: 'geometry' stamp: 'hlsf 1/Mar/2026, 8:08:29 pm (UTC)'!
+minimumExtent
+	^ `700@180`! !
