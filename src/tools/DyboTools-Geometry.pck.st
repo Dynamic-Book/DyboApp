@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8014] on 22 June 2026 at 7:09:03 pm'!
+'From Cuis7.9 [latest update: #8014] on 22 June 2026 at 10:16:42 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 64!
+!provides: 'DyboTools-Geometry' 1 65!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -23,6 +23,16 @@ GradMorph subclass: #SubGradMorph
 	category: 'DyboTools-Geometry'!
 !classDefinition: 'SubGradMorph class' category: #'DyboTools-Geometry'!
 SubGradMorph class
+	instanceVariableNames: ''!
+
+!classDefinition: #MarkMorph category: #'DyboTools-Geometry'!
+Morph subclass: #MarkMorph
+	instanceVariableNames: 'center'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboTools-Geometry'!
+!classDefinition: 'MarkMorph class' category: #'DyboTools-Geometry'!
+MarkMorph class
 	instanceVariableNames: ''!
 
 !classDefinition: #GeometryTool category: #'DyboTools-Geometry'!
@@ -166,6 +176,18 @@ from: point1 to: point2
 !SubGradMorph methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 3:05:55 pm (UTC)'!
 drawOn: canvas
 	canvas strokeWidth: 0.3 color: `Color black` do: [canvas moveTo: start; lineTo: end]! !
+
+!MarkMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Jun/2026, 7:34:54 pm (UTC)'!
+center: aPoint
+	center := aPoint! !
+
+!MarkMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Jun/2026, 7:34:39 pm (UTC)'!
+drawOn: canvas
+	canvas strokeWidth: 0.3 color: `Color red` do: [canvas ellipseCenter: center radius: 4@4]! !
+
+!MarkMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Jun/2026, 7:35:08 pm (UTC)'!
+center: aPoint
+	^ self new center: aPoint! !
 
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:23:23 pm (UTC)'!
 color
@@ -323,18 +345,6 @@ handlesMouseDown: evt
 !GeometryTool methodsFor: 'active model behavior' stamp: 'hlsf 2/Mar/2026, 8:20:44 pm (UTC)'!
 postCopy
 	ppcm := DyboSystem ppcm.! !
-
-!GeometryTool methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:48:39 pm (UTC)'!
-addLabel: string font: aFont centeredAt: position rotationDegrees: angle
-"Add a label top-centered at position and rotated of angle degrees"
-	| p label |
-	p := position - (position normal * (aFont widthOfString: string asString) / 2). 
-	label := LabelMorph contents: string font: aFont.
-	label rotationDegrees: angle.
-	self addMorph: label.
-	label morphPosition: p.
-	label lock.
-	^ label! !
 
 !Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025, 1:55:14 pm (UTC)'!
 extent: newExtent
@@ -616,10 +626,14 @@ length: aNumber
 transparentColor
 	^ `Color lightGreen muchLighter alpha: 0.4`! !
 
+!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 22/Jun/2026, 7:40:39 pm (UTC)'!
+constrainToDirection: aPoint 
+	! !
+
 !Geodreieck methodsFor: 'geometry' stamp: 'hlsf 21/Jun/2026, 1:39:32 pm (UTC)'!
 positioningButtons! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 5:06:59 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 8:15:53 pm (UTC)'!
 addGradAt: angle
 	| mark line |
 	mark := self gradMarkAt: angle length: 12.
@@ -632,10 +646,23 @@ addGradAt: angle
 		u := (mark second - mark first) normalized.
 		rotation := 135.
 		angle = 90 ifTrue: [rotation := 180].
-		angle > 90 ifTrue: [rotation := rotation + 90].
-		self addLabel: angle asString font: font centeredAt: mark second + (u * 50) rotationDegrees: rotation].
-
+		angle > 90 ifTrue: [rotation := rotation + 90].		
+		self addLabel: angle asString font: font centeredAt: mark second + (u * (font pointSize / 2 +1) ) rotationDegrees: rotation.
+		"self addMorph: (MarkMorph center: mark second + (u * 16) )"].
+	
 	^ line! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 8:11:52 pm (UTC)'!
+addLabel: string font: aFont centeredAt: position rotationDegrees: angle
+"Add a label top-centered at position and rotated of angle degrees"
+	| p label |
+	p := position - ( (aFont widthOfString: string asString) @ (aFont pointSize negated) / 2). 
+	label := LabelMorph contents: string font: aFont.
+	self addMorph: label.
+	label morphPosition: p.
+	label rotateBy: angle negated degreesToRadians .
+	"label lock."
+	^ label! !
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:25:47 pm (UTC)'!
 addSubGradAt: angle
@@ -744,6 +771,18 @@ scaleMe
 			self scaleBy:  v2 r /  v1 r ] 
 		ifFalse: [
 			lastHandPosition := event eventPosition].! !
+
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 7:45:36 pm (UTC)'!
+addLabel: string font: aFont centeredAt: position rotationDegrees: angle
+"Add a label top-centered at position and rotated of angle degrees"
+	| p label |
+	p := position - (position normal * (aFont widthOfString: string asString) / 2). 
+	label := LabelMorph contents: string font: aFont.
+	label rotationDegrees: angle.
+	self addMorph: label.
+	label morphPosition: p.
+	label lock.
+	^ label! !
 
 !Protractor methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:12:31 pm (UTC)'!
 drawOn: canvas
