@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8014] on 24 June 2026 at 7:06:58 pm'!
+'From Cuis7.9 [latest update: #8014] on 24 June 2026 at 11:01:55 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 66!
+!provides: 'DyboTools-Geometry' 1 67!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -615,29 +615,30 @@ initialize
 insertButtons
 	! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 24/Jun/2026, 5:02:14 pm (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 24/Jun/2026, 8:39:55 pm (UTC)'!
 setGraduationMorphs
 "	The set square graduations 
 	For the record: 'extent x' is the raidus (usually 8 cm) expressed in pixels
 "
-	| pos | 
-"	graduations on the two perpendicular sides "
-	5 to: 175 by: 5 do: [:angle | self addGradAt: angle].
+	| posA | 
+"	graduations & degrees on the two perpendicular sides "
+	5 to: 175 by: 5 do: [:angle | self addMillimeterGradAt: angle].
 	1 to: 179 by: 5 do: [:angle | 
-		0 to: 3 do: [:subAngle | self addSubGradAt: angle + subAngle] ].
-"	numbers on the ruler side "
-	pos := extent y negated + self ppcm.
+		0 to: 3 do: [:subAngle | self addMillimeterSubGradAt: angle + subAngle] ].
+"	millimeter numbers on the ruler side "
+	posA := extent y negated + self ppcm.
 	(length - 1) negated to: length - 1 do: [:grad |
-		self addLabel: grad abs asString font: font centeredAt: pos @(14 + font pointSize)rotationDegrees: 180.
-		pos := pos + self ppcm].
-"	numbers on yellow strip "
+		self addLabel: grad abs asString font: font centeredAt: posA @(14 + font pointSize)rotationDegrees: 180.
+		posA := posA + self ppcm].
+"	degrees on the yellow strip & circular graduations "
 	10 to: 170 by: 10 do: [:angle | 
-		self 
-			addLabel: angle asString 
-			font: font 
+		self 	addLabel: angle asString font: font 
 			centeredAt: (Point r: 4.35 * self ppcm degrees: 180 - angle)
-			rotationDegrees: 270 - angle.
-		]! !
+			rotationDegrees: 270 - angle].
+	11 to: 169 do: [:angle | self addDegreeGradAt: angle].
+	" inner millimeter graduation"
+	6 to: 38 do: [:mm |self addInnerMillimeterGradAt: mm]
+! !
 
 !Geodreieck methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:19:41 pm (UTC)'!
 length: aNumber
@@ -657,8 +658,59 @@ constrainToDirection: aPoint
 !Geodreieck methodsFor: 'geometry' stamp: 'hlsf 21/Jun/2026, 1:39:32 pm (UTC)'!
 positioningButtons! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 3:42:19 pm (UTC)'!
-addGradAt: angle
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 8:12:56 pm (UTC)'!
+addDegreeGradAt: angle
+	| morphClass posA posB line |
+	(angle // 10) isZero ifTrue: [self halt ]. " Draw it elsewhere "
+	posA := Point r: 5 * self ppcm degrees: 180 - angle.
+	(angle \\ 5) isZero 
+		ifTrue: [
+			morphClass := GradMorph.
+			posB := Point r: (5 - 0.4) * self ppcm degrees: 180 - angle.
+			 ] 
+		ifFalse: [
+			morphClass := SubGradMorph.
+			posB := Point r: (5 - 0.2) * self ppcm degrees: 180 - angle].
+		
+	line := morphClass from: posA to: posB.
+	self addMorph: line.
+	line lock.
+
+	^ line! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 9:00:26 pm (UTC)'!
+addInnerMillimeterGradAt: mm
+	| posA posB line morphClass|
+	posA := 1.1 @ (mm / 10) * self ppcm.
+	posB := 1.5 @ (mm / 10) * self ppcm.
+	morphClass := SubGradMorph.
+	(mm \\ 5 ) isZero ifTrue: [
+		morphClass := GradMorph.
+		posA := (0.1 * self ppcm) @ posA y.
+		posB := Point 
+			x: 4 * self ppcm * ( mm / 10 / 4) arcSin cos
+			y: posB y ].
+	line := morphClass from:  posA to: posB.
+	self addMorph: line .
+	line lock.
+	line := morphClass from:  posA x negated @ posA y to: posB x negated @ posB y.
+	self addMorph: line .
+	line lock! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 8:11:52 pm (UTC)'!
+addLabel: string font: aFont centeredAt: position rotationDegrees: angle
+"Add a label top-centered at position and rotated of angle degrees"
+	| p label |
+	p := position - ( (aFont widthOfString: string asString) @ (aFont pointSize negated) / 2). 
+	label := LabelMorph contents: string font: aFont.
+	self addMorph: label.
+	label morphPosition: p.
+	label rotateBy: angle negated degreesToRadians .
+	"label lock."
+	^ label! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 8:04:19 pm (UTC)'!
+addMillimeterGradAt: angle
 	| mark line |
 	mark := self gradMarkAt: angle length: 12.
 	line := GradMorph from: mark first to: mark second.
@@ -677,20 +729,8 @@ addGradAt: angle
 			rotationDegrees: rotation].	
 	^ line! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 8:11:52 pm (UTC)'!
-addLabel: string font: aFont centeredAt: position rotationDegrees: angle
-"Add a label top-centered at position and rotated of angle degrees"
-	| p label |
-	p := position - ( (aFont widthOfString: string asString) @ (aFont pointSize negated) / 2). 
-	label := LabelMorph contents: string font: aFont.
-	self addMorph: label.
-	label morphPosition: p.
-	label rotateBy: angle negated degreesToRadians .
-	"label lock."
-	^ label! !
-
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:25:47 pm (UTC)'!
-addSubGradAt: angle
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 8:04:36 pm (UTC)'!
+addMillimeterSubGradAt: angle
 	| mark line |
 
 	mark := self gradMarkAt: angle length: 6.
