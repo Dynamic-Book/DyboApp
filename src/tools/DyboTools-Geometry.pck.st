@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8014] on 22 June 2026 at 10:16:42 pm'!
+'From Cuis7.9 [latest update: #8014] on 24 June 2026 at 7:06:58 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 65!
+!provides: 'DyboTools-Geometry' 1 66!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -604,16 +604,40 @@ mouseMove: event localPosition: localPosition
 name
 	^ 'Compass' translated! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 22/Jun/2026, 3:53:52 pm (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 24/Jun/2026, 4:50:34 pm (UTC)'!
 initialize
 	super initialize.
 	self length: 8.
 	self insertButtons.
-	self setSquareGrads ! !
+	self setGraduationMorphs ! !
 
 !Geodreieck methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:20:29 pm (UTC)'!
 insertButtons
 	! !
+
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 24/Jun/2026, 5:02:14 pm (UTC)'!
+setGraduationMorphs
+"	The set square graduations 
+	For the record: 'extent x' is the raidus (usually 8 cm) expressed in pixels
+"
+	| pos | 
+"	graduations on the two perpendicular sides "
+	5 to: 175 by: 5 do: [:angle | self addGradAt: angle].
+	1 to: 179 by: 5 do: [:angle | 
+		0 to: 3 do: [:subAngle | self addSubGradAt: angle + subAngle] ].
+"	numbers on the ruler side "
+	pos := extent y negated + self ppcm.
+	(length - 1) negated to: length - 1 do: [:grad |
+		self addLabel: grad abs asString font: font centeredAt: pos @(14 + font pointSize)rotationDegrees: 180.
+		pos := pos + self ppcm].
+"	numbers on yellow strip "
+	10 to: 170 by: 10 do: [:angle | 
+		self 
+			addLabel: angle asString 
+			font: font 
+			centeredAt: (Point r: 4.35 * self ppcm degrees: 180 - angle)
+			rotationDegrees: 270 - angle.
+		]! !
 
 !Geodreieck methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:19:41 pm (UTC)'!
 length: aNumber
@@ -633,7 +657,7 @@ constrainToDirection: aPoint
 !Geodreieck methodsFor: 'geometry' stamp: 'hlsf 21/Jun/2026, 1:39:32 pm (UTC)'!
 positioningButtons! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 8:15:53 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 3:42:19 pm (UTC)'!
 addGradAt: angle
 	| mark line |
 	mark := self gradMarkAt: angle length: 12.
@@ -647,9 +671,10 @@ addGradAt: angle
 		rotation := 135.
 		angle = 90 ifTrue: [rotation := 180].
 		angle > 90 ifTrue: [rotation := rotation + 90].		
-		self addLabel: angle asString font: font centeredAt: mark second + (u * (font pointSize / 2 +1) ) rotationDegrees: rotation.
-		"self addMorph: (MarkMorph center: mark second + (u * 16) )"].
-	
+		self addLabel: angle asString 
+			font: font 
+			centeredAt: mark second + (u * (font pointSize / 2 +1) ) 
+			rotationDegrees: rotation].	
 	^ line! !
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 8:11:52 pm (UTC)'!
@@ -674,13 +699,26 @@ addSubGradAt: angle
 	line lock.
 	^ line! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 3:01:41 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 5:03:33 pm (UTC)'!
 drawOn: canvas
+"	The drawing requiring needing complex computation (trigonometric and division) are rendered as submorphs "
 	| apex pos gradQty step |
 	apex := extent y.
 	canvas fillColor: self transparentColor do: [
 		canvas moveTo: apex negated @ 0;
 			lineTo: apex @ 0; lineTo: 0 @ apex].
+		
+	canvas fillColor: `Color yellow darker alpha: 0.6` do: [
+		apex := 4.1 * self ppcm.
+		pos := Point r: apex degrees: 7.5.
+		canvas moveTo:  pos.
+		canvas arcTo: pos x negated @ pos y radius: apex @ apex angleOfXAxis: 0 largeFlag: false sweepFlag: false.
+		apex := 4.5 * self ppcm.
+		pos := Point r: apex degrees: 7.
+		canvas lineTo: pos x negated @ pos y.
+		canvas arcTo: pos radius: apex @ apex angleOfXAxis: 0 largeFlag: false sweepFlag: true.
+		"canvas lineTo: innerR negated @ 0"].
+		
 " Ruler cm graduation "
 	" half centimer grad "
 	pos := extent y negated + self ppcm.
@@ -699,12 +737,8 @@ drawOn: canvas
 			4 timesRepeat: [
 				pos := pos + step.
 				canvas moveTo: pos @ 0.2; lineToY: 4].
-			pos := pos + step] ].
-	pos := extent y negated + self ppcm.
-	(length - 1) negated to: length - 1 do: [:grad |
-		canvas drawString: grad abs asString atCenterX: pos @5 font: font color: `Color black`.
-		pos := pos + self ppcm]
-	! !
+			pos := pos + step] ]
+! !
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:24:40 pm (UTC)'!
 gradMarkAt: angle length: d
@@ -724,16 +758,6 @@ gradMarkAt: angle length: d
 	endGrad := x @ (apex - (x * k) ).
 	^ Array with: startGrad with: endGrad 
 ! !
-
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:25:58 pm (UTC)'!
-setSquareGrads
-"	The set square graduations 
-	For the record: 'extent x' is the raidus (usually 8 cm) expressed in pixels
-"
-	5 to: 175 by: 5 do: [:angle | self addGradAt: angle].
-		
-	1 to: 179 by: 5 do: [:angle | 
-		0 to: 3 do: [:subAngle | self addSubGradAt: angle + subAngle] ]! !
 
 !Geodreieck methodsFor: 'geometry testing' stamp: 'hlsf 21/Jun/2026, 2:26:42 pm (UTC)'!
 yAxisPointsUp
