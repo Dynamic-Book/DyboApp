@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8014] on 24 June 2026 at 11:01:55 pm'!
+'From Cuis7.9 [latest update: #8020] on 25 June 2026 at 11:15:54 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 67!
+!provides: 'DyboTools-Geometry' 1 68!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -615,7 +615,7 @@ initialize
 insertButtons
 	! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 24/Jun/2026, 8:39:55 pm (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 25/Jun/2026, 8:35:12 pm (UTC)'!
 setGraduationMorphs
 "	The set square graduations 
 	For the record: 'extent x' is the raidus (usually 8 cm) expressed in pixels
@@ -637,8 +637,8 @@ setGraduationMorphs
 			rotationDegrees: 270 - angle].
 	11 to: 169 do: [:angle | self addDegreeGradAt: angle].
 	" inner millimeter graduation"
-	6 to: 38 do: [:mm |self addInnerMillimeterGradAt: mm]
-! !
+	6 to: 38 do: [:mm |self addInnerMillimeterGradAt: mm].
+	self addMiscGraduations! !
 
 !Geodreieck methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:19:41 pm (UTC)'!
 length: aNumber
@@ -677,6 +677,14 @@ addDegreeGradAt: angle
 	line lock.
 
 	^ line! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 25/Jun/2026, 8:54:50 pm (UTC)'!
+addGrads: cmCoordinates
+	| line |
+	(cmCoordinates collect: [:aPoint | aPoint * self ppcm]) pairsDo: [:pt1 :pt2 |
+		line := GradMorph from: pt1 to: pt2.
+		self addMorph: line.
+		line lock]! !
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 9:00:26 pm (UTC)'!
 addInnerMillimeterGradAt: mm
@@ -738,6 +746,33 @@ addMillimeterSubGradAt: angle
 	self addMorph: line.
 	line lock.
 	^ line! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 25/Jun/2026, 9:12:54 pm (UTC)'!
+addMiscGraduations
+	| coordinates |
+	
+	coordinates := {0@0.7 . 0@4.1}. 
+	self addGrads: coordinates.
+	
+	coordinates := {
+	0.2@0.5 . 0.8@0.5 . 1.1@0.5 . 1.8@0.5 . 2.2@0.5. 2.8@0.5 . 3.2@0.5 . 3.8@0.5 .
+	Point r: 0.4 degrees: 135. Point r: 0.6 degrees: 135.
+	Point r: 0.9 degrees: 135. Point r: 1.3 degrees: 135.
+	Point r: 2.3 degrees: 135. Point r: 2.7 degrees: 135.
+	Point r: 2.3 degrees: 135. Point r: 2.7 degrees: 135.
+	Point r: 3 degrees: 135. Point r: 3.4 degrees: 135.
+	Point r: 3.7 degrees: 135. Point r: 4.1 degrees: 135}.
+	
+	self addSubGrads: coordinates.
+	self addSubGrads: (coordinates collect: [:pt | pt x negated @ pt y])! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 25/Jun/2026, 9:11:21 pm (UTC)'!
+addSubGrads: cmCoordinates
+	| line |
+	(cmCoordinates collect: [:aPoint | aPoint * self ppcm]) pairsDo: [:pt1 :pt2 |
+		line := SubGradMorph from: pt1 to: pt2.
+		self addMorph: line.
+		line lock]! !
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 5:03:33 pm (UTC)'!
 drawOn: canvas
