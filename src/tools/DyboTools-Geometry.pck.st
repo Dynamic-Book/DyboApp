@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8020] on 27 June 2026 at 11:13:53 am'!
+'From Cuis7.9 [latest update: #8020] on 27 June 2026 at 4:57:02 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 71!
+!provides: 'DyboTools-Geometry' 1 72!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -57,7 +57,7 @@ Compass class
 
 !classDefinition: #Geodreieck category: #'DyboTools-Geometry'!
 GeometryTool subclass: #Geodreieck
-	instanceVariableNames: ''
+	instanceVariableNames: 'oxStrokeZone side2StrokeZone side1StrokeZone strokeSide'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
@@ -258,13 +258,15 @@ constrainToDirection: localHandPosition
 rotationCenter
 	^ `0@0`! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025, 7:53:57 am (UTC)'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 27/Jun/2026, 1:56:14 pm (UTC)'!
 mouseButton1Down: event localPosition: localPosition
 	(self writingTool notNil and: [self inStrokeZone: localPosition])
 		ifTrue: [" initiate stroke along the tool "
 			lastHandPosition := nil.
-			" Let the paper to handle the hand stroke, constraint the hand position to be aligned with a tool border !! "
-			self paper mouseButton1Down: event  localPosition: (self externalize: (self constrainToDirection: localPosition))]
+" 			Let the paper to handle the hand stroke, constraint the hand position to be aligned with a tool border !! "
+			self paper 
+				mouseButton1Down: event  
+				localPosition: (self externalize: (self constrainToDirection: localPosition))]
 		ifFalse: ["Initate a drag of the tool " 
 			lastHandPosition := self externalize: localPosition ]! !
 
@@ -409,9 +411,9 @@ insertButtons
 yAxisPointsUp
 	^ true ! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 27/Feb/2026, 8:22:30 am (UTC)'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 2:01:12 pm (UTC)'!
 drawCompassPoint
-" the user should know where is the center of the sketched arc or circle "
+" The center of the sketched arc or circle must be visible "
 	| pen altPen event compassPoint |
 	pen := owner presenter writingTool ifNil: [^ self].
 	altPen := Pen new
@@ -565,14 +567,16 @@ rotateMeSave
 			self redrawNeeded ] 
 		ifFalse: [lastHandPosition := event eventPosition].! !
 
-!Compass methodsFor: 'event handling' stamp: 'hlsf 23/Sep/2025, 7:23:23 pm (UTC)'!
+!Compass methodsFor: 'event handling' stamp: 'hlsf 27/Jun/2026, 1:58:12 pm (UTC)'!
 mouseButton1Down: event localPosition: localPosition
 " See parent " 	
 	(self writingTool notNil and: [self inStrokeZone: localPosition])
 		ifTrue: [
 			self drawCompassPoint.
 			lastHandPenPosition  := lastHandPosition := nil.
-			self paper mouseButton1Down: event  localPosition: (self externalize: (self constrainToDirection: localPosition))]
+			self paper 
+				mouseButton1Down: event  
+				localPosition: (self externalize: (self constrainToDirection: localPosition))]
 		ifFalse: [	lastHandPosition := self externalize: localPosition ]! !
 
 !Compass methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025, 7:20:19 pm (UTC)'!
@@ -647,6 +651,33 @@ length: aNumber
 	extent := ((2 * length) * self ppcm) @ (length * self ppcm).
 	self positioningButtons.
 	self redrawNeeded! !
+
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 27/Jun/2026, 2:12:53 pm (UTC)'!
+oxStrokeZone
+	^ oxStrokeZone ifNil: [
+		oxStrokeZone := Array
+			with: extent y negated @ 0
+			with: extent y @ 0
+			with: extent y - self ppcm @ (0.3 * self ppcm)
+			with: extent y negated + self ppcm @ (0.3 * self ppcm)]! !
+
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 27/Jun/2026, 2:17:05 pm (UTC)'!
+side1StrokeZone
+	^ side1StrokeZone ifNil: [
+		side1StrokeZone := Array
+			with: extent y @ 0
+			with: 0 @ extent y
+			with: 0 @ (extent y - (0.7 * self ppcm) )
+			with: extent y - self ppcm @ (0.3 * self ppcm)]! !
+
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 27/Jun/2026, 2:15:45 pm (UTC)'!
+side2StrokeZone
+	^ side2StrokeZone ifNil: [
+		side2StrokeZone := Array
+			with: extent y negated @ 0
+			with: 0 @ extent y
+			with: 0 @ (extent y - (0.7 * self ppcm) )
+			with: extent y negated + self ppcm @ (0.3 * self ppcm)]! !
 
 !Geodreieck methodsFor: 'accessing' stamp: 'hlsf 26/Jun/2026, 7:00:04 pm (UTC)'!
 transparentColor
@@ -723,7 +754,7 @@ addLabel: string font: aFont centeredAt: position rotationDegrees: angle
 	"label lock."
 	^ label! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 9:08:22 am (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 9:17:55 am (UTC)'!
 addMiscGraduations
 	| coordinates |
 	self addGrads: {0@0.7 . 0@4.1. 0@5 . 0@6.9}.
@@ -739,7 +770,7 @@ addMiscGraduations
 	
 	self addLabel: '5' 
 		font: font 
-		centeredAt:  (0.4@0.8) * self ppcm
+		centeredAt:  0.4@0.8 * self ppcm
 		rotationDegrees: 180.
 	self addSubGrads: coordinates.
 	self addSubGrads: (coordinates collect: [:pt | pt x negated @ pt y]).
@@ -792,7 +823,7 @@ addSubGrads: cmCoordinates
 		self addMorph: line.
 		line lock]! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 9:10:36 am (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 2:17:22 pm (UTC)'!
 drawOn: canvas
 "	The drawing requiring needing complex computation (trigonometric and division) are rendered as submorphs "
 	| apex pos gradQty step |
@@ -803,19 +834,9 @@ drawOn: canvas
 " The sides of the tool "
 	pos := 0.3 * self ppcm.
 	step := 0.7 * self ppcm.
-	canvas fillColor: self transparentColor do: [
-		canvas moveTo: apex negated @ 0;
-			lineTo: apex @ 0; lineTo: apex - self ppcm@pos;
-			lineTo: (apex negated + self ppcm)@pos].
-	canvas fillColor: self transparentColor do: [
-		canvas moveTo: apex negated @ 0;
-			lineTo: 0@apex; lineTo: 0@ (apex - step);
-			lineTo:  (apex negated + self ppcm)@pos ].
-	canvas fillColor: self transparentColor do: [
-		canvas moveTo: apex @ 0;
-			lineTo: 0@apex; lineTo: 0@ (apex - step);
-			lineTo:  (apex - self ppcm)@pos ].
-
+	canvas fillColor: self transparentColor do: [canvas polyLine: self oxStrokeZone ].
+	canvas fillColor: self transparentColor do: [canvas polyLine: self side2StrokeZone ].
+	canvas fillColor: self transparentColor do: [canvas polyLine: self side1StrokeZone ].
 		
 	canvas fillColor: `Color yellow darker alpha: 0.6` do: [
 		apex := 4.1 * self ppcm.
@@ -871,6 +892,27 @@ gradMarkAt: angle length: d
 !Geodreieck methodsFor: 'geometry testing' stamp: 'hlsf 21/Jun/2026, 2:26:42 pm (UTC)'!
 yAxisPointsUp
 	^ true ! !
+
+!Geodreieck methodsFor: 'testing' stamp: 'hlsf 27/Jun/2026, 2:32:17 pm (UTC)'!
+inStrokeZone: localPosition
+	(self inStrokeZone: oxStrokeZone localPosition: localPosition) ifTrue: [
+		strokeSide := #ox.
+		^ true].
+	(self inStrokeZone: side1StrokeZone localPosition: localPosition) ifTrue: [
+		strokeSide := #side1.
+		^ true].
+	(self inStrokeZone: side2StrokeZone localPosition: localPosition) ifTrue: [
+		strokeSide := #side2.
+		^ true].
+	strokeSide := nil.
+	^ false
+		
+		! !
+
+!Geodreieck methodsFor: 'testing' stamp: 'hlsf 27/Jun/2026, 2:29:42 pm (UTC)'!
+inStrokeZone: aZone localPosition: position
+	^ (position insideTriangle: aZone first with: aZone second with: aZone third)
+	or: [position insideTriangle: aZone first with: aZone third with: aZone fourth]! !
 
 !Protractor methodsFor: 'accessing' stamp: 'hlsf 15/Jan/2021, 8:10:30 am (UTC)'!
 buttons
