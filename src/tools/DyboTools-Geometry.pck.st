@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8020] on 25 June 2026 at 11:15:54 pm'!
+'From Cuis7.9 [latest update: #8020] on 27 June 2026 at 11:13:53 am'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 68!
+!provides: 'DyboTools-Geometry' 1 71!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -604,9 +604,10 @@ mouseMove: event localPosition: localPosition
 name
 	^ 'Compass' translated! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 24/Jun/2026, 4:50:34 pm (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 27/Jun/2026, 9:07:41 am (UTC)'!
 initialize
 	super initialize.
+	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 12.
 	self length: 8.
 	self insertButtons.
 	self setGraduationMorphs ! !
@@ -615,16 +616,16 @@ initialize
 insertButtons
 	! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 25/Jun/2026, 8:35:12 pm (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 26/Jun/2026, 7:17:46 pm (UTC)'!
 setGraduationMorphs
 "	The set square graduations 
 	For the record: 'extent x' is the raidus (usually 8 cm) expressed in pixels
 "
 	| posA | 
 "	graduations & degrees on the two perpendicular sides "
-	5 to: 175 by: 5 do: [:angle | self addMillimeterGradAt: angle].
+	5 to: 175 by: 5 do: [:angle | self addSetSquareDegreeGradAt: angle].
 	1 to: 179 by: 5 do: [:angle | 
-		0 to: 3 do: [:subAngle | self addMillimeterSubGradAt: angle + subAngle] ].
+		0 to: 3 do: [:subAngle | self addSetSquareDegreeSubGradAt: angle + subAngle] ].
 "	millimeter numbers on the ruler side "
 	posA := extent y negated + self ppcm.
 	(length - 1) negated to: length - 1 do: [:grad |
@@ -647,9 +648,9 @@ length: aNumber
 	self positioningButtons.
 	self redrawNeeded! !
 
-!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 2:42:45 pm (UTC)'!
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 26/Jun/2026, 7:00:04 pm (UTC)'!
 transparentColor
-	^ `Color lightGreen muchLighter alpha: 0.4`! !
+	^ `(Color r: 0.600 g: 1.000 b: 0.900) alpha: 0.2`! !
 
 !Geodreieck methodsFor: 'geometry' stamp: 'hlsf 22/Jun/2026, 7:40:39 pm (UTC)'!
 constrainToDirection: aPoint 
@@ -658,10 +659,9 @@ constrainToDirection: aPoint
 !Geodreieck methodsFor: 'geometry' stamp: 'hlsf 21/Jun/2026, 1:39:32 pm (UTC)'!
 positioningButtons! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 8:12:56 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Jun/2026, 8:13:40 pm (UTC)'!
 addDegreeGradAt: angle
 	| morphClass posA posB line |
-	(angle // 10) isZero ifTrue: [self halt ]. " Draw it elsewhere "
 	posA := Point r: 5 * self ppcm degrees: 180 - angle.
 	(angle \\ 5) isZero 
 		ifTrue: [
@@ -686,18 +686,24 @@ addGrads: cmCoordinates
 		self addMorph: line.
 		line lock]! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 9:00:26 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 9:08:15 am (UTC)'!
 addInnerMillimeterGradAt: mm
 	| posA posB line morphClass|
 	posA := 1.1 @ (mm / 10) * self ppcm.
 	posB := 1.5 @ (mm / 10) * self ppcm.
 	morphClass := SubGradMorph.
-	(mm \\ 5 ) isZero ifTrue: [
+	(mm \\ 5 ) isZero ifTrue: [ | k |
 		morphClass := GradMorph.
 		posA := (0.1 * self ppcm) @ posA y.
 		posB := Point 
 			x: 4 * self ppcm * ( mm / 10 / 4) arcSin cos
-			y: posB y ].
+			y: posB y.
+"		Add the numbers "
+	k := (mm \\ 10) isZero ifTrue: [-1] ifFalse: [1].
+		self addLabel: mm asString
+			font: font 
+			centeredAt: (posA x + (0.3 * self ppcm)) * k  @  (posA y + (0.3 * self ppcm) )
+			rotationDegrees: 180 ].
 	line := morphClass from:  posA to: posB.
 	self addMorph: line .
 	line lock.
@@ -717,8 +723,39 @@ addLabel: string font: aFont centeredAt: position rotationDegrees: angle
 	"label lock."
 	^ label! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 8:04:19 pm (UTC)'!
-addMillimeterGradAt: angle
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 9:08:22 am (UTC)'!
+addMiscGraduations
+	| coordinates |
+	self addGrads: {0@0.7 . 0@4.1. 0@5 . 0@6.9}.
+	
+	coordinates := {
+	0.2@0.5 . 0.8@0.5 . 1.1@0.5 . 1.8@0.5 . 2.2@0.5. 2.8@0.5 . 3.2@0.5 . 3.8@0.5 .
+	Point r: 0.4 degrees: 135. Point r: 0.6 degrees: 135.
+	Point r: 0.9 degrees: 135. Point r: 1.3 degrees: 135.
+	Point r: 2.3 degrees: 135. Point r: 2.7 degrees: 135.
+	Point r: 2.3 degrees: 135. Point r: 2.7 degrees: 135.
+	Point r: 3 degrees: 135. Point r: 3.4 degrees: 135.
+	Point r: 3.7 degrees: 135. Point r: 4.1 degrees: 135}.
+	
+	self addLabel: '5' 
+		font: font 
+		centeredAt:  (0.4@0.8) * self ppcm
+		rotationDegrees: 180.
+	self addSubGrads: coordinates.
+	self addSubGrads: (coordinates collect: [:pt | pt x negated @ pt y]).
+	
+	coordinates := {	Point r: (5 - 0.4) degrees: 10 . Point r: 6.1 degrees: 10	.
+		Point r: 5 degrees: 20 . Point r: 5.5 degrees: 20.
+		Point r: 5 degrees: 30 . Point r: 5.2 degrees: 30.
+		Point r: 5 degrees: 60 . Point r: 5.2 degrees: 60.
+		Point r: 5 degrees: 70 . Point r: 5.5 degrees: 70.
+		Point r: 5 degrees: 80 . Point r: 6.1 degrees: 80	}.
+	self addGrads: coordinates.
+	self addGrads: (coordinates collect: [:pt | pt x negated @ pt y])
+	! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Jun/2026, 7:17:28 pm (UTC)'!
+addSetSquareDegreeGradAt: angle
 	| mark line |
 	mark := self gradMarkAt: angle length: 12.
 	line := GradMorph from: mark first to: mark second.
@@ -737,8 +774,8 @@ addMillimeterGradAt: angle
 			rotationDegrees: rotation].	
 	^ line! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 8:04:36 pm (UTC)'!
-addMillimeterSubGradAt: angle
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Jun/2026, 7:17:46 pm (UTC)'!
+addSetSquareDegreeSubGradAt: angle
 	| mark line |
 
 	mark := self gradMarkAt: angle length: 6.
@@ -746,25 +783,6 @@ addMillimeterSubGradAt: angle
 	self addMorph: line.
 	line lock.
 	^ line! !
-
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 25/Jun/2026, 9:12:54 pm (UTC)'!
-addMiscGraduations
-	| coordinates |
-	
-	coordinates := {0@0.7 . 0@4.1}. 
-	self addGrads: coordinates.
-	
-	coordinates := {
-	0.2@0.5 . 0.8@0.5 . 1.1@0.5 . 1.8@0.5 . 2.2@0.5. 2.8@0.5 . 3.2@0.5 . 3.8@0.5 .
-	Point r: 0.4 degrees: 135. Point r: 0.6 degrees: 135.
-	Point r: 0.9 degrees: 135. Point r: 1.3 degrees: 135.
-	Point r: 2.3 degrees: 135. Point r: 2.7 degrees: 135.
-	Point r: 2.3 degrees: 135. Point r: 2.7 degrees: 135.
-	Point r: 3 degrees: 135. Point r: 3.4 degrees: 135.
-	Point r: 3.7 degrees: 135. Point r: 4.1 degrees: 135}.
-	
-	self addSubGrads: coordinates.
-	self addSubGrads: (coordinates collect: [:pt | pt x negated @ pt y])! !
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 25/Jun/2026, 9:11:21 pm (UTC)'!
 addSubGrads: cmCoordinates
@@ -774,7 +792,7 @@ addSubGrads: cmCoordinates
 		self addMorph: line.
 		line lock]! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 24/Jun/2026, 5:03:33 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 9:10:36 am (UTC)'!
 drawOn: canvas
 "	The drawing requiring needing complex computation (trigonometric and division) are rendered as submorphs "
 	| apex pos gradQty step |
@@ -782,14 +800,30 @@ drawOn: canvas
 	canvas fillColor: self transparentColor do: [
 		canvas moveTo: apex negated @ 0;
 			lineTo: apex @ 0; lineTo: 0 @ apex].
+" The sides of the tool "
+	pos := 0.3 * self ppcm.
+	step := 0.7 * self ppcm.
+	canvas fillColor: self transparentColor do: [
+		canvas moveTo: apex negated @ 0;
+			lineTo: apex @ 0; lineTo: apex - self ppcm@pos;
+			lineTo: (apex negated + self ppcm)@pos].
+	canvas fillColor: self transparentColor do: [
+		canvas moveTo: apex negated @ 0;
+			lineTo: 0@apex; lineTo: 0@ (apex - step);
+			lineTo:  (apex negated + self ppcm)@pos ].
+	canvas fillColor: self transparentColor do: [
+		canvas moveTo: apex @ 0;
+			lineTo: 0@apex; lineTo: 0@ (apex - step);
+			lineTo:  (apex - self ppcm)@pos ].
+
 		
 	canvas fillColor: `Color yellow darker alpha: 0.6` do: [
 		apex := 4.1 * self ppcm.
-		pos := Point r: apex degrees: 7.5.
+		pos := Point r: apex degrees: 6.
 		canvas moveTo:  pos.
 		canvas arcTo: pos x negated @ pos y radius: apex @ apex angleOfXAxis: 0 largeFlag: false sweepFlag: false.
 		apex := 4.5 * self ppcm.
-		pos := Point r: apex degrees: 7.
+		pos := Point r: apex degrees: 5.5.
 		canvas lineTo: pos x negated @ pos y.
 		canvas arcTo: pos radius: apex @ apex angleOfXAxis: 0 largeFlag: false sweepFlag: true.
 		"canvas lineTo: innerR negated @ 0"].
