@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8031] on 28 June 2026 at 1:39:39 pm'!
+'From Cuis7.9 [latest update: #8031] on 28 June 2026 at 6:29:17 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 73!
+!provides: 'DyboTools-Geometry' 1 76!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -37,7 +37,7 @@ MarkMorph class
 
 !classDefinition: #GeometryTool category: #'DyboTools-Geometry'!
 PlacedMorph subclass: #GeometryTool
-	instanceVariableNames: 'font extent lastHandPosition length ppcm'
+	instanceVariableNames: 'font extent lastTransformingPosition length ppcm'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
@@ -57,7 +57,7 @@ Compass class
 
 !classDefinition: #Geodreieck category: #'DyboTools-Geometry'!
 GeometryTool subclass: #Geodreieck
-	instanceVariableNames: 'oxStrokeZone side2StrokeZone side1StrokeZone strokeSide'
+	instanceVariableNames: 'oxStrokeZone side2StrokeZone side1StrokeZone strokeSide strokeAngle firstHandPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboTools-Geometry'!
@@ -106,7 +106,7 @@ CalibratorMorph class
 	instanceVariableNames: ''!
 
 
-!GeometryTool commentStamp: '<historical>' prior: 0!
+!GeometryTool commentStamp: 'hlsf 28/Jun/2026, 1:43:40 pm (UTC)' prior: 0!
 Abstract class for tools with straight linear metric graduation. 
 Those tools can be dragged, rotated and resized.
 A tool view is divided in two zones: 
@@ -119,7 +119,7 @@ Various kind of straight line can be drawn when a mouse stroke occures in its st
 - font : used font to draw the graduation
 - extent: a point in pixel, tool extent in its own coordinates system. Its exact definition depends on the tool.
 - length: a number or point, length in ox and/or oy directions, expressed in cm. Its exact definition depends on the tool
-- lastHandPosition: used when rotating, moving or changing the extent!
+- lastTransformingPosition: used when rotating, moving or changing the extent!
 
 !Compass commentStamp: 'hlsf 21/Jun/2026, 8:49:28 am (UTC)' prior: 0!
 The two legs of the compass are symnetric to each other along the oy axis.
@@ -131,7 +131,7 @@ A leg has a rectangular shape.
 - legVertices : vertices of the leg holding the pen
 !
 
-!Geodreieck commentStamp: 'hlsf 21/Jun/2026, 2:03:06 pm (UTC)' prior: 0!
+!Geodreieck commentStamp: 'hlsf 28/Jun/2026, 1:38:38 pm (UTC)' prior: 0!
 "In some European countries a common form of set square combines a 90-45-45 triangle, a ruler and a protractor into a single tool made of stiff or slightly flexible transparent plastic. Being a mandatory tool used by pupils in middle school and higher in German-speaking and neighbouring countries, this specific design is named Geodreieck (short form of Geometrie-Dreieck)." Wikipedia (https://en.wikipedia.org/wiki/Set_square#Geodreieck)
 
 To optimize rendering time, part of the Morph is drawn by submorps and other within the drawOn: method.
@@ -141,6 +141,12 @@ The geodreieck is centered at the center of the protractor. Its shape is an isoc
 - extent (in pixel):
 	x: the ruler length in the ox direction
 	y: the apex position in the oy direction, also half the ruler length (1/2 x)
+- xxxStrokeZone: the three strokes zone all around the tool
+- strokeSize : #ox, #side1, #side2. It tells in which zone the stroke is occuring
+- strokeAngle: when stroking an angle, the direction to follow. If an angle should be stroked is deternined
+according to the user gesture in one of the two sides
+- firstHandPosition: the hand position at pointer button down event
+
 !
 
 !Protractor commentStamp: 'hlsf 21/Jun/2026, 9:24:33 am (UTC)' prior: 0!
@@ -258,41 +264,59 @@ constrainToDirection: localHandPosition
 rotationCenter
 	^ `0@0`! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 27/Jun/2026, 1:56:14 pm (UTC)'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:42:03 pm (UTC)'!
+endWriting: event localPosition: localPosition
+	self paper 
+		mouseButton1Up: event  
+		localPosition: (self externalize: (self constrainToDirection: localPosition))! !
+
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:43:23 pm (UTC)'!
 mouseButton1Down: event localPosition: localPosition
 	(self writingTool notNil and: [self inStrokeZone: localPosition])
 		ifTrue: [" initiate stroke along the tool "
-			lastHandPosition := nil.
+			lastTransformingPosition := nil.
 " 			Let the paper to handle the hand stroke, constraint the hand position to be aligned with a tool border !! "
-			self paper 
-				mouseButton1Down: event  
-				localPosition: (self externalize: (self constrainToDirection: localPosition))]
+			self startWriting: event localPosition: localPosition ]
 		ifFalse: ["Initate a drag of the tool " 
-			lastHandPosition := self externalize: localPosition ]! !
+			lastTransformingPosition := self externalize: localPosition ]! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025, 9:37:24 am (UTC)'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:50:15 pm (UTC)'!
 mouseButton1Up: event localPosition: localPosition
-	lastHandPosition 
-		ifNil: [^ self paper mouseButton1Up: event localPosition: (self externalize: (self constrainToDirection: localPosition))]
-		ifNotNil: [
+	self isWriting 
+		ifTrue: [self endWriting: event localPosition: localPosition ]
+		ifFalse: [
 			self alignToNearbyTool.
-			lastHandPosition := nil]
+			lastTransformingPosition := nil]
 		! !
 
-!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 23/Sep/2025, 3:59:59 pm (UTC)'!
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:45:40 pm (UTC)'!
 mouseMove: event localPosition: localPosition 
 	| externalposition |
 	event anyButtonPressed ifFalse: [ ^ self ].
-	lastHandPosition 
-		ifNil: [self paper mouseMove: event localPosition: (self externalize: (self constrainToDirection: localPosition))]
-		ifNotNil: [
+	self isWriting 
+		ifTrue: [self writing: event localPosition: localPosition]
+		ifFalse: [
 			externalposition := self externalize: localPosition.
-			self morphPosition: self morphPosition  + externalposition - lastHandPosition.
-			lastHandPosition := externalposition ]! !
+			self morphPosition: self morphPosition  + externalposition - lastTransformingPosition.
+			lastTransformingPosition := externalposition ]! !
+
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:41:02 pm (UTC)'!
+startWriting: event localPosition: localPosition
+	self paper 
+		mouseButton1Down: event  
+		localPosition: (self externalize: (self constrainToDirection: localPosition))! !
+
+!GeometryTool methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:45:17 pm (UTC)'!
+writing: event localPosition: localPosition
+	self paper mouseMove: event localPosition: (self externalize: (self constrainToDirection: localPosition))! !
 
 !GeometryTool methodsFor: 'testing' stamp: 'hlsf 11/Sep/2025, 7:32:22 am (UTC)'!
 inStrokeZone: localPosition
 	self subclassResponsibility ! !
+
+!GeometryTool methodsFor: 'testing' stamp: 'hlsf 28/Jun/2026, 1:44:43 pm (UTC)'!
+isWriting
+	^ lastTransformingPosition isNil! !
 
 !GeometryTool methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025, 7:20:09 pm (UTC)'!
 alignToNearbyTool
@@ -325,7 +349,7 @@ alignToNearbyTool: aToolSymbol
 				
 		 ! !
 
-!GeometryTool methodsFor: 'actions' stamp: 'hlsf 21/Sep/2025, 9:57:11 am (UTC)'!
+!GeometryTool methodsFor: 'actions' stamp: 'hlsf 28/Jun/2026, 1:43:26 pm (UTC)'!
 rotateMe
 	| event p1 v1 v2|
 	"any thing new to do?"
@@ -333,12 +357,12 @@ rotateMe
 	event isMouseMove 
 		ifTrue: [
 			p1 := self externalizeToWorld: self rotationCenter.
-			v1 := lastHandPosition - p1.
-			lastHandPosition := event eventPosition.
-			v2 := lastHandPosition - p1.
+			v1 := lastTransformingPosition - p1.
+			lastTransformingPosition := event eventPosition.
+			v2 := lastTransformingPosition - p1.
 			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin ] 
-		ifFalse: [lastHandPosition := event eventPosition]! !
+		ifFalse: [lastTransformingPosition := event eventPosition]! !
 
 !GeometryTool methodsFor: 'event handling testing' stamp: 'hlsf 1/Mar/2026, 3:47:30 pm (UTC)'!
 handlesMouseDown: evt
@@ -374,12 +398,6 @@ width: pixels
 	legVertices := nil.
 	self positioningButtons.
 	self redrawNeeded ! !
-
-!Compass methodsFor: 'accessing' stamp: 'hlsf 21/Sep/2025, 7:49:56 pm (UTC)'!
-writingTool
-	^ (owner is: #PageMorph) 	
-		ifTrue:  [self paper writingTool]
-		ifFalse: [nil]! !
 
 !Compass methodsFor: 'initialization' stamp: 'hlsf 21/Sep/2025, 8:42:32 am (UTC)'!
 initialize
@@ -523,19 +541,19 @@ inStrokeZone: localPosition
 		with: legVertices fourth 
 		with: legVertices fifth ! !
 
-!Compass methodsFor: 'actions' stamp: 'hlsf 21/Jun/2026, 8:59:50 am (UTC)'!
+!Compass methodsFor: 'actions' stamp: 'hlsf 28/Jun/2026, 1:45:56 pm (UTC)'!
 adjustAperture
 	| event compassPoint pen newPen newExtent p1 v1 v2 |
 	"any thing new to do?"
 	event := self activeHand lastMouseEvent.
-	(event isMouseMove and: [lastHandPosition notNil])
+	(event isMouseMove and: [self isWriting not])
 		ifTrue: [
 			pen := self externalizeToWorld: self legVertices fifth.
 			compassPoint := self externalizeToWorld: legVertices fifth * (-1 @ 0).
 			p1 := event eventPosition.
 			" New position of the pen "
-			newPen := pen + p1 - lastHandPosition.
-			lastHandPosition := p1.
+			newPen := pen + p1 - lastTransformingPosition.
+			lastTransformingPosition := p1.
 			newExtent := ( (self internalizeDistanceFromWorld: newPen) dist: (self internalizeDistanceFromWorld: compassPoint) ) rounded / self ppcm.
 			v1 := self internalizeDistanceFromWorld: pen - compassPoint.
 			v2 := self internalizeDistanceFromWorld: newPen - compassPoint.
@@ -547,9 +565,9 @@ adjustAperture
 			p1 := self externalize: self legVertices fifth * (-1 @0).
 			self morphPosition: self morphPosition + compassPoint - p1.
 			] 
-		ifFalse: [lastHandPosition := event eventPosition]! !
+		ifFalse: [lastTransformingPosition := event eventPosition]! !
 
-!Compass methodsFor: 'actions' stamp: 'hlsf 21/Sep/2025, 9:25:26 am (UTC)'!
+!Compass methodsFor: 'actions' stamp: 'hlsf 28/Jun/2026, 1:43:26 pm (UTC)'!
 rotateMeSave
 	| event p1 v1 v2 angle |
 	"any thing new to do?"
@@ -557,39 +575,37 @@ rotateMeSave
 	event isMouseMove 
 		ifTrue: [
 			p1 := self externalizeToWorld: self rotationCenter.
-			v1 := lastHandPosition - p1.
-			lastHandPosition := event eventPosition.
-			v2 := lastHandPosition - p1.
+			v1 := lastTransformingPosition - p1.
+			lastTransformingPosition := event eventPosition.
+			v2 := lastTransformingPosition - p1.
 			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
 			angle := ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin negated.
 			location := (location composedWith: (
 				AffineTransformation withRadians: angle around: self rotationCenter)).
 			self redrawNeeded ] 
-		ifFalse: [lastHandPosition := event eventPosition].! !
+		ifFalse: [lastTransformingPosition := event eventPosition].! !
 
-!Compass methodsFor: 'event handling' stamp: 'hlsf 27/Jun/2026, 1:58:12 pm (UTC)'!
+!Compass methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:43:43 pm (UTC)'!
 mouseButton1Down: event localPosition: localPosition
 " See parent " 	
 	(self writingTool notNil and: [self inStrokeZone: localPosition])
 		ifTrue: [
 			self drawCompassPoint.
-			lastHandPenPosition  := lastHandPosition := nil.
-			self paper 
-				mouseButton1Down: event  
-				localPosition: (self externalize: (self constrainToDirection: localPosition))]
-		ifFalse: [	lastHandPosition := self externalize: localPosition ]! !
+			lastHandPenPosition  := lastTransformingPosition := nil.
+			self startWriting: event localPosition: localPosition]
+		ifFalse: [	lastTransformingPosition := self externalize: localPosition ]! !
 
 !Compass methodsFor: 'event handling' stamp: 'hlsf 21/Sep/2025, 7:20:19 pm (UTC)'!
 mouseButton1Up: event localPosition: localPosition 
 	super mouseButton1Up: event localPosition: localPosition.
 	lastHandPenPosition := nil! !
 
-!Compass methodsFor: 'event handling' stamp: 'hlsf 23/Sep/2025, 4:00:07 pm (UTC)'!
+!Compass methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:46:12 pm (UTC)'!
 mouseMove: event localPosition: localPosition
 	| p1 v1 v2 externalposition |
 	event anyButtonPressed ifFalse: [ ^ self ].
-	lastHandPosition 	ifNil: [
-		self paper mouseMove: event localPosition: (self externalize: (self constrainToDirection: localPosition)).
+	self isWriting ifTrue: [
+		self writing: event localPosition: localPosition.
 		" rotate the compass too, if we are handling the pen "
 		lastHandPenPosition ifNotNil: [
 			p1 := self externalizeToWorld: self rotationCenter.
@@ -599,10 +615,10 @@ mouseMove: event localPosition: localPosition
 			(v1 isZero or: [v2 isZero]) ifTrue: [^self].
 			self rotateBy:  ((v1 crossProduct: v2) / (v1 r * v2 r)) arcSin]
 		ifNil: [lastHandPenPosition := event eventPosition]	]
-	ifNotNil: [
+	ifFalse: [
 		externalposition := self externalize: localPosition.
-		self morphPosition: self morphPosition  + externalposition - lastHandPosition.
-		lastHandPosition := externalposition]! !
+		self morphPosition: self morphPosition  + externalposition - lastTransformingPosition.
+		lastTransformingPosition := externalposition]! !
 
 !Compass methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:34:45 am (UTC)'!
 name
@@ -704,9 +720,16 @@ side2StrokeZone
 transparentColor
 	^ self color alpha: 0.2! !
 
-!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 28/Jun/2026, 11:20:04 am (UTC)'!
+!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 28/Jun/2026, 4:18:37 pm (UTC)'!
 constrainToDirection: aPoint 
-	strokeSide = #ox ifTrue: [^ aPoint x @ 0]! !
+	strokeSide = #ox ifTrue: [^ aPoint x @ 0].
+	^ strokeAngle >= 0 
+		ifTrue: [Point rho: aPoint rho theta: (aPoint theta < Float pi  ifTrue: [strokeAngle] ifFalse: [Float pi + strokeAngle ])]
+		ifFalse: [ | u o |
+			u := strokeSide = #side1 ifTrue: [1@-1] ifFalse: [1@1].
+			u := u normalized.
+			o := 0 @ extent y.
+			((aPoint - o ) dotProduct: u) * u + o]! !
 
 !Geodreieck methodsFor: 'geometry' stamp: 'hlsf 28/Jun/2026, 11:04:49 am (UTC)'!
 positioningButtons
@@ -718,7 +741,7 @@ positioningButtons
 	deleteBtn morphPosition: (deleteBtn morphWidth // 2) negated @ (6 * self ppcm ).
  	! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Jun/2026, 8:13:40 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 3:48:48 pm (UTC)'!
 addDegreeGradAt: angle
 	| morphClass posA posB line |
 	posA := Point r: 5 * self ppcm degrees: 180 - angle.
@@ -733,19 +756,16 @@ addDegreeGradAt: angle
 		
 	line := morphClass from: posA to: posB.
 	self addMorph: line.
-	line lock.
-
 	^ line! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 25/Jun/2026, 8:54:50 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 3:47:19 pm (UTC)'!
 addGrads: cmCoordinates
 	| line |
 	(cmCoordinates collect: [:aPoint | aPoint * self ppcm]) pairsDo: [:pt1 :pt2 |
 		line := GradMorph from: pt1 to: pt2.
-		self addMorph: line.
-		line lock]! !
+		self addMorph: line]! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 9:08:15 am (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 3:47:35 pm (UTC)'!
 addInnerMillimeterGradAt: mm
 	| posA posB line morphClass|
 	posA := 1.1 @ (mm / 10) * self ppcm.
@@ -764,13 +784,11 @@ addInnerMillimeterGradAt: mm
 			centeredAt: (posA x + (0.3 * self ppcm)) * k  @  (posA y + (0.3 * self ppcm) )
 			rotationDegrees: 180 ].
 	line := morphClass from:  posA to: posB.
-	self addMorph: line .
-	line lock.
+	self addMorph: line.
 	line := morphClass from:  posA x negated @ posA y to: posB x negated @ posB y.
-	self addMorph: line .
-	line lock! !
+	self addMorph: line! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 8:11:52 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 4:06:31 pm (UTC)'!
 addLabel: string font: aFont centeredAt: position rotationDegrees: angle
 "Add a label top-centered at position and rotated of angle degrees"
 	| p label |
@@ -778,8 +796,7 @@ addLabel: string font: aFont centeredAt: position rotationDegrees: angle
 	label := LabelMorph contents: string font: aFont.
 	self addMorph: label.
 	label morphPosition: p.
-	label rotateBy: angle negated degreesToRadians .
-	"label lock."
+	label rotateBy: angle negated degreesToRadians.
 	^ label! !
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 9:17:55 am (UTC)'!
@@ -813,13 +830,12 @@ addMiscGraduations
 	self addGrads: (coordinates collect: [:pt | pt x negated @ pt y])
 	! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Jun/2026, 7:17:28 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 3:48:11 pm (UTC)'!
 addSetSquareDegreeGradAt: angle
 	| mark line |
 	mark := self gradMarkAt: angle length: 12.
 	line := GradMorph from: mark first to: mark second.
 	self addMorph: line.
-	line lock.
 	" do we want graduation number? "
 	(angle \\ 10) isZero ifTrue: [
 		| u rotation |	
@@ -833,23 +849,21 @@ addSetSquareDegreeGradAt: angle
 			rotationDegrees: rotation].	
 	^ line! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Jun/2026, 7:17:46 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 3:48:19 pm (UTC)'!
 addSetSquareDegreeSubGradAt: angle
 	| mark line |
 
 	mark := self gradMarkAt: angle length: 6.
 	line := GradMorph from: mark first to: mark second.
 	self addMorph: line.
-	line lock.
 	^ line! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 25/Jun/2026, 9:11:21 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 3:48:26 pm (UTC)'!
 addSubGrads: cmCoordinates
 	| line |
 	(cmCoordinates collect: [:aPoint | aPoint * self ppcm]) pairsDo: [:pt1 :pt2 |
 		line := SubGradMorph from: pt1 to: pt2.
-		self addMorph: line.
-		line lock]! !
+		self addMorph: line]! !
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 2:17:22 pm (UTC)'!
 drawOn: canvas
@@ -950,9 +964,61 @@ inStrokeZone: aZone localPosition: position
 is: aSymbol
 	^ aSymbol == #Geodreieck or: [super is: aSymbol]! !
 
+!Geodreieck methodsFor: 'testing' stamp: 'hlsf 28/Jun/2026, 2:56:02 pm (UTC)'!
+isStrokingKnown
+"	Do we know the nature of the stroking? "
+	^ firstHandPosition notNil 
+	and: [strokeSide = #ox 
+		or: [strokeSide notNil and: [strokeAngle notNil] ]
+	]! !
+
 !Geodreieck methodsFor: 'accessing - properties' stamp: 'hlsf 28/Jun/2026, 10:45:05 am (UTC)'!
 name
 	^  'Geodreieck' translated! !
+
+!Geodreieck methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:52:32 pm (UTC)'!
+endWriting: event localPosition: localPosition
+	self isStrokingKnown ifTrue: [super endWriting: event localPosition: localPosition]! !
+
+!Geodreieck methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:43:54 pm (UTC)'!
+mouseButton1Down: event localPosition: localPosition
+	(self writingTool notNil and: [self inStrokeZone: localPosition])
+		ifTrue: [
+			firstHandPosition := localPosition.
+			lastTransformingPosition := nil.
+			strokeSide = #ox ifTrue: [
+" 				Only one position is needed to know about stroke ialong the ox axis "
+				self startWriting: event localPosition: localPosition] ]
+		ifFalse: [	lastTransformingPosition := self externalize: localPosition ]! !
+
+!Geodreieck methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:36:05 pm (UTC)'!
+mouseButton1Up: event localPosition: localPosition 
+	super mouseButton1Up: event localPosition: localPosition.
+	strokeSide := strokeAngle := firstHandPosition := nil
+	! !
+
+!Geodreieck methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 3:16:08 pm (UTC)'!
+mouseMove: event localPosition: localPosition 
+	| externalposition |
+	event anyButtonPressed ifFalse: [ ^ self ].
+	self isWriting ifTrue: [
+		self isStrokingKnown ifTrue: [self writing: event localPosition: localPosition.]
+		ifFalse: [
+"			Try to determine the stroking gesture: angle or line along one of the right rect side "
+			( (self externalizeDistanceToWorld: firstHandPosition) 
+				dist: (self externalizeDistanceToWorld: localPosition)) > 5 ifTrue: [
+				| u v |
+				u := firstHandPosition.
+				v := localPosition - firstHandPosition.
+				((u dotProduct: v) / ( u r * v r)) abs arcCos < (Float pi / 4) ifTrue: [" stroking an angle "
+					strokeAngle := firstHandPosition degrees rounded degreesToRadians	] 
+				ifFalse: ["stroking along the side  "
+					strokeAngle := -1].
+				self startWriting: event localPosition: localPosition] ] ]
+	ifFalse: [
+		externalposition := self externalize: localPosition.
+		self morphPosition: self morphPosition  + externalposition - lastTransformingPosition.
+		lastTransformingPosition := externalposition ]! !
 
 !Protractor methodsFor: 'accessing' stamp: 'hlsf 15/Jan/2021, 8:10:30 am (UTC)'!
 buttons
@@ -971,7 +1037,7 @@ reverseGraduations
 	zeroAtRight _ zeroAtRight not.
 	self updateGraduations ! !
 
-!Protractor methodsFor: 'action' stamp: 'hlsf 13/Sep/2025, 2:51:38 pm (UTC)'!
+!Protractor methodsFor: 'action' stamp: 'hlsf 28/Jun/2026, 1:43:26 pm (UTC)'!
 scaleMe
 	| event p1 v1 v2|
 	"any thing new to do?"
@@ -979,15 +1045,15 @@ scaleMe
 	event isMouseMove 
 		ifTrue: [
 			p1 := self externalizeToWorld: self rotationCenter.
-			v1 := self internalizeDistance: lastHandPosition - p1.
-			lastHandPosition := event eventPosition.
-			v2 := self internalizeDistance: lastHandPosition - p1.
+			v1 := self internalizeDistance: lastTransformingPosition - p1.
+			lastTransformingPosition := event eventPosition.
+			v2 := self internalizeDistance: lastTransformingPosition - p1.
 			v1 = v2 ifTrue: [^self].
 			self scaleBy:  v2 r /  v1 r ] 
 		ifFalse: [
-			lastHandPosition := event eventPosition].! !
+			lastTransformingPosition := event eventPosition].! !
 
-!Protractor methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 7:45:36 pm (UTC)'!
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 4:06:40 pm (UTC)'!
 addLabel: string font: aFont centeredAt: position rotationDegrees: angle
 "Add a label top-centered at position and rotated of angle degrees"
 	| p label |
@@ -996,7 +1062,6 @@ addLabel: string font: aFont centeredAt: position rotationDegrees: angle
 	label rotationDegrees: angle.
 	self addMorph: label.
 	label morphPosition: p.
-	label lock.
 	^ label! !
 
 !Protractor methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:12:31 pm (UTC)'!
@@ -1051,9 +1116,11 @@ updateGraduations
 			rotationDegrees: 90 - angle].
 ! !
 
-!Protractor methodsFor: 'geometry' stamp: 'hlsf 13/Sep/2025, 2:43:31 pm (UTC)'!
+!Protractor methodsFor: 'geometry' stamp: 'hlsf 28/Jun/2026, 4:20:29 pm (UTC)'!
 constrainToDirection: localHandPosition
-	^ Point rho: localHandPosition rho theta: strokeAngle ! !
+	^Point 
+		rho: localHandPosition rho 
+		theta: (localHandPosition theta < Float pi  ifTrue: [Float pi + strokeAngle] ifFalse: [strokeAngle ])! !
 
 !Protractor methodsFor: 'initialization' stamp: 'hlsf 13/Sep/2025, 2:22:38 pm (UTC)'!
 initialize
@@ -1201,17 +1268,17 @@ insertButtons
 	self positioningButtons 
 	! !
 
-!Ruler methodsFor: 'actions' stamp: 'hlsf 11/Sep/2025, 11:25:26 am (UTC)'!
+!Ruler methodsFor: 'actions' stamp: 'hlsf 28/Jun/2026, 1:43:26 pm (UTC)'!
 resizeMe
 	| event prev |
 	"any thing new to do?"
 	event := self activeHand lastMouseEvent.
 	event isMouseMove 
 		ifTrue: [
-			prev := lastHandPosition.
-			lastHandPosition := self internalizeFromWorld: event eventPosition.
-			self length: length + (lastHandPosition x - prev x / self ppcm)] 
-		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
+			prev := lastTransformingPosition.
+			lastTransformingPosition := self internalizeFromWorld: event eventPosition.
+			self length: length + (lastTransformingPosition x - prev x / self ppcm)] 
+		ifFalse: [lastTransformingPosition := self internalizeFromWorld: event eventPosition].! !
 
 !Ruler methodsFor: 'copying' stamp: 'hlsf 2/Mar/2026, 8:08:57 pm (UTC)'!
 copy
@@ -1464,27 +1531,27 @@ inStrokeZone: localPosition
 is: aSymbol
 	^ aSymbol == #SetSquare or: [super is: aSymbol]! !
 
-!SetSquare methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025, 5:03:21 pm (UTC)'!
+!SetSquare methodsFor: 'actions' stamp: 'hlsf 28/Jun/2026, 1:43:26 pm (UTC)'!
 resizeOX
 	| event prev |
 	event := self activeHand lastMouseEvent.
 	event isMouseMove 
 		ifTrue: [
-			prev := lastHandPosition.
-			lastHandPosition := self internalizeFromWorld: event eventPosition.
-			self length: (length x + (lastHandPosition x - prev x / self ppcm)) @ length y] 
-		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
+			prev := lastTransformingPosition.
+			lastTransformingPosition := self internalizeFromWorld: event eventPosition.
+			self length: (length x + (lastTransformingPosition x - prev x / self ppcm)) @ length y] 
+		ifFalse: [lastTransformingPosition := self internalizeFromWorld: event eventPosition].! !
 
-!SetSquare methodsFor: 'actions' stamp: 'hlsf 16/Sep/2025, 5:04:01 pm (UTC)'!
+!SetSquare methodsFor: 'actions' stamp: 'hlsf 28/Jun/2026, 1:43:26 pm (UTC)'!
 resizeOY
 	| event prev |
 	event := self activeHand lastMouseEvent.
 	event isMouseMove 
 		ifTrue: [
-			prev := lastHandPosition.
-			lastHandPosition := self internalizeFromWorld: event eventPosition.
-			self length: (length x @ (length y + (lastHandPosition y - prev y / self ppcm)) )] 
-		ifFalse: [lastHandPosition := self internalizeFromWorld: event eventPosition].! !
+			prev := lastTransformingPosition.
+			lastTransformingPosition := self internalizeFromWorld: event eventPosition.
+			self length: (length x @ (length y + (lastTransformingPosition y - prev y / self ppcm)) )] 
+		ifFalse: [lastTransformingPosition := self internalizeFromWorld: event eventPosition].! !
 
 !SetSquare methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:35:13 am (UTC)'!
 name
