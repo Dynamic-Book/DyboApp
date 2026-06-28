@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8014] on 21 June 2026 at 12:14:37 pm'!
+'From Cuis7.9 [latest update: #8031] on 28 June 2026 at 1:39:33 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 248!
+!provides: 'DyboDoc' 1 249!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -4210,12 +4210,13 @@ initialize
 	pages add: currentPage.
 ! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 10:11:16 am (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 28/Jun/2026, 10:35:49 am (UTC)'!
 installGeometryToolsFlap
 	| flap tools |
 	tools := Array 
 		with: Ruler new
 		with: SetSquare new
+		with: Geodreieck new
 		with: Protractor new 
 		with: Compass new.
 	flap := Flap label: ' Geometry Tools ' translated objects: tools.

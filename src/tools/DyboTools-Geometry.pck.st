@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8020] on 27 June 2026 at 4:57:02 pm'!
+'From Cuis7.9 [latest update: #8031] on 28 June 2026 at 1:39:39 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 72!
+!provides: 'DyboTools-Geometry' 1 73!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -193,9 +193,9 @@ center: aPoint
 color
 	^ `Color yellow`! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:29:53 pm (UTC)'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 28/Jun/2026, 11:06:55 am (UTC)'!
 darkerColor
-	^ `Color yellow darker`! !
+	^ self color darker! !
 
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025, 8:00:16 pm (UTC)'!
 detectNearby: toolSymbol
@@ -228,9 +228,9 @@ ppcm: aNumber
 " pixels per cm "
 	ppcm := aNumber asFloat! !
 
-!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:25:35 pm (UTC)'!
+!GeometryTool methodsFor: 'accessing' stamp: 'hlsf 28/Jun/2026, 11:07:09 am (UTC)'!
 transparentColor
-	^ `Color yellow alpha: 0.5`! !
+	^ self color alpha: 0.5! !
 
 !GeometryTool methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 2:30:13 pm (UTC)'!
 writingTool
@@ -608,17 +608,34 @@ mouseMove: event localPosition: localPosition
 name
 	^ 'Compass' translated! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 27/Jun/2026, 9:07:41 am (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 28/Jun/2026, 11:03:45 am (UTC)'!
 initialize
 	super initialize.
 	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 12.
 	self length: 8.
-	self insertButtons.
-	self setGraduationMorphs ! !
+	self setGraduationMorphs.
+	self insertButtons! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:20:29 pm (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 28/Jun/2026, 11:02:54 am (UTC)'!
 insertButtons
-	! !
+| btn buttonExtent |
+	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	btn := ButtonMorph model: self action: #rotateMe ::
+		actWhen: #buttonStillDown;
+		icon: Theme current refreshIcon;
+		color: Color transparent;
+		selectedColor: self darkerColor;
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+
+	btn := ButtonMorph model: self action: #delete ::
+		icon: Theme current closeIcon ;
+		color: Color transparent;
+		selectedColor: self darkerColor ;		
+		morphExtent: buttonExtent.
+	self addMorph: btn.
+			
+	self positioningButtons ! !
 
 !Geodreieck methodsFor: 'initialization' stamp: 'hlsf 26/Jun/2026, 7:17:46 pm (UTC)'!
 setGraduationMorphs
@@ -644,6 +661,10 @@ setGraduationMorphs
 	" inner millimeter graduation"
 	6 to: 38 do: [:mm |self addInnerMillimeterGradAt: mm].
 	self addMiscGraduations! !
+
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 28/Jun/2026, 11:07:21 am (UTC)'!
+color
+	^ `(Color r: 0.600 g: 1.000 b: 0.900)`! !
 
 !Geodreieck methodsFor: 'accessing' stamp: 'hlsf 21/Jun/2026, 1:19:41 pm (UTC)'!
 length: aNumber
@@ -679,16 +700,23 @@ side2StrokeZone
 			with: 0 @ (extent y - (0.7 * self ppcm) )
 			with: extent y negated + self ppcm @ (0.3 * self ppcm)]! !
 
-!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 26/Jun/2026, 7:00:04 pm (UTC)'!
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 28/Jun/2026, 11:07:29 am (UTC)'!
 transparentColor
-	^ `(Color r: 0.600 g: 1.000 b: 0.900) alpha: 0.2`! !
+	^ self color alpha: 0.2! !
 
-!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 22/Jun/2026, 7:40:39 pm (UTC)'!
+!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 28/Jun/2026, 11:20:04 am (UTC)'!
 constrainToDirection: aPoint 
-	! !
+	strokeSide = #ox ifTrue: [^ aPoint x @ 0]! !
 
-!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 21/Jun/2026, 1:39:32 pm (UTC)'!
-positioningButtons! !
+!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 28/Jun/2026, 11:04:49 am (UTC)'!
+positioningButtons
+	| deleteBtn rotateBtn |
+	submorphs isEmptyOrNil ifTrue: [^ self].
+	rotateBtn := submorphs at: 2.
+	deleteBtn := submorphs first.
+	rotateBtn morphPosition: (rotateBtn morphWidth // 2) negated @ (6.5 * self ppcm ).
+	deleteBtn morphPosition: (deleteBtn morphWidth // 2) negated @ (6 * self ppcm ).
+ 	! !
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Jun/2026, 8:13:40 pm (UTC)'!
 addDegreeGradAt: angle
@@ -889,6 +917,10 @@ gradMarkAt: angle length: d
 	^ Array with: startGrad with: endGrad 
 ! !
 
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 10:42:41 am (UTC)'!
+icon
+	^ (self imageForm: 32) magnifyBy: 100.0 / extent x! !
+
 !Geodreieck methodsFor: 'geometry testing' stamp: 'hlsf 21/Jun/2026, 2:26:42 pm (UTC)'!
 yAxisPointsUp
 	^ true ! !
@@ -913,6 +945,14 @@ inStrokeZone: localPosition
 inStrokeZone: aZone localPosition: position
 	^ (position insideTriangle: aZone first with: aZone second with: aZone third)
 	or: [position insideTriangle: aZone first with: aZone third with: aZone fourth]! !
+
+!Geodreieck methodsFor: 'testing' stamp: 'hlsf 28/Jun/2026, 10:45:58 am (UTC)'!
+is: aSymbol
+	^ aSymbol == #Geodreieck or: [super is: aSymbol]! !
+
+!Geodreieck methodsFor: 'accessing - properties' stamp: 'hlsf 28/Jun/2026, 10:45:05 am (UTC)'!
+name
+	^  'Geodreieck' translated! !
 
 !Protractor methodsFor: 'accessing' stamp: 'hlsf 15/Jan/2021, 8:10:30 am (UTC)'!
 buttons
