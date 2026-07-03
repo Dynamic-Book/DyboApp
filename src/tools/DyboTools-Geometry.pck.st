@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8031] on 28 June 2026 at 6:29:17 pm'!
+'From Cuis7.9 [latest update: #8031] on 3 July 2026 at 8:19:38 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 76!
+!provides: 'DyboTools-Geometry' 1 77!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -689,42 +689,44 @@ length: aNumber
 	self positioningButtons.
 	self redrawNeeded! !
 
-!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 27/Jun/2026, 2:12:53 pm (UTC)'!
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 3/Jul/2026, 5:33:25 pm (UTC)'!
 oxStrokeZone
 	^ oxStrokeZone ifNil: [
 		oxStrokeZone := Array
 			with: extent y negated @ 0
 			with: extent y @ 0
-			with: extent y - self ppcm @ (0.3 * self ppcm)
-			with: extent y negated + self ppcm @ (0.3 * self ppcm)]! !
+			with: extent y - self ppcm @ (0.4 * self ppcm)
+			with: extent y negated + self ppcm @ (0.4 * self ppcm)]! !
 
-!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 27/Jun/2026, 2:17:05 pm (UTC)'!
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 3/Jul/2026, 5:33:06 pm (UTC)'!
 side1StrokeZone
 	^ side1StrokeZone ifNil: [
 		side1StrokeZone := Array
 			with: extent y @ 0
 			with: 0 @ extent y
-			with: 0 @ (extent y - (0.7 * self ppcm) )
-			with: extent y - self ppcm @ (0.3 * self ppcm)]! !
+			with: 0 @ (extent y - (0.6 * self ppcm) )
+			with: extent y - self ppcm @ (0.4 * self ppcm)]! !
 
-!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 27/Jun/2026, 2:15:45 pm (UTC)'!
+!Geodreieck methodsFor: 'accessing' stamp: 'hlsf 3/Jul/2026, 5:33:14 pm (UTC)'!
 side2StrokeZone
 	^ side2StrokeZone ifNil: [
 		side2StrokeZone := Array
 			with: extent y negated @ 0
 			with: 0 @ extent y
-			with: 0 @ (extent y - (0.7 * self ppcm) )
-			with: extent y negated + self ppcm @ (0.3 * self ppcm)]! !
+			with: 0 @ (extent y - (0.6 * self ppcm) )
+			with: extent y negated + self ppcm @ (0.4 * self ppcm)]! !
 
 !Geodreieck methodsFor: 'accessing' stamp: 'hlsf 28/Jun/2026, 11:07:29 am (UTC)'!
 transparentColor
 	^ self color alpha: 0.2! !
 
-!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 28/Jun/2026, 4:18:37 pm (UTC)'!
+!Geodreieck methodsFor: 'geometry' stamp: 'hlsf 3/Jul/2026, 5:29:51 pm (UTC)'!
 constrainToDirection: aPoint 
 	strokeSide = #ox ifTrue: [^ aPoint x @ 0].
 	^ strokeAngle >= 0 
-		ifTrue: [Point rho: aPoint rho theta: (aPoint theta < Float pi  ifTrue: [strokeAngle] ifFalse: [Float pi + strokeAngle ])]
+		ifTrue: [Point 
+			rho: aPoint rho 
+			theta: (aPoint theta < Float pi  ifTrue: [strokeAngle] ifFalse: [Float pi + strokeAngle ])]
 		ifFalse: [ | u o |
 			u := strokeSide = #side1 ifTrue: [1@-1] ifFalse: [1@1].
 			u := u normalized.
