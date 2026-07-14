@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8031] on 28 June 2026 at 1:39:33 pm'!
+'From Cuis7.9 [latest update: #8056] on 14 July 2026 at 5:22:14 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 249!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
+!provides: 'DyboDoc' 1 250!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -649,7 +649,8 @@ Given samples of mouse positions and previous stroke, I compute a new Bézier c
 The common point of the consecutive curve is repositionned, to smooth a bit the curve, it is not exactly C1 though!
 
 !Document commentStamp: '<historical>' prior: 0!
-The Presenter of the Document to handle the controllers and associated callbacks of the tools.!
+The Presenter of the Document to handle the controllers and associated callbacks of the tools.
+- saveReals: indicate to save me as a Proxy or as serialized data // Or saving as a PDF document (true)!
 
 !Command commentStamp: '<historical>' prior: 0!
 An abstract class to represent commands of user actions in a Document.
@@ -1207,10 +1208,6 @@ chooseBackground
 deletePage
 	self view deletePage! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:45:38 pm (UTC)'!
-firstPage
-	self view firstPage! !
-
 !Document methodsFor: 'actions pages' stamp: 'hlsf 12/Oct/2024, 9:18:01 am (UTC)'!
 fitWidthPage
 	" Take PageContainer width for our current page "
@@ -1221,13 +1218,25 @@ fitWidthPage
 		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
 	! !
 
+!Document methodsFor: 'actions pages' stamp: 'hlsf 14/Jul/2026, 11:26:06 am (UTC)'!
+goFirstPage
+	self view goFirstPage! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 14/Jul/2026, 11:27:08 am (UTC)'!
+goLastPage
+	self view goLastPage! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 14/Jul/2026, 11:28:42 am (UTC)'!
+goNextPage
+	self view goNextPage! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 14/Jul/2026, 11:29:42 am (UTC)'!
+goPreviousPage
+	self view goPreviousPage! !
+
 !Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:38:17 pm (UTC)'!
 insertPage
 	self view insertPage! !
-
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:45:29 pm (UTC)'!
-lastPage
-	self view lastPage! !
 
 !Document methodsFor: 'actions pages' stamp: 'hlsf 24/Dec/2024, 12:39:54 pm (UTC)'!
 moveOXAction: increment
@@ -1245,10 +1254,6 @@ moveOYAction: increment
 		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:46:24 pm (UTC)'!
-nextPage
-	self view nextPage! !
-
 !Document methodsFor: 'actions pages' stamp: 'hlsf 3/Mar/2026, 3:23:28 pm (UTC)'!
 pageBackgroundString: pageBackground
 	^ (self currentPage isBackground: pageBackground) asMenuItemTextPrefix , pageBackground title! !
@@ -1265,10 +1270,6 @@ pageFitScreen
 		morphPosition: 0@0;
 		scale: (scaleX min: scaleY)
 	! !
-
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 1:46:33 pm (UTC)'!
-previousPage
-	self view previousPage! !
 
 !Document methodsFor: 'actions pages' stamp: 'hlsf 13/Feb/2025, 8:30:00 am (UTC)'!
 zoomAction: increment	
@@ -1310,6 +1311,34 @@ eraserSize4
 !Document methodsFor: 'actions ui' stamp: 'hlsf 16/Oct/2024, 5:28:45 pm (UTC)'!
 eraserSize8
 	self eraserSize: 8.! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Jul/2026, 3:19:26 pm (UTC)'!
+exportPDF
+	| exportedFiles pdfCommand process |
+	savesReal := true.
+	exportedFiles := OrderedCollection new.
+	1 to: view numberOfPages do: [:i | 
+		| page formerScale |
+		exportedFiles add: model title,
+			(String streamContents: [:str | i printOn: str base: 10 length: 4 padded: true]),
+			'.png'.
+		page := view pageAt: i.
+		formerScale := page scale.
+		page scale: 1.005.
+		(page imageForm: 32) writePNGfile: DyboSystem myExportPath // exportedFiles last.
+		page scale: formerScale].
+	savesReal := false.
+	pdfCommand := String streamContents: [:s |
+		s 	nextPutAll: 'cd {1}'; lf;
+			nextPutAll: 'convert '.
+		exportedFiles do: [:each | s nextPutAll: each; space].
+		s nextPutAll: model title; nextPutAll: '.pdf'].
+	pdfCommand := pdfCommand format: {DyboSystem myExportPath}.
+	process := OSProcess command: pdfCommand.
+	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
+	exportedFiles do: [:each | (DyboSystem myExportPath // each) delete]
+		
+		! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:39:35 pm (UTC)'!
 highlighterBlue
@@ -1484,11 +1513,10 @@ modified
 	view currentPage paper redrawNeeded 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026, 7:19:40 am (UTC)'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 14/Jul/2026, 10:35:01 am (UTC)'!
 objectForDataStream: str
 " 	
-A Document is serialized on disk in its own directory. A document may be asked to be serialized under two circumstances, 
-those we have two states when saving a document.
+A Document is serialized on disk in its own directory. A document may be asked to be serialized under two circumstances, those we have two states when saving a document.
 1. 	The default state saveReal == false
 	When the whole DyboApp data model is saved (see DyboSystem class>>saveData)-> respond a diskproxy, 
 	Indeed, we don't want to save the Document in the data model, just its proxy. 
@@ -1593,6 +1621,10 @@ tool: aToolClass
 	tool := aToolClass presenter: self.
 	view statusBarMessage: aToolClass description.
 	self changed: #isTool:! !
+
+!Document methodsFor: 'testing' stamp: 'hlsf 14/Jul/2026, 10:39:26 am (UTC)'!
+isExporingPDF
+	^ savesReal ! !
 
 !Document class methodsFor: 'object serialization' stamp: 'hlsf 16/Apr/2026, 8:19:52 pm (UTC)'!
 loadDocument: relativePath
@@ -3122,10 +3154,13 @@ unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 16/Mar/2026, 5:43:48 pm (UTC)'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 14/Jul/2026, 10:42:33 am (UTC)'!
 viewport
 " I represent my visible surface to the user, in own coordinates system "
-	^ ((self internalize: 0@0) max: 0@0) corner: ((self internalize: owner morphExtent) min: extent)! !
+	^ presenter isExporingPDF 
+		ifTrue: [self localBounds] 
+		ifFalse: [	((self internalize: 0@0) max: 0@0) 
+			corner: ((self internalize: owner morphExtent) min: extent)]! !
 
 !PageMorph methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026, 2:21:28 pm (UTC)'!
 initialize
@@ -4307,9 +4342,18 @@ deletePage
 		pages remove: currentPage.
 		self goPage: (self pageAt: newIndex)]! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 1:45:59 pm (UTC)'!
-firstPage
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 14/Jul/2026, 11:26:06 am (UTC)'!
+goFirstPage
 	^ self goPage: pages first! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 14/Jul/2026, 11:27:08 am (UTC)'!
+goLastPage
+	^ self goPage: pages last! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 14/Jul/2026, 11:28:42 am (UTC)'!
+goNextPage
+	^ self goPage: (self pageAt: self currentPageIndex + 1)
+! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 18/Dec/2024, 5:11:49 pm (UTC)'!
 goPage: aPage
@@ -4321,6 +4365,11 @@ goPage: aPage
 		presenter commandsManager release.
 		presenter resetTool].
 	^ currentPage! !
+
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 14/Jul/2026, 11:29:42 am (UTC)'!
+goPreviousPage
+	^ self goPage: (self pageAt: self currentPageIndex - 1)
+! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 3/Mar/2026, 3:06:49 pm (UTC)'!
 insertPage
@@ -4334,15 +4383,6 @@ insertPage: aPage
 			add: aPage 
 			after: currentPage)! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 1:39:43 pm (UTC)'!
-lastPage
-	^ self goPage: pages last! !
-
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 1:40:09 pm (UTC)'!
-nextPage
-	^ self goPage: (self pageAt: self currentPageIndex + 1)
-! !
-
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 12:39:00 pm (UTC)'!
 numberOfPages
 	^ pages size! !
@@ -4354,11 +4394,6 @@ pageAt: anIndex
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 17/Mar/2026, 7:24:42 pm (UTC)'!
 pageNumber: aPageMorph
 	^ pages indexOf: aPageMorph ! !
-
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 1:39:57 pm (UTC)'!
-previousPage
-	^ self goPage: (self pageAt: self currentPageIndex - 1)
-! !
 
 !DocumentView methodsFor: 'update' stamp: 'hlsf 18/Dec/2024, 5:11:49 pm (UTC)'!
 adjustPageCounter
@@ -4535,11 +4570,18 @@ eraserButtonData
 	EraserTool action . 
 	EraserTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:20 pm (UTC)'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Jul/2026, 2:29:42 pm (UTC)'!
+exportPDFButtonData
+	^ {'Export document to PDF' translated . 
+	#pdfFile . 
+	#exportPDF . 
+	'Export the current document and all pages to a PDF file. The exported file is saved in the "myExports" user directory.' translated } ! !
+
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Jul/2026, 11:26:41 am (UTC)'!
 firstPageButtonData
 	^ {'First page' translated . 
 	#firstPage . 
-	#firstPage . 
+	#goFirstPage . 
 	'Go to the FIRST page of the document.' translated  }! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:32 pm (UTC)'!
@@ -4577,11 +4619,11 @@ insertPageButtonData
 	#insertPage . 
 	'Insert a new page after the current one.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:22:31 pm (UTC)'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Jul/2026, 11:27:39 am (UTC)'!
 lastPageButtonData
 	^ {'Last page' translated . 
 	#lastPage . 
-	#lastPage . 
+	#goLastPage . 
 	'Go to the LAST page of the document.' translated  }! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:22:38 pm (UTC)'!
@@ -4598,11 +4640,11 @@ miniToolbarSpec
 	blank
 	pointer group)! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:22:44 pm (UTC)'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Jul/2026, 11:28:42 am (UTC)'!
 nextPageButtonData
 	^ {'Next page' translated . 
 	#nextObject . 
-	#nextPage . 
+	#goNextPage . 
 	'Go to the next page of the document.' translated  }! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:22:58 pm (UTC)'!
@@ -4619,11 +4661,11 @@ pointerButtonData
 	PointerTool action . 
 	PointerTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:12 pm (UTC)'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Jul/2026, 11:29:42 am (UTC)'!
 previousPageButtonData
 	^ {'Previous page' translated . 
 	#previousObject . 
-	#previousPage . 
+	#goPreviousPage . 
 	'Go to the previous page of the document.' translated  }! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:19 pm (UTC)'!
@@ -4648,9 +4690,9 @@ shapeButtonData
 	ShapeTool action .
 	ShapeTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026, 2:41:30 am (UTC)'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Jul/2026, 2:26:06 pm (UTC)'!
 toolbarSpec
-	^ #(saveDoc
+	^ #(saveDoc exportPDF
 	blank
 	pen eraser highlighter shape undo redo 
 	blank
