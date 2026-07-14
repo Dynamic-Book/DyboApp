@@ -8,7 +8,7 @@ Transcript
 "Install change set"
 ChangeSet installNewUpdates.
 "System configurations"
-Utilities setAuthorName: 'Hilaire Fernandes' initials: 'hlsf'.
+Utilities setAuthorInitials: 'hlsf' name: 'Hilaire Fernandes'.
 Preferences at: #logDebuggerStackToFile put: true.
 Preferences at: #autoNumberUserChanges put: false.
 Preferences at: #focusFollowsMouse put: true.

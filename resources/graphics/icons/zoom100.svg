@@ -1,2 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376C296.3 401.1 253.9 416 208 416 93.1 416 0 322.9 0 208S93.1 0 208 0 416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" fill="currentColor"/><text x="75.708534" y="265.45636" fill="#280b0b" font-family="sans-serif" font-size="192px" xml:space="preserve"><tspan x="75.708534" y="265.45636" fill="#000000" font-family="sans-serif">1:1</tspan></text></svg>
+<svg version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+ <!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc. -->
+ <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376C296.3 401.1 253.9 416 208 416 93.1 416 0 322.9 0 208S93.1 0 208 0 416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" fill="currentColor"/>
+ <g aria-label="1:1">
+  <path d="m143.87 265.46h-16.512v-95.808q0-8.256 0.192-13.248t0.576-10.368q-3.072 3.072-5.568 5.184t-6.336 5.376l-14.592 11.904-8.832-11.328 37.056-28.8h14.016z"/>
+  <path d="m199.36 172.91q0-7.296 3.456-10.176t8.256-2.88q4.992 0 8.448 2.88 3.648 2.88 3.648 10.176 0 6.912-3.648 9.984-3.456 3.072-8.448 3.072-4.8 0-8.256-3.072t-3.456-9.984zm0 82.176q0-7.104 3.456-9.984t8.256-2.88q4.992 0 8.448 2.88 3.648 2.88 3.648 9.984 0 6.912-3.648 9.984-3.456 3.072-8.448 3.072-4.8 0-8.256-3.072t-3.456-9.984z"/>
+  <path d="m305.15 265.46h-16.512v-95.808q0-8.256 0.192-13.248t0.576-10.368q-3.072 3.072-5.568 5.184t-6.336 5.376l-14.592 11.904-8.832-11.328 37.056-28.8h14.016z"/>
+ </g>
+</svg>
