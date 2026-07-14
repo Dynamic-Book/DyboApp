@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 14 July 2026 at 5:22:14 pm'!
+'From Cuis7.9 [latest update: #8056] on 14 July 2026 at 5:47:22 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 250!
+!provides: 'DyboDoc' 1 251!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1312,7 +1312,7 @@ eraserSize4
 eraserSize8
 	self eraserSize: 8.! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Jul/2026, 3:19:26 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Jul/2026, 3:47:12 pm (UTC)'!
 exportPDF
 	| exportedFiles pdfCommand process |
 	savesReal := true.
@@ -1324,8 +1324,12 @@ exportPDF
 			'.png'.
 		page := view pageAt: i.
 		formerScale := page scale.
-		page scale: 1.005.
-		(page imageForm: 32) writePNGfile: DyboSystem myExportPath // exportedFiles last.
+		page scale: 1.5.
+		JPEGReadWriter2 
+			putForm: (page imageForm: 32)  
+			quality: 90 
+			progressiveJPEG: false 
+			onFileNamed: DyboSystem myExportPath // exportedFiles last.
 		page scale: formerScale].
 	savesReal := false.
 	pdfCommand := String streamContents: [:s |
