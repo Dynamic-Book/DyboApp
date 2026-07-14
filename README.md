@@ -38,10 +38,12 @@ git clone --depth 1 https://github.com/Dynamic-Book/DyboApp
 ```
 
 ## 2. External Dependency.
-Optionally, to be able to import and annotate PDF document, install
-the needed package **poppler-utils**. On Debian based distribution:
+Optionally, to be able to import/export PDF document, install the
+needed packages **poppler-utils** and **ImageMagick". On Debian based
+distribution:
+
 ```bash
-sudo apt install poppler-utils
+sudo apt install poppler-utils imagemagick
 ```
 
 ## 3. Prepare Data.
