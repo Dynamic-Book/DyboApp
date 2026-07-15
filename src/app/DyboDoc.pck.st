@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 14 July 2026 at 5:47:22 pm'!
+'From Cuis7.9 [latest update: #8056] on 15 July 2026 at 12:32:53 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 251!
+!provides: 'DyboDoc' 1 252!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -520,7 +520,7 @@ PaperMorph class
 
 !classDefinition: #AnnotatorMorph category: #'DyboDoc-View'!
 PaperMorph subclass: #AnnotatorMorph
-	instanceVariableNames: 'annotatedMorph script'
+	instanceVariableNames: 'annotatedMorph script frozen'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-View'!
@@ -823,15 +823,14 @@ I always contain these two morphs of the same extent as me:
 (PaperMorph new stroker: StrokerBezier3XP ) openInWorld. "Cubic Bézier, expend out the control point"
 !
 
-!AnnotatorMorph commentStamp: 'hlsf 8/Mar/2026 21:31:16' prior: 0!
-mouseEnter: evt
-	| myInnerFrame |
-	myInnerFrame := (self externalizeBoundsToWorld: self localBounds) insetBy: 20.
-	(myInnerFrame containsPoint: evt eventPosition) ifTrue: [^ self].
-	self removeAlarm: #removeHalo.
-	self show.
-	self addHalo.
-	self triggerEvent: #enterAnnotated!
+!AnnotatorMorph commentStamp: 'hlsf 15/Jul/2026, 10:21:15 am (UTC)' prior: 0!
+My goal is to annotate with handwriting a placed morph (annotatedMorph). 
+My extent is adjusted to cover my annotated object and also the user handwriting. 
+My extent expands to enclosed new handwritings. It shrinks when handwritings are deleted.
+- script: instance of a DyboScript. An executed script return a view referenced by the annotedMorph
+- annotatedMorph:  the view returned by the script when executed, it is then inserted in me!!
+- frozen: is my annotatedMorph in a frozen state, i.e. the user can interact with it, only it can 
+be annoted!
 
 !PageBackground commentStamp: '<historical>' prior: 0!
 An abstract model for page background
@@ -3605,7 +3604,7 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 27/May/2026, 8:42:58 pm (UTC)'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 15/Jul/2026, 10:25:35 am (UTC)'!
 annotate: aPlacedMorph
 | annotedExtent formerExtent |
 	annotatedMorph ifNotNil: [
@@ -3619,7 +3618,7 @@ annotate: aPlacedMorph
 	annotatedMorph removeProperty: #bitMask.
 	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
 	self addMorphBack: annotatedMorph position: self frameWidth asPoint.
-"	Were we in frozen state, if so update the cache "
+"	Were we in frozen state? if so, freeze this new annotated morph "
 	self freeze: self isFrozen! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025, 9:26:04 am (UTC)'!
@@ -3629,6 +3628,13 @@ annotated
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 5/Feb/2026, 10:05:59 am (UTC)'!
 frameWidth
 	^ 12  / ((self scale max: 0.8) * (owner ifNotNil: [ owner scale max: 0.8] ifNil: [1]))! !
+
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 11/Jun/2026, 9:44:38 am (UTC)'!
+freeze: aBoolean
+	aBoolean 
+		ifTrue: [annotatedMorph triggerEvent: #leaveAnnotator.
+			self lockAnnoted]
+		ifFalse: [	annotatedMorph unlock]! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025, 9:25:11 am (UTC)'!
 lockAnnoted
@@ -3653,6 +3659,10 @@ drawOn: aCanvas
 			frameRectangle: self localBounds 
 			borderWidth: self frameWidth 
 			color: `Color gray alpha: 0.2`]! !
+
+!AnnotatorMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 26/Feb/2026, 8:16:13 am (UTC)'!
+wantsToBeDroppedInto: aMorph 
+	^ aMorph is: #PageMorph ! !
 
 !AnnotatorMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024, 5:03:41 pm (UTC)'!
 handlesMouseDown: event
@@ -3758,23 +3768,21 @@ haloSpecifications
 inspectAnnoted
 	^ annotatedMorph inspect! !
 
-!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 31/Aug/2025, 9:25:11 am (UTC)'!
-canResizeAnnoted
-" can the the annotated morph be resized ? only kind of BoxMorph can"
-	^ annotatedMorph is: #BoxMorph! !
+!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026, 2:03:32 pm (UTC)'!
+balloonText
+	^ script description ! !
 
-!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024, 9:15:37 am (UTC)'!
-is: aSymbol
-	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
+!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026, 2:08:11 pm (UTC)'!
+wantsBalloon
+	^ false! !
 
-!AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 28/Sep/2024, 2:10:48 pm (UTC)'!
-endWritingAt: localPosition
-	| strokeGroup |
-	strokeGroup := super endWritingAt: localPosition.
-	
-	^ strokeGroup ! !
+!AnnotatorMorph methodsFor: 'initialization' stamp: 'hlsf 15/Jul/2026, 10:26:57 am (UTC)'!
+initialize
+	super initialize.
+	frozen := false.
+	self annotate: script execute! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/May/2026, 8:10:24 pm (UTC)'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 15/Jul/2026, 10:28:58 am (UTC)'!
 addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 	"Add standard halo items to the menu"
 	self isWorldMorph ifTrue:
@@ -3788,7 +3796,7 @@ addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 	
 	(aMenu 
 		addUpdating: #frozenString 
-		action: #freezeUnfreezeMorph) setBalloonText: 'When "frozen", I am inert to all user interactions.' translated! !
+		action: #toggleFrozen) setBalloonText: 'When frozen, I am inert to all user interactions.' translated! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 15/Feb/2026, 9:36:30 am (UTC)'!
 buildHandleMenu: aHand
@@ -3801,17 +3809,6 @@ buildHandleMenu: aHand
 	script addCustomMenuItems: menu annoted: annotatedMorph.
 	^ menu! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 11/Jun/2026, 9:44:38 am (UTC)'!
-freeze: aBoolean
-	aBoolean 
-		ifTrue: [annotatedMorph triggerEvent: #leaveAnnotator.
-			self lockAnnoted]
-		ifFalse: [	annotatedMorph unlock]! !
-
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 19/Feb/2025, 5:14:24 pm (UTC)'!
-freezeUnfreezeMorph
-	self freeze: self isFrozen not! !
-
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 1/Mar/2025, 1:10:49 pm (UTC)'!
 frozenString
 	"Answer the string to be shown in a menu to represent the frozen status"
@@ -3823,10 +3820,6 @@ frozenString
 goBehind
 	presenter currentPage addMorph: self inFrontOf: presenter currentPage paper! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 11/Jun/2026, 9:46:56 am (UTC)'!
-isFrozen
-	^ annotatedMorph isLocked! !
-
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 27/Feb/2026, 7:47:07 am (UTC)'!
 reconcileToFrozeenState
 " 	Annotator may freeze the annoted object. 
@@ -3834,30 +3827,37 @@ reconcileToFrozeenState
 "
 	annotatedMorph lock: self isFrozen! !
 
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 15/Jul/2026, 10:28:44 am (UTC)'!
+toggleFrozen
+	self freeze: self isFrozen not! !
+
 !AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 22/Feb/2025, 9:30:37 pm (UTC)'!
 shortPrintString
 	^script title translated contractTo: 20! !
-
-!AnnotatorMorph methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2025, 9:15:33 pm (UTC)'!
-initialize
-	super initialize.
-	self annotate: script execute! !
 
 !AnnotatorMorph methodsFor: 'submorphs-accessing' stamp: 'hlsf 7/Sep/2025, 9:08:13 am (UTC)'!
 noteNewOwner: newOwner
 	self adjustBounds ! !
 
-!AnnotatorMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 26/Feb/2026, 8:16:13 am (UTC)'!
-wantsToBeDroppedInto: aMorph 
-	^ aMorph is: #PageMorph ! !
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 31/Aug/2025, 9:25:11 am (UTC)'!
+canResizeAnnoted
+" can the the annotated morph be resized ? only kind of BoxMorph can"
+	^ annotatedMorph is: #BoxMorph! !
 
-!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026, 2:03:32 pm (UTC)'!
-balloonText
-	^ script description ! !
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024, 9:15:37 am (UTC)'!
+is: aSymbol
+	^ aSymbol == #AnnotatorMorph or: [ super is: aSymbol ]! !
 
-!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026, 2:08:11 pm (UTC)'!
-wantsBalloon
-	^ false! !
+!AnnotatorMorph methodsFor: 'testing' stamp: 'hlsf 15/Jul/2026, 10:27:27 am (UTC)'!
+isFrozen
+	^ frozen ! !
+
+!AnnotatorMorph methodsFor: 'writing' stamp: 'hlsf 28/Sep/2024, 2:10:48 pm (UTC)'!
+endWritingAt: localPosition
+	| strokeGroup |
+	strokeGroup := super endWritingAt: localPosition.
+	
+	^ strokeGroup ! !
 
 !AnnotatorMorph class methodsFor: 'instance creation' stamp: 'hlsf 26/Sep/2024, 9:33:10 am (UTC)'!
 newOn: aPresenter
