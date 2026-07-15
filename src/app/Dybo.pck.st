@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 14 July 2026 at 5:22:09 pm'!
+'From Cuis7.9 [latest update: #8056] on 15 July 2026 at 3:08:02 pm'!
 'Description '!
-!provides: 'Dybo' 1 231!
+!provides: 'Dybo' 1 232!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -2266,19 +2266,19 @@ quickEdit: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 10/Oct/2023, 9:05:57 pm (UTC)'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 15/Jul/2026, 1:03:22 pm (UTC)'!
 quickExport: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to instantiate
 2. the collection to export 
 "
 	|answer  |
-	answer := (StandardFileMenu new newFileFrom: DirectoryEntry smalltalkImageDirectory withPattern: '*.csv' excludePattern: '.*') startUpWithCaption: 'CSV file to export' translated.
+	answer := (StandardFileMenu new newFileFrom: DyboSystem myExportPath withPattern: '*.csv' excludePattern: '.*') startUpWithCaption: 'CSV file to export' translated.
 	answer ifNotNil: [
-		answer directory // answer name writeStreamDo: [:str |
+		answer directory // (answer name, '.csv') writeStreamDo: [:str |
 			args first export: args second to: str ]]! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 26/Jul/2023, 11:12:40 am (UTC)'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 15/Jul/2026, 1:04:47 pm (UTC)'!
 quickImport: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to import
@@ -2286,7 +2286,7 @@ quickImport: args
 3. the listMorph of the collection
 "
 | importedCollection answer |
-	answer := (StandardFileMenu new oldFileFrom: DirectoryEntry smalltalkImageDirectory withPattern: '*.csv' excludePattern: '.*') 
+	answer := (StandardFileMenu new oldFileFrom: DyboSystem myExportPath withPattern: '*.csv' excludePattern: '.*') 
 		startUpWithCaption: 'CSV file to import' translated.
 	answer ifNotNil: [
 		answer directory // answer name readStreamDo: [:str |
