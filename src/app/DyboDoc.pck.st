@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 15 July 2026 at 12:32:53 pm'!
+'From Cuis7.9 [latest update: #8056] on 15 July 2026 at 3:59:52 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 252!
+!provides: 'DyboDoc' 1 253!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1152,6 +1152,13 @@ currentPage
 model
 	^ model! !
 
+!Document methodsFor: 'accessing' stamp: 'hlsf 15/Jul/2026, 1:50:22 pm (UTC)'!
+preview
+" By default read the saved preview "
+	^ [PNGReadWriter  formFromFileEntry: model path // 'preview.png'] 
+		on: Error 
+		do: [view preview]! !
+
 !Document methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:42:08 am (UTC)'!
 selectedTool
 	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
@@ -1456,13 +1463,14 @@ penWhite
 redoAction
 	self commandsManager redo ifTrue: [self modified]! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Apr/2026, 12:42:55 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Jul/2026, 1:29:08 pm (UTC)'!
 saveDocument
 	savesReal := true.
 	self saveToDisk.
 	savesReal := false.
 	isSaved := true.
 	self currentPage redrawNeeded.
+	PNGReadWriter putForm: view preview onFile: model path // 'preview.png'.
 	^ true! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 3/Mar/2026, 3:27:42 pm (UTC)'!

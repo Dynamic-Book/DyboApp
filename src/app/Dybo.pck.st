@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 15 July 2026 at 3:08:02 pm'!
+'From Cuis7.9 [latest update: #8056] on 15 July 2026 at 3:59:48 pm'!
 'Description '!
-!provides: 'Dybo' 1 232!
+!provides: 'Dybo' 1 233!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -3822,7 +3822,7 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 11/Jun/2026, 8:47:01 am (UTC)'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 15/Jul/2026, 1:49:31 pm (UTC)'!
 previewFor: aDocument
 	| buttons preview |
 	buttons := OrderedCollection new.
@@ -3848,7 +3848,7 @@ previewFor: aDocument
 			setBalloonText: 'Delete this document.' translated).
 	preview := PreviewMorph 
 		object:  aDocument 
-		image:  aDocument view preview
+		image:  aDocument preview
 		buttons: buttons
 		label: aDocument model title ::
 		color: self defaultColor darker;
@@ -4005,7 +4005,7 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 10/May/2026, 10:10:06 am (UTC)'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Jul/2026, 1:50:00 pm (UTC)'!
 previewFor: aDocument
 	| buttons preview decorated docModel classGroup indicativeColor title |
 	docModel := aDocument model.
@@ -4019,7 +4019,7 @@ previewFor: aDocument
 			setBalloonText: 'Edit this document' translated).
 	preview := PreviewMorph 
 		object:  aDocument 
-		image:  aDocument view preview
+		image:  aDocument preview
 		buttons: buttons
 		label: title ::
 		borderWidth: 2.
