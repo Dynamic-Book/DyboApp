@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 15 July 2026 at 3:59:52 pm'!
+'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 1:13:31 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 253!
+!provides: 'DyboDoc' 1 254!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1198,11 +1198,11 @@ writingTool
 		}
 		otherwise: [nil]! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 4/Mar/2026, 2:00:03 pm (UTC)'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 16/Jul/2026, 9:58:15 am (UTC)'!
 chooseBackground
 	| menu |
 	menu := MenuMorph entitled: 'Type of background' translated.
-	{PageBackgroundBlank . PageBackgroundHL . PageBackgroundGrid. PageBackgroundMillimeter } do: [:aBackground |
+	(Preferences instanceAt: #paperModel) type do: [:aBackground |
 		menu 
 			addUpdating: #pageBackgroundString: 
 			target: self 
@@ -2669,11 +2669,11 @@ reset
 new
 	^self on: Array new! !
 
-!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026, 8:17:02 am (UTC)'!
+!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 16/Jul/2026, 9:58:50 am (UTC)'!
 initialize
 	super initialize.
 	dirName := String streamContents: [:s | DateAndTime now filenamePrintOn: s].
-	pageBackground := PageBackgroundHL ! !
+	pageBackground := Preferences at: #paperModel! !
 
 !DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:08:17 pm (UTC)'!
 jpegFilePages

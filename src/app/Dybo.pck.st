@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 15 July 2026 at 3:59:48 pm'!
+'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 1:13:27 pm'!
 'Description '!
-!provides: 'Dybo' 1 233!
+!provides: 'Dybo' 1 234!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1027,6 +1027,34 @@ Do you really want to proceed?' translated format: { backupDir pathName }.
 	DyUserData load.
 	WaitSpinner stop.! !
 
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:52:28 am (UTC)'!
+paperBackgroundIndex
+	^ (Preferences instanceAt: #paperModel) type indexOf: (Preferences at: #paperModel)! !
+
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:53:15 am (UTC)'!
+paperBackgroundIndex: newIndex
+	^ Preferences 
+		at: #paperModel
+		put: ((Preferences instanceAt: #paperModel) type at: newIndex)! !
+
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:51:46 am (UTC)'!
+paperBackgrounds
+	^ (Preferences instanceAt: #paperModel) type collect: [:aBackground | aBackground title]! !
+
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:50:32 am (UTC)'!
+paperRatioIndex
+	^ (Preferences instanceAt: #paperRatio) type indexOf: (Preferences at: #paperRatio)! !
+
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:50:11 am (UTC)'!
+paperRatioIndex: newIndex
+	^ Preferences 
+		at: #paperRatio 
+		put: ((Preferences instanceAt: #paperRatio) type at: newIndex)! !
+
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:45:03 am (UTC)'!
+paperRatios
+	^ (Preferences instanceAt: #paperRatio) type! !
+
 !Dybo methodsFor: 'actions task' stamp: 'hlsf 17/Apr/2026, 10:12:36 am (UTC)'!
 deleteTask: aDyTask 
 	(PopUpMenu 
@@ -1305,26 +1333,20 @@ desktopPreferences
 		at: #fullScreenLeavesDeskMargins put: false.
 ! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 5/May/2026, 12:41:57 pm (UTC)'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 16/Jul/2026, 9:53:21 am (UTC)'!
 paperPreferences
 	Preferences 
 		name: #paperRatio
 		description: 'The default ratio of a page defined by two numbers, width and height.' translated
 		category: #dybo 
-		type: {4@3 . 16@9 . 210@297} 
+		type: {16@9 . 210@297 . 297@210} 
 		value: 16@9;
 		
 		name: #paperModel
-		description: 'The default model for a new page in a document.' translated
+		description: 'The default background for a new page in a document.' translated
 		category: #dybo
-		type: {PageBackgroundHL}
-		value: PageBackgroundHL;
-
-		name: #userPath
-		description:  'Path for user data as documents, PDF, knowledge models. An empty path locates these resources in the Dybo application folder. Relative path accepted, home/user directory is then prepended' translated
-		category:  #dybo
-		type:  nil
-		value: ''! !
+		type: {PageBackgroundBlank . PageBackgroundHL . PageBackgroundGrid . PageBackgroundMillimeter}
+		value: PageBackgroundHL! !
 
 !DyPlatform methodsFor: 'preferences' stamp: 'hlsf 5/May/2026, 12:42:39 pm (UTC)'!
 pathPreferences
@@ -1343,12 +1365,12 @@ initialize
 	self pathPreferences
 ! !
 
-!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 24/Feb/2026, 1:02:44 pm (UTC)'!
+!DyPlatform methodsFor: 'initialize-release' stamp: 'hlsf 16/Jul/2026, 9:30:57 am (UTC)'!
 launch
 "	
 	Set a default name for authoring "
 	Transcript show: '[Dybo] Author set to "Dybo App User" (dau)'; cr.
-	Utilities setAuthorName: 'Dybo App User' initials: 'dau'.
+	Utilities setAuthorInitials: 'dau' name: 'Dybo App User'.
 	Transcript show: '[Dybo] Fullscreen from preference'; cr.
 	Display fullScreenMode: fullscreen
 	! !
@@ -1518,19 +1540,16 @@ renameTopic: aTopic from: prevName to: newName
 	'Topic renamed: maintenance operations' print.
 	self rename: prevName to: newName in: aTopic directory parent! !
 
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024, 8:58:37 am (UTC)'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 9:55:14 am (UTC)'!
 defaultPaperSize
 " Its width fill the screen, according to its default ratio "
-	
-	^ (self paperRatio * (self screenSize x / self paperRatio x) asFloat) asIntegerPoint .! !
+	| paperRatio |
+	paperRatio := Preferences at: #paperRatio.
+	^ (paperRatio * (self screenSize x / paperRatio x) asFloat) asIntegerPoint .! !
 
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 3/May/2026, 11:14:42 am (UTC)'!
 paperBackground
 	^ Preferences at: #paperBackground! !
-
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 3/May/2026, 11:14:34 am (UTC)'!
-paperRatio
-	^ Preferences at: #paperRatio! !
 
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 1:13:37 pm (UTC)'!
 scriptLibrary
@@ -1593,11 +1612,9 @@ saveData
 		dumpOnCompressedFile: DyboSystem userDataFile
 		object: DyUserData current! !
 
-!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 15/May/2026, 2:52:43 pm (UTC)'!
+!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 16/Jul/2026, 9:35:55 am (UTC)'!
 install
-	Preferences name: #useUserPrefsFile category: #system value: true.
-	Preferences name: #ppcm category: #dybo value: 59.
-	Preferences name: #exchangePath category: #dybo value: ''.! !
+! !
 
 !DyboSystem class methodsFor: 'system startup' stamp: 'hlsf 22/Feb/2026, 8:01:43 am (UTC)'!
 launch
@@ -1894,13 +1911,13 @@ plugInDyboView: aView
 	dyboView changed.
 	self triggerEvent: #switchView! !
 
-!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 10/May/2026, 8:32:46 am (UTC)'!
+!DyControlsManager methodsFor: 'plugged views' stamp: 'hlsf 16/Jul/2026, 10:55:39 am (UTC)'!
 plugSettings
 	| categories categoriesView |
 	categories := {
 		{ 'User Data' translated . #userDataView . #userData } .
-		{ 'Exchange Data' translated . #exchangeDataView . #exchange }.
-		{ 'Calibrate' translated . #calibratorView . #calibrate} .
+		{ 'Data Exchange' translated . #exchangeDataView . #exchange }.
+		{ 'Calibration & Paper' translated . #calibratorPaperView . #calibrate} .
 	}.
 	categories := categories sort: [:arrayA :arrayB | arrayA first < arrayB first].
 	self plugInDyboView: (categoriesView := SidePane on: self with: categories).
@@ -1916,20 +1933,24 @@ plugStart
 plugTask
 	self plugInDyboView: (DyAgendaView presenter: self dyboPresenter)! !
 
-!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 3/May/2026, 5:51:50 pm (UTC)'!
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 16/Jul/2026, 10:55:25 am (UTC)'!
+calibratorPaperView
+	^ LayoutMorph newColumn ::
+		color: Color transparent;
+		addMorph: self calibratorView ;
+		addMorph: self paperView;
+		yourself! !
+
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 16/Jul/2026, 10:58:59 am (UTC)'!
 calibratorView
-	| column pane |
+	| pane |
 	pane := nil.
-	column := LayoutMorph newColumn color: Color transparent.
 	pane := PluggablePane 
 		open:  [CalibratorMorph new
 			etalon: (ImageReadWriter formFromFileEntry: DyboSystem iconsPath // 'etalon.png')]
 		view:  #value
 		action: [DyboSystem ppcm: pane pane ppcm].
-	column 
-		addMorph: pane; 
-		addMorphUseAll: DyControlsManager spacer.
-	^ column! !
+	^ pane! !
 
 !DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 8/May/2026, 8:10:07 am (UTC)'!
 exchangeDataView
@@ -1957,6 +1978,19 @@ Warning: This will overwrite your current local data.' translated.
 	row addMorph: morph.
 	column addMorphKeepMorphHeight: row.
 	^ column ! !
+
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 16/Jul/2026, 10:59:49 am (UTC)'!
+paperView
+	| ratio background |
+
+	ratio := PluggableListMorph withModel: self dyboPresenter
+		listGetter: #paperRatios indexGetter: #paperRatioIndex indexSetter: #paperRatioIndex:. 
+	background := PluggableListMorph withModel: self dyboPresenter
+		listGetter: #paperBackgrounds indexGetter: #paperBackgroundIndex indexSetter: #paperBackgroundIndex:. 
+
+	^ LabelGroup with: {
+		'Paper size' translated -> ratio.
+		'Paper background' translated -> background }! !
 
 !DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 15/May/2026, 3:01:30 pm (UTC)'!
 setExchangePathIn: label
