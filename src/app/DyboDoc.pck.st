@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 3:37:04 pm'!
+'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 3:48:55 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 255!
+!provides: 'DyboDoc' 1 256!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2706,11 +2706,11 @@ modificationTime
 newPageBackground
 	^ pageBackground new! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026, 8:20:59 pm (UTC)'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 1:43:53 pm (UTC)'!
 owner
 	^ owner ifNil: [
 		owner := DyUserData current documentOwner: self.
-		owner ifNil: [self error: 'Document model without an owner'].
+		owner ifNil: ['Document model without an owner' print].
 		owner]! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026, 2:04:49 pm (UTC)'!
@@ -4515,7 +4515,7 @@ statusBarInScroller
 		color: Color transparent;
 		yourself! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 16/Jul/2026, 1:45:33 pm (UTC)'!
 toolbarWith: aSpec
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow separation: 2.
@@ -4525,9 +4525,10 @@ toolbarWith: aSpec
 			caseOf: {
 				[ #spacer ] -> [ toolbar addMorphUseAll: DyControlsManager spacer ] .
 				[ #blank ] -> [ toolbar addMorph: (DyControlsManager spacer: buttonWidth) ] }
-			otherwise: [		
-				toolbar addMorph: (				
-					self 	button: aTool  state: #isTool: size: buttonWidth )] ].
+			otherwise: [
+				(aTool = #saveDoc and: [presenter model owner isNil]) ifFalse: [
+					toolbar addMorph: (				
+						self 	button: aTool  state: #isTool: size: buttonWidth )] ]].
 	^ toolbar! !
 
 !DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Dec/2024, 12:10:09 pm (UTC)'!
