@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 2:38:38 pm'!
+'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 3:36:59 pm'!
 'Description '!
-!provides: 'Dybo' 1 235!
+!provides: 'Dybo' 1 236!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1027,9 +1027,9 @@ Do you really want to proceed?' translated format: { backupDir pathName }.
 	DyUserData load.
 	WaitSpinner stop.! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:52:28 am (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 1:16:16 pm (UTC)'!
 paperBackgroundIndex
-	^ (Preferences instanceAt: #paperModel) type indexOf: (Preferences at: #paperModel)! !
+	^ (Preferences instanceAt: #paperModel) type indexOf: DyboSystem paperBackground ! !
 
 !Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 12:33:14 pm (UTC)'!
 paperBackgroundIndex: newIndex
@@ -1042,9 +1042,9 @@ paperBackgroundIndex: newIndex
 paperBackgrounds
 	^ (Preferences instanceAt: #paperModel) type collect: [:aBackground | aBackground title]! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:50:32 am (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 1:30:10 pm (UTC)'!
 paperRatioIndex
-	^ (Preferences instanceAt: #paperRatio) type indexOf: (Preferences at: #paperRatio)! !
+	^ (Preferences instanceAt: #paperRatio) type indexOf: DyboSystem paperRatio! !
 
 !Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 12:33:31 pm (UTC)'!
 paperRatioIndex: newIndex
@@ -1546,16 +1546,29 @@ renameTopic: aTopic from: prevName to: newName
 	'Topic renamed: maintenance operations' print.
 	self rename: prevName to: newName in: aTopic directory parent! !
 
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 9:55:14 am (UTC)'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 1:29:26 pm (UTC)'!
 defaultPaperSize
 " Its width fill the screen, according to its default ratio "
 	| paperRatio |
-	paperRatio := Preferences at: #paperRatio.
+	paperRatio := self paperRatio.
 	^ (paperRatio * (self screenSize x / paperRatio x) asFloat) asIntegerPoint .! !
 
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 3/May/2026, 11:14:42 am (UTC)'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 1:32:53 pm (UTC)'!
 paperBackground
-	^ Preferences at: #paperBackground! !
+	| value |
+	value := Preferences at: #paperModel.
+	^ value isString 
+		ifTrue: [Smalltalk at: value asSymbol] 
+		ifFalse: [value]! !
+
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 1:27:47 pm (UTC)'!
+paperRatio
+	| value |
+	value := Preferences at: #paperRatio.
+	value isPoint ifFalse: ["Value read from the userPref file"
+		value := value subStrings: '@'.
+		value := value first asNumber @ value second asNumber].
+	^ value! !
 
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 1:13:37 pm (UTC)'!
 scriptLibrary

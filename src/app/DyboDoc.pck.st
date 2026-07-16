@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 1:13:31 pm'!
+'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 3:37:04 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 254!
+!provides: 'DyboDoc' 1 255!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -2669,11 +2669,11 @@ reset
 new
 	^self on: Array new! !
 
-!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 16/Jul/2026, 9:58:50 am (UTC)'!
+!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 16/Jul/2026, 1:17:42 pm (UTC)'!
 initialize
 	super initialize.
 	dirName := String streamContents: [:s | DateAndTime now filenamePrintOn: s].
-	pageBackground := Preferences at: #paperModel! !
+	pageBackground := DyboSystem paperBackground ! !
 
 !DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:08:17 pm (UTC)'!
 jpegFilePages
