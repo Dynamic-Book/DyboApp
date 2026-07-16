@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 1:13:27 pm'!
+'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 2:38:38 pm'!
 'Description '!
-!provides: 'Dybo' 1 234!
+!provides: 'Dybo' 1 235!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1031,11 +1031,12 @@ Do you really want to proceed?' translated format: { backupDir pathName }.
 paperBackgroundIndex
 	^ (Preferences instanceAt: #paperModel) type indexOf: (Preferences at: #paperModel)! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:53:15 am (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 12:33:14 pm (UTC)'!
 paperBackgroundIndex: newIndex
-	^ Preferences 
+	Preferences 
 		at: #paperModel
-		put: ((Preferences instanceAt: #paperModel) type at: newIndex)! !
+		put: ((Preferences instanceAt: #paperModel) type at: newIndex).
+	Preferences saveToDisk: #paperModel! !
 
 !Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:51:46 am (UTC)'!
 paperBackgrounds
@@ -1045,15 +1046,20 @@ paperBackgrounds
 paperRatioIndex
 	^ (Preferences instanceAt: #paperRatio) type indexOf: (Preferences at: #paperRatio)! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:50:11 am (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 12:33:31 pm (UTC)'!
 paperRatioIndex: newIndex
-	^ Preferences 
+	Preferences 
 		at: #paperRatio 
-		put: ((Preferences instanceAt: #paperRatio) type at: newIndex)! !
+		put: ((Preferences instanceAt: #paperRatio) type at: newIndex).
+	Preferences saveToDisk: #paperRatio! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:45:03 am (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 12:29:30 pm (UTC)'!
 paperRatios
-	^ (Preferences instanceAt: #paperRatio) type! !
+	^ (Preferences instanceAt: #paperRatio) type collect: [:ratio |
+		 ratio caseOf: {
+			[16@9] -> ['Wide 16/9' translated] .
+			[210@297] -> ['A4 portrait' translated].
+			[297@210] -> ['A4 landscape' translated]} ]! !
 
 !Dybo methodsFor: 'actions task' stamp: 'hlsf 17/Apr/2026, 10:12:36 am (UTC)'!
 deleteTask: aDyTask 
