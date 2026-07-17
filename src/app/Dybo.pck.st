@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 3:36:59 pm'!
+'From Cuis7.9 [latest update: #8056] on 17 July 2026 at 12:53:12 pm'!
 'Description '!
-!provides: 'Dybo' 1 236!
+!provides: 'Dybo' 1 237!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1027,35 +1027,35 @@ Do you really want to proceed?' translated format: { backupDir pathName }.
 	DyUserData load.
 	WaitSpinner stop.! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 1:16:16 pm (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 17/Jul/2026, 10:43:21 am (UTC)'!
 paperBackgroundIndex
-	^ (Preferences instanceAt: #paperModel) type indexOf: DyboSystem paperBackground ! !
+	^ DyboSystem paperBackgrounds indexOf: (Preferences at: #paperModel)! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 12:33:14 pm (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 17/Jul/2026, 10:34:43 am (UTC)'!
 paperBackgroundIndex: newIndex
 	Preferences 
 		at: #paperModel
-		put: ((Preferences instanceAt: #paperModel) type at: newIndex).
+		put: (DyboSystem paperBackgrounds at: newIndex).
 	Preferences saveToDisk: #paperModel! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 10:51:46 am (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 17/Jul/2026, 10:33:05 am (UTC)'!
 paperBackgrounds
-	^ (Preferences instanceAt: #paperModel) type collect: [:aBackground | aBackground title]! !
+	^ DyboSystem paperBackgrounds collect: [:aSymbol | (Smalltalk at: aSymbol) title]! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 1:30:10 pm (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 17/Jul/2026, 10:11:35 am (UTC)'!
 paperRatioIndex
-	^ (Preferences instanceAt: #paperRatio) type indexOf: DyboSystem paperRatio! !
+	^ DyboSystem paperRatios indexOf: (Preferences at: #paperRatio)! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 12:33:31 pm (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 17/Jul/2026, 10:09:01 am (UTC)'!
 paperRatioIndex: newIndex
 	Preferences 
 		at: #paperRatio 
-		put: ((Preferences instanceAt: #paperRatio) type at: newIndex).
+		put: (DyboSystem paperRatios at: newIndex).
 	Preferences saveToDisk: #paperRatio! !
 
-!Dybo methodsFor: 'actions paper' stamp: 'hlsf 16/Jul/2026, 12:29:30 pm (UTC)'!
+!Dybo methodsFor: 'actions paper' stamp: 'hlsf 17/Jul/2026, 10:08:14 am (UTC)'!
 paperRatios
-	^ (Preferences instanceAt: #paperRatio) type collect: [:ratio |
+	^ DyboSystem paperRatios collect: [:ratio |
 		 ratio caseOf: {
 			[16@9] -> ['Wide 16/9' translated] .
 			[210@297] -> ['A4 portrait' translated].
@@ -1339,20 +1339,20 @@ desktopPreferences
 		at: #fullScreenLeavesDeskMargins put: false.
 ! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 16/Jul/2026, 9:53:21 am (UTC)'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 17/Jul/2026, 10:24:29 am (UTC)'!
 paperPreferences
 	Preferences 
 		name: #paperRatio
 		description: 'The default ratio of a page defined by two numbers, width and height.' translated
 		category: #dybo 
-		type: {16@9 . 210@297 . 297@210} 
+		type: Point 
 		value: 16@9;
 		
 		name: #paperModel
 		description: 'The default background for a new page in a document.' translated
 		category: #dybo
-		type: {PageBackgroundBlank . PageBackgroundHL . PageBackgroundGrid . PageBackgroundMillimeter}
-		value: PageBackgroundHL! !
+		type: Symbol
+		value: #PageBackgroundHL! !
 
 !DyPlatform methodsFor: 'preferences' stamp: 'hlsf 5/May/2026, 12:42:39 pm (UTC)'!
 pathPreferences
@@ -1482,7 +1482,7 @@ toggleFullscreen
 exchangePath
 	^ Preferences at: #exchangePath! !
 
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 15/May/2026, 3:04:13 pm (UTC)'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 16/Jul/2026, 5:11:52 pm (UTC)'!
 exchangePath: aPath
 	Preferences name: #exchangePath category: #dybo value: aPath.
 	Preferences saveToDisk: #exchangePath! !
@@ -1546,29 +1546,24 @@ renameTopic: aTopic from: prevName to: newName
 	'Topic renamed: maintenance operations' print.
 	self rename: prevName to: newName in: aTopic directory parent! !
 
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 1:29:26 pm (UTC)'!
-defaultPaperSize
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 17/Jul/2026, 10:21:12 am (UTC)'!
+paperBackground
+	^ Smalltalk at: (Preferences at: #paperModel)! !
+
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 17/Jul/2026, 10:24:17 am (UTC)'!
+paperBackgrounds
+	^ `#(PageBackgroundBlank PageBackgroundHL PageBackgroundGrid PageBackgroundMillimeter)`! !
+
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 17/Jul/2026, 10:06:05 am (UTC)'!
+paperRatios
+	^ `Array with: 16@9 with: 210@297 with: 297@210`! !
+
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 17/Jul/2026, 10:20:28 am (UTC)'!
+paperSize
 " Its width fill the screen, according to its default ratio "
 	| paperRatio |
-	paperRatio := self paperRatio.
+	paperRatio := Preferences at: #paperRatio.
 	^ (paperRatio * (self screenSize x / paperRatio x) asFloat) asIntegerPoint .! !
-
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 1:32:53 pm (UTC)'!
-paperBackground
-	| value |
-	value := Preferences at: #paperModel.
-	^ value isString 
-		ifTrue: [Smalltalk at: value asSymbol] 
-		ifFalse: [value]! !
-
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 1:27:47 pm (UTC)'!
-paperRatio
-	| value |
-	value := Preferences at: #paperRatio.
-	value isPoint ifFalse: ["Value read from the userPref file"
-		value := value subStrings: '@'.
-		value := value first asNumber @ value second asNumber].
-	^ value! !
 
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 1:13:37 pm (UTC)'!
 scriptLibrary

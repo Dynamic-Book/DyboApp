@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 16 July 2026 at 3:48:55 pm'!
+'From Cuis7.9 [latest update: #8056] on 17 July 2026 at 12:53:17 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 256!
+!provides: 'DyboDoc' 1 257!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1198,16 +1198,16 @@ writingTool
 		}
 		otherwise: [nil]! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 16/Jul/2026, 9:58:15 am (UTC)'!
+!Document methodsFor: 'actions pages' stamp: 'hlsf 17/Jul/2026, 10:41:26 am (UTC)'!
 chooseBackground
 	| menu |
 	menu := MenuMorph entitled: 'Type of background' translated.
-	(Preferences instanceAt: #paperModel) type do: [:aBackground |
+	DyboSystem paperBackgrounds do: [:aBackgroundSymbol |
 		menu 
 			addUpdating: #pageBackgroundString: 
 			target: self 
 			action: #switchToPageBackground: 
-			argumentList: {aBackground }].
+			argumentList: {aBackgroundSymbol }].
 	menu popUpInWorld ! !
 
 !Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 2:04:43 pm (UTC)'!
@@ -1260,9 +1260,11 @@ moveOYAction: increment
 		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 3/Mar/2026, 3:23:28 pm (UTC)'!
-pageBackgroundString: pageBackground
-	^ (self currentPage isBackground: pageBackground) asMenuItemTextPrefix , pageBackground title! !
+!Document methodsFor: 'actions pages' stamp: 'hlsf 17/Jul/2026, 10:41:19 am (UTC)'!
+pageBackgroundString: backgroundSymbol
+	| backgroundModel |
+	backgroundModel := Smalltalk at: backgroundSymbol.
+	^ (self currentPage isBackground: backgroundModel ) asMenuItemTextPrefix , backgroundModel title! !
 
 !Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 12:28:44 pm (UTC)'!
 pageFitScreen
@@ -1473,9 +1475,9 @@ saveDocument
 	PNGReadWriter putForm: view preview onFile: model path // 'preview.png'.
 	^ true! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 3/Mar/2026, 3:27:42 pm (UTC)'!
-switchToPageBackground: aClass
-	self currentPage replaceBackgroundBy: aClass new! !
+!Document methodsFor: 'actions ui' stamp: 'hlsf 17/Jul/2026, 10:41:59 am (UTC)'!
+switchToPageBackground: backgroundSymbol
+	self currentPage replaceBackgroundBy: (Smalltalk at: backgroundSymbol) new! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024, 3:12:27 pm (UTC)'!
 undoAction
@@ -3891,9 +3893,9 @@ newOn: documentPresenter for: aDyboScript
 defaultColor
 	^ Color blue! !
 
-!PageBackground methodsFor: 'initialization' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
+!PageBackground methodsFor: 'initialization' stamp: 'hlsf 17/Jul/2026, 10:20:28 am (UTC)'!
 defaultExtent
-	^ DyboSystem defaultPaperSize ! !
+	^ DyboSystem paperSize ! !
 
 !PageBackground methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 6:50:13 pm (UTC)'!
 release
@@ -4515,7 +4517,7 @@ statusBarInScroller
 		color: Color transparent;
 		yourself! !
 
-!DocumentView methodsFor: 'widget' stamp: 'hlsf 16/Jul/2026, 1:45:33 pm (UTC)'!
+!DocumentView methodsFor: 'widget' stamp: 'hlsf 16/Jul/2026, 5:06:56 pm (UTC)'!
 toolbarWith: aSpec
 	| toolbar buttonWidth |
 	toolbar := LayoutMorph newRow separation: 2.
@@ -4526,9 +4528,8 @@ toolbarWith: aSpec
 				[ #spacer ] -> [ toolbar addMorphUseAll: DyControlsManager spacer ] .
 				[ #blank ] -> [ toolbar addMorph: (DyControlsManager spacer: buttonWidth) ] }
 			otherwise: [
-				(aTool = #saveDoc and: [presenter model owner isNil]) ifFalse: [
-					toolbar addMorph: (				
-						self 	button: aTool  state: #isTool: size: buttonWidth )] ]].
+				toolbar addMorph: (				
+					self 	button: aTool  state: #isTool: size: buttonWidth )] ].
 	^ toolbar! !
 
 !DocumentView methodsFor: 'widget' stamp: 'hlsf 24/Dec/2024, 12:10:09 pm (UTC)'!
