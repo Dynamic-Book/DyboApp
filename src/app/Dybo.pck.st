@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 17 July 2026 at 12:53:12 pm'!
+'From Cuis7.9 [latest update: #8056] on 21 July 2026 at 11:54:59 am'!
 'Description '!
-!provides: 'Dybo' 1 237!
+!provides: 'Dybo' 1 238!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1400,8 +1400,9 @@ scriptLibrary
 isDeployment
 	^ true! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 24/Feb/2026, 7:47:06 am (UTC)'!
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 21/Jul/2026, 9:23:05 am (UTC)'!
 resourcesPath
+" Resources located in the git repository "
 	^ self rootPath / 'resources'! !
 
 !DyDevelopment methodsFor: 'path' stamp: 'hlsf 10/Oct/2024, 8:18:28 am (UTC)'!
@@ -1501,9 +1502,10 @@ myPDFPath
 " the location of the user resources as PDF or other media files "
 	^ (platform userPath/ 'myPDF') assureExistence ! !
 
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 10/May/2026, 10:38:57 am (UTC)'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 21/Jul/2026, 9:27:24 am (UTC)'!
 myScriptsPath
-" the location of the user DKM scripts "
+" 	The location of the user DKM scripts, 
+	along the user data so it is part too of the back-up/restore system "
 	^ (self userDataPath / 'myScripts') assureExistence ! !
 
 !DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 9/Feb/2026, 4:37:22 pm (UTC)'!
@@ -1626,8 +1628,47 @@ saveData
 		dumpOnCompressedFile: DyboSystem userDataFile
 		object: DyUserData current! !
 
-!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 16/Jul/2026, 9:35:55 am (UTC)'!
+!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 21/Jul/2026, 9:50:00 am (UTC)'!
 install
+	| world |
+	"Report by any mean installation and run time"
+	Transcript
+		showOnDisplay: false;
+		logToFile: true;
+		logToStdout: true.
+	Smalltalk at: #LogStartupDebugAids put: true.
+	'Installing updates...' print.
+	Smalltalk condenseChanges.
+	"Focus does not follow mouse, it is annoying when editing Smalltalk sketch"
+	Preferences at: #focusFollowsMouse put: false.
+	"Adjust font size"
+	Preferences at: #defaultFontSize put: 11.
+	'Font preferences set' print.
+	Preferences at: #warnAndOfferLastUserChanges put: false.
+	Preferences at: #autoNumberUserChanges put: false.
+	"Set Locale and text domains"
+"	Preferences at: #useLocale put: true.
+	TextDomainManager registerCategoryPrefix: 'DrGeo' domain: 'drgeo'.
+	TextDomainManager registerCategoryPrefix: 'cuis' domain: 'cuis'.	
+"
+	'Finalizing installation...' print.
+	world := UISupervisor ui.
+[
+	(Delay forSeconds: 1) wait.
+	UISupervisor whenUIinSafeState: 	[
+		self beApplication .
+		"Remove all morphs"
+		world submorphsDo: [:each | each delete].
+		'Morphs deleted' print.
+		'Installing App launch sequence...' print.
+		Smalltalk at: #dyboApp put: DyboSystem.
+		AppLauncher appGlobalName: #dyboApp appSelector: #launch.
+		'Cleaning image' print.
+		Smalltalk garbageCollect.
+		'Installation ended' print.
+		'Saving image...' print.
+		Smalltalk saveAndQuit ]
+] fork
 ! !
 
 !DyboSystem class methodsFor: 'system startup' stamp: 'hlsf 22/Feb/2026, 8:01:43 am (UTC)'!

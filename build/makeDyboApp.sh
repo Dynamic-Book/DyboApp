@@ -8,7 +8,7 @@
 # variable to the wished DyboApp release number
 
 # DyboApp release number
-rel="26.02a"
+rel="26.08a"
 
 # Path
 dyboAppRepo=`echo "$0" | cut -d / -f 2`
@@ -90,7 +90,8 @@ makeBundle () {
     echo "Installing user directories and files, icons"
     rsync -a $dyboAppRepo/resources/scripts $bundleResources
     rsync -a $dyboAppRepo/resources/graphics/icons $bundleResources/graphics
-    mkdir -p  $bundleResources/myPDF $bundleResources/userData/myScripts
+    mkdir -p  $bundleResources/myPDF $bundleResources/userData/myScripts $bundleResources/refData
+    rsync -a $dyboAppRepo/resources/refData/*.csv $bundleResources/refData
 
     
     echo "Copy license terms of each dkm..."

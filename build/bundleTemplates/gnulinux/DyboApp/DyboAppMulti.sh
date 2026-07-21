@@ -8,7 +8,7 @@
 
 # Path to user data and Smalltalk image in HOME directory
 USERDATA="Documents/myDybo"
-
+USERDATAPATH="$HOME/$USERDATA"
 # Uncomment for composed key-in input
 #COMPO="-compositioninput"
 
@@ -20,15 +20,15 @@ VM="$APP/VM/Linux-x86_64"
 RESOURCES="$APP/Resources"
 
 stockImage="$RESOURCES/image"
-userImage="$HOME/$USERDATA/Resources/image"
+userImage="$USERDATAPATH/Resources/image"
 
 # Does the USERDATA folder exist, if no create it and populate it"
 if ! [ -f $userImage/dybo.image ];
 then
-    mkdir -p $userImage
+    mkdir -p $userImage $USERDATAPATH/myPDF $USERDATAPATH/userData/myScripts
     cp -f $stockImage/dybo.* $userImage
-    ln -s $stockImage/Cuis*.sources $userImage
-    ln -s $stockImage/locale $userImage
+    cp -f $stockImage/Cuis*.sources $userImage
+    cp -rf $stockImage/locale $userImage
 fi
 
 
@@ -47,7 +47,7 @@ exec "$VM/squeak" $COMPO \
     -vm-display-X11 \
     --title "DyboApp" \
     "$userImage/dybo" \
-    -d "Smalltalk at: #userPath put: '$HOME/$USERDATA' asDirectoryEntry" \
+    -d "Smalltalk at: #userPath put: '$USERDATAPATH' asDirectoryEntry" \
     -d "Smalltalk at: #rootPath put: '$APP' asDirectoryEntry" \
     -ud "$HOME/$USERDATA/Resources"
 
