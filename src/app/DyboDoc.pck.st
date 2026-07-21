@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 17 July 2026 at 12:53:17 pm'!
+'From Cuis7.9 [latest update: #8056] on 21 July 2026 at 3:31:22 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 257!
+!provides: 'DyboDoc' 1 258!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -420,7 +420,7 @@ CommandStack class
 
 !classDefinition: #DocumentModel category: #'DyboDoc-Model'!
 ActiveModel subclass: #DocumentModel
-	instanceVariableNames: 'pageBackground owner dirName title'
+	instanceVariableNames: 'pageModel owner dirName title'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
@@ -500,7 +500,7 @@ StrokeGroupMorph class
 
 !classDefinition: #PageMorph category: #'DyboDoc-View'!
 BoxMorph subclass: #PageMorph
-	instanceVariableNames: 'pageBackground paper presenter'
+	instanceVariableNames: 'pageModel paper presenter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-View'!
@@ -528,64 +528,64 @@ PaperMorph subclass: #AnnotatorMorph
 AnnotatorMorph class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageBackground category: #'DyboDoc-Model'!
-ColoredBoxMorph subclass: #PageBackground
+!classDefinition: #PageModel category: #'DyboDoc-Model'!
+ColoredBoxMorph subclass: #PageModel
 	instanceVariableNames: 'step viewport'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageBackground class' category: #'DyboDoc-Model'!
-PageBackground class
+!classDefinition: 'PageModel class' category: #'DyboDoc-Model'!
+PageModel class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageBackgroundBlank category: #'DyboDoc-Model'!
-PageBackground subclass: #PageBackgroundBlank
+!classDefinition: #PageModelBlank category: #'DyboDoc-Model'!
+PageModel subclass: #PageModelBlank
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageBackgroundBlank class' category: #'DyboDoc-Model'!
-PageBackgroundBlank class
+!classDefinition: 'PageModelBlank class' category: #'DyboDoc-Model'!
+PageModelBlank class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageBackgroundGrid category: #'DyboDoc-Model'!
-PageBackground subclass: #PageBackgroundGrid
+!classDefinition: #PageModelGrid category: #'DyboDoc-Model'!
+PageModel subclass: #PageModelGrid
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageBackgroundGrid class' category: #'DyboDoc-Model'!
-PageBackgroundGrid class
+!classDefinition: 'PageModelGrid class' category: #'DyboDoc-Model'!
+PageModelGrid class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageBackgroundHL category: #'DyboDoc-Model'!
-PageBackground subclass: #PageBackgroundHL
+!classDefinition: #PageModelHorizontalLine category: #'DyboDoc-Model'!
+PageModel subclass: #PageModelHorizontalLine
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageBackgroundHL class' category: #'DyboDoc-Model'!
-PageBackgroundHL class
+!classDefinition: 'PageModelHorizontalLine class' category: #'DyboDoc-Model'!
+PageModelHorizontalLine class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageBackgroundMillimeter category: #'DyboDoc-Model'!
-PageBackground subclass: #PageBackgroundMillimeter
+!classDefinition: #PageModelMillimeter category: #'DyboDoc-Model'!
+PageModel subclass: #PageModelMillimeter
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageBackgroundMillimeter class' category: #'DyboDoc-Model'!
-PageBackgroundMillimeter class
+!classDefinition: 'PageModelMillimeter class' category: #'DyboDoc-Model'!
+PageModelMillimeter class
 	instanceVariableNames: ''!
 
-!classDefinition: #PageBackgroundPdf category: #'DyboDoc-Model'!
-PageBackground subclass: #PageBackgroundPdf
+!classDefinition: #PageModelPdf category: #'DyboDoc-Model'!
+PageModel subclass: #PageModelPdf
 	instanceVariableNames: 'form dpi'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Model'!
-!classDefinition: 'PageBackgroundPdf class' category: #'DyboDoc-Model'!
-PageBackgroundPdf class
+!classDefinition: 'PageModelPdf class' category: #'DyboDoc-Model'!
+PageModelPdf class
 	instanceVariableNames: ''!
 
 !classDefinition: #PageContainer category: #'DyboDoc-View'!
@@ -832,18 +832,18 @@ My extent expands to enclosed new handwritings. It shrinks when handwritings are
 - frozen: is my annotatedMorph in a frozen state, i.e. the user can interact with it, only it can 
 be annoted!
 
-!PageBackground commentStamp: '<historical>' prior: 0!
+!PageModel commentStamp: '<historical>' prior: 0!
 An abstract model for page background
 In essence it provides the extent and the background of a PageMorph.
 It is a Morph too so it draws the background and it is owned by a PageMorph!
 
-!PageBackgroundGrid commentStamp: '<historical>' prior: 0!
+!PageModelGrid commentStamp: '<historical>' prior: 0!
 A white background with blue grids!
 
-!PageBackgroundHL commentStamp: '<historical>' prior: 0!
+!PageModelHorizontalLine commentStamp: '<historical>' prior: 0!
 A white background with blue horizontal lines!
 
-!PageBackgroundPdf commentStamp: '<historical>' prior: 0!
+!PageModelPdf commentStamp: '<historical>' prior: 0!
 - pageNumber : integer, the page number of the PDF page I represent!
 
 !PageContainer commentStamp: '<historical>' prior: 0!
@@ -1198,16 +1198,16 @@ writingTool
 		}
 		otherwise: [nil]! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 17/Jul/2026, 10:41:26 am (UTC)'!
-chooseBackground
+!Document methodsFor: 'actions pages' stamp: 'hlsf 21/Jul/2026, 12:53:01 pm (UTC)'!
+choosePageModel
 	| menu |
-	menu := MenuMorph entitled: 'Type of background' translated.
-	DyboSystem paperBackgrounds do: [:aBackgroundSymbol |
+	menu := MenuMorph entitled: 'Type of page model' translated.
+	DyboSystem pageModels do: [:aSymbol |
 		menu 
-			addUpdating: #pageBackgroundString: 
+			addUpdating: #pageModelString: 
 			target: self 
-			action: #switchToPageBackground: 
-			argumentList: {aBackgroundSymbol }].
+			action: #switchToPageModel: 
+			argumentList: {aSymbol }].
 	menu popUpInWorld ! !
 
 !Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 2:04:43 pm (UTC)'!
@@ -1260,12 +1260,6 @@ moveOYAction: increment
 		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 17/Jul/2026, 10:41:19 am (UTC)'!
-pageBackgroundString: backgroundSymbol
-	| backgroundModel |
-	backgroundModel := Smalltalk at: backgroundSymbol.
-	^ (self currentPage isBackground: backgroundModel ) asMenuItemTextPrefix , backgroundModel title! !
-
 !Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 12:28:44 pm (UTC)'!
 pageFitScreen
 	" Make the page entirely visible in the PageContainer "
@@ -1278,6 +1272,12 @@ pageFitScreen
 		morphPosition: 0@0;
 		scale: (scaleX min: scaleY)
 	! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 21/Jul/2026, 12:52:11 pm (UTC)'!
+pageModelString: modelSymbol
+	| pageModel |
+	pageModel := Smalltalk at: modelSymbol.
+	^ (self currentPage isPageModel: pageModel ) asMenuItemTextPrefix , pageModel title! !
 
 !Document methodsFor: 'actions pages' stamp: 'hlsf 13/Feb/2025, 8:30:00 am (UTC)'!
 zoomAction: increment	
@@ -1390,7 +1390,7 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Mar/2026, 5:37:37 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 21/Jul/2026, 12:43:20 pm (UTC)'!
 importPDF: aFileEntry
 	| process |
 	process := DyboSystem 
@@ -1399,7 +1399,7 @@ importPDF: aFileEntry
 		pages: nil.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
 	1 to: model pdfNumberOfPages do: [:index | | newPage |
-		newPage := PageMorph newOn: self background: (self model pdfBackgroundForPage: index).
+		newPage := PageMorph newOn: self model: (self model pdfModelForPage: index).
 		self view insertPage: newPage	]
 	! !
 
@@ -1475,9 +1475,9 @@ saveDocument
 	PNGReadWriter putForm: view preview onFile: model path // 'preview.png'.
 	^ true! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 17/Jul/2026, 10:41:59 am (UTC)'!
-switchToPageBackground: backgroundSymbol
-	self currentPage replaceBackgroundBy: (Smalltalk at: backgroundSymbol) new! !
+!Document methodsFor: 'actions ui' stamp: 'hlsf 21/Jul/2026, 1:02:59 pm (UTC)'!
+switchToPageModel: pageModelSymbol
+	self currentPage replacePageModelBy: (Smalltalk at: pageModelSymbol) new! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024, 3:12:27 pm (UTC)'!
 undoAction
@@ -2671,22 +2671,23 @@ reset
 new
 	^self on: Array new! !
 
-!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 16/Jul/2026, 1:17:42 pm (UTC)'!
+!DocumentModel methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:48:15 pm (UTC)'!
 initialize
 	super initialize.
 	dirName := String streamContents: [:s | DateAndTime now filenamePrintOn: s].
-	pageBackground := DyboSystem paperBackground ! !
+	pageModel := DyboSystem pageModel ! !
 
 !DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:08:17 pm (UTC)'!
 jpegFilePages
 	^ (self path children select: [:each | each extension = 'jpg'])
 		sort: [:f1 :f2 | f1 name < f2 name]! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:32:06 pm (UTC)'!
-pdfBackgroundForPage: aPageNumber
-	| pdfPageBackground |
-	pdfPageBackground := PageBackgroundPdf newOn: (self pdfPageAt: aPageNumber).
-	^ pdfPageBackground ! !
+!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 21/Jul/2026, 1:07:26 pm (UTC)'!
+pdfModelForPage: aPageNumber
+" Get the page model as PDF background for the page "
+	| pdfPage |
+	pdfPage := PageModelPdf newOn: (self pdfPageAt: aPageNumber).
+	^ pdfPage! !
 
 !DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:08:17 pm (UTC)'!
 pdfNumberOfPages
@@ -2704,9 +2705,9 @@ dirName
 modificationTime
 	^ (self path // 'doc.obj') modificationTime ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 3/Mar/2026, 3:06:49 pm (UTC)'!
-newPageBackground
-	^ pageBackground new! !
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 21/Jul/2026, 12:41:22 pm (UTC)'!
+newPageModel
+	^ pageModel new! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 1:43:53 pm (UTC)'!
 owner
@@ -3113,19 +3114,15 @@ initialize
 includeInNewMorphMenu
 	^ false! !
 
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 27/Feb/2026, 6:48:31 am (UTC)'!
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 21/Jul/2026, 1:07:26 pm (UTC)'!
 scale: newScale
-	(pageBackground is: #PageBackgroundPdf) ifTrue: [
-		pageBackground resampleFrom: self scale to: newScale in: self documentModel path].
+	(pageModel is: #PageModelPdf) ifTrue: [
+		pageModel resampleFrom: self scale to: newScale in: self documentModel path].
 	super scale: newScale! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2024, 9:35:01 am (UTC)'!
 annotators
 	^submorphs select: [:morph | morph is: #AnnotatorMorph]! !
-
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 27/Feb/2026, 6:50:11 am (UTC)'!
-background: aPageBackground
-	pageBackground := aPageBackground ! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024, 8:27:26 pm (UTC)'!
 documentModel
@@ -3149,6 +3146,10 @@ number
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2024, 9:17:04 am (UTC)'!
 pageContainer
 	^ owner! !
+
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 21/Jul/2026, 12:39:08 pm (UTC)'!
+pageModel: aPageModel
+	pageModel := aPageModel ! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 2:13:35 pm (UTC)'!
 paper
@@ -3175,25 +3176,25 @@ viewport
 		ifFalse: [	((self internalize: 0@0) max: 0@0) 
 			corner: ((self internalize: owner morphExtent) min: extent)]! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 5/Apr/2026, 2:21:28 pm (UTC)'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:37:57 pm (UTC)'!
 initialize
 	super initialize.
 	paper := PaperMorph newOn: presenter.
 	paper stroker: StrokerBezier3XP.
-	self addMorphBack: pageBackground position: 0@0;
+	self addMorphBack: pageModel position: 0@0;
 		addMorphFront: paper position: 0@0.
-	self morphExtent: pageBackground morphExtent.
-	paper morphExtent: pageBackground morphExtent! !
+	self morphExtent: pageModel morphExtent.
+	paper morphExtent: pageModel morphExtent! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 6:52:12 pm (UTC)'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:37:57 pm (UTC)'!
 release
 " Free any ressource I am using when I am deleted"
-	pageBackground release! !
+	pageModel release! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026, 3:28:05 pm (UTC)'!
-replaceBackgroundBy: newPageBackground
-	self replaceSubmorph: pageBackground by: newPageBackground.
-	pageBackground := newPageBackground ! !
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 1:03:10 pm (UTC)'!
+replacePageModelBy: newPageModel
+	self replaceSubmorph: pageModel by: newPageModel.
+	pageModel := newPageModel ! !
 
 !PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025, 3:14:50 pm (UTC)'!
 clipsSubmorphs
@@ -3206,9 +3207,9 @@ drawOn: canvas! !
 is: aSymbol
 	^ aSymbol == #PageMorph or: [super is: aSymbol ]! !
 
-!PageMorph methodsFor: 'testing' stamp: 'hlsf 3/Mar/2026, 3:22:24 pm (UTC)'!
-isBackground: aClass
-	^ pageBackground class = aClass ! !
+!PageMorph methodsFor: 'testing' stamp: 'hlsf 21/Jul/2026, 12:37:57 pm (UTC)'!
+isPageModel: aClass
+	^ pageModel class = aClass ! !
 
 !PageMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024, 8:08:01 am (UTC)'!
 clearSelection
@@ -3272,10 +3273,10 @@ wantsDroppedMorph: aMorph event: evt
 	^ (aMorph is: #FlapItem)
 	or: [aMorph is: #AnnotatorMorph]! !
 
-!PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 27/Feb/2026, 7:24:08 am (UTC)'!
-newOn: documentPresenter background: aPageBackground
+!PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 21/Jul/2026, 12:39:57 pm (UTC)'!
+newOn: documentPresenter model: aPageModel
 	^ self basicNew
-		background: aPageBackground ;
+		pageModel: aPageModel ;
 		presenter: documentPresenter ;
 		initialize;
 		yourself! !
@@ -3889,59 +3890,59 @@ newOn: documentPresenter for: aDyboScript
 		initialize;
 		yourself! !
 
-!PageBackground methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026, 5:13:36 pm (UTC)'!
+!PageModel methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026, 5:13:36 pm (UTC)'!
 defaultColor
 	^ Color blue! !
 
-!PageBackground methodsFor: 'initialization' stamp: 'hlsf 17/Jul/2026, 10:20:28 am (UTC)'!
+!PageModel methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:59:58 pm (UTC)'!
 defaultExtent
-	^ DyboSystem paperSize ! !
+	^ DyboSystem pageSize ! !
 
-!PageBackground methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 6:50:13 pm (UTC)'!
+!PageModel methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 6:50:13 pm (UTC)'!
 release
 " Free any used resources when I am discarded "! !
 
-!PageBackground methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:26:57 pm (UTC)'!
+!PageModel methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:26:57 pm (UTC)'!
 documentModel
 	^ self page documentModel ! !
 
-!PageBackground methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:26:49 pm (UTC)'!
+!PageModel methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:26:49 pm (UTC)'!
 page
 	^ owner! !
 
-!PageBackground methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026, 9:27:01 am (UTC)'!
+!PageModel methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026, 9:27:01 am (UTC)'!
 drawOn: canvas
 	viewport := owner viewport.
 	canvas
 		fillRectangle: viewport "self localBounds"
 		color: `Color white`.! !
 
-!PageBackground methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026, 1:53:28 pm (UTC)'!
+!PageModel methodsFor: 'drawing' stamp: 'hlsf 4/Mar/2026, 1:53:28 pm (UTC)'!
 lineWidth: cmNumber
 	^  cmNumber / owner scale min: cmNumber ! !
 
-!PageBackground methodsFor: 'geometry testing' stamp: 'hlsf 3/Mar/2026, 2:01:25 pm (UTC)'!
+!PageModel methodsFor: 'geometry testing' stamp: 'hlsf 3/Mar/2026, 2:01:25 pm (UTC)'!
 requiresVectorCanvas
 	^ true! !
 
-!PageBackground class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:34:58 pm (UTC)'!
+!PageModel class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:34:58 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
 
-!PageBackground class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 2:08:05 pm (UTC)'!
+!PageModel class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 2:08:05 pm (UTC)'!
 title
 	self subclassResponsibility ! !
 
-!PageBackgroundBlank class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 3:08:40 pm (UTC)'!
+!PageModelBlank class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 3:08:40 pm (UTC)'!
 title
 	^ 'A blank background' translated! !
 
-!PageBackgroundGrid methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026, 1:57:11 pm (UTC)'!
+!PageModelGrid methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026, 1:57:11 pm (UTC)'!
 initialize
 	super initialize.
 	step := DyboSystem ppcm / 2  "5 mm"! !
 
-!PageBackgroundGrid methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026, 11:49:56 am (UTC)'!
+!PageModelGrid methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026, 11:49:56 am (UTC)'!
 drawOn: canvas 
 	| x y width end |
 	super drawOn: canvas.
@@ -3961,16 +3962,16 @@ drawOn: canvas
 		y := y + step ] 
 	! !
 
-!PageBackgroundGrid class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 1:47:29 pm (UTC)'!
+!PageModelGrid class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 1:47:29 pm (UTC)'!
 title
 	^ 'Millimeter grid (5x5)' translated! !
 
-!PageBackgroundHL methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026, 1:58:21 pm (UTC)'!
+!PageModelHorizontalLine methodsFor: 'initialization' stamp: 'hlsf 3/Mar/2026, 1:58:21 pm (UTC)'!
 initialize
 	super initialize.
 	step := DyboSystem ppcm.! !
 
-!PageBackgroundHL methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026, 11:44:03 am (UTC)'!
+!PageModelHorizontalLine methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026, 11:44:03 am (UTC)'!
 drawOn: canvas 
 	| y  width bottom |
 	super drawOn: canvas.
@@ -3982,11 +3983,11 @@ drawOn: canvas
 			canvas moveTo: viewport origin x @ y; lineTo: viewport corner x @ y].
 		y := y + step ]! !
 
-!PageBackgroundHL class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 1:44:25 pm (UTC)'!
+!PageModelHorizontalLine class methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Mar/2026, 1:44:25 pm (UTC)'!
 title
 	^ 'Horizontal line' translated! !
 
-!PageBackgroundMillimeter methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026, 11:49:11 am (UTC)'!
+!PageModelMillimeter methodsFor: 'drawing' stamp: 'hlsf 29/Mar/2026, 11:49:11 am (UTC)'!
 drawOn: canvas 
 	| x y width subStep startX startY end |
 	super drawOn: canvas.
@@ -4048,49 +4049,49 @@ drawOn: canvas
 				y := y + subStep ] ].
 		y := y + subStep] ! !
 
-!PageBackgroundMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026, 5:19:28 pm (UTC)'!
+!PageModelMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026, 5:19:28 pm (UTC)'!
 defaultColor
 	^ Color fromHexString: '#FF9E7D'! !
 
-!PageBackgroundMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026, 1:51:45 pm (UTC)'!
+!PageModelMillimeter methodsFor: 'initialization' stamp: 'hlsf 4/Mar/2026, 1:51:45 pm (UTC)'!
 initialize
 	super initialize.
 	step := DyboSystem ppcm	! !
 
-!PageBackgroundMillimeter class methodsFor: 'as yet unclassified' stamp: 'hlsf 4/Mar/2026, 1:55:33 pm (UTC)'!
+!PageModelMillimeter class methodsFor: 'as yet unclassified' stamp: 'hlsf 4/Mar/2026, 1:55:33 pm (UTC)'!
 title
 	^ 'Graph paper' translated! !
 
-!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024, 11:31:16 am (UTC)'!
+!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024, 11:31:16 am (UTC)'!
 dpi
 	^ dpi ifNil: [dpi := 150]! !
 
-!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:31:01 pm (UTC)'!
+!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:31:01 pm (UTC)'!
 form
 	^ form ifNil: [form := self documentModel pdfPageAt: self page number ]! !
 
-!PageBackgroundPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024, 8:50:23 pm (UTC)'!
+!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024, 8:50:23 pm (UTC)'!
 form: aForm
 	form := aForm ! !
 
-!PageBackgroundPdf methodsFor: 'initialization' stamp: 'hlsf 24/Nov/2024, 3:36:44 pm (UTC)'!
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 24/Nov/2024, 3:36:44 pm (UTC)'!
 defaultExtent
 	^ self form extent! !
 
-!PageBackgroundPdf methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 7:44:54 pm (UTC)'!
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 7:44:54 pm (UTC)'!
 release
 	(self documentModel jpegFilePages at: self page number) delete! !
 
-!PageBackgroundPdf methodsFor: 'drawing' stamp: 'hlsf 4/Jan/2025, 9:02:33 am (UTC)'!
+!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 4/Jan/2025, 9:02:33 am (UTC)'!
 drawOn: canvas
   "   Display reverse: canvas clipRect."
 	canvas image: self form at: 0@0! !
 
-!PageBackgroundPdf methodsFor: 'testing' stamp: 'hlsf 27/Feb/2026, 6:44:01 am (UTC)'!
+!PageModelPdf methodsFor: 'testing' stamp: 'hlsf 21/Jul/2026, 1:07:26 pm (UTC)'!
 is: aSymbol
-	^ aSymbol == #PageBackgroundPdf or: [super is: aSymbol ]! !
+	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026, 7:53:30 pm (UTC)'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026, 7:53:30 pm (UTC)'!
 resampleFrom: oldScale to: newScale in: documentPath
 	" Do I need to be resampled "
 	| newDpi |
@@ -4111,7 +4112,7 @@ resampleFrom: oldScale to: newScale in: documentPath
 		extent := form extent.
 		dpi := newDpi ]! !
 
-!PageBackgroundPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026, 7:31:46 pm (UTC)'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026, 7:31:46 pm (UTC)'!
 sampleAt: newDpi in: documentPath
 	| process number |
 	number := self page number.
@@ -4122,27 +4123,27 @@ sampleAt: newDpi in: documentPath
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
 	form := self documentModel pdfPageAt: number! !
 
-!PageBackgroundPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024, 5:09:38 pm (UTC)'!
+!PageModelPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024, 5:09:38 pm (UTC)'!
 prepareToBeSaved
 	form := nil! !
 
-!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:46:25 pm (UTC)'!
+!PageModelPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:46:25 pm (UTC)'!
 knowsOwnLocalBounds
 	^ true! !
 
-!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:47:10 pm (UTC)'!
+!PageModelPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:47:10 pm (UTC)'!
 requiresVectorCanvas
 	^ false! !
 
-!PageBackgroundPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:47:55 pm (UTC)'!
+!PageModelPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:47:55 pm (UTC)'!
 wantsContour
 	^ false! !
 
-!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026, 6:02:02 pm (UTC)'!
+!PageModelPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026, 6:02:02 pm (UTC)'!
 new
 	self error: 'Use #newOn: to create new instance'! !
 
-!PageBackgroundPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026, 6:08:05 pm (UTC)'!
+!PageModelPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026, 6:08:05 pm (UTC)'!
 newOn: aForm
 	^ self basicNew
 		form: aForm;
@@ -4249,12 +4250,12 @@ deleteBitMasks
 	pages do: [:aPage |
 		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026, 8:04:39 am (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:40:48 pm (UTC)'!
 initialize
 	super initialize.
 	self beColumn.
 	pages := OrderedCollection new.
-	currentPage := PageMorph newOn: presenter background: self model newPageBackground .
+	currentPage := PageMorph newOn: presenter model: self model newPageModel .
 	self installPageContainer.
 	pages add: currentPage.
 ! !
@@ -4385,9 +4386,9 @@ goPreviousPage
 	^ self goPage: (self pageAt: self currentPageIndex - 1)
 ! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 3/Mar/2026, 3:06:49 pm (UTC)'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 21/Jul/2026, 12:40:48 pm (UTC)'!
 insertPage
-	self insertPage: (PageMorph newOn: presenter background: self model newPageBackground)! !
+	self insertPage: (PageMorph newOn: presenter model: self model newPageModel)! !
 
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 16/Nov/2024, 9:22:11 am (UTC)'!
 insertPage: aPage
@@ -4555,13 +4556,6 @@ zoomWheel
 		borderColor: Color black;
 		yourself! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 3/Mar/2026, 12:16:13 pm (UTC)'!
-backgroundButtonData
-	^ {'Background' translated . 
-	#background . 
-	#chooseBackground . 
-	'Select the type of page background for the current page.' translated }! !
-
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:03 pm (UTC)'!
 deletePageButtonData
 	^ {'Delete page' translated . 
@@ -4661,6 +4655,13 @@ nextPageButtonData
 	#goNextPage . 
 	'Go to the next page of the document.' translated  }! !
 
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 21/Jul/2026, 12:53:01 pm (UTC)'!
+pageModelButtonData
+	^ {'Background' translated . 
+	#background . 
+	#choosePageModel . 
+	'Select the type of page model for the current page.' translated }! !
+
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:22:58 pm (UTC)'!
 penButtonData
 	^ {PenTool title. 
@@ -4704,7 +4705,7 @@ shapeButtonData
 	ShapeTool action .
 	ShapeTool description }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Jul/2026, 2:26:06 pm (UTC)'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 21/Jul/2026, 12:34:12 pm (UTC)'!
 toolbarSpec
 	^ #(saveDoc exportPDF
 	blank
@@ -4712,7 +4713,7 @@ toolbarSpec
 	blank
 	pointer group dkm
 	blank
-	firstPage previousPage insertPage deletePage nextPage lastPage background)! !
+	firstPage previousPage insertPage deletePage nextPage lastPage pageModel)! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:31 pm (UTC)'!
 undoButtonData
