@@ -48,7 +48,7 @@ exec "$VM/squeak" $COMPO \
     --title "DyboApp" \
     "$userImage/dybo" \
     -d "Smalltalk at: #userPath put: '$USERDATAPATH' asDirectoryEntry" \
-    -d "Smalltalk at: #rootPath put: '$APP' asDirectoryEntry" \
-    -ud "$HOME/$USERDATA/Resources"
+    -d "Smalltalk at: #home put: '$HOME' asDirectoryEntry" \
+    -ud "$USERDATAPATH/Resources"
 
     

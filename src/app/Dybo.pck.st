@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 23 July 2026 at 12:06:42 pm'!
+'From Cuis7.9 [latest update: #8056] on 23 July 2026 at 10:37:48 pm'!
 'Description '!
-!provides: 'Dybo' 1 241!
+!provides: 'Dybo' 1 243!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1643,7 +1643,7 @@ saveData
 		dumpOnCompressedFile: DyboSystem userDataFile
 		object: DyUserData current! !
 
-!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 21/Jul/2026, 9:50:00 am (UTC)'!
+!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 23/Jul/2026, 8:37:40 pm (UTC)'!
 install
 	| world |
 	"Report by any mean installation and run time"
@@ -1653,6 +1653,7 @@ install
 		logToStdout: true.
 	Smalltalk at: #LogStartupDebugAids put: true.
 	'Installing updates...' print.
+	ChangeSet installNewUpdates.
 	Smalltalk condenseChanges.
 	"Focus does not follow mouse, it is annoying when editing Smalltalk sketch"
 	Preferences at: #focusFollowsMouse put: false.
@@ -1674,6 +1675,7 @@ install
 		self beApplication .
 		"Remove all morphs"
 		world submorphsDo: [:each | each delete].
+		world color: (Theme current paneBackgroundFrom: Theme current transcript).
 		'Morphs deleted' print.
 		'Installing App launch sequence...' print.
 		Smalltalk at: #dyboApp put: DyboSystem.

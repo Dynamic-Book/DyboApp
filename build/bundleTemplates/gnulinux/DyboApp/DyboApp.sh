@@ -29,6 +29,8 @@ exec "$VM/squeak" $COMPO \
     -vm-display-X11 \
     --title "DyboApp" \
     "$image" \
-    -d "Smalltalk at: #home put: '$HOME' asDirectoryEntry"
+    -d "Smalltalk at: #home put: '$HOME' asDirectoryEntry" \
+    -ud "$RESOURCES"
+
 
     
