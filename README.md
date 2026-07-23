@@ -83,6 +83,4 @@ button at the right in the toolbar).
 Have an interesting exploration!
 
 # License
-GNU Less General Public License
-
 Copyright 2023--2026  Hilaire Fernandes 
