@@ -116,7 +116,8 @@ makeBundle () {
     echo "Set exec flag and any additional specific files installation..."
     case "$1" in
 	gnulinux)
-	    chmod +x $bundleApp/DyboApp.sh
+	    chmod +x $bundleApp/start.sh
+	    chmod +x $bundleApp/startMultiUser.sh
 	    chmod +x $bundleApp/VM/$cuisVM/squeak
 	    ;;
 	mac)

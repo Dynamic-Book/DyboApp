@@ -13,7 +13,7 @@ Archive software used to install the DyboApp.
 
 HOW TO START
 ----------------------------------------------------------------------
-To start the DyboApp, double click on the file DyboApp.sh.  Check the
-DyboApp.sh file has the execution flag set.
+To start the DyboApp, double click on the file start.sh.  Check the
+start.sh file has the execution flag set.
 
-In a multi-users environment, use the DyboAppMulti.sh start-up script.
+In a multi-users environment, use the startMultiUser.sh start-up script.
