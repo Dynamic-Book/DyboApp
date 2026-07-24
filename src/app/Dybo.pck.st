@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 23 July 2026 at 10:37:48 pm'!
+'From Cuis7.9 [latest update: #8056] on 24 July 2026 at 1:46:55 pm'!
 'Description '!
-!provides: 'Dybo' 1 243!
+!provides: 'Dybo' 1 244!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1275,13 +1275,16 @@ load
 	^ self basicNew
 		load! !
 
-!Dybo class methodsFor: 'instance creation' stamp: 'hlsf 21/May/2026, 5:28:09 pm (UTC)'!
+!Dybo class methodsFor: 'instance creation' stamp: 'hlsf 24/Jul/2026, 11:46:04 am (UTC)'!
 start
 " 	I am starting operation,  
 	if user data does not exist I start the Dybo Wiizard, otherwise I just load the data "
 	DyboSystem isUserData 
 		ifTrue: [self load] 
-		ifFalse: [DyWizardNewUser open: DyNewUser new :: centered]! !
+		ifFalse: [
+			DyWizardNewUser open: DyNewUser new :: 
+				morphPosition: 0@0;
+				morphExtent: RealEstateAgent maximumUsableArea extent - (0@100)]! !
 
 !DyPlatform methodsFor: 'user interface' stamp: 'hlsf 29/Aug/2024, 9:50:31 am (UTC)'!
 iconToolbarSize
