@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8056] on 24 July 2026 at 1:46:55 pm'!
+'From Cuis7.9 [latest update: #8087] on 24 July 2026 at 2:18:32 pm'!
 'Description '!
-!provides: 'Dybo' 1 244!
+!provides: 'Dybo' 1 245!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -4271,10 +4271,10 @@ defaultBorderColor
 defaultColor
 	^ presenter controlsManager defaultColor! !
 
-!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026, 7:37:12 am (UTC)'!
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 24/Jul/2026, 12:17:49 pm (UTC)'!
 initialize
 	super initialize.
-	adoptsWidgetsColor := true.
+	self doAdoptWidgetsColor.
 	self beColumn! !
 
 !DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026, 7:40:12 am (UTC)'!
