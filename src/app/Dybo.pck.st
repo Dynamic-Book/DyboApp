@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8087] on 24 July 2026 at 2:18:32 pm'!
+'From Cuis7.9 [latest update: #8087] on 24 July 2026 at 2:48:26 pm'!
 'Description '!
-!provides: 'Dybo' 1 245!
+!provides: 'Dybo' 1 246!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1448,7 +1448,7 @@ initialize
 	fullscreen := false.
 ! !
 
-!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 9/Mar/2026, 7:21:34 pm (UTC)'!
+!DyDevelopment methodsFor: 'testing' stamp: 'hlsf 24/Jul/2026, 12:48:15 pm (UTC)'!
 isDeployment
 	^ false ! !
 
@@ -4271,11 +4271,12 @@ defaultBorderColor
 defaultColor
 	^ presenter controlsManager defaultColor! !
 
-!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 24/Jul/2026, 12:17:49 pm (UTC)'!
+!DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 24/Jul/2026, 12:47:56 pm (UTC)'!
 initialize
 	super initialize.
 	self doAdoptWidgetsColor.
-	self beColumn! !
+	self beColumn.
+	self sticky: true! !
 
 !DyboFullscreenView methodsFor: 'initialization' stamp: 'hlsf 25/Feb/2026, 7:40:12 am (UTC)'!
 openInWorld
