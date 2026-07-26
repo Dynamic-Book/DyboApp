@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8094] on 26 July 2026 at 4:39:08 pm'!
+'From Cuis7.9 [latest update: #8094] on 26 July 2026 at 5:47:12 pm'!
 'Description '!
-!provides: 'Dybo' 1 249!
+!provides: 'Dybo' 1 252!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1301,10 +1301,14 @@ toggleFullscreen
 	fullscreen := fullscreen not.
 	Display fullScreenMode: fullscreen ! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 2:12:23 pm (UTC)'!
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 3:34:51 pm (UTC)'!
 bundlePath
-"Dynabook/ directory"
-	^ DirectoryEntry smalltalkImageDirectory parent parent! !
+"	Dynabook/ directory. Find it from the VM of the bundle. Depending on how is runned the App, 
+	the imagePath maybe somewhere else (multi user execution mode)"
+	| root |
+	root := DirectoryEntry vmDirectory.
+	5 timesRepeat: [root := root parent].
+	^ root! !
 
 !DyPlatform methodsFor: 'path' stamp: 'hlsf 25/Feb/2026, 1:26:47 pm (UTC)'!
 iconsPath
@@ -1315,27 +1319,11 @@ resourcesPath
 	^ self bundlePath / 'Resources'
 	! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 9/Feb/2026, 4:25:04 pm (UTC)'!
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 3:47:05 pm (UTC)'!
 userPath
 "Where are located user resources as PDF, image, DKM scripts 
 Global variable userPath may be set by Dybo start-up script "
-	^ Smalltalk at: #userPath ifAbsent: [self userPathPreference]! !
-
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 2:12:23 pm (UTC)'!
-userPathPreference
-"	Is there a user prefrerence where to save user data, of no located at the root of the bundle ?"
-	^ (Preferences at: #userPath) 
-		ifNotEmpty: [:userPath | | userDirectoryEntry |
-			userDirectoryEntry := userPath asDirectoryEntry .
-			" Check if it is a relative path or an absolute path "
-			userDirectoryEntry pathName = userPath
-				ifTrue: [userDirectoryEntry "Absolute path"]
-				ifFalse: ["Relative path, append the home/user directory if any"
-					Smalltalk at: #home 
-						ifPresent: [:home | home / userPath]
-						ifAbsent: [userDirectoryEntry ] ] ]
-		ifEmpty: [self bundlePath ]
-		! !
+	^ Smalltalk at: #userPath ifAbsent: [self bundlePath]! !
 
 !DyPlatform methodsFor: 'preferences' stamp: 'hlsf 5/May/2026, 12:43:38 pm (UTC)'!
 desktopPreferences

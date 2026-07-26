@@ -4,17 +4,15 @@
 #COMPO="-compositioninput"
 
 # Path
-ROOT=`readlink -f $(dirname $0)`
 APP=`dirname "$0"`
-APP=`cd "$APP";pwd`
-VM="$APP/VM/Linux-x86_64"
-RESOURCES="$APP/Resources"
+ROOT=`cd "$APP";pwd`
+VM="$ROOT/VM/Linux-x86_64"
+RESOURCES="$ROOT/Resources"
 
 image="$RESOURCES/image/dybo"
 NB_ARG=$#
 
-# Icon (note: gvfs-set-attribute is found in gvfs-bin on Ubuntu
-# systems and it seems to require an absolute filename)
+# Set icon
 gio set \
 	"$0" \
 	"metadata::custom-icon" \
@@ -30,7 +28,7 @@ exec "$VM/squeak" $COMPO \
     --title "DyboApp" \
     "$image" \
     -d "Smalltalk at: #home put: '$HOME' asDirectoryEntry" \
-    -ud "$RESOURCES"
+    -ud "$HOME/.config/dybo"
 
 
     

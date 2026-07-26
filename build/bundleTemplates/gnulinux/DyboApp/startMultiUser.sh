@@ -6,35 +6,32 @@
 # copied in the user space in a MyDybo directory
 
 
-# Path to user data and Smalltalk image in HOME directory
-USERDATA="Documents/myDybo"
-USERDATAPATH="$HOME/$USERDATA"
 # Uncomment for composed key-in input
 #COMPO="-compositioninput"
 
+# Path to user data and Smalltalk image
+USERDATA="$HOME/Documents/myDybo"
+
 # Path
-ROOT=`readlink -f $(dirname $0)`
 APP=`dirname "$0"`
-APP=`cd "$APP";pwd`
-VM="$APP/VM/Linux-x86_64"
-RESOURCES="$APP/Resources"
+ROOT=`cd "$APP";pwd`
+VM="$ROOT/VM/Linux-x86_64"
+RESOURCES="$ROOT/Resources"
 
 stockImage="$RESOURCES/image"
-userImage="$USERDATAPATH/Resources/image"
+userImage="$USERPATH/app/image"
 
-# Does the USERDATA folder exist, if no create it and populate it"
+# Does the app image exist, if no copy the app data"
 if ! [ -f $userImage/dybo.image ];
 then
-    mkdir -p $userImage $USERDATAPATH/myPDF $USERDATAPATH/userData/myScripts
+    mkdir -p $userImage
     cp -f $stockImage/dybo.* $userImage
     cp -f $stockImage/Cuis*.sources $userImage
     cp -rf $stockImage/locale $userImage
 fi
 
 
-# Icon (note: gvfs-set-attribute is found in gvfs-bin on Ubuntu
-# systems and it seems to require an absolute filename)
-	
+# Set icon
 gio set -t string \
     "$0" \
     "metadata::custom-icon-name" \
@@ -47,8 +44,8 @@ exec "$VM/squeak" $COMPO \
     -vm-display-X11 \
     --title "DyboApp" \
     "$userImage/dybo" \
-    -d "Smalltalk at: #userPath put: '$USERDATAPATH' asDirectoryEntry" \
+    -d "Smalltalk at: #userPath put: '$USERDATA' asDirectoryEntry" \
     -d "Smalltalk at: #home put: '$HOME' asDirectoryEntry" \
-    -ud "$USERDATAPATH/Resources"
+    -ud "$HOME/.config/dybo"
 
     
