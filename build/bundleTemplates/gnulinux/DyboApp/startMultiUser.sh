@@ -19,7 +19,7 @@ VM="$ROOT/VM/Linux-x86_64"
 RESOURCES="$ROOT/Resources"
 
 stockImage="$RESOURCES/image"
-userImage="$USERPATH/app/image"
+userImage="$USERDATA/app/image"
 
 # Does the app image exist, if no copy the app data"
 if ! [ -f $userImage/dybo.image ];
