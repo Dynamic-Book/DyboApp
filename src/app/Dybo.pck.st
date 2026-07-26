@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8094] on 26 July 2026 at 12:52:50 pm'!
+'From Cuis7.9 [latest update: #8094] on 26 July 2026 at 4:39:08 pm'!
 'Description '!
-!provides: 'Dybo' 1 247!
+!provides: 'Dybo' 1 249!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -460,9 +460,9 @@ I am the main view of the Dynabook app.!
 agenda
 	^ agenda ifNil: [agenda := DyAgenda new]! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026, 11:03:00 am (UTC)'!
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 directory
-	^ DyboSystem userDataPath ! !
+	^ DyboSystem myDataPath ! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024, 7:45:36 pm (UTC)'!
 relPath
@@ -582,10 +582,10 @@ deleteDocumentNamed: aDirName from: topic
 	docPresenter := topic documents detect: [:aDocument | aDocument model dirName = aDirName].
 	self deleteDocument: docPresenter from: topic! !
 
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:08:33 am (UTC)'!
+!DyUserData methodsFor: 'queries' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 deleteTask: aTask
 	self tasks remove: aTask.
-	(DyboSystem userDataPath / DyboSystem tasksRelPath / aTask document model dirName) recursiveDelete! !
+	(DyboSystem myDataPath / DyboSystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
 !DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 6:36:48 pm (UTC)'!
 documentOwner: docModel
@@ -856,7 +856,7 @@ goTasks
 toggleFullscreen
 	DyboSystem toggleFullscreen ! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026, 8:49:21 am (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 deleteDocument: aDocument 
  | topic binderView |
 	binderView := controlsManager activeView.
@@ -869,7 +869,7 @@ in the topic: {2}?' translated
 			ifFalse: [^ self].
 	DyUserData current deleteDocument: aDocument from: topic.
 	binderView updateView.
-	DyboSystem saveData! !
+	DyboSystem saveUserData! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026, 12:49:43 pm (UTC)'!
 exportDocument: aDocument
@@ -888,7 +888,7 @@ Do you want to overwrite it?' translated
 	aDocument model path asDirectoryEntry copyTo: exportedDocDirectory pathName
 	! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 10/May/2026, 9:32:28 am (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 importDocument
 	| answer importedDocument |
 	self isExchangePath ifFalse: [^ self].
@@ -915,7 +915,7 @@ Do you want to overwrite it?' translated
 	DyUserData current importDocument: importedDocument in: currentTopic.
 "	6. Save data "
 	self activeView updateView.
-	DyboSystem saveData! !
+	DyboSystem saveUserData! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 14/Jul/2026, 11:26:06 am (UTC)'!
 importPDF
@@ -938,12 +938,12 @@ importPDF
 		saveDocument.
 	^ newDoc! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 17/Apr/2026, 10:28:14 am (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 newDocument
 	| newDoc |
 	currentTopic ifNil: [^ self].
 	newDoc := DyUserData current addDocument: self goDocument to: currentTopic.
-	DyboSystem saveData.
+	DyboSystem saveUserData.
 	^ newDoc ! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 31/Dec/2024, 10:35:33 am (UTC)'!
@@ -969,7 +969,7 @@ saveDocument: aDocument
 	binderView := controlsManager activeView.
 	aDocument saveDocument ifTrue: [binderView updateView]! !
 
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 26/Jul/2026, 10:47:15 am (UTC)'!
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 26/Jul/2026, 2:32:13 pm (UTC)'!
 backupUserData
 	| backupDir archive |
 	self isExchangePath ifFalse: [^ self].
@@ -979,7 +979,7 @@ backupUserData
 	archive recursiveDelete.
 	backupDir copyTo: archive pathName.
 	backupDir recursiveDelete.
-	DyboSystem userDataPath copyTo: (backupDir / 'userData') pathName.
+	DyboSystem myDataPath copyTo: (backupDir / 'myData') pathName.
 	DyboSystem myScriptsPath copyTo: (backupDir / 'myScripts') pathName.
 	WaitSpinner stop! !
 
@@ -999,14 +999,14 @@ chooseExchangePath: label
 	controlsManager setExchangePathIn: label
 	! !
 
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 26/Jul/2026, 10:52:11 am (UTC)'!
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 26/Jul/2026, 2:33:36 pm (UTC)'!
 restoreUserData
 	| backupDir archive warningMsg |
 	self isExchangePath ifFalse: [^ self].
 	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
 	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
 "	1. Ensure we have a valid backup "	
-	(backupDir // 'data.obj') exists ifFalse: [
+	(backupDir / 'myData' // 'data.obj') exists ifFalse: [
 		^ PopUpMenu inform: 'No backup was found to restore.' translated].
 "	2. Warning about the destructive operation on the local user data "	
 	warningMsg := 'You are about to restore your user data from the backup at:
@@ -1017,18 +1017,17 @@ Do you really want to proceed?' translated format: { backupDir pathName }.
 		confirm: warningMsg 
 		trueChoice: 'Restore' translated
  		falseChoice: 'Cancel' translated) ifFalse: [^ self].
-	WaitSpinner start.
+	[WaitSpinner start.
 "	3. Delete the archive and make a copy of the local data in the archvie "
 	archive recursiveDelete.
-	DyboSystem userDataPath copyTo: (archive / 'userData') pathName.
+	DyboSystem myDataPath copyTo: (archive / 'myData') pathName.
 	DyboSystem myScriptsPath copyTo: (archive / 'myScritps') pathName.
 "	4. Delete the local user data, restore it from the backup and load the new data "
-	DyboSystem userDataPath recursiveDelete.
+	DyboSystem myDataPath recursiveDelete.
 	DyboSystem myScriptsPath recursiveDelete.
-	(backupDir / 'userData') copyTo: DyboSystem userDataPath pathName.
+	(backupDir / 'myData') copyTo: DyboSystem myDataPath pathName.
 	(backupDir / 'myScripts') copyTo: DyboSystem myScriptsPath pathName.
-	DyUserData load.
-	WaitSpinner stop.! !
+	DyUserData load] ensure: [WaitSpinner stop].! !
 
 !Dybo methodsFor: 'actions page' stamp: 'hlsf 21/Jul/2026, 12:55:09 pm (UTC)'!
 pageModelIndex
@@ -1064,16 +1063,16 @@ pageRatioTitles
 			[210@297] -> ['A4 portrait' translated].
 			[297@210] -> ['A4 landscape' translated]} ]! !
 
-!Dybo methodsFor: 'actions task' stamp: 'hlsf 17/Apr/2026, 10:12:36 am (UTC)'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 deleteTask: aDyTask 
 	(PopUpMenu 
 		confirm: ('Delete the task at {1}?' translated format: {aDyTask})
 		trueChoice: 'Yes' translated falseChoice: 'No' translated) ifFalse: [^ self].
 	DyUserData current deleteTask: aDyTask.
-	DyboSystem saveData.
+	DyboSystem saveUserData.
 	self activeView resetTask.! !
 
-!Dybo methodsFor: 'actions task' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
 	| task agendaView |
@@ -1085,11 +1084,11 @@ saveCurrentTask
 	" Was the task's course hour date modified? "
 	agendaView courseHourDate = task courseHourDate ifFalse: [	
 		task courseHourDate: agendaView courseHourDate .
-		DyboSystem saveData.
+		DyboSystem saveUserData.
 		agendaView changedFutureTasks]
 	! !
 
-!Dybo methodsFor: 'actions task' stamp: 'hlsf 17/Apr/2026, 10:13:06 am (UTC)'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 saveNewTask
 	| taskView task |
 	taskView := self activeView.
@@ -1098,7 +1097,7 @@ saveNewTask
 		courseHourDate: taskView courseHourDate;
 		document: controlsManager docPresenter.		
 	DyUserData current newTask: task.
-	DyboSystem saveData.
+	DyboSystem saveUserData.
 	taskView resetTask 
 	! !
 
@@ -1302,19 +1301,19 @@ toggleFullscreen
 	fullscreen := fullscreen not.
 	Display fullScreenMode: fullscreen ! !
 
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 2:12:23 pm (UTC)'!
+bundlePath
+"Dynabook/ directory"
+	^ DirectoryEntry smalltalkImageDirectory parent parent! !
+
 !DyPlatform methodsFor: 'path' stamp: 'hlsf 25/Feb/2026, 1:26:47 pm (UTC)'!
 iconsPath
 	^ self resourcesPath / 'graphics' / 'icons'! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 9/Feb/2026, 4:36:05 pm (UTC)'!
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 2:12:23 pm (UTC)'!
 resourcesPath
-	^ self rootPath / 'Resources'
+	^ self bundlePath / 'Resources'
 	! !
-
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 1/Aug/2023, 10:04:45 am (UTC)'!
-rootPath
-"Dynabook/ directory"
-	^ DirectoryEntry smalltalkImageDirectory parent parent! !
 
 !DyPlatform methodsFor: 'path' stamp: 'hlsf 9/Feb/2026, 4:25:04 pm (UTC)'!
 userPath
@@ -1322,9 +1321,9 @@ userPath
 Global variable userPath may be set by Dybo start-up script "
 	^ Smalltalk at: #userPath ifAbsent: [self userPathPreference]! !
 
-!DyPlatform methodsFor: 'path' stamp: 'hlsf 23/May/2026, 2:27:29 pm (UTC)'!
+!DyPlatform methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 2:12:23 pm (UTC)'!
 userPathPreference
-"	Is there a user prefrerence where to save user data ?"
+"	Is there a user prefrerence where to save user data, of no located at the root of the bundle ?"
 	^ (Preferences at: #userPath) 
 		ifNotEmpty: [:userPath | | userDirectoryEntry |
 			userDirectoryEntry := userPath asDirectoryEntry .
@@ -1335,7 +1334,7 @@ userPathPreference
 					Smalltalk at: #home 
 						ifPresent: [:home | home / userPath]
 						ifAbsent: [userDirectoryEntry ] ] ]
-		ifEmpty: [self resourcesPath ]
+		ifEmpty: [self bundlePath ]
 		! !
 
 !DyPlatform methodsFor: 'preferences' stamp: 'hlsf 5/May/2026, 12:43:38 pm (UTC)'!
@@ -1421,19 +1420,19 @@ scriptLibrary
 isDeployment
 	^ true! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 21/Jul/2026, 9:23:05 am (UTC)'!
-resourcesPath
-" Resources located in the git repository "
-	^ self rootPath / 'resources'! !
-
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 10/Oct/2024, 8:18:28 am (UTC)'!
-rootPath
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 2:12:23 pm (UTC)'!
+bundlePath
 "dynabook/ directory"
 	^ DirectoryEntry smalltalkImageDirectory parent / 'DyboApp'! !
 
-!DyDevelopment methodsFor: 'path' stamp: 'hlsf 11/Feb/2026, 4:07:25 pm (UTC)'!
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 2:12:23 pm (UTC)'!
+resourcesPath
+" Resources located in the git repository "
+	^ self bundlePath / 'resources'! !
+
+!DyDevelopment methodsFor: 'path' stamp: 'hlsf 26/Jul/2026, 2:12:23 pm (UTC)'!
 userPath
-	^ self rootPath / 'resources'! !
+	^ self bundlePath / 'resources'! !
 
 !DyDevelopment methodsFor: 'preferences' stamp: 'hlsf 15/May/2026, 3:03:28 pm (UTC)'!
 desktopPreferences
@@ -1513,21 +1512,26 @@ exchangePath: aPath
 iconsPath
 	^ platform iconsPath! !
 
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 10:05:22 am (UTC)'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 2:34:56 pm (UTC)'!
+myDataPath
+" the location of the user data and documents "
+	^ (platform userPath / 'myData') assureExistence ! !
+
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 2:08:07 pm (UTC)'!
 myExportPath
 " the location of the user exported file "
-	^ (platform rootPath / 'myExports') assureExistence ! !
+	^ (platform userPath / 'myExports') assureExistence ! !
 
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 10:05:15 am (UTC)'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 2:08:15 pm (UTC)'!
 myPDFPath
 " the location of the user resources as PDF or other media files "
-	^ (platform rootPath/ 'myPDF') assureExistence ! !
+	^ (platform userPath/ 'myPDF') assureExistence ! !
 
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 10:33:12 am (UTC)'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 2:08:24 pm (UTC)'!
 myScriptsPath
 " 	The location of the user DKM scripts, 
 	along the user data so it is part too of the back-up/restore system "
-	^ (platform rootPath / 'myScripts') assureExistence ! !
+	^ (platform userPath / 'myScripts') assureExistence ! !
 
 !DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 10:14:15 am (UTC)'!
 resourcesPath
@@ -1547,14 +1551,9 @@ tasksRelPath
 " the location of the user documents "
 	^ 'tasks'! !
 
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 21/May/2026, 8:27:13 am (UTC)'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 userDataFile
-	^ self userDataPath // 'data.obj'! !
-
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 9/May/2026, 4:19:56 pm (UTC)'!
-userDataPath
-" the location of the user data and documents "
-	^ (platform userPath / 'userData') assureExistence ! !
+	^ self myDataPath // 'data.obj'! !
 
 !DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026, 8:23:38 am (UTC)'!
 renameClassGroup: aClassGroup from: prevName to: newName
@@ -1566,11 +1565,11 @@ renameCourse: aCourse from: prevName to: newName
 	'Course renamed: maintenance operations' print.
 	self rename: prevName to: newName in: aCourse directory parent! !
 
-!DyboSystem class methodsFor: 'events' stamp: 'hlsf 17/Apr/2026, 10:29:28 am (UTC)'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 renameSchool: aSchool from: prevName to: newName
 "Should use a data manager facade at some point "
 	'School renamed: maintenance operations' print.
-	self rename: prevName to: newName in: DyboSystem userDataPath ! !
+	self rename: prevName to: newName in: DyboSystem myDataPath ! !
 
 !DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026, 8:44:29 am (UTC)'!
 renameTopic: aTopic from: prevName to: newName
@@ -1634,9 +1633,9 @@ import: pdfEntry to: destEntry pages: interval
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
 	^ self convert: destEntry pages: interval dpi: 150.! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 5/Apr/2026, 1:29:01 pm (UTC)'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 removeUserData
-	self userDataPath childrenDo: [:each | each recursiveDelete ].
+	self myDataPath childrenDo: [:each | each recursiveDelete ].
 	! !
 
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 12/Feb/2026, 6:31:19 pm (UTC)'!
@@ -1651,8 +1650,8 @@ rename: oldName to: newName in: parentDir
 				ifTrue: [dir rename: newName asFileName ] 
 				ifFalse: [(parentDir / newName asFileName ) assureExistence]]! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 21/May/2026, 8:27:45 am (UTC)'!
-saveData
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
+saveUserData
 	ReferenceStream 
 		dumpOnCompressedFile: DyboSystem userDataFile
 		object: DyUserData current! !
@@ -2319,7 +2318,7 @@ quickAdd: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 5/Apr/2026, 1:22:53 pm (UTC)'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 quickDelete: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
@@ -2335,12 +2334,13 @@ quickDelete: args
 		borderWidth: 0; color: Color transparent.
 	objectPane := nil.
 	objectPane := PluggablePane open: [text] view: #value action:[
-		listModel selectedItem removeFromDisk.
+		(listModel selectedItem respondsTo: #removeFromDisk) 
+			ifTrue: [listModel selectedItem removeFromDisk].
 		listModel removeSelectedItem.
 		decorator replaceSubmorph: objectPane by: listMorph.
 		quickButtons submorphsDo: #lockUnlockMorph.
 		listModel changed: #list.
-		DyboSystem saveData].
+		DyboSystem saveUserData].
 	objectPane
 		actionOnAltButton: [
 			decorator replaceSubmorph: objectPane by: listMorph.
@@ -2350,7 +2350,7 @@ quickDelete: args
 	decorator replaceSubmorph: listMorph by: objectPane .
 	quickButtons submorphsDo: #lockUnlockMorph! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 5/Apr/2026, 1:23:06 pm (UTC)'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 quickEdit: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the decorated pane
@@ -2378,7 +2378,7 @@ quickEdit: args
 				(listModel selectedItem respondsTo: #<=) ifTrue: [
 					listModel list reSort].
 				listModel changed: #list.
-				DyboSystem saveData]					
+				DyboSystem saveUserData]					
 			];
 		actionOnAltButton: [
 			decorator replaceSubmorph: objectPane by: listMorph.
@@ -2436,7 +2436,7 @@ paneFor: anObject label: aTitle browse: canBeBrowsed
 	^ DecoratedPane open: scroller label: aTitle ::
 		padding: 20! !
 
-!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 21/Apr/2026, 1:10:44 pm (UTC)'!
+!DyViewerVisitor methodsFor: 'ui' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 plugView: aMorph
 " Add an Edit button to this contents "
 	| viewer |
@@ -2449,7 +2449,7 @@ plugView: aMorph
 				replaceView: viewer 
 				byView: (visitedModel accept: DyEditorVisitor new).
 			visitedModel triggerEvent: #editorPlugged] 
-		altAction: [DyboSystem saveData] 
+		altAction: [DyboSystem saveUserData] 
 		::
 		buttonLabel: 'Edit' translated;
 		altButtonLabel: 'Save' translated;
@@ -4493,7 +4493,7 @@ isReadyToApply
 minimumExtent
 	^ 800 @ (600 max: super minimumExtent y)! !
 
-!DyWizardNewUser methodsFor: 'actions' stamp: 'hlsf 23/May/2026, 1:52:39 pm (UTC)'!
+!DyWizardNewUser methodsFor: 'actions' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 apply
 	| mySchool dybo |
 	self delete.
@@ -4524,7 +4524,7 @@ apply
 			subject: classCourse courseName;
 			setDefaultTopics ;
 			yourself) ].
-	DyboSystem saveData.
+	DyboSystem saveUserData.
 	dybo := Dybo load.
 	dybo goSettings.
 	dybo activeView selectCategoryNamed: #userDataView

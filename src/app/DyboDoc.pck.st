@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8056] on 21 July 2026 at 3:31:22 pm'!
+'From Cuis7.9 [latest update: #8094] on 26 July 2026 at 4:39:05 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 258!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 260!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'UI-Panel' 1 122 nil!
-!requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1639,14 +1639,14 @@ tool: aToolClass
 isExporingPDF
 	^ savesReal ! !
 
-!Document class methodsFor: 'object serialization' stamp: 'hlsf 16/Apr/2026, 8:19:52 pm (UTC)'!
+!Document class methodsFor: 'object serialization' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 loadDocument: relativePath
 "
 	Once restored, the controlManager needs to be associated back and 
 	the view plug in the dynamic book main view
 "
 	| file |
-	file :=  DyboSystem userDataPath / relativePath // 'doc.obj'.
+	file :=  DyboSystem myDataPath / relativePath // 'doc.obj'.
 	^ file exists 
 		ifTrue:  [ReferenceStream restoreFromCompressedFile:  file]
 		ifFalse: [self error: 'Document not on disk: ', relativePath	] 
@@ -2414,9 +2414,10 @@ code: aUnicodeString
 description
 	^ description ifNil: [presenter description]! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 8:38:46 am (UTC)'!
+!DKMScript methodsFor: 'accessing' stamp: 'hlsf 26/Jul/2026, 12:52:06 pm (UTC)'!
 description: aText
-	description := aText! !
+	description := aText
+! !
 
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 1:02:30 pm (UTC)'!
 file
@@ -2584,7 +2585,7 @@ categories
 	^ self scripts groupBy: [:aScript | aScript at: #category]
 	! !
 
-!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 6/Mar/2026, 6:09:46 pm (UTC)'!
+!DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 26/Jul/2026, 1:01:04 pm (UTC)'!
 descriptionOf: metadata
 	^ Text streamContents: [:str |
 		str nextPutAll: (metadata at: #title ifAbsent: ['no description' translated]) capitalized bold; lf.
@@ -2594,8 +2595,11 @@ descriptionOf: metadata
 					addAttribute: (TextBackgroundColor color: Color yellow darker))] 
 				separatedBy: [str space].
 			str lf].
-		metadata at: #author ifPresent: [:description | str nextPutAll: description italic] ]
-	! !
+		metadata at: #author ifPresent: [:description | str nextPutAll: description italic].
+		metadata at: #file ifPresent: [:file|
+			str 	lf
+				nextPutAll: ((file contractTo: 80) gray pointSize: 8)]
+		]	! !
 
 !DKMScriptLibrary methodsFor: 'accessing' stamp: 'hlsf 21/Feb/2026, 9:03:07 am (UTC)'!
 resetScripts
@@ -2721,9 +2725,9 @@ owner: anObject
 " a Topic or a Task"
 	owner := anObject ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
+!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 path
-	^ DyboSystem userDataPath / self relPath ! !
+	^ DyboSystem myDataPath / self relPath ! !
 
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026, 6:11:24 pm (UTC)'!
 relPath
@@ -5077,7 +5081,7 @@ resumeScript
 	scriptProcess resume.
 	self switchToPauseButton! !
 
-!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
+!DKMScriptEditor methodsFor: 'actions' stamp: 'hlsf 26/Jul/2026, 12:42:56 pm (UTC)'!
 saveScript
 	| modelName |
 	codeView scroller acceptContents.
@@ -5088,7 +5092,7 @@ saveScript
 		model file: model myPath // (cleaned, '.st').
 		model file < self sourceCode.
 		DyboSystem scriptLibrary scriptSaved: model].
-	(StringEntryPanel openWide: modelName label: 'Name the script to keep.' translated)
+	(StringEntryPanel openWide: modelName label: 'Script filename' translated)
 		morphCenter: self fullBoundsInOwner center;
 		setProperty: #layerNumber toValue: self layerNumber - 1! !
 
