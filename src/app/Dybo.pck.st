@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8087] on 24 July 2026 at 2:48:26 pm'!
+'From Cuis7.9 [latest update: #8094] on 26 July 2026 at 12:52:50 pm'!
 'Description '!
-!provides: 'Dybo' 1 246!
+!provides: 'Dybo' 1 247!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -11,7 +11,6 @@
 !requires: 'UI-Panel' 1 91 nil!
 !requires: 'Commander' 1 9 nil!
 !requires: 'Compression' 1 42 nil!
-SystemOrganization addCategory: #'Dybo-Morph'!
 SystemOrganization addCategory: #Dybo!
 SystemOrganization addCategory: #'Dybo-Data'!
 SystemOrganization addCategory: #'Dybo-Model'!
@@ -970,7 +969,7 @@ saveDocument: aDocument
 	binderView := controlsManager activeView.
 	aDocument saveDocument ifTrue: [binderView updateView]! !
 
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026, 10:54:05 am (UTC)'!
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 26/Jul/2026, 10:47:15 am (UTC)'!
 backupUserData
 	| backupDir archive |
 	self isExchangePath ifFalse: [^ self].
@@ -980,7 +979,8 @@ backupUserData
 	archive recursiveDelete.
 	backupDir copyTo: archive pathName.
 	backupDir recursiveDelete.
-	DyboSystem userDataPath copyTo: backupDir pathName.
+	DyboSystem userDataPath copyTo: (backupDir / 'userData') pathName.
+	DyboSystem myScriptsPath copyTo: (backupDir / 'myScripts') pathName.
 	WaitSpinner stop! !
 
 !Dybo methodsFor: 'actions exchange' stamp: 'hlsf 15/May/2026, 3:04:00 pm (UTC)'!
@@ -999,7 +999,7 @@ chooseExchangePath: label
 	controlsManager setExchangePathIn: label
 	! !
 
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 10/May/2026, 10:54:33 am (UTC)'!
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 26/Jul/2026, 10:52:11 am (UTC)'!
 restoreUserData
 	| backupDir archive warningMsg |
 	self isExchangePath ifFalse: [^ self].
@@ -1020,10 +1020,13 @@ Do you really want to proceed?' translated format: { backupDir pathName }.
 	WaitSpinner start.
 "	3. Delete the archive and make a copy of the local data in the archvie "
 	archive recursiveDelete.
-	DyboSystem userDataPath copyTo: archive pathName.
+	DyboSystem userDataPath copyTo: (archive / 'userData') pathName.
+	DyboSystem myScriptsPath copyTo: (archive / 'myScritps') pathName.
 "	4. Delete the local user data, restore it from the backup and load the new data "
 	DyboSystem userDataPath recursiveDelete.
-	backupDir copyTo: DyboSystem userDataPath pathName.
+	DyboSystem myScriptsPath recursiveDelete.
+	(backupDir / 'userData') copyTo: DyboSystem userDataPath pathName.
+	(backupDir / 'myScripts') copyTo: DyboSystem myScriptsPath pathName.
 	DyUserData load.
 	WaitSpinner stop.! !
 
@@ -1510,21 +1513,29 @@ exchangePath: aPath
 iconsPath
 	^ platform iconsPath! !
 
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 14/Jul/2026, 1:53:41 pm (UTC)'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 10:05:22 am (UTC)'!
 myExportPath
 " the location of the user exported file "
-	^ (platform userPath / 'myExports') assureExistence ! !
+	^ (platform rootPath / 'myExports') assureExistence ! !
 
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 23/Feb/2026, 10:39:37 am (UTC)'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 10:05:15 am (UTC)'!
 myPDFPath
 " the location of the user resources as PDF or other media files "
-	^ (platform userPath/ 'myPDF') assureExistence ! !
+	^ (platform rootPath/ 'myPDF') assureExistence ! !
 
-!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 21/Jul/2026, 9:27:24 am (UTC)'!
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 10:33:12 am (UTC)'!
 myScriptsPath
 " 	The location of the user DKM scripts, 
 	along the user data so it is part too of the back-up/restore system "
-	^ (self userDataPath / 'myScripts') assureExistence ! !
+	^ (platform rootPath / 'myScripts') assureExistence ! !
+
+!DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 26/Jul/2026, 10:14:15 am (UTC)'!
+resourcesPath
+" the location of the resources for the application, in the application bundle: VM, image, refData, 
+  userPath may be the same or different when the user data are located outside of the application bundle, 
+  for example when the application bundle is insalled in a read only directory 
+"
+	^ platform resourcesPath ! !
 
 !DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 9/Feb/2026, 4:37:22 pm (UTC)'!
 scriptsPath
@@ -1646,7 +1657,7 @@ saveData
 		dumpOnCompressedFile: DyboSystem userDataFile
 		object: DyUserData current! !
 
-!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 23/Jul/2026, 8:37:40 pm (UTC)'!
+!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 26/Jul/2026, 9:36:23 am (UTC)'!
 install
 	| world |
 	"Report by any mean installation and run time"
@@ -1662,12 +1673,14 @@ install
 	Preferences at: #focusFollowsMouse put: false.
 	"Adjust font size"
 	Preferences at: #defaultFontSize put: 11.
-	'Font preferences set' print.
 	Preferences at: #warnAndOfferLastUserChanges put: false.
 	Preferences at: #autoNumberUserChanges put: false.
+	Preferences at:  #debugPreDebugger put: true.
+	Preferences at: #askConfirmationOnQuit put: false.
 	"Set Locale and text domains"
-"	Preferences at: #useLocale put: true.
-	TextDomainManager registerCategoryPrefix: 'DrGeo' domain: 'drgeo'.
+"	Preferences at: #useLocale put: true."
+	'Default preferences set' print.
+"	TextDomainManager registerCategoryPrefix: 'DrGeo' domain: 'drgeo'.
 	TextDomainManager registerCategoryPrefix: 'cuis' domain: 'cuis'.	
 "
 	'Finalizing installation...' print.
@@ -2387,7 +2400,7 @@ quickExport: args
 		answer directory // (answer name, '.csv') writeStreamDo: [:str |
 			args first export: args second to: str ]]! !
 
-!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 15/Jul/2026, 1:04:47 pm (UTC)'!
+!DyEditorVisitor methodsFor: 'ui' stamp: 'hlsf 26/Jul/2026, 10:14:40 am (UTC)'!
 quickImport: args
 " args is a collection of object to operate the behavior of the quick button, in the following order:
 1. the class of the object to import
@@ -2395,7 +2408,7 @@ quickImport: args
 3. the listMorph of the collection
 "
 | importedCollection answer |
-	answer := (StandardFileMenu new oldFileFrom: DyboSystem myExportPath withPattern: '*.csv' excludePattern: '.*') 
+	answer := (StandardFileMenu new oldFileFrom: DyboSystem resourcesPath / 'refData' withPattern: '*.csv' excludePattern: '.*') 
 		startUpWithCaption: 'CSV file to import' translated.
 	answer ifNotNil: [
 		answer directory // answer name readStreamDo: [:str |
