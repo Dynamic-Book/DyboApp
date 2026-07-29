@@ -6,14 +6,18 @@ to a newer version may result in the lost of user data.
 Before installing a newer DyboApp version, the user should make a
 backup of its Resources folder.
 
-When installing newer version from the DyboApp ZIP archive, the user
-should request a merging installation, this operation depends on the
-Archive software used to install the DyboApp.
+When installing a newer version of the DyboApp (from a ZIP archive),
+the user should request a merging installation, this operation depends
+on the Archive software used to install the DyboApp.
 
 
 HOW TO START
 ----------------------------------------------------------------------
-To start the DyboApp, double click on the file start.sh.  Check the
-start.sh file has the execution flag set.
+When the DyboApp is installed in the user disk space, double click on
+the file "start.sh".  Check the start.sh file has the execution flag
+set.
 
-In a multi-users environment, use the startMultiUser.sh start-up script.
+When the the DyboApp is installed in a read-only folder, run the
+application with its "startMultiUser.sh" script; adjust its USERDATA
+variable to indicate the location in the user disk space to save data,
+by default it is set to "$HOME/Documents/myDybo".

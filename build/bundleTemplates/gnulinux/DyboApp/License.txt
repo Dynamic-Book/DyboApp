@@ -2,8 +2,8 @@
 
 * Copyright 2023-2026 Hilaire Fernandes
 
-* The DyboApp source code packages `Dybo-*.pck.st` are released under the terms of
-  the LGPL license.
+* All right reserved of the DyboApp source code packages
+  `Dybo-*.pck.st`, Dybo and DyboDoc class categories.
 
 * Each DKM source code is released under the terms of its specific
   license, as specified in their [source code
