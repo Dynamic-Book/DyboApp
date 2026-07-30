@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8094] on 26 July 2026 at 4:39:05 pm'!
+'From Cuis7.9 [latest update: #8094] on 30 July 2026 at 3:33:31 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 260!
+!provides: 'DyboDoc' 1 261!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -438,6 +438,16 @@ Morph subclass: #Bezier2Morph
 Bezier2Morph class
 	instanceVariableNames: ''!
 
+!classDefinition: #Bezier2ContourMorph category: #'DyboDoc-View'!
+Bezier2Morph subclass: #Bezier2ContourMorph
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-View'!
+!classDefinition: 'Bezier2ContourMorph class' category: #'DyboDoc-View'!
+Bezier2ContourMorph class
+	instanceVariableNames: ''!
+
 !classDefinition: #Bezier3Morph category: #'DyboDoc-View'!
 Bezier2Morph subclass: #Bezier3Morph
 	instanceVariableNames: 'c2'
@@ -496,6 +506,16 @@ PlacedMorph subclass: #StrokeGroupMorph
 	category: 'DyboDoc-View'!
 !classDefinition: 'StrokeGroupMorph class' category: #'DyboDoc-View'!
 StrokeGroupMorph class
+	instanceVariableNames: ''!
+
+!classDefinition: #StrokeGroupContourMorph category: #'DyboDoc-View'!
+StrokeGroupMorph subclass: #StrokeGroupContourMorph
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-View'!
+!classDefinition: 'StrokeGroupContourMorph class' category: #'DyboDoc-View'!
+StrokeGroupContourMorph class
 	instanceVariableNames: ''!
 
 !classDefinition: #PageMorph category: #'DyboDoc-View'!
@@ -804,6 +824,9 @@ I group the strokes (kind of BezierMorph) of a hand written stroke. A hand strok
 To avoid graphics artifacts at the junctions of the strokes, I draw directly the submorphs.
 In some circumstance, I reveal my submorphs and then I do not draw them directly.!
 
+!StrokeGroupContourMorph commentStamp: '<historical>' prior: 0!
+Contrary to my parent, I let my submorphs draw themseves so the contour detection can be used. My submorphs are not hidden.!
+
 !PageMorph commentStamp: '<historical>' prior: 0!
 The view of a Page. A page is a unit of a Document.
 I always contain these two morphs of the same extent as me:
@@ -1000,12 +1023,14 @@ on: aPaperMorph
 		paper: aPaperMorph ;
 		yourself! !
 
-!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 26/Mar/2026, 8:37:28 am (UTC)'!
+!StrokerBezier2 methodsFor: 'instance' stamp: 'hlsf 30/Jul/2026, 1:24:21 pm (UTC)'!
 newStroke
-	| lastStroke samples  |
+	| lastStroke samples  bezierClass |
 	samples := self samples.
 	lastStroke := paper lastStroke.
-	^ Bezier2Morph new
+	bezierClass := (samples first squaredDistanceTo: samples last) > 100
+		ifTrue: [Bezier2ContourMorph] ifFalse: [Bezier2Morph].
+	^ bezierClass new
 		start: samples first
 		end: samples last
 		control1: samples second;
@@ -1779,9 +1804,9 @@ initialize
 	bounds := domain fullBoundsInOwner.
 ! !
 
-!WritingCommand methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024, 3:43:08 pm (UTC)'!
+!WritingCommand methodsFor: 'accessing' stamp: 'hlsf 30/Jul/2026, 1:03:59 pm (UTC)'!
 strokeGroup: aStrokeGroup
-	strokeGroup := 	aStrokeGroup ! !
+	strokeGroup := aStrokeGroup ! !
 
 !WritingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 1:45:10 pm (UTC)'!
 execute
@@ -2206,7 +2231,7 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 9:16:51 pm (UTC)'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 30/Jul/2026, 1:22:08 pm (UTC)'!
 handleMouseAt: localPosition in: paper
 " From time to time, strokeGroups are not detected. Activating their halo makes it work again...
 "
@@ -2220,7 +2245,8 @@ handleMouseAt: localPosition in: paper
 			"Reconstitute the strokeGroup... "
 			aGroup addAllMorphs: (deletedStrokes at: aGroup).
 			"... then we don't need the individual strokes, we remember of the whole group "
-			deletedStrokes at: aGroup put: aGroup] 	]! !
+			deletedStrokes at: aGroup put: aGroup] ].
+	paper redrawNeeded.! !
 
 !EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:41:16 pm (UTC)'!
 handleRelease: localPosition in: paper
@@ -2897,6 +2923,10 @@ showTangents
 includeInNewMorphMenu
 	^ false! !
 
+!Bezier2ContourMorph methodsFor: 'geometry testing' stamp: 'hlsf 29/Jul/2026, 10:30:34 am (UTC)'!
+wantsContour
+	^ true! !
+
 !Bezier3Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 12:35:57 pm (UTC)'!
 control2
 	^ c2! !
@@ -3023,6 +3053,28 @@ drawOn: canvas
 		borderWidth: width 
 		color: color! !
 
+!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 8/Apr/2023, 1:55:34 pm (UTC)'!
+color: aColor
+	submorphs do: [:each | each color: aColor].
+	self redrawNeeded ! !
+
+!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 4:22:24 pm (UTC)'!
+lastStroke
+	^ submorphs ifEmpty: [nil] ifNotEmpty: [self firstSubmorph]! !
+
+!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
+strokeTool
+	^ owner strokeTool ! !
+
+!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 8/Apr/2023, 1:56:04 pm (UTC)'!
+width: aNumber
+	submorphs do: [:each | each width: aNumber ].
+	self redrawNeeded ! !
+
+!StrokeGroupMorph methodsFor: 'clean up' stamp: 'hlsf 8/Sep/2024, 5:03:55 pm (UTC)'!
+deleteBitMasks
+	submorphs do: [:each| each removeProperty: #bitMask]! !
+
 !StrokeGroupMorph methodsFor: 'drawing' stamp: 'hlsf 29/Dec/2024, 8:36:25 am (UTC)'!
 drawOn: canvas
 " I draw manually my submorphs "
@@ -3047,6 +3099,34 @@ drawOn: canvas
 	self showControls ifTrue: [submorphs do: [:each | each drawControlsOn: canvas] ].
 	self showPoints ifTrue: [submorphs do: [:each | each drawPointsOn: canvas] ]! !
 
+!StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 29/Sep/2024, 8:22:48 pm (UTC)'!
+isCloserThan: distance toPixel: positionInWorld
+	^ submorphs anySatisfy: [:each | 
+		each bitMask.
+		each isCloserThan: distance toPixel: positionInWorld]! !
+
+!StrokeGroupMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 21/Jan/2025, 8:17:21 pm (UTC)'!
+haloShowsCoordinateSystem
+	^ false! !
+
+!StrokeGroupMorph methodsFor: 'initialization' stamp: 'hlsf 5/Feb/2026, 5:10:34 pm (UTC)'!
+initialize
+	super initialize.
+	self lock: true! !
+
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 8/Sep/2024, 2:14:23 pm (UTC)'!
+addStroke: aStroke
+	self addMorph: aStroke.
+	aStroke visible: false! !
+
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 29/Jul/2026, 10:27:22 am (UTC)'!
+removeStrokesAt: positionInWorld
+" Remove the strokes under this positionInWorld "
+	| toDelete |
+	toDelete := submorphs select: [:aBezier | aBezier isCloserThan: self strokeTool width toPixel: positionInWorld].
+	self removeAllMorphsIn: toDelete.
+	^ toDelete! !
+
 !StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 12/May/2024, 4:11:04 pm (UTC)'!
 is: aSymbol
 	^ aSymbol == #StrokeGroupMorph or: [ super is: aSymbol ]! !
@@ -3063,60 +3143,17 @@ showPoints
 showTangents
 	^ [owner showTangents] on: MessageNotUnderstood do: [false]! !
 
-!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 8/Apr/2023, 1:55:34 pm (UTC)'!
-color: aColor
-	submorphs do: [:each | each color: aColor].
-	self redrawNeeded ! !
-
-!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 5/Sep/2024, 4:22:24 pm (UTC)'!
-lastStroke
-	^ submorphs ifEmpty: [nil] ifNotEmpty: [self firstSubmorph]! !
-
-!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
-strokeTool
-	^ owner strokeTool ! !
-
-!StrokeGroupMorph methodsFor: 'accessing' stamp: 'hlsf 8/Apr/2023, 1:56:04 pm (UTC)'!
-width: aNumber
-	submorphs do: [:each | each width: aNumber ].
-	self redrawNeeded ! !
-
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 8/Sep/2024, 2:14:23 pm (UTC)'!
-addStroke: aStroke
-	self addMorph: aStroke.
-	aStroke visible: false! !
-
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
-removeStrokesAt: positionInWorld
-" Remove the strokes under this positionInWorld "
-	| toDelete |
-"	self halt."
-	toDelete := submorphs select: [:aBezier | aBezier isCloserThan: self strokeTool width toPixel: positionInWorld].
-	self removeAllMorphsIn: toDelete.
-	^ toDelete! !
-
-!StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 29/Sep/2024, 8:22:48 pm (UTC)'!
-isCloserThan: distance toPixel: positionInWorld
-	^ submorphs anySatisfy: [:each | 
-		each bitMask.
-		each isCloserThan: distance toPixel: positionInWorld]! !
-
-!StrokeGroupMorph methodsFor: 'clean up' stamp: 'hlsf 8/Sep/2024, 5:03:55 pm (UTC)'!
-deleteBitMasks
-	submorphs do: [:each| each removeProperty: #bitMask]! !
-
-!StrokeGroupMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 21/Jan/2025, 8:17:21 pm (UTC)'!
-haloShowsCoordinateSystem
-	^ false! !
-
-!StrokeGroupMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 5/Feb/2026, 5:10:34 pm (UTC)'!
-initialize
-	super initialize.
-	self lock: true! !
-
 !StrokeGroupMorph class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:34:47 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
+
+!StrokeGroupContourMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 30/Jul/2026, 1:14:12 pm (UTC)'!
+addStroke: aStroke
+	self addMorph: aStroke! !
+
+!StrokeGroupContourMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 30/Jul/2026, 1:15:37 pm (UTC)'!
+drawOn: aCanvas
+"	Does nothing, my submorph draw themselves, as it is is usually the case "! !
 
 !PageMorph methodsFor: 'geometry' stamp: 'hlsf 21/Jul/2026, 1:07:26 pm (UTC)'!
 scale: newScale
@@ -3358,7 +3395,7 @@ mouseMove: event localPosition: localPosition
 	event mouseButton1Pressed not ifTrue: [^ self ].
 	self tool handleMouseAt: localPosition in: self! !
 
-!PaperMorph methodsFor: 'events' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 29/Jul/2026, 10:32:23 am (UTC)'!
 mouseMove2: event localPosition: endPosition
 " With mouse trail  enabled "
 	| needUpdate |
@@ -3366,14 +3403,14 @@ mouseMove2: event localPosition: endPosition
 	needUpdate := false.
 	event trail do: [:aPosition | | localPosition |
 		localPosition := self internalize: aPosition.
-		((samples at: sampleIndex -1) squaredDistanceTo: localPosition) >= self strokeTool threshold 		ifTrue: [	
+		((samples at: sampleIndex -1) squaredDistanceTo: localPosition) >= self strokeTool threshold ifTrue: [	
 			samples at: sampleIndex put: localPosition.
 			sampleIndex := sampleIndex + 1.
-			sampleIndex > self samplesQty			ifTrue: [
+			sampleIndex > self samplesQty ifTrue: [
 				needUpdate := true.
 				currentStrokeGroup 
 					addMorph: stroker newStroke.
-				self resetSamplingTo: localPosition] 		] ].
+				self resetSamplingTo: localPosition] ] ].
 	needUpdate ifTrue: [self redrawNeeded]! !
 
 !PaperMorph methodsFor: 'geometry testing' stamp: 'hlsf 23/Mar/2023, 7:23:17 pm (UTC)'!
@@ -3523,12 +3560,12 @@ endWritingAt: localPosition
 	^ currentStrokeGroup 
 ! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 5/Apr/2026, 2:28:21 pm (UTC)'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 30/Jul/2026, 1:16:26 pm (UTC)'!
 lineWritingFrom: startPoint to: endPoint
 	| legacyStroker result |	
 	legacyStroker := stroker class.
 	self stroker: StrokerBezier2.
-	self startWritingAt: startPoint.
+	self startWritingContourAt: startPoint.
 	result := self endWritingAt: endPoint.
 	self stroker: legacyStroker.
 	^ result! !
@@ -3538,6 +3575,14 @@ startWritingAt: localPosition
 " Initilize the user writing "
 	self resetSamplingTo: localPosition.
 	self addMorph: (currentStrokeGroup := StrokeGroupMorph new).
+	"Minium squared distance to accept a new sample "
+	distanceThreshold := 16.0 / owner scale! !
+
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 30/Jul/2026, 1:16:11 pm (UTC)'!
+startWritingContourAt: localPosition
+" Initilize the user writing "
+	self resetSamplingTo: localPosition.
+	self addMorph: (currentStrokeGroup := StrokeGroupContourMorph new).
 	"Minium squared distance to accept a new sample "
 	distanceThreshold := 16.0 / owner scale! !
 
@@ -3608,6 +3653,10 @@ selectionMorph
 !PaperMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 21/Jan/2025, 8:17:02 pm (UTC)'!
 haloShowsCoordinateSystem
 	^ false! !
+
+!PaperMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 29/Jul/2026, 11:01:55 am (UTC)'!
+wantsContour
+	^ true! !
 
 !PaperMorph class methodsFor: 'instance creation' stamp: 'hlsf 5/Sep/2024, 1:58:40 pm (UTC)'!
 newOn: documentPresenter
