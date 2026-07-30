@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8094] on 30 July 2026 at 3:33:31 pm'!
+'From Cuis7.9 [latest update: #8113] on 30 July 2026 at 9:36:55 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 261!
-!requires: 'DyboTools-Geometry' 1 26 nil!
+!provides: 'DyboDoc' 1 262!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'UI-Panel' 1 122 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -2231,7 +2231,7 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 30/Jul/2026, 1:22:08 pm (UTC)'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 30/Jul/2026, 7:36:06 pm (UTC)'!
 handleMouseAt: localPosition in: paper
 " From time to time, strokeGroups are not detected. Activating their halo makes it work again...
 "
@@ -2245,8 +2245,9 @@ handleMouseAt: localPosition in: paper
 			"Reconstitute the strokeGroup... "
 			aGroup addAllMorphs: (deletedStrokes at: aGroup).
 			"... then we don't need the individual strokes, we remember of the whole group "
-			deletedStrokes at: aGroup put: aGroup] ].
-	paper redrawNeeded.! !
+			deletedStrokes at: aGroup put: aGroup.
+			paper redrawNeeded ] ].
+	! !
 
 !EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:41:16 pm (UTC)'!
 handleRelease: localPosition in: paper
