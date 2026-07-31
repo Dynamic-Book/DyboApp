@@ -1,0 +1,45 @@
+DYBOAPP INTERIM PROPRIETARY LICENSE AGREEMENT
+
+Copyright (c) 2023-2026 Hilaire Fernandes. All rights reserved.
+
+IMPORTANT: PLEASE READ THIS AGREEMENT CAREFULLY BEFORE DOWNLOADING, INSTALLING, 
+OR USING THE DYBO APPLICATION ("DYBOAPP").
+
+1. OVERVIEW AND INTENT
+DyboApp is currently distributed under this Interim License during its early 
+funding and development phase. The copyright holder intends to re-license 
+DyboApp under the GNU General Public License version 3 (GPLv3) or later once 
+sufficient project funding or institutional support is secured. Until such time, 
+this Software is subject to the restrictive terms below.
+
+2. GRANT OF LICENSE
+Subject to the terms of this Agreement, the Copyright Holder grants you a 
+non-exclusive, non-transferable, limited license to install and run ONE (1) copy 
+of DyboApp solely for personal, non-commercial evaluation and use by a single individual user.
+
+3. RESTRICTIONS
+You expressly agree NOT to:
+  a. Modify, adapt, translate, translate the Smalltalk image/source, or create 
+     derivative works based on DyboApp.
+  b. Distribute, lease, rent, sell, sublicense, host, or commercially exploit 
+     DyboApp or any of its constituent parts.
+  c. Reverse engineer, decompile, or disassemble DyboApp, except to the extent 
+     that applicable law expressly permits despite this limitation.
+  d. Deploy DyboApp across a network for simultaneous use by multiple users 
+     without an explicit institution-level testing agreement from the author.
+
+4. DYNAMIC KNOWLEDGE MODELS (DKMs) & USER CONTENT
+Annotations, hand-written notes, and standalone user-authored Dynamic Knowledge 
+Models created using DyboApp remain the property of the user. However, any modifications 
+to the core DyboApp application structure or underlying Smalltalk engine remain 
+governed by Section 3.
+
+5. DISCLAIMER OF WARRANTY
+DYBOAPP IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY.
+
+6. TERMINATION
+This license is effective until terminated. Your rights under this license will 
+terminate automatically without notice if you fail to comply with any of its terms.

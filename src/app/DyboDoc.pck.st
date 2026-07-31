@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8113] on 30 July 2026 at 9:36:55 pm'!
+'From Cuis7.9 [latest update: #8113] on 31 July 2026 at 11:53:28 am'!
 'Description '!
-!provides: 'DyboDoc' 1 262!
+!provides: 'DyboDoc' 1 263!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -3238,9 +3238,9 @@ replacePageModelBy: newPageModel
 	self replaceSubmorph: pageModel by: newPageModel.
 	pageModel := newPageModel ! !
 
-!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025, 3:14:50 pm (UTC)'!
+!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 31/Jul/2026, 8:31:25 am (UTC)'!
 clipsSubmorphs
-	^ false! !
+	^ true! !
 
 !PageMorph methodsFor: 'drawing' stamp: 'hlsf 8/Dec/2024, 4:57:15 pm (UTC)'!
 drawOn: canvas! !
@@ -3654,10 +3654,6 @@ selectionMorph
 !PaperMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 21/Jan/2025, 8:17:02 pm (UTC)'!
 haloShowsCoordinateSystem
 	^ false! !
-
-!PaperMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 29/Jul/2026, 11:01:55 am (UTC)'!
-wantsContour
-	^ true! !
 
 !PaperMorph class methodsFor: 'instance creation' stamp: 'hlsf 5/Sep/2024, 1:58:40 pm (UTC)'!
 newOn: documentPresenter
