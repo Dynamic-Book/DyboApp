@@ -81,6 +81,3 @@ data, you will have to create it with the settings tool (the gear
 button at the right in the toolbar).
 
 Have an interesting exploration!
-
-# License
-Copyright 2023--2026  Hilaire Fernandes 
