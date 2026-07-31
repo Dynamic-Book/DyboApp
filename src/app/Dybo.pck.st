@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8094] on 26 July 2026 at 6:08:20 pm'!
+'From Cuis7.9 [latest update: #8113] on 31 July 2026 at 11:53:46 am'!
 'Description '!
-!provides: 'Dybo' 1 252!
+!provides: 'Dybo' 1 253!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1173,7 +1173,7 @@ getMenuIn: aWorld at: aHand
 		addTitle: 'System menu' translated.
 	^ menu! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 23/Jul/2026, 10:06:34 am (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 31/Jul/2026, 9:52:24 am (UTC)'!
 informationString
 	|text |
 	text := 'The Dybo application for educators and learners to streamline teaching and learning.
@@ -1181,7 +1181,7 @@ informationString
 
 {2}
 LICENSES: 
- - Dybo packages All rights reserved
+ - Dybo packages: read the EULA in the LICENSE file 
  - Each DKM package is released under the terms of its specific license 
      with possible restrictions.' translated format: {self version. self copyright}.
 	^ text! !
