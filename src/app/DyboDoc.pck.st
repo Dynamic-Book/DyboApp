@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 12:34:22 pm'!
+'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 3:39:22 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 264!
+!provides: 'DyboDoc' 1 265!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -4309,11 +4309,12 @@ defaultBorderColor
 defaultColor
 	^Theme current paneBackgroundFrom: self defaultBorderColor ! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 4/Jan/2025, 4:47:19 pm (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 3/Aug/2026, 1:38:11 pm (UTC)'!
 deleteBitMasks
 " Remove all the bitmask of the Stroke Morph "
-	pages do: [:aPage |
-		aPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks 	] ]! !
+	currentPage paper strokeGroups do: [:aStrokeGroup | aStrokeGroup deleteBitMasks].
+	currentPage annotators do: [:anAnnotator | anAnnotator strokeGroups 
+			do: [:aStrokeGroup | aStrokeGroup deleteBitMasks]	]! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:40:48 pm (UTC)'!
 initialize

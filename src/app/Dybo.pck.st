@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8113] on 31 July 2026 at 1:34:03 pm'!
+'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 3:39:18 pm'!
 'Description '!
-!provides: 'Dybo' 1 254!
+!provides: 'Dybo' 1 255!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -2647,7 +2647,7 @@ userLastname: anObject
 
 	userLastname := anObject! !
 
-!DyNewUser methodsFor: 'ui' stamp: 'hlsf 19/Apr/2026, 12:17:59 pm (UTC)'!
+!DyNewUser methodsFor: 'ui' stamp: 'hlsf 3/Aug/2026, 1:24:32 pm (UTC)'!
 mold
 	| mold |
 	mold := Mold new.
@@ -2658,7 +2658,7 @@ mold
 	mold stringField
 		label: 'Lastname' translated;
 		on: #userLastname of: self;
-		beOptional.
+		beRequired.
 	mold stringField
 		label: 'School' translated;
 		on: #schoolName of: self;
