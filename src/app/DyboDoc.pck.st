@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 4:09:18 pm'!
+'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 4:41:48 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 267!
+!provides: 'DyboDoc' 1 268!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -1490,8 +1490,11 @@ penWhite
 redoAction
 	self commandsManager redo ifTrue: [self modified]! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 15/Jul/2026, 1:29:08 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'dau 3/Aug/2026, 2:34:22 pm (UTC)'!
 saveDocument
+	model isNote ifTrue: [
+		^ PopUpMenu inform: 'Notes can''t be saved, but can be exported to PDF. 
+To save your work, go to your binder and create a new document.' translated].
 	savesReal := true.
 	self saveToDisk.
 	savesReal := false.
@@ -2775,6 +2778,11 @@ title: aString
 isCourse
 " Is the document a teaching document, therefore part of a course/topic "
 	^ self owner class = DyTopic! !
+
+!DocumentModel methodsFor: 'testing' stamp: 'dau 3/Aug/2026, 2:29:34 pm (UTC)'!
+isNote
+" A note is a document without owner, it can't be saved to disk "
+	^ owner = nil! !
 
 !DocumentModel methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026, 5:57:41 pm (UTC)'!
 isTask

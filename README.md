@@ -80,4 +80,7 @@ Alternatively, execute `Dybo new` to start the application with no initial
 data, you will have to create it with the settings tool (the gear
 button at the right in the toolbar).
 
+![DyboApp](resources/graphics/promote/DyboApp-2026-08.png)
+
+
 Have an interesting exploration!
