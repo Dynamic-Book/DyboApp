@@ -11,6 +11,15 @@ save time. It anticipates the needs of the user according to their
 location and time of use, at home, school, in which class, and with
 which students.
 
+It is developed in Cuis Smalltalk on top of GNU/Linux, it combines an
+administrative context and interactive pedagogical binders:
+handwritten stylus annotations on documents merged with live Dynamic
+Knowledge Models (DKMs)—interactive Smalltalk objects tailored for
+subjects like mathematics, history, languages, etc.  Check out our
+short video demonstrations on Mamot
+https://mamot.fr/deck/@drgeo/tagged/DyboAppDemo
+
+
 For more insights about the project, [watch this
 presentation](https://youtu.be/DBjJrAZSEHs?si=y1hHnFLp9mI_8yN9) at The
 Smalltalk 2023 Fast event in Buenos Aires.
@@ -56,7 +65,7 @@ tool (the gear button at the right of the toolbar).
 
 ```bash
 cd DyboApp/resources/
-cp refData/data_sample.obj userData/data.obj
+cp refData/data_sample.obj myData/data.obj
 cd -
 ```
 
