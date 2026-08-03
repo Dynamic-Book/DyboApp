@@ -21,3 +21,13 @@ When the the DyboApp is installed in a read-only folder, run the
 application with its "startMultiUser.sh" script; adjust its USERDATA
 variable to indicate the location in the user disk space to save data,
 by default it is set to "$HOME/Documents/myDybo".
+
+
+PDF IMPORT/EXPORT
+----------------------------------------------------------------------
+To import/export PDF document, install the packages **poppler-utils**
+and **ImageMagick".
+
+On Debian based distribution:
+
+sudo apt install poppler-utils imagemagick
