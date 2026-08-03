@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 3:52:12 pm'!
+'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 4:09:18 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 266!
+!provides: 'DyboDoc' 1 267!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -1500,9 +1500,12 @@ saveDocument
 	PNGReadWriter putForm: view preview onFile: model path // 'preview.png'.
 	^ true! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 21/Jul/2026, 1:02:59 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 3/Aug/2026, 2:09:05 pm (UTC)'!
 switchToPageModel: pageModelSymbol
-	self currentPage replacePageModelBy: (Smalltalk at: pageModelSymbol) new! !
+	self currentPage 
+		replacePageModelBy: (Smalltalk at: pageModelSymbol) new;
+		redrawNeeded 
+! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024, 3:12:27 pm (UTC)'!
 undoAction
