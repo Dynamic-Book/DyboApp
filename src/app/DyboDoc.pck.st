@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8113] on 31 July 2026 at 11:53:28 am'!
+'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 12:34:22 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 263!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 264!
+!requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'UI-Panel' 1 122 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -2908,6 +2908,15 @@ drawTangentsOn: canvas
 is: aSymbol
 	^ aSymbol == #BezierMorph or: [ super is: aSymbol ]! !
 
+!Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 3/Aug/2026, 10:14:36 am (UTC)'!
+isWithIn: distance of: worldPoint
+" Rectangular detection is enough for this small morph "
+	| center |
+	privateDisplayBounds ifNil: [ ^ false].
+	center := privateDisplayBounds center.
+	^(center y - worldPoint y) abs < (privateDisplayBounds height  // 2 + distance ) 
+		and: [(center x - worldPoint x) abs < (privateDisplayBounds width // 2 + distance )]! !
+
 !Bezier2Morph methodsFor: 'testing' stamp: 'hlsf 8/Apr/2023, 10:20:10 am (UTC)'!
 showControls
 	^ [owner showControls] on: MessageNotUnderstood do: [false]! !
@@ -2927,6 +2936,11 @@ includeInNewMorphMenu
 !Bezier2ContourMorph methodsFor: 'geometry testing' stamp: 'hlsf 29/Jul/2026, 10:30:34 am (UTC)'!
 wantsContour
 	^ true! !
+
+!Bezier2ContourMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 3/Aug/2026, 10:16:54 am (UTC)'!
+isWithIn: distance of: worldPoint
+" We use contour detction "
+	^ self isCloserThan: distance  toPixel: worldPoint ! !
 
 !Bezier3Morph methodsFor: 'accessing' stamp: 'hlsf 2/Apr/2023, 12:35:57 pm (UTC)'!
 control2
@@ -3100,12 +3114,6 @@ drawOn: canvas
 	self showControls ifTrue: [submorphs do: [:each | each drawControlsOn: canvas] ].
 	self showPoints ifTrue: [submorphs do: [:each | each drawPointsOn: canvas] ]! !
 
-!StrokeGroupMorph methodsFor: 'geometry services' stamp: 'hlsf 29/Sep/2024, 8:22:48 pm (UTC)'!
-isCloserThan: distance toPixel: positionInWorld
-	^ submorphs anySatisfy: [:each | 
-		each bitMask.
-		each isCloserThan: distance toPixel: positionInWorld]! !
-
 !StrokeGroupMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 21/Jan/2025, 8:17:21 pm (UTC)'!
 haloShowsCoordinateSystem
 	^ false! !
@@ -3120,13 +3128,20 @@ addStroke: aStroke
 	self addMorph: aStroke.
 	aStroke visible: false! !
 
-!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 29/Jul/2026, 10:27:22 am (UTC)'!
+!StrokeGroupMorph methodsFor: 'strokes add/remove' stamp: 'hlsf 3/Aug/2026, 10:01:33 am (UTC)'!
 removeStrokesAt: positionInWorld
 " Remove the strokes under this positionInWorld "
 	| toDelete |
-	toDelete := submorphs select: [:aBezier | aBezier isCloserThan: self strokeTool width toPixel: positionInWorld].
+	toDelete := submorphs select: [:aBezier | aBezier isWithIn: self strokeTool width of: positionInWorld].
 	self removeAllMorphsIn: toDelete.
 	^ toDelete! !
+
+!StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 3/Aug/2026, 10:14:07 am (UTC)'!
+anyStrokeCloserThan: distance to: positionInWorld
+	^ submorphs anySatisfy: [:each | 
+		" The bitmap is not used, only its related update (privateDisplayBounds) and the #bitMask state "
+		each bitMask.
+		each isWithIn: distance of: positionInWorld]! !
 
 !StrokeGroupMorph methodsFor: 'testing' stamp: 'hlsf 12/May/2024, 4:11:04 pm (UTC)'!
 is: aSymbol
@@ -3539,11 +3554,11 @@ resetSamplingTo: aPoint
 strokeGroups
 	^ submorphs select: [:each | each is: #StrokeGroupMorph ]! !
 
-!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 7/Sep/2025, 3:52:33 pm (UTC)'!
+!PaperMorph methodsFor: 'strokes' stamp: 'hlsf 3/Aug/2026, 9:54:34 am (UTC)'!
 strokeGroupsAt: worldPosition
 	^ submorphs select: [:each |
 		(each is: #StrokeGroupMorph) 
-		and: [each isCloserThan: self strokeTool width toPixel: worldPosition ] ]! !
+		and: [each anyStrokeCloserThan: self strokeTool width to: worldPosition ] ]! !
 
 !PaperMorph methodsFor: 'writing' stamp: 'hlsf 14/Mar/2026, 11:26:03 am (UTC)'!
 endWritingAt: localPosition
