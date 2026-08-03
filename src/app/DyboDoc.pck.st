@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 3:39:22 pm'!
+'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 3:52:12 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 265!
+!provides: 'DyboDoc' 1 266!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -3680,7 +3680,7 @@ newOn: documentPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 15/Jul/2026, 10:25:35 am (UTC)'!
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 3/Aug/2026, 1:51:04 pm (UTC)'!
 annotate: aPlacedMorph
 | annotedExtent formerExtent |
 	annotatedMorph ifNotNil: [
@@ -3695,7 +3695,7 @@ annotate: aPlacedMorph
 	self morphExtent: annotedExtent + (self frameWidth * 2) asPoint .
 	self addMorphBack: annotatedMorph position: self frameWidth asPoint.
 "	Were we in frozen state? if so, freeze this new annotated morph "
-	self freeze: self isFrozen! !
+	self frozen: self isFrozen! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025, 9:26:04 am (UTC)'!
 annotated
@@ -3705,12 +3705,13 @@ annotated
 frameWidth
 	^ 12  / ((self scale max: 0.8) * (owner ifNotNil: [ owner scale max: 0.8] ifNil: [1]))! !
 
-!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 11/Jun/2026, 9:44:38 am (UTC)'!
-freeze: aBoolean
+!AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 3/Aug/2026, 1:51:04 pm (UTC)'!
+frozen: aBoolean
 	aBoolean 
 		ifTrue: [annotatedMorph triggerEvent: #leaveAnnotator.
 			self lockAnnoted]
-		ifFalse: [	annotatedMorph unlock]! !
+		ifFalse: [	annotatedMorph unlock].
+	frozen := aBoolean ! !
 
 !AnnotatorMorph methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2025, 9:25:11 am (UTC)'!
 lockAnnoted
@@ -3903,9 +3904,9 @@ reconcileToFrozeenState
 "
 	annotatedMorph lock: self isFrozen! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 15/Jul/2026, 10:28:44 am (UTC)'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 3/Aug/2026, 1:51:04 pm (UTC)'!
 toggleFrozen
-	self freeze: self isFrozen not! !
+	self frozen: self isFrozen not! !
 
 !AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 22/Feb/2025, 9:30:37 pm (UTC)'!
 shortPrintString
