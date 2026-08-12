@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 4:41:48 pm'!
+'From Cuis7.9 [latest update: #8120] on 12 August 2026 at 6:56:45 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 268!
+!provides: 'DyboDoc' 1 269!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -610,7 +610,7 @@ PageModelPdf class
 
 !classDefinition: #PageContainer category: #'DyboDoc-View'!
 ColoredBoxMorph subclass: #PageContainer
-	instanceVariableNames: ''
+	instanceVariableNames: 'cursor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-View'!
@@ -1604,17 +1604,20 @@ printOn: aStream
 		nextPutAll: model dirName;
 		nextPut: $)! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024, 12:34:33 pm (UTC)'!
+!Document methodsFor: 'tool' stamp: 'hlsf 12/Aug/2026, 4:54:38 pm (UTC)'!
 eraserTool
-	self tool: EraserTool ! !
+	self tool: EraserTool.
+	view container cursor: #markerCursor! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024, 8:29:11 am (UTC)'!
+!Document methodsFor: 'tool' stamp: 'hlsf 12/Aug/2026, 4:54:51 pm (UTC)'!
 groupTool
-	self tool: GroupTool ! !
+	self tool: GroupTool.
+	view container cursor: nil! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024, 12:34:47 pm (UTC)'!
+!Document methodsFor: 'tool' stamp: 'hlsf 12/Aug/2026, 4:54:56 pm (UTC)'!
 highlighterTool
-	self tool:HighlighterTool ! !
+	self tool:HighlighterTool.
+	view container cursor: #markerCursor! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 4/Jan/2025, 4:47:34 pm (UTC)'!
 isTool: aToolName
@@ -1627,13 +1630,15 @@ toolName takes value penRed,  hightlighterYellow, etc.  "
 	^ (toolName includesSubString: self selectedTool) 
 	and: [toolName includesSubString: (self strokeTool color alpha: 1) colorName capitalized ]! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024, 8:38:17 am (UTC)'!
+!Document methodsFor: 'tool' stamp: 'hlsf 12/Aug/2026, 4:55:02 pm (UTC)'!
 penTool
-	self tool: PenTool ! !
+	self tool: PenTool.
+	view container cursor: #markerCursor! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 23/Oct/2024, 8:52:29 am (UTC)'!
+!Document methodsFor: 'tool' stamp: 'hlsf 12/Aug/2026, 4:55:36 pm (UTC)'!
 pointerTool
-	self tool: PointerTool .! !
+	self tool: PointerTool .
+	view container cursor: nil! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 26/Oct/2024, 1:56:47 pm (UTC)'!
 resetTool
@@ -1649,10 +1654,11 @@ shapeTool
 		add: 'Rectangle' translated target: self action: #shapeTool: argument: RectangularShape;
 		popUpInWorld! !
 
-!Document methodsFor: 'tool' stamp: 'hlsf 14/Mar/2026, 12:04:46 pm (UTC)'!
+!Document methodsFor: 'tool' stamp: 'hlsf 12/Aug/2026, 4:55:19 pm (UTC)'!
 shapeTool: shapeClass
 	self tool: ShapeTool.
-	tool shapeClass: shapeClass 
+	tool shapeClass: shapeClass .
+	view container cursor: #markerCursor
 ! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 5/Sep/2024, 1:09:27 pm (UTC)'!
@@ -4234,6 +4240,10 @@ clipsSubmorphs
 defaultColor
 	^ Color lightGray muchLighter! !
 
+!PageContainer methodsFor: 'accessing' stamp: 'hlsf 12/Aug/2026, 4:52:23 pm (UTC)'!
+cursor: message
+	cursor := message! !
+
 !PageContainer methodsFor: 'accessing' stamp: 'hlsf 9/Feb/2025, 3:41:40 pm (UTC)'!
 flaps
 	^ submorphs select: [:aMorph | aMorph is: #Flap]! !
@@ -4250,6 +4260,20 @@ minimumExtent
 !PageContainer methodsFor: 'geometry' stamp: 'hlsf 13/Feb/2025, 8:29:51 am (UTC)'!
 morphCenter
 	^ self fullBoundsInOwner center! !
+
+!PageContainer methodsFor: 'as yet unclassified' stamp: 'dau 12/Aug/2026, 4:31:07 pm (UTC)'!
+handlesMouseOver: evt
+	^ true! !
+
+!PageContainer methodsFor: 'as yet unclassified' stamp: 'hlsf 12/Aug/2026, 4:53:16 pm (UTC)'!
+mouseEnter: aMouseEnterEvent
+	cursor 
+		ifNotNil: [(Cursor perform: cursor) activateCursor]
+		 ifNil: [Cursor normalCursor activateCursor]! !
+
+!PageContainer methodsFor: 'as yet unclassified' stamp: 'dau 12/Aug/2026, 4:32:26 pm (UTC)'!
+mouseLeave: aMouseEnterEvent
+	Cursor normalCursor activateCursor ! !
 
 !PageContainer class methodsFor: 'instance creation' stamp: 'hlsf 8/Sep/2024, 4:24:18 pm (UTC)'!
 for: aPage
