@@ -81,30 +81,33 @@ makeBundle () {
 	    destVM="Contents"
 	;;
     esac
-    bundleResources="$bundleApp/Resources"
+
     echo "Cleaning previous bundles build..."
     rm -rf $bundlePath
+
     echo "Installing template..."
     rsync -a  --exclude '*~' $bundleTemplate $bundlesPath
     
     echo "Installing user directories and files, icons"
+    bundleResources="$bundleApp/Resources"
     rsync -a $dyboAppRepo/resources/scripts $bundleResources
     rsync -a $dyboAppRepo/resources/graphics/icons $bundleResources/graphics
     mkdir -p  $bundleResources/myPDF $bundleResources/userData/myScripts $bundleResources/refData
     rsync -a $dyboAppRepo/resources/refData/*.csv $bundleResources/refData
-
-    
+  
     echo "Copy license terms of each dkm..."
     for dkm in `find $iStoaRepo/src/dkm/* -maxdepth 1 -type d -printf "%f "`
     do
 	mkdir -p $bundleResources/dkm/$dkm
 	cp $iStoaRepo/src/dkm/$dkm/License* $bundleResources/dkm/$dkm
     done
+
     echo "Installing OpenSmalltalk VM..."
     for i in $cuisVM
     do
 	rsync -a $cuisVMPath/$i $bundleApp/$destVM/
     done
+    
     echo "Installing Smalltalk image and changes..."
     rsync -a $imagePath/dybo.{image,changes} $bundleResources/image
     echo "Installing Smalltalk source..."
@@ -112,7 +115,10 @@ makeBundle () {
 
     echo "Installing locales..."
     rsync -a "$dyboAppRepo/i18n/locale" $bundleResources/image
-   
+
+    echo "Installing documentation..."
+    cp "$dyboAppRep/resources/doc/ChangeLog" $bundleApp
+    
     echo "Set exec flag and any additional specific files installation..."
     case "$1" in
 	gnulinux)
