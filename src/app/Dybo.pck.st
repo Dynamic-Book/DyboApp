@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8120] on 3 August 2026 at 3:39:18 pm'!
+'From Cuis7.9 [latest update: #8120] on 15 August 2026 at 12:43:23 pm'!
 'Description '!
-!provides: 'Dybo' 1 255!
+!provides: 'Dybo' 1 256!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -851,6 +851,10 @@ goTasks
 	activeViewType := #tasks.
 	controlsManager plugTask.
 	self changed: #isView:! !
+
+!Dybo methodsFor: 'actions' stamp: 'hlsf 15/Aug/2026, 10:42:05 am (UTC)'!
+quit
+	^ self class quit! !
 
 !Dybo methodsFor: 'actions' stamp: 'hlsf 26/Feb/2026, 12:51:18 pm (UTC)'!
 toggleFullscreen
@@ -1896,6 +1900,14 @@ pageButtonData
 	#goDocument . 
 	'Open a blank document to start writing.' translated }! !
 
+!DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 15/Aug/2026, 10:40:40 am (UTC)'!
+quitButtonData
+" label - iconName - callback - description "
+	^ {'Quit' translated . 
+	#quit . 
+	#quit . 
+	'Quit DyboApp immediately? Unsaved data will be lost.' translated }! !
+
 !DyControlsManager methodsFor: 'controls data' stamp: 'hlsf 5/Sep/2024, 9:11:51 am (UTC)'!
 settingsButtonData
 " label - iconName - callback - description "
@@ -2097,9 +2109,9 @@ dyboToolbar
 					self on: self dyboPresenter  button: aTool state: #isView: size: buttonWidth )] ].
 	^ toolbar! !
 
-!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 28/Apr/2026, 9:28:23 am (UTC)'!
+!DyControlsManager methodsFor: 'widget' stamp: 'hlsf 15/Aug/2026, 10:42:49 am (UTC)'!
 dyboToolbarSpec
-	^ #(start tasks binder page spacer fullscreen settings)! !
+	^ #(start tasks binder page spacer settings fullscreen quit)! !
 
 !DyControlsManager methodsFor: 'widget' stamp: 'hlsf 10/May/2026, 8:35:59 am (UTC)'!
 on: aPresenter button: symbol state: stateGetter size: size
