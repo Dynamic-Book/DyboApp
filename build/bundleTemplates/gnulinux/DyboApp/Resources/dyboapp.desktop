@@ -5,6 +5,7 @@ Type=Application
 Categories=Education
 Exec=/opt/DyboApp/startMultiUser.sh
 Icon=/opt/DyboApp/Resources/graphics/dyboapp.png
+StartupWMClass=squeak
 StartupNotify=false
 Terminal=false
 GenericName=Course Organizer
