@@ -1,0 +1,17 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=DyboApp
+Type=Application
+Categories=Education
+Exec=/opt/DyboApp/startMultiUser.sh
+Icon=/opt/DyboApp/Resources/graphics/dyboapp.png
+StartupNotify=false
+Terminal=false
+GenericName=Course Organizer
+GenericName[fr]=Gestionnaire de Cours
+Keywords=course;note;class;simulation;handwritten
+Keywords[fr]=cours;note;classe;simulation;manuscrite
+Comment=Create, organize, and schedule courses featuring handwritten notes and dynamic simulations.
+Comment[fr]=Créer, organiser et planifier des cours comprenant des notes manuscrites et des simulations dynamiques.
+
+
