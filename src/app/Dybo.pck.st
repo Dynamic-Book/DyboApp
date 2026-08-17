@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8120] on 15 August 2026 at 12:43:23 pm'!
+'From Cuis7.9 [latest update: #8120] on 17 August 2026 at 10:09:21 pm'!
 'Description '!
-!provides: 'Dybo' 1 256!
+!provides: 'Dybo' 1 257!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -524,6 +524,13 @@ allCourses
 	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
 		courses 	addAll: aClassGroup courses.
 		courses ]! !
+
+!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Aug/2026, 7:17:25 pm (UTC)'!
+allDocuments
+" Returns the collection of the user's documents "
+	^ self allTopics inject: OrderedCollection new into: [:documents :aTopic |
+		documents addAll: aTopic documents .
+		documents]! !
 
 !DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:09:52 am (UTC)'!
 allTopics
@@ -1190,11 +1197,23 @@ LICENSES:
      with possible restrictions.' translated format: {self version. self copyright}.
 	^ text! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026, 9:32:22 am (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 17/Aug/2026, 8:00:09 pm (UTC)'!
 quit
-	(self confirm: 'You may have unsaved data!! 
-Are you sure to quit the Dybo application?' translated) ifFalse: [ ^ self].
-	Smalltalk quitPrimitive! !
+	| unsavedDoc queryUI info choice | 
+	unsavedDoc := DyUserData current allDocuments select: [:aDoc | aDoc model isNote not and: [aDoc isSaved not]].
+	unsavedDoc ifEmpty: [Smalltalk quitPrimitive].
+	info := String streamContents: [:str |
+		str nextPutAll:  'You have unsaved documents:' translated; cr.
+		unsavedDoc do: [:aDoc | str nextPutAll: ' - '; nextPutAll: aDoc model title] separatedBy: [ str cr]].
+	queryUI := PopUpMenu 
+		labelArray:  {'Save and quit' translated . 'Quit without saving' translated. 'Cancel' translated}
+		lines: nil
+		icons: #(saveAndQuitIcon quitIcon cancelIcon).
+	choice := queryUI startUpWithCaption: info.
+	choice = 3 ifTrue: [^self].
+	choice = 1 ifTrue: [unsavedDoc do: #saveDocument].
+"	If the user did not discard the menu "
+	choice = 0 ifFalse: [Smalltalk quitPrimitive]! !
 
 !Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026, 10:00:09 am (UTC)'!
 toolsMenu: builder
