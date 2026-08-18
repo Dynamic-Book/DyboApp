@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8139] on 18 August 2026 at 9:33:08 pm'!
+'From Cuis7.9 [latest update: #8139] on 18 August 2026 at 10:09:23 pm'!
 'Description '!
-!provides: 'Dybo' 1 258!
+!provides: 'Dybo' 1 260!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1669,7 +1669,7 @@ saveUserData
 		dumpOnCompressedFile: DyboSystem userDataFile
 		object: DyUserData current! !
 
-!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 26/Jul/2026, 9:36:23 am (UTC)'!
+!DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 18/Aug/2026, 8:09:20 pm (UTC)'!
 install
 	| world |
 	"Report by any mean installation and run time"
@@ -1712,7 +1712,7 @@ install
 		Smalltalk garbageCollect.
 		'Installation ended' print.
 		'Saving image...' print.
-		Smalltalk saveAndQuit ]
+		Smalltalk saveAndQuit]
 ] fork
 ! !
 
