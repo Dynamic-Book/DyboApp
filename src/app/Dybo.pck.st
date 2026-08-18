@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8120] on 17 August 2026 at 10:09:21 pm'!
+'From Cuis7.9 [latest update: #8139] on 18 August 2026 at 9:33:08 pm'!
 'Description '!
-!provides: 'Dybo' 1 257!
+!provides: 'Dybo' 1 258!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1216,6 +1216,7 @@ quit
 	choice = 0 ifFalse: [Smalltalk quitPrimitive]! !
 
 !Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026, 10:00:09 am (UTC)'!
+!methodProperties: {}!
 toolsMenu: builder
 	<dyboWorldMenu>
 	(builder newEntry: 'System Browser' translated in: 'Tools' translated)
@@ -1248,10 +1249,10 @@ toolsMenu: builder
 		icon: #saveIcon;
 		help: 'Save this Dybo application as it is right now.' translated! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 31/Jul/2026, 11:33:52 am (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 18/Aug/2026, 7:32:45 pm (UTC)'!
 version
 	^ 'Release ' translated, 
-		'26.08a alpha', 
+		'26.08b alpha', 
 		(String streamContents: [:str | 
 			str nextPut: Character lf; nextPut: Character lf.
 			str nextPutAll: self cuisVersion; nextPut: Character lf.
@@ -1268,6 +1269,7 @@ version
 			])! !
 
 !Dybo class methodsFor: 'menu' stamp: 'hlsf 21/Jul/2026, 1:26:47 pm (UTC)'!
+!methodProperties: {}!
 worldMenu: builder
 	<dyboWorldMenu>
 	(builder newEntry: 'Open Dybo environent' translated)

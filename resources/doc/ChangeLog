@@ -1,7 +1,16 @@
+2026-08-18  Hilaire Fernandes  <hilaire@PCHome>
+
+	* Release 26.08b alpah
+
+2026-08-17  Hilaire Fernandes  <hilaire@gnu.org>
+
+	* #20 Confirmation when quitting
+
 2026-08-15  Hilaire Fernandes  <hilaire@gnu.org>
 
-	* #19 Desktop entry
-	* #18 Quite button
+	* #19 Add a .desktop file as defined the freedesktop
+	specifications
+	* #18 Quit button
 	* Use the markerCursor for pen, eraser, highlighter and shape
 	tools
 
