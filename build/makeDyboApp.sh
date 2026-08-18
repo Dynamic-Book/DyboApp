@@ -117,7 +117,7 @@ makeBundle () {
     rsync -a "$dyboAppRepo/i18n/locale" $bundleResources/image
 
     echo "Installing documentation..."
-    cp "$dyboAppRep/resources/doc/ChangeLog" $bundleApp
+    cp "$dyboAppRepo/resources/doc/ChangeLog" $bundleApp
     
     echo "Set exec flag and any additional specific files installation..."
     case "$1" in
