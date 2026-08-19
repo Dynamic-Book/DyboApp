@@ -10,6 +10,12 @@ When installing a newer version of the DyboApp (from a ZIP archive),
 the user should request a merging installation, this operation depends
 on the Archive software used to install the DyboApp.
 
+FINE TUNING
+----------------------------------------------------------------------
+To improve performance, be sure to create the file
+/etc/security/limits.d/squeak.conf with the contents:
+*       hard    rtprio  2
+*       soft    rtprio  2
 
 HOW TO START
 ----------------------------------------------------------------------
