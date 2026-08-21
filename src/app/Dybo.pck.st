@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8139] on 18 August 2026 at 10:09:23 pm'!
+'From Cuis7.9 [latest update: #8139] on 21 August 2026 at 10:20:27 pm'!
 'Description '!
-!provides: 'Dybo' 1 260!
+!provides: 'Dybo' 1 261!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!

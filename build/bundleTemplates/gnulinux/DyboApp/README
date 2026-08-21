@@ -12,8 +12,9 @@ on the Archive software used to install the DyboApp.
 
 FINE TUNING
 ----------------------------------------------------------------------
-To improve performance, be sure to create the file
-/etc/security/limits.d/squeak.conf with the contents:
+To improve performance of the OpenSmalltalk VM, be sure to create the
+file /etc/security/limits.d/squeak.conf with the contents:
+
 *       hard    rtprio  2
 *       soft    rtprio  2
 

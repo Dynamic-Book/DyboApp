@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8120] on 12 August 2026 at 6:56:45 pm'!
+'From Cuis7.9 [latest update: #8139] on 21 August 2026 at 10:20:31 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 269!
-!requires: 'UI-Panel' 1 122 nil!
+!provides: 'DyboDoc' 1 270!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
+!requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1490,10 +1490,10 @@ penWhite
 redoAction
 	self commandsManager redo ifTrue: [self modified]! !
 
-!Document methodsFor: 'actions ui' stamp: 'dau 3/Aug/2026, 2:34:22 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 21/Aug/2026, 8:18:16 pm (UTC)'!
 saveDocument
 	model isNote ifTrue: [
-		^ PopUpMenu inform: 'Notes can''t be saved, but can be exported to PDF. 
+		^ PopUpMenu inform: 'Quick notes can''t be saved, but can be exported to PDF. 
 To save your work, go to your binder and create a new document.' translated].
 	savesReal := true.
 	self saveToDisk.
@@ -2785,15 +2785,15 @@ isCourse
 " Is the document a teaching document, therefore part of a course/topic "
 	^ self owner class = DyTopic! !
 
-!DocumentModel methodsFor: 'testing' stamp: 'dau 3/Aug/2026, 2:29:34 pm (UTC)'!
+!DocumentModel methodsFor: 'testing' stamp: 'hlsf 21/Aug/2026, 8:17:26 pm (UTC)'!
 isNote
 " A note is a document without owner, it can't be saved to disk "
-	^ owner = nil! !
+	^ (self isCourse or: [self isTask]) not! !
 
-!DocumentModel methodsFor: 'testing' stamp: 'hlsf 15/Apr/2026, 5:57:41 pm (UTC)'!
+!DocumentModel methodsFor: 'testing' stamp: 'hlsf 21/Aug/2026, 8:16:22 pm (UTC)'!
 isTask
 " Is the document a task document, therefore part of a task in the agenda "
-	^ self isCourse not! !
+	^ self owner class = DyTask! !
 
 !DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026, 8:55:53 am (UTC)'!
 description
