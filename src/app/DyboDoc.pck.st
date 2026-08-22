@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8139] on 21 August 2026 at 10:34:46 pm'!
+'From Cuis7.9 [latest update: #8139] on 22 August 2026 at 11:21:32 am'!
 'Description '!
-!provides: 'DyboDoc' 1 271!
+!provides: 'DyboDoc' 1 272!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -966,7 +966,7 @@ maxDistance: samples
 		dist at: i put: ( (samples at: i) dist: (samples at: i + 1) )].
 	^ dist max! !
 
-!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 26/Mar/2026, 8:09:08 am (UTC)'!
+!StrokerBezier methodsFor: 'compute' stamp: 'hlsf 22/Aug/2026, 9:09:31 am (UTC)'!
 widthFor: samples prev: lastStroke
 	| penWidth prevWidth strokeDist min max f a b  | 
 	penWidth := self penWidth.
@@ -976,7 +976,7 @@ widthFor: samples prev: lastStroke
 	min := self penThreshold / 2.
 	max := self penThreshold * 2. 
 	"+/- f % of amplitude width"
-	f := 0.50.
+	f := 0.70.
 	" affine parameters "
 	a := (2 * penWidth * f) / ( min - max).
 	b :=  penWidth * (1 + f) - (min * a).
