@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8139] on 21 August 2026 at 10:20:27 pm'!
+'From Cuis7.9 [latest update: #8139] on 22 August 2026 at 7:44:13 pm'!
 'Description '!
-!provides: 'Dybo' 1 261!
+!provides: 'Dybo' 1 266!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -928,7 +928,7 @@ Do you want to overwrite it?' translated
 	self activeView updateView.
 	DyboSystem saveUserData! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 14/Jul/2026, 11:26:06 am (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 22/Aug/2026, 1:40:23 pm (UTC)'!
 importPDF
 	| newDoc answer |
 	currentTopic ifNil: [^ self].
@@ -1612,39 +1612,32 @@ pageSize
 scriptLibrary
 	^ platform scriptLibrary ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Apr/2026, 2:27:00 pm (UTC)'!
-convert: destEntry pages: interval dpi: integer
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 22/Aug/2026, 5:42:31 pm (UTC)'!
+convert: destEntry page: number dpi: integer
 " 
 	In destEntry, convert the import.pdf interval pages at interger resolution	   
 "
-	| converstionCommand resolution |
+	| convertionCommand resolution |
 	resolution := integer min: 300 max: 75.
-	converstionCommand := interval 
-		ifNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 "{2}/import.pdf" "{2}/page"' format: {
-			resolution . destEntry pathName }] 
-		ifNotNil: ['pdftocairo -r {1} -jpeg -jpegopt quality=90 -f {2} -l {3} "{4}/import.pdf" "{4}/page"' format: {
+	convertionCommand := 'pdftocairo -r {1} -jpeg -jpegopt quality=90 -singlefile -f {2} -l {2} "{3}/import.pdf" "{3}/currentPage"' format: {
 			resolution. 
-			interval first. interval last.
-			destEntry pathName }].
-	^ OSProcess command: converstionCommand ! !
+			number .
+			destEntry pathName }.
+	^ OSProcess command: convertionCommand ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 4/Apr/2026, 2:28:05 pm (UTC)'!
-import: pdfEntry to: destEntry pages: interval
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 22/Aug/2026, 1:50:08 pm (UTC)'!
+importPdf: fileEntry to: destEntry
 "
-	In our destEntry, generate a import.pdf document with the selected pages interval, if fany ;
-	then in destEntry, convert the import.pdf interval pages at integer resolution	
+	In our destEntry, copy as import.pdf the pdf document;
+	then count and return its number of pages	
 "
-	| importCommand process |
+	| command process |
 	destEntry assureExistence.
-	importCommand := interval 
-		ifNil:  ['pdftocairo -pdf "{1}" "{2}/import.pdf"' format: { pdfEntry pathName . destEntry pathName } ]
-		ifNotNil: ['pdftocairo -pdf "{1}" -f {2} -l {3} "{4}/import.pdf"' format: {
-			pdfEntry pathName.
-			interval first. interval last.
-			destEntry pathName}].
-	process := OSProcess command: importCommand.
+	fileEntry copyTo: (destEntry // 'import.pdf') pathName.
+	command := 'pdfinfo "{1}/import.pdf"  | awk ''/^Pages:/ \{print $2}'' > "{1}/pageCount"' format: {destEntry pathName }.
+	process := OSProcess command: command .
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
-	^ self convert: destEntry pages: interval dpi: 150.! !
+	^ (destEntry // 'pageCount') fileContents asNumber! !
 
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 removeUserData

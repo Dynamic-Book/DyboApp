@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8139] on 22 August 2026 at 11:21:32 am'!
+'From Cuis7.9 [latest update: #8139] on 22 August 2026 at 7:44:17 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 272!
+!provides: 'DyboDoc' 1 277!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1415,18 +1415,16 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 21/Jul/2026, 12:43:20 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 22/Aug/2026, 5:09:22 pm (UTC)'!
 importPDF: aFileEntry
-	| process |
-	process := DyboSystem 
-		import: aFileEntry
-		to: model path
-		pages: nil.
-	[process isComplete] whileFalse: [(Delay forMilliseconds: 300) wait].
-	1 to: model pdfNumberOfPages do: [:index | | newPage |
-		newPage := PageMorph newOn: self model: (self model pdfModelForPage: index).
-		self view insertPage: newPage	]
-	! !
+	| numberOfPages |
+	numberOfPages := DyboSystem 
+		importPdf: aFileEntry
+		to: model path.
+	1 to: numberOfPages do: [:index | | newPage |
+		newPage := PageMorph newOn: self model: PageModelPdf new.
+		self view appendPage: newPage].
+	self view goFirstPage ! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:37:58 pm (UTC)'!
 nibSize: aNumber
@@ -2720,26 +2718,6 @@ initialize
 	dirName := String streamContents: [:s | DateAndTime now filenamePrintOn: s].
 	pageModel := DyboSystem pageModel ! !
 
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:08:17 pm (UTC)'!
-jpegFilePages
-	^ (self path children select: [:each | each extension = 'jpg'])
-		sort: [:f1 :f2 | f1 name < f2 name]! !
-
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 21/Jul/2026, 1:07:26 pm (UTC)'!
-pdfModelForPage: aPageNumber
-" Get the page model as PDF background for the page "
-	| pdfPage |
-	pdfPage := PageModelPdf newOn: (self pdfPageAt: aPageNumber).
-	^ pdfPage! !
-
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:08:17 pm (UTC)'!
-pdfNumberOfPages
-	^ self jpegFilePages size! !
-
-!DocumentModel methodsFor: 'accessing pdf' stamp: 'hlsf 17/Mar/2026, 7:10:11 pm (UTC)'!
-pdfPageAt: integer
-	^ ImageReadWriter formFromFileEntry: (self jpegFilePages at: integer)! !
-
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026, 8:17:17 am (UTC)'!
 dirName
 	^ dirName ! !
@@ -3221,6 +3199,10 @@ number
 pageContainer
 	^ owner! !
 
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2026, 5:02:09 pm (UTC)'!
+pageModel
+	^ pageModel! !
+
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 21/Jul/2026, 12:39:08 pm (UTC)'!
 pageModel: aPageModel
 	pageModel := aPageModel ! !
@@ -3250,13 +3232,17 @@ viewport
 		ifFalse: [	((self internalize: 0@0) max: 0@0) 
 			corner: ((self internalize: owner morphExtent) min: extent)]! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:37:57 pm (UTC)'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 22/Aug/2026, 1:35:02 pm (UTC)'!
 initialize
 	super initialize.
 	paper := PaperMorph newOn: presenter.
 	paper stroker: StrokerBezier3XP.
 	self addMorphBack: pageModel position: 0@0;
 		addMorphFront: paper position: 0@0.
+	self reconcileExtent! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 22/Aug/2026, 5:02:21 pm (UTC)'!
+reconcileExtent
 	self morphExtent: pageModel morphExtent.
 	paper morphExtent: pageModel morphExtent! !
 
@@ -3984,6 +3970,10 @@ defaultExtent
 release
 " Free any used resources when I am discarded "! !
 
+!PageModel methodsFor: 'initialization' stamp: 'hlsf 22/Aug/2026, 2:26:22 pm (UTC)'!
+updateExtent
+"	pdf model may need it for late update "! !
+
 !PageModel methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:26:57 pm (UTC)'!
 documentModel
 	^ self page documentModel ! !
@@ -4148,21 +4138,15 @@ title
 dpi
 	^ dpi ifNil: [dpi := 150]! !
 
-!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 17/Mar/2026, 7:31:01 pm (UTC)'!
+!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2026, 4:45:50 pm (UTC)'!
 form
-	^ form ifNil: [form := self documentModel pdfPageAt: self page number ]! !
+	^ form ifNil: [
+		self sampleAt: self dpi in: self documentModel path.
+		form := ImageReadWriter formFromFileEntry: self documentModel path // 'currentPage.jpg']! !
 
-!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 15/Nov/2024, 8:50:23 pm (UTC)'!
-form: aForm
-	form := aForm ! !
-
-!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 24/Nov/2024, 3:36:44 pm (UTC)'!
-defaultExtent
-	^ self form extent! !
-
-!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 17/Mar/2026, 7:44:54 pm (UTC)'!
-release
-	(self documentModel jpegFilePages at: self page number) delete! !
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 22/Aug/2026, 5:03:15 pm (UTC)'!
+updateExtent
+	extent := self form extent! !
 
 !PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 4/Jan/2025, 9:02:33 am (UTC)'!
 drawOn: canvas
@@ -4173,37 +4157,39 @@ drawOn: canvas
 is: aSymbol
 	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026, 7:53:30 pm (UTC)'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 22/Aug/2026, 5:41:53 pm (UTC)'!
 resampleFrom: oldScale to: newScale in: documentPath
 	" Do I need to be resampled "
 	| newDpi |
-	newDpi := dpi.
+	newDpi := self dpi.
 	(newScale > 1.5 and: [oldScale < 1.5]) 
 		ifTrue: [newDpi := 300].
 	((newScale between: 1 and: 1.5) and: [(oldScale between: 1 and: 1.5) not])
 		ifTrue: [newDpi := 200].
-	((newScale between: 0.6 and: 0.99) and: [(oldScale between: 0.6 and: 0.99) not])
+	((newScale between: 0.6 and: 0.99999) and: [(oldScale between: 0.6 and: 0.99999) not])
 		ifTrue: [newDpi := 150].			
-	((newScale between: 0.5 and: 0.59) and: [(oldScale between: 0.5 and: 0.59) not])
+	((newScale between: 0.5 and: 0.59999) and: [(oldScale between: 0.5 and: 0.59999) not])
 		ifTrue: [newDpi := 100].			
-	(newScale < 0.49 and: [oldScale > 0.49])
+	(newScale < 0.49999 and: [oldScale > 0.49999])
 		ifTrue: [newDpi := 75].
-	newDpi ~= dpi ifTrue: [
-		self sampleAt: newDpi in: documentPath .
+	newDpi ~= self dpi ifTrue: [
+		" we change the dpi, discard current form "
+		form := nil.
+		self sampleAt: newDpi in: documentPath.
+		form := ImageReadWriter formFromFileEntry: self documentModel path // 'currentPage.jpg'.
 		self scaleBy: (self dpi / newDpi) asFloat.
-		extent := form extent.
-		dpi := newDpi ]! !
+		self updateExtent.		
+		dpi := newDpi]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 17/Mar/2026, 7:31:46 pm (UTC)'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 22/Aug/2026, 4:23:59 pm (UTC)'!
 sampleAt: newDpi in: documentPath
 	| process number |
 	number := self page number.
 	process := DyboSystem 
 		convert:  documentPath 
-		pages:  (number to: number)
+		page:  number
 		dpi: newDpi .
-	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
-	form := self documentModel pdfPageAt: number! !
+	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait]! !
 
 !PageModelPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024, 5:09:38 pm (UTC)'!
 prepareToBeSaved
@@ -4220,16 +4206,6 @@ requiresVectorCanvas
 !PageModelPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:47:55 pm (UTC)'!
 wantsContour
 	^ false! !
-
-!PageModelPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026, 6:02:02 pm (UTC)'!
-new
-	self error: 'Use #newOn: to create new instance'! !
-
-!PageModelPdf class methodsFor: 'instance creation' stamp: 'hlsf 15/Mar/2026, 6:08:05 pm (UTC)'!
-newOn: aForm
-	^ self basicNew
-		form: aForm;
-		initialize! !
 
 !PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025, 3:27:48 pm (UTC)'!
 clipsSubmorphs
@@ -4440,6 +4416,11 @@ installView
 	presenter penTool.
 	self adjustPageCounter! !
 
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 22/Aug/2026, 5:09:01 pm (UTC)'!
+appendPage: aPage
+" insert a page after the current page "
+	^ pages add: aPage! !
+
 !DocumentView methodsFor: 'pages' stamp: 'hlsf 26/Oct/2024, 12:34:50 pm (UTC)'!
 currentPage
 	^ currentPage ! !
@@ -4471,12 +4452,14 @@ goNextPage
 	^ self goPage: (self pageAt: self currentPageIndex + 1)
 ! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 18/Dec/2024, 5:11:49 pm (UTC)'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 22/Aug/2026, 5:11:08 pm (UTC)'!
 goPage: aPage
 " I alway return the current page, whether the document jump to a new page or not "
 	(aPage notNil and: [aPage ~= currentPage]) ifTrue: [
 		container replaceSubmorph: currentPage by: aPage.
 		currentPage := aPage.
+		currentPage pageModel updateExtent.
+		currentPage reconcileExtent.
 		self adjustPageCounter.
 		presenter commandsManager release.
 		presenter resetTool].
