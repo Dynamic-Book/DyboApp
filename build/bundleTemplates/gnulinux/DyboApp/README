@@ -38,3 +38,8 @@ and **ImageMagick".
 On Debian based distribution:
 
 sudo apt install poppler-utils imagemagick
+
+Depending on your system ImageMagick, may need its security policy
+adjusted. Read:
+
+https://stackoverflow.com/questions/52998331/imagemagick-security-policy-pdf-blocking-conversion
