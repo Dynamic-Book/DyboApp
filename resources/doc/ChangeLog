@@ -1,3 +1,9 @@
+2026-08-22  Hilaire Fernandes  <hilaire@PCHome>
+
+	* #23 Convert PDF pages once at a timea
+	* #22 Editing and saving an existing task
+	* #21 Handwritten stroke threshold
+
 2026-08-18  Hilaire Fernandes  <hilaire@PCHome>
 
 	* Release 26.08b alpha
