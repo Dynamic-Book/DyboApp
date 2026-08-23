@@ -1,3 +1,8 @@
+2026-08-23  Hilaire Fernandes  <hilaire@PCHome>
+
+	* Release 26.08c alpha
+	* #24 Render PDF only in the visible area
+
 2026-08-22  Hilaire Fernandes  <hilaire@PCHome>
 
 	* #23 Convert PDF pages once at a timea

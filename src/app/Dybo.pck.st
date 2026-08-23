@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8139] on 22 August 2026 at 7:56:24 pm'!
+'From Cuis7.9 [latest update: #8139] on 23 August 2026 at 7:20:08 pm'!
 'Description '!
-!provides: 'Dybo' 1 267!
+!provides: 'Dybo' 1 268!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -928,7 +928,7 @@ Do you want to overwrite it?' translated
 	self activeView updateView.
 	DyboSystem saveUserData! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 22/Aug/2026, 1:40:23 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 23/Aug/2026, 5:19:22 pm (UTC)'!
 importPDF
 	| newDoc answer |
 	currentTopic ifNil: [^ self].
@@ -947,6 +947,8 @@ importPDF
 	newDoc 
 		modified;
 		saveDocument.
+	self runningWorld doOneCycleNow.
+	newDoc fitPageToWidth.
 	^ newDoc! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!

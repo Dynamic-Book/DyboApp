@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8139] on 23 August 2026 at 2:27:11 pm'!
+'From Cuis7.9 [latest update: #8139] on 23 August 2026 at 7:33:09 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 278!
+!provides: 'DyboDoc' 1 281!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1239,14 +1239,13 @@ choosePageModel
 deletePage
 	self view deletePage! !
 
-!Document methodsFor: 'actions pages' stamp: 'hlsf 12/Oct/2024, 9:18:01 am (UTC)'!
-fitWidthPage
-	" Take PageContainer width for our current page "
-	| page |
-	page := self currentPage.
-	page 
-		morphPosition: 0@ (page morphPosition y);
-		scale: (page pageContainer morphWidth / page morphWidth ) asFloat
+!Document methodsFor: 'actions pages' stamp: 'hlsf 23/Aug/2026, 4:58:28 pm (UTC)'!
+fitPageToScreen
+	self currentPage fitScreen! !
+
+!Document methodsFor: 'actions pages' stamp: 'hlsf 23/Aug/2026, 4:58:51 pm (UTC)'!
+fitPageToWidth
+	self currentPage fitWidth 
 	! !
 
 !Document methodsFor: 'actions pages' stamp: 'hlsf 14/Jul/2026, 11:26:06 am (UTC)'!
@@ -1284,19 +1283,6 @@ moveOYAction: increment
 	page morphPosition: (page morphPosition - (0@increment) 
 		min: view container morphExtent 
 		max: page morphExtent negated * page scale)! !
-
-!Document methodsFor: 'actions pages' stamp: 'hlsf 26/Oct/2024, 12:28:44 pm (UTC)'!
-pageFitScreen
-	" Make the page entirely visible in the PageContainer "
-	| page scaleX scaleY |
-	page := self currentPage.
-	
-	scaleX := (page pageContainer morphWidth / page morphWidth) asFloat.
-	scaleY := (page pageContainer morphHeight / page morphHeight) asFloat.
-	page
-		morphPosition: 0@0;
-		scale: (scaleX min: scaleY)
-	! !
 
 !Document methodsFor: 'actions pages' stamp: 'hlsf 21/Jul/2026, 12:52:11 pm (UTC)'!
 pageModelString: modelSymbol
@@ -1345,7 +1331,7 @@ eraserSize4
 eraserSize8
 	self eraserSize: 8.! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 14/Jul/2026, 3:47:12 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 23/Aug/2026, 5:25:13 pm (UTC)'!
 exportPDF
 	| exportedFiles pdfCommand process |
 	savesReal := true.
@@ -1356,11 +1342,14 @@ exportPDF
 			(String streamContents: [:str | i printOn: str base: 10 length: 4 padded: true]),
 			'.png'.
 		page := view pageAt: i.
+		" PDF page model may need to be shacked if never open "
+		page pageModel updateExtent.
+		page adjustExtent.
 		formerScale := page scale.
 		page scale: 1.5.
 		JPEGReadWriter2 
 			putForm: (page imageForm: 32)  
-			quality: 90 
+			quality: 80 
 			progressiveJPEG: false 
 			onFileNamed: DyboSystem myExportPath // exportedFiles last.
 		page scale: formerScale].
@@ -1415,7 +1404,7 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 23/Aug/2026, 11:37:08 am (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 23/Aug/2026, 5:10:56 pm (UTC)'!
 importPDF: aFileEntry
 	| numberOfPages |
 	numberOfPages := DyboSystem 
@@ -1424,8 +1413,7 @@ importPDF: aFileEntry
 	1 to: numberOfPages do: [:index | | newPage |
 		newPage := PageMorph newOn: self model: PageModelPdf new.
 		self view appendPage: newPage].
-	self view goFirstPage.
-	self view currentPage reconcileExtent.! !
+	self view goFirstPage! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:37:58 pm (UTC)'!
 nibSize: aNumber
@@ -3167,10 +3155,28 @@ addStroke: aStroke
 drawOn: aCanvas
 "	Does nothing, my submorph draw themselves, as it is is usually the case "! !
 
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 21/Jul/2026, 1:07:26 pm (UTC)'!
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 23/Aug/2026, 4:56:04 pm (UTC)'!
+fitScreen
+	" Make the page entirely visible in the PageContainer "
+	| scaleX scaleY |
+	scaleX := (self pageContainer morphWidth / self morphWidth) asFloat.
+	scaleY := (self pageContainer morphHeight / self morphHeight) asFloat.
+	self 
+		morphPosition: 0@0;
+		scale: (scaleX min: scaleY)! !
+
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 23/Aug/2026, 4:55:04 pm (UTC)'!
+fitWidth
+		" Take PageContainer width for our current page "
+	self
+		morphPosition: 0@ (self morphPosition y);
+		scale: (self pageContainer morphWidth / self morphWidth ) asFloat
+! !
+
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 23/Aug/2026, 4:07:40 pm (UTC)'!
 scale: newScale
-	(pageModel is: #PageModelPdf) ifTrue: [
-		pageModel resampleFrom: self scale to: newScale in: self documentModel path].
+	"(pageModel is: #PageModelPdf) ifTrue: [
+		pageModel resampleFrom: self scale to: newScale in: self documentModel path]."
 	super scale: newScale! !
 
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2024, 9:35:01 am (UTC)'!
@@ -3233,19 +3239,26 @@ viewport
 		ifFalse: [	((self internalize: 0@0) max: 0@0) 
 			corner: ((self internalize: owner morphExtent) min: extent)]! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 22/Aug/2026, 1:35:02 pm (UTC)'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:24:43 pm (UTC)'!
+adjustExtent
+	self morphExtent: pageModel morphExtent.
+	paper morphExtent: pageModel morphExtent! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:24:53 pm (UTC)'!
 initialize
 	super initialize.
 	paper := PaperMorph newOn: presenter.
 	paper stroker: StrokerBezier3XP.
 	self addMorphBack: pageModel position: 0@0;
 		addMorphFront: paper position: 0@0.
-	self reconcileExtent! !
+	self adjustExtent ! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 22/Aug/2026, 5:02:21 pm (UTC)'!
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:25:03 pm (UTC)'!
 reconcileExtent
-	self morphExtent: pageModel morphExtent.
-	paper morphExtent: pageModel morphExtent! !
+	extent = pageModel morphExtent ifFalse: [
+		"First time opening this page, do some adjustments "
+		self adjustExtent.
+		self fitWidth ]! !
 
 !PageMorph methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:37:57 pm (UTC)'!
 release
@@ -4135,26 +4148,23 @@ initialize
 title
 	^ 'Graph paper' translated! !
 
-!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024, 11:31:16 am (UTC)'!
-dpi
-	^ dpi ifNil: [dpi := 150]! !
-
-!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2026, 4:45:50 pm (UTC)'!
+!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 23/Aug/2026, 4:29:34 pm (UTC)'!
 form
 	^ form ifNil: [
-		self sampleAt: self dpi in: self documentModel path.
-		form := ImageReadWriter formFromFileEntry: self documentModel path // 'currentPage.jpg']! !
+		form := self sampleAt: dpi in: self documentModel path]! !
 
 !PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 11:38:24 am (UTC)'!
 defaultExtent
 	^ 50@50! !
 
-!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 11:46:01 am (UTC)'!
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 4:04:26 pm (UTC)'!
+initialize
+	super initialize.
+	dpi := 300! !
+
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:06:34 pm (UTC)'!
 updateExtent
-	extent = self defaultExtent ifTrue: [
-		" The pdf page was never imported, set extent to set its ratio "
-		extent := self form extent]
-	" Otherwise do not change exent "! !
+	extent := self form extent! !
 
 !PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 23/Aug/2026, 12:24:50 pm (UTC)'!
 drawOn: canvas
@@ -4172,38 +4182,21 @@ drawOn: canvas
 is: aSymbol
 	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 23/Aug/2026, 11:53:30 am (UTC)'!
-resampleFrom: oldScale to: newScale in: documentPath
-	" Do I need to be resampled "
-	| newDpi |
-	newDpi := self dpi.
-	(newScale > 1.5 and: [oldScale < 1.5]) 
-		ifTrue: [newDpi := 300].
-	((newScale between: 1 and: 1.5) and: [(oldScale between: 1 and: 1.5) not])
-		ifTrue: [newDpi := 200].
-	((newScale between: 0.6 and: 0.99999) and: [(oldScale between: 0.6 and: 0.99999) not])
-		ifTrue: [newDpi := 150].			
-	((newScale between: 0.5 and: 0.59999) and: [(oldScale between: 0.5 and: 0.59999) not])
-		ifTrue: [newDpi := 100].			
-	(newScale < 0.49999 and: [oldScale > 0.49999])
-		ifTrue: [newDpi := 75].
-	newDpi ~= self dpi ifTrue: [
-		" we change the dpi, discard current form "
-		form := nil.
-		self sampleAt: newDpi in: documentPath.
-		form := ImageReadWriter formFromFileEntry: self documentModel path // 'currentPage.jpg'.
-		self scaleBy: (self dpi / newDpi) asFloat.
-		dpi := newDpi]! !
-
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 22/Aug/2026, 4:23:59 pm (UTC)'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 23/Aug/2026, 4:35:42 pm (UTC)'!
 sampleAt: newDpi in: documentPath
-	| process number |
+	| process number pdfForm |
 	number := self page number.
+	number isZero ifTrue: [^self "Nothing to do"].
+	Transcript show: 'Sampling page: '; show: number; cr.
 	process := DyboSystem 
 		convert:  documentPath 
 		page:  number
 		dpi: newDpi .
-	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait]! !
+	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
+	pdfForm := ImageReadWriter formFromFileEntry: self documentModel path // 'currentPage.jpg'.
+	(self documentModel path // 'currentPage.jpg') delete.
+	extent :=pdfForm extent.
+	^ pdfForm ! !
 
 !PageModelPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024, 5:09:38 pm (UTC)'!
 prepareToBeSaved
@@ -4220,6 +4213,31 @@ requiresVectorCanvas
 !PageModelPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:47:55 pm (UTC)'!
 wantsContour
 	^ false! !
+
+!PageModelPdf methodsFor: 'obselete' stamp: 'hlsf 23/Aug/2026, 4:25:09 pm (UTC)'!
+resampleFrom: oldScale to: newScale in: documentPath
+	" Do I need to be resampled "
+	| newDpi |
+	newDpi := dpi.
+	(newScale >= 1.5 and: [oldScale < 1.5]) 
+		ifTrue: [newDpi := 300].
+	((newScale between: 1 and: 1.5) and: [(oldScale between: 1 and: 1.5) not])
+		ifTrue: [newDpi := 200].
+	((newScale between: 0.6 and: 0.99999) and: [(oldScale between: 0.6 and: 0.99999) not])
+		ifTrue: [newDpi := 150].			
+	((newScale between: 0.5 and: 0.59999) and: [(oldScale between: 0.5 and: 0.59999) not])
+		ifTrue: [newDpi := 100].			
+	(newScale < 0.49999 and: [oldScale > 0.49999])
+		ifTrue: [newDpi := 75].
+	newDpi ~= dpi ifTrue: [
+		" we change the dpi, discard current form "
+		Transcript show: 'Resample page '; show: self page number;cr.
+		form := nil.
+		self sampleAt: newDpi in: documentPath.
+		form := ImageReadWriter formFromFileEntry: self documentModel path // 'currentPage.jpg'.
+		extent := form extent.
+		self scaleBy: (dpi / newDpi) asFloat.
+		dpi := newDpi]! !
 
 !PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025, 3:27:48 pm (UTC)'!
 clipsSubmorphs
@@ -4341,7 +4359,7 @@ deleteBitMasks
 	currentPage annotators do: [:anAnnotator | anAnnotator strokeGroups 
 			do: [:aStrokeGroup | aStrokeGroup deleteBitMasks]	]! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:40:48 pm (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:03:06 pm (UTC)'!
 initialize
 	super initialize.
 	self beColumn.
@@ -4466,7 +4484,7 @@ goNextPage
 	^ self goPage: (self pageAt: self currentPageIndex + 1)
 ! !
 
-!DocumentView methodsFor: 'pages' stamp: 'hlsf 22/Aug/2026, 5:11:08 pm (UTC)'!
+!DocumentView methodsFor: 'pages' stamp: 'hlsf 23/Aug/2026, 4:42:28 pm (UTC)'!
 goPage: aPage
 " I alway return the current page, whether the document jump to a new page or not "
 	(aPage notNil and: [aPage ~= currentPage]) ifTrue: [
@@ -4690,18 +4708,18 @@ firstPageButtonData
 	#goFirstPage . 
 	'Go to the FIRST page of the document.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:32 pm (UTC)'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 23/Aug/2026, 4:58:28 pm (UTC)'!
 fitScreenButtonData
 	^ {'Fit screen' translated . 
 	#fitScreen . 
-	#pageFitScreen . 
+	#fitPageToScreen . 
 	'Scale the page to make it entirely visible.' translated  }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:41 pm (UTC)'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 23/Aug/2026, 4:58:51 pm (UTC)'!
 fitWidthButtonData
 	^ {'Fit width' translated . 
 	#fitWidth . 
-	#fitWidthPage . 
+	#fitPageToWidth . 
 	'Scale the page to fit the window width.' translated  }! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:20:49 pm (UTC)'!
