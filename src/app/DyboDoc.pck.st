@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8139] on 22 August 2026 at 7:44:17 pm'!
+'From Cuis7.9 [latest update: #8139] on 23 August 2026 at 2:27:11 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 277!
+!provides: 'DyboDoc' 1 278!
 !requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
@@ -1415,7 +1415,7 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 22/Aug/2026, 5:09:22 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 23/Aug/2026, 11:37:08 am (UTC)'!
 importPDF: aFileEntry
 	| numberOfPages |
 	numberOfPages := DyboSystem 
@@ -1424,7 +1424,8 @@ importPDF: aFileEntry
 	1 to: numberOfPages do: [:index | | newPage |
 		newPage := PageMorph newOn: self model: PageModelPdf new.
 		self view appendPage: newPage].
-	self view goFirstPage ! !
+	self view goFirstPage.
+	self view currentPage reconcileExtent.! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:37:58 pm (UTC)'!
 nibSize: aNumber
@@ -1670,8 +1671,8 @@ tool: aToolClass
 	view statusBarMessage: aToolClass description.
 	self changed: #isTool:! !
 
-!Document methodsFor: 'testing' stamp: 'hlsf 14/Jul/2026, 10:39:26 am (UTC)'!
-isExporingPDF
+!Document methodsFor: 'testing' stamp: 'hlsf 23/Aug/2026, 9:14:53 am (UTC)'!
+isExportingPDF
 	^ savesReal ! !
 
 !Document class methodsFor: 'object serialization' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
@@ -3224,10 +3225,10 @@ unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 14/Jul/2026, 10:42:33 am (UTC)'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 23/Aug/2026, 9:14:53 am (UTC)'!
 viewport
 " I represent my visible surface to the user, in own coordinates system "
-	^ presenter isExporingPDF 
+	^ presenter isExportingPDF 
 		ifTrue: [self localBounds] 
 		ifFalse: [	((self internalize: 0@0) max: 0@0) 
 			corner: ((self internalize: owner morphExtent) min: extent)]! !
@@ -4144,20 +4145,34 @@ form
 		self sampleAt: self dpi in: self documentModel path.
 		form := ImageReadWriter formFromFileEntry: self documentModel path // 'currentPage.jpg']! !
 
-!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 22/Aug/2026, 5:03:15 pm (UTC)'!
-updateExtent
-	extent := self form extent! !
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 11:38:24 am (UTC)'!
+defaultExtent
+	^ 50@50! !
 
-!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 4/Jan/2025, 9:02:33 am (UTC)'!
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 11:46:01 am (UTC)'!
+updateExtent
+	extent = self defaultExtent ifTrue: [
+		" The pdf page was never imported, set extent to set its ratio "
+		extent := self form extent]
+	" Otherwise do not change exent "! !
+
+!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 23/Aug/2026, 12:24:50 pm (UTC)'!
 drawOn: canvas
-  "   Display reverse: canvas clipRect."
-	canvas image: self form at: 0@0! !
+	| localViewport |
+	viewport := owner viewport.
+	localViewport := (self internalize: viewport origin) corner: (self internalize: viewport corner).
+	canvas image: self form at: localViewport origin sourceRect: localViewport ."
+	canvas image: self form at: 0@0."
+"	canvas 
+		frameRectangle: localViewport 
+		borderWidth: 4 
+		color: Color pink"! !
 
 !PageModelPdf methodsFor: 'testing' stamp: 'hlsf 21/Jul/2026, 1:07:26 pm (UTC)'!
 is: aSymbol
 	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 22/Aug/2026, 5:41:53 pm (UTC)'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 23/Aug/2026, 11:53:30 am (UTC)'!
 resampleFrom: oldScale to: newScale in: documentPath
 	" Do I need to be resampled "
 	| newDpi |
@@ -4178,7 +4193,6 @@ resampleFrom: oldScale to: newScale in: documentPath
 		self sampleAt: newDpi in: documentPath.
 		form := ImageReadWriter formFromFileEntry: self documentModel path // 'currentPage.jpg'.
 		self scaleBy: (self dpi / newDpi) asFloat.
-		self updateExtent.		
 		dpi := newDpi]! !
 
 !PageModelPdf methodsFor: 'updating' stamp: 'hlsf 22/Aug/2026, 4:23:59 pm (UTC)'!
@@ -4236,17 +4250,17 @@ minimumExtent
 morphCenter
 	^ self fullBoundsInOwner center! !
 
-!PageContainer methodsFor: 'as yet unclassified' stamp: 'dau 12/Aug/2026, 4:31:07 pm (UTC)'!
+!PageContainer methodsFor: 'event handling testing' stamp: 'dau 12/Aug/2026, 4:31:07 pm (UTC)'!
 handlesMouseOver: evt
 	^ true! !
 
-!PageContainer methodsFor: 'as yet unclassified' stamp: 'hlsf 12/Aug/2026, 4:53:16 pm (UTC)'!
+!PageContainer methodsFor: 'events' stamp: 'hlsf 12/Aug/2026, 4:53:16 pm (UTC)'!
 mouseEnter: aMouseEnterEvent
 	cursor 
 		ifNotNil: [(Cursor perform: cursor) activateCursor]
 		 ifNil: [Cursor normalCursor activateCursor]! !
 
-!PageContainer methodsFor: 'as yet unclassified' stamp: 'dau 12/Aug/2026, 4:32:26 pm (UTC)'!
+!PageContainer methodsFor: 'events' stamp: 'dau 12/Aug/2026, 4:32:26 pm (UTC)'!
 mouseLeave: aMouseEnterEvent
 	Cursor normalCursor activateCursor ! !
 
