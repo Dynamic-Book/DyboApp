@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8139] on 23 August 2026 at 7:20:08 pm'!
+'From Cuis7.9 [latest update: #8147] on 26 August 2026 at 3:22:27 pm'!
 'Description '!
-!provides: 'Dybo' 1 268!
+!provides: 'Dybo' 1 269!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -782,10 +782,30 @@ asDateAndTime
 		date: date
 		time: timeSlots first start! !
 
+!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 26/Aug/2026, 1:14:31 pm (UTC)'!
+< aCourseHoureDate
+	^ aCourseHoureDate date > date! !
+
+!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 26/Aug/2026, 1:18:52 pm (UTC)'!
+<= aCourseHoureDate
+	^ date = aCourseHoureDate date 
+		ifTrue: [timeSlots first < aCourseHoureDate timeSlots first]
+		ifFalse: [date < aCourseHoureDate date]! !
+
 !DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 7/Dec/2024, 7:39:53 am (UTC)'!
 = aCourseHourDate
 	^ date = aCourseHourDate date 
 	and: [timeSlots = aCourseHourDate timeSlots]! !
+
+!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 26/Aug/2026, 1:09:29 pm (UTC)'!
+> aCourseHoureDate
+	^ aCourseHoureDate date < date! !
+
+!DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 26/Aug/2026, 1:19:47 pm (UTC)'!
+>= aCourseHoureDate
+	^ date = aCourseHoureDate date 
+		ifTrue: [aCourseHoureDate timeSlots first < timeSlots first ]
+		ifFalse: [date > aCourseHoureDate date]! !
 
 !DyCourseHourDate methodsFor: 'comparing' stamp: 'hlsf 7/Dec/2024, 7:41:14 am (UTC)'!
 hash
@@ -1218,7 +1238,6 @@ quit
 	choice = 0 ifFalse: [Smalltalk quitPrimitive]! !
 
 !Dybo class methodsFor: 'menu' stamp: 'hlsf 22/Feb/2026, 10:00:09 am (UTC)'!
-!methodProperties: {}!
 toolsMenu: builder
 	<dyboWorldMenu>
 	(builder newEntry: 'System Browser' translated in: 'Tools' translated)
@@ -1271,7 +1290,6 @@ version
 			])! !
 
 !Dybo class methodsFor: 'menu' stamp: 'hlsf 21/Jul/2026, 1:26:47 pm (UTC)'!
-!methodProperties: {}!
 worldMenu: builder
 	<dyboWorldMenu>
 	(builder newEntry: 'Open Dybo environent' translated)
@@ -3441,6 +3459,14 @@ relPath
 restoreDocumentFromDisk
 	document := document loadFromDisk! !
 
+!DyTask methodsFor: 'comparing' stamp: 'hlsf 26/Aug/2026, 1:03:08 pm (UTC)'!
+<= aTask
+	^ (courseHourDate > aTask courseHourDate) not! !
+
+!DyTask methodsFor: 'comparing' stamp: 'hlsf 26/Aug/2026, 1:07:44 pm (UTC)'!
+> aTask
+	^ aTask courseHourDate < courseHourDate ! !
+
 !DyTimeSlot methodsFor: 'accessing' stamp: 'hlsf 22/May/2023, 5:58:55 pm (UTC)'!
 end
 	^ endTime! !
@@ -3814,9 +3840,9 @@ taskIndex: anIndex
 		ifNil: [self plugNewMiniDocument]
 		! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 17/Apr/2026, 10:19:31 am (UTC)'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 26/Aug/2026, 1:13:08 pm (UTC)'!
 tasks
-	^ DyUserData current tasks! !
+	^ DyUserData current tasks sorted: [:taskA :taskB | taskA > taskB]! !
 
 !DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 21/May/2026, 7:46:03 am (UTC)'!
 tasksWidget

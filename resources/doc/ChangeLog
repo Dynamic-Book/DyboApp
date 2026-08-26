@@ -1,16 +1,20 @@
-2026-08-23  Hilaire Fernandes  <hilaire@PCHome>
+2026-08-26  Hilaire Fernandes  <hilaire@gnu.org>
+
+	* #27 Sorted tasks
+
+2026-08-23  Hilaire Fernandes  <hilaire@gnu.org>
 
 	* Release 26.08c alpha
 	* #24 Render PDF only in the visible area
 
-2026-08-22  Hilaire Fernandes  <hilaire@PCHome>
+2026-08-22  Hilaire Fernandes  <hilaire@gnu.org>
 
 	* #23 Convert PDF pages once at a timea
 	* #22 Editing and saving an existing task
 	* #21 Handwritten stroke threshold
 	* Updated README
 
-2026-08-18  Hilaire Fernandes  <hilaire@PCHome>
+2026-08-18  Hilaire Fernandes  <hilaire@gnu.org>
 
 	* Release 26.08b alpha
 
