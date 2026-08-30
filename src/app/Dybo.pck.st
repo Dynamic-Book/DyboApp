@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8147] on 30 August 2026 at 11:50:00 am'!
+'From Cuis7.9 [latest update: #8147] on 30 August 2026 at 12:31:38 pm'!
 'Description '!
-!provides: 'Dybo' 1 270!
+!provides: 'Dybo' 1 271!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -3996,11 +3996,11 @@ topicIndex: anIndex
 	self updateView.
 	presenter currentTopic: self topic! !
 
-!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 26/May/2024, 2:57:40 pm (UTC)'!
+!DyBinderView methodsFor: 'accessing' stamp: 'hlsf 30/Aug/2026, 10:28:02 am (UTC)'!
 topics
 "The topics of a given course"
 	^ self course 
-		ifNotNil: [:aCourse | aCourse topics]
+		ifNotNil: [:aCourse | aCourse topics sort: [:topicA :topicB | topicA title < topicB title]]
 		ifNil: [`Array new`]! !
 
 !DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 15/Apr/2026, 11:02:15 am (UTC)'!
