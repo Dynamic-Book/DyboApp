@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8139] on 23 August 2026 at 7:33:09 pm'!
+'From Cuis7.9 [latest update: #8147] on 30 August 2026 at 12:22:54 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 281!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 282!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1331,7 +1331,7 @@ eraserSize4
 eraserSize8
 	self eraserSize: 8.! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 23/Aug/2026, 5:25:13 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 30/Aug/2026, 10:10:13 am (UTC)'!
 exportPDF
 	| exportedFiles pdfCommand process |
 	savesReal := true.
@@ -1339,8 +1339,7 @@ exportPDF
 	1 to: view numberOfPages do: [:i | 
 		| page formerScale |
 		exportedFiles add: model title,
-			(String streamContents: [:str | i printOn: str base: 10 length: 4 padded: true]),
-			'.png'.
+			(String streamContents: [:str | i printOn: str base: 10 length: 4 padded: true]), '.jpg'.
 		page := view pageAt: i.
 		" PDF page model may need to be shacked if never open "
 		page pageModel updateExtent.
@@ -1355,10 +1354,10 @@ exportPDF
 		page scale: formerScale].
 	savesReal := false.
 	pdfCommand := String streamContents: [:s |
-		s 	nextPutAll: 'cd {1}'; lf;
+		s 	nextPutAll: 'cd "{1}"'; lf;
 			nextPutAll: 'convert '.
-		exportedFiles do: [:each | s nextPutAll: each; space].
-		s nextPutAll: model title; nextPutAll: '.pdf'].
+		exportedFiles do: [:each | s nextPut: $"; nextPutAll: each; nextPut: $"; space].
+		s nextPut: $"; nextPutAll: model title; nextPutAll: '.pdf'; nextPut: $"].
 	pdfCommand := pdfCommand format: {DyboSystem myExportPath}.
 	process := OSProcess command: pdfCommand.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
