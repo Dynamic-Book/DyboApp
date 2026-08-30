@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8147] on 26 August 2026 at 3:22:27 pm'!
+'From Cuis7.9 [latest update: #8147] on 30 August 2026 at 11:50:00 am'!
 'Description '!
-!provides: 'Dybo' 1 269!
+!provides: 'Dybo' 1 270!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -491,6 +491,150 @@ purge
 		aTopic documents do: [:aDocument | aTopic documents remove: aDocument ]].
 	self tasks do: [:aTask | self deleteTask: aTask]! !
 
+!DyUserData methodsFor: 'db - manage' stamp: 'hlsf 7/May/2026, 8:43:56 am (UTC)'!
+deleteDocument: aDocPresenter from: topic
+	topic documents remove: aDocPresenter .
+	(topic directory / aDocPresenter model dirName) recursiveDelete! !
+
+!DyUserData methodsFor: 'db - manage' stamp: 'hlsf 7/May/2026, 8:43:40 am (UTC)'!
+deleteDocumentNamed: aDirName from: topic
+	| docPresenter |
+	" Delete a document according to its unique dirName identifier, see DocumentModel "
+	docPresenter := topic documents detect: [:aDocument | aDocument model dirName = aDirName].
+	self deleteDocument: docPresenter from: topic! !
+
+!DyUserData methodsFor: 'db - manage' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
+deleteTask: aTask
+	self tasks remove: aTask.
+	(DyboSystem myDataPath / DyboSystem tasksRelPath / aTask document model dirName) recursiveDelete! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:09:48 am (UTC)'!
+allCourses
+" Returns the collection of the user's courses"
+	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
+		courses 	addAll: aClassGroup courses.
+		courses ]! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Aug/2026, 7:17:25 pm (UTC)'!
+allDocuments
+" Returns the collection of the user's documents "
+	^ self allTopics inject: OrderedCollection new into: [:documents :aTopic |
+		documents addAll: aTopic documents .
+		documents]! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:09:52 am (UTC)'!
+allTopics
+" Returns the collection of the user's topcis "
+	^ self allCourses inject: OrderedCollection new into: [:topics :aCourse |
+		topics addAll: aCourse topics.
+		topics ]! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:09:57 am (UTC)'!
+classGroupOf: aDocumentModel
+"	Determine the class group this document belongs to. 
+	The document may come from a topic of  a course or a task "
+	^ aDocumentModel isCourse
+		ifTrue: [aDocumentModel owner course classGroup]
+		ifFalse: [(self courseAndGroupOf: aDocumentModel owner) ifNotNil: [:array | array second] ]! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:10:04 am (UTC)'!
+classGroups
+" Returns the collection of the user's class groups"
+	^ DyUserData current schools inject: OrderedCollection new into: [:classGroups :aSchool |
+		classGroups addAll: aSchool classGroups.
+		classGroups ]! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:10:09 am (UTC)'!
+courseAndGroupAt: aDateTime
+" 	Search my course and group occuring at this date and time "
+	DyUserData current schools do: [:aSchool |
+		aSchool classGroups do: [:aClassGroup |
+			aClassGroup courses do: [:aCourse |
+				(aCourse isDuring: aDateTime) ifTrue: [^ Array with: aCourse with: aClassGroup ] 
+			]
+		]
+	].
+	^ nil! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:10:13 am (UTC)'!
+courseAndGroupOf: aTask
+" 	Search the course and group aTask belongs to
+"
+	^ self courseAndGroupAt: aTask courseHourDate asDateAndTime ! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:10:18 am (UTC)'!
+courseAt: aDateTime
+" Search my course occuring at this date and time "
+	^ (self courseAndGroupAt: aDateTime) ifNotNil: [:anArray | anArray first]! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 6:36:48 pm (UTC)'!
+documentOwner: docModel
+"Search in my tasks "
+	self tasks 
+		detect: [:aTask | aTask document model = docModel] 
+		ifFound: [:ownerTask | ^ ownerTask]
+		ifNone: [nil].
+" Search in document in all ClassGroups/Courses/Topics "
+	self allTopics 
+		detect:  [:aTopic | aTopic documents 
+			detect: [:aDocPresenter | aDocPresenter model = docModel ] 
+			ifFound: [:matchingTopic | true ]
+			ifNone: [false] ]
+		ifFound: [:ownerTopic | ^ ownerTopic ]
+		ifNone: [].
+	^ nil! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 30/Aug/2026, 9:22:20 am (UTC)'!
+futureTasks
+	| now |
+	now := DateAndTime now.
+	^ self tasks select: [:aTask | aTask courseHourDate asDateAndTime >= now]! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:10:25 am (UTC)'!
+nextCourseHourAfter: aDateAndTime
+"Search for the next course hour in the same course occuring at aDateAndTime"
+	| course |
+	course := self courseAt: aDateAndTime.
+	course ifNil: [^nil].
+	^ course nextCourseHourAfter: aDateAndTime date! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:10:29 am (UTC)'!
+tasksOf: aClassGroup
+	^ self tasks select: [:aTask | (self courseAndGroupOf: aTask) second = aClassGroup]! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 30/Aug/2026, 9:28:56 am (UTC)'!
+unsavedDocuments
+	^ DyUserData current allDocuments select: [:aDoc | 
+		aDoc model isNote not and: [aDoc isSaved not]].! !
+
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 30/Aug/2026, 9:31:57 am (UTC)'!
+unsavedTasks
+	^ DyUserData current tasks select: [:aTask | aTask document isSaved not].! !
+
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 17/Apr/2026, 10:28:09 am (UTC)'!
+addDocument: aDocument to: topic
+	topic documents add: aDocument.
+	aDocument model owner: topic.
+	"Save the empty document in case the user does not do it after editing"
+	aDocument modified .
+	aDocument saveDocument.
+	^ aDocument ! !
+
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 7/May/2026, 10:08:03 am (UTC)'!
+importDocument: aDocument in: topic
+	topic documents add: aDocument.
+	aDocument model owner: topic.
+	^ aDocument ! !
+
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 17/Apr/2026, 10:08:26 am (UTC)'!
+newTask: aTask
+	self tasks add: aTask.
+	aTask document model owner: aTask.
+	"Save the empty document in case the user does not do it after editing"
+	aTask document
+		modified;
+		saveDocument! !
+
 !DyUserData methodsFor: 'initialization' stamp: 'hlsf 2/Mar/2026, 5:38:09 pm (UTC)'!
 initialize
 	super initialize.
@@ -508,135 +652,6 @@ printOn: str
 	user firstName 
 		ifNotNil:  [:firstName | str nextPutAll: ('{1}''s Dynabook' translated format: {firstName})]
 		ifNil: [super printOn: str]! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:28:09 am (UTC)'!
-addDocument: aDocument to: topic
-	topic documents add: aDocument.
-	aDocument model owner: topic.
-	"Save the empty document in case the user does not do it after editing"
-	aDocument modified .
-	aDocument saveDocument.
-	^ aDocument ! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:09:48 am (UTC)'!
-allCourses
-" Returns the collection of the user's courses"
-	^ self classGroups inject: OrderedCollection new into: [:courses :aClassGroup |
-		courses 	addAll: aClassGroup courses.
-		courses ]! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Aug/2026, 7:17:25 pm (UTC)'!
-allDocuments
-" Returns the collection of the user's documents "
-	^ self allTopics inject: OrderedCollection new into: [:documents :aTopic |
-		documents addAll: aTopic documents .
-		documents]! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:09:52 am (UTC)'!
-allTopics
-" Returns the collection of the user's topcis "
-	^ self allCourses inject: OrderedCollection new into: [:topics :aCourse |
-		topics addAll: aCourse topics.
-		topics ]! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:09:57 am (UTC)'!
-classGroupOf: aDocumentModel
-"	Determine the class group this document belongs to. 
-	The document may come from a topic of  a course or a task "
-	^ aDocumentModel isCourse
-		ifTrue: [aDocumentModel owner course classGroup]
-		ifFalse: [(self courseAndGroupOf: aDocumentModel owner) ifNotNil: [:array | array second] ]! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:10:04 am (UTC)'!
-classGroups
-" Returns the collection of the user's class groups"
-	^ DyUserData current schools inject: OrderedCollection new into: [:classGroups :aSchool |
-		classGroups addAll: aSchool classGroups.
-		classGroups ]! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:10:09 am (UTC)'!
-courseAndGroupAt: aDateTime
-" 	Search my course and group occuring at this date and time "
-	DyUserData current schools do: [:aSchool |
-		aSchool classGroups do: [:aClassGroup |
-			aClassGroup courses do: [:aCourse |
-				(aCourse isDuring: aDateTime) ifTrue: [^ Array with: aCourse with: aClassGroup ] 
-			]
-		]
-	].
-	^ nil! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:10:13 am (UTC)'!
-courseAndGroupOf: aTask
-" 	Search the course and group aTask belongs to
-"
-	^ self courseAndGroupAt: aTask courseHourDate asDateAndTime ! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:10:18 am (UTC)'!
-courseAt: aDateTime
-" Search my course occuring at this date and time "
-	^ (self courseAndGroupAt: aDateTime) ifNotNil: [:anArray | anArray first]! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 7/May/2026, 8:43:56 am (UTC)'!
-deleteDocument: aDocPresenter from: topic
-	topic documents remove: aDocPresenter .
-	(topic directory / aDocPresenter model dirName) recursiveDelete! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 7/May/2026, 8:43:40 am (UTC)'!
-deleteDocumentNamed: aDirName from: topic
-	| docPresenter |
-	" Delete a document according to its unique dirName identifier, see DocumentModel "
-	docPresenter := topic documents detect: [:aDocument | aDocument model dirName = aDirName].
-	self deleteDocument: docPresenter from: topic! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
-deleteTask: aTask
-	self tasks remove: aTask.
-	(DyboSystem myDataPath / DyboSystem tasksRelPath / aTask document model dirName) recursiveDelete! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 6:36:48 pm (UTC)'!
-documentOwner: docModel
-"Search in my tasks "
-	self tasks 
-		detect: [:aTask | aTask document model = docModel] 
-		ifFound: [:ownerTask | ^ ownerTask]
-		ifNone: [nil].
-" Search in document in all ClassGroups/Courses/Topics "
-	self allTopics 
-		detect:  [:aTopic | aTopic documents 
-			detect: [:aDocPresenter | aDocPresenter model = docModel ] 
-			ifFound: [:matchingTopic | true ]
-			ifNone: [false] ]
-		ifFound: [:ownerTopic | ^ ownerTopic ]
-		ifNone: [].
-	^ nil! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 7/May/2026, 10:08:03 am (UTC)'!
-importDocument: aDocument in: topic
-	topic documents add: aDocument.
-	aDocument model owner: topic.
-	^ aDocument ! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:08:26 am (UTC)'!
-newTask: aTask
-	self tasks add: aTask.
-	aTask document model owner: aTask.
-	"Save the empty document in case the user does not do it after editing"
-	aTask document
-		modified;
-		saveDocument! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:10:25 am (UTC)'!
-nextCourseHourAfter: aDateAndTime
-"Search for the next course hour in the same course occuring at aDateAndTime"
-	| course |
-	course := self courseAt: aDateAndTime.
-	course ifNil: [^nil].
-	^ course nextCourseHourAfter: aDateAndTime date! !
-
-!DyUserData methodsFor: 'queries' stamp: 'hlsf 17/Apr/2026, 10:10:29 am (UTC)'!
-tasksOf: aClassGroup
-	^ self tasks select: [:aTask | (self courseAndGroupOf: aTask) second = aClassGroup]! !
 
 !DyUserData methodsFor: 'visiting' stamp: 'hlsf 26/Jun/2023, 7:28:11 pm (UTC)'!
 accept: aVisitor
@@ -1219,21 +1234,33 @@ LICENSES:
      with possible restrictions.' translated format: {self version. self copyright}.
 	^ text! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 17/Aug/2026, 8:00:09 pm (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 30/Aug/2026, 9:48:32 am (UTC)'!
 quit
-	| unsavedDoc queryUI info choice | 
-	unsavedDoc := DyUserData current allDocuments select: [:aDoc | aDoc model isNote not and: [aDoc isSaved not]].
-	unsavedDoc ifEmpty: [Smalltalk quitPrimitive].
+	| unsavedDoc unsavedTasks queryUI info choice | 
+	unsavedDoc := DyUserData current unsavedDocuments.
+	unsavedTasks := DyUserData current unsavedTasks.
+	(unsavedDoc isEmpty and: [unsavedTasks isEmpty]) ifTrue: [Smalltalk quitPrimitive].
 	info := String streamContents: [:str |
-		str nextPutAll:  'You have unsaved documents:' translated; cr.
-		unsavedDoc do: [:aDoc | str nextPutAll: ' - '; nextPutAll: aDoc model title] separatedBy: [ str cr]].
+		unsavedDoc ifNotEmpty: [
+			str nextPutAll:  'You have unsaved documents:' translated; cr.
+			unsavedDoc 
+				do: [:aDoc | str nextPutAll: ' - '; nextPutAll: aDoc model title] 
+				separatedBy: [ str cr]].
+		unsavedTasks ifNotEmpty: [
+			unsavedDoc ifNotEmpty: [str cr].
+			str nextPutAll:  'You have unsaved tasks:' translated; cr.
+			unsavedTasks 
+				do: [:aTask | str nextPutAll: ' - '; nextPutAll: aTask document model title] 
+				separatedBy: [ str cr]] ].	
 	queryUI := PopUpMenu 
 		labelArray:  {'Save and quit' translated . 'Quit without saving' translated. 'Cancel' translated}
 		lines: nil
 		icons: #(saveAndQuitIcon quitIcon cancelIcon).
 	choice := queryUI startUpWithCaption: info.
 	choice = 3 ifTrue: [^self].
-	choice = 1 ifTrue: [unsavedDoc do: #saveDocument].
+	choice = 1 ifTrue: [
+		unsavedDoc do: #saveDocument.
+		unsavedTasks do: [:aTask | aTask document saveDocument] ].
 "	If the user did not discard the menu "
 	choice = 0 ifFalse: [Smalltalk quitPrimitive]! !
 
