@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8149] on 1 September 2026 at 12:23:50 pm'!
+'From Cuis7.9 [latest update: #8149] on 1 September 2026 at 6:10:26 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 283!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
+!provides: 'DyboDoc' 1 284!
+!requires: 'Commander' 1 7 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1697,6 +1697,14 @@ unexecute
 domain: aDomain
 	domain := aDomain! !
 
+!Command methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2026, 3:00:26 pm (UTC)'!
+page
+	^ domain owner! !
+
+!Command methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2026, 3:00:20 pm (UTC)'!
+paper
+	^ domain! !
+
 !Command methodsFor: 'initialize-release' stamp: 'hlsf 10/Sep/2024, 7:06:12 pm (UTC)'!
 release
 "Let my child do some clean up"! !
@@ -1744,17 +1752,29 @@ unexecute
 	domain adjustBoundsTo: bounds.
 	super unexecute! !
 
+!GroupDeleteCommand methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2026, 3:09:12 pm (UTC)'!
+annotators
+	 ^ deletedMorphs select: [:aMorph | aMorph is: #AnnotatorMorph]! !
+
 !GroupDeleteCommand methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2026, 10:18:30 am (UTC)'!
 deleteMorphs: aCollection
 	deletedMorphs := aCollection ! !
 
-!GroupDeleteCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 10:07:05 am (UTC)'!
-execute
-	deletedMorphs do: [:aMorph  | domain removeMorph: aMorph ]! !
+!GroupDeleteCommand methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2026, 3:09:27 pm (UTC)'!
+strokeGroups
+	 ^ deletedMorphs select: [:aMorph | aMorph is: #StrokeGroupMorph]! !
 
-!GroupDeleteCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 10:07:57 am (UTC)'!
+!GroupDeleteCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 3:14:00 pm (UTC)'!
+execute
+	self paper removeAllMorphsIn: self strokeGroups.
+	self page removeAllMorphsIn: self annotators 
+! !
+
+!GroupDeleteCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 4:05:07 pm (UTC)'!
 unexecute
-	deletedMorphs do: [:aMorph |domain addMorph: aMorph ]! !
+	self paper addAllMorphs: self strokeGroups.
+	self page addAllMorphs: self annotators.
+	self annotators do: #comeToFront! !
 
 !GroupDeleteCommand class methodsFor: 'as yet unclassified' stamp: 'hlsf 1/Sep/2026, 10:23:22 am (UTC)'!
 deleteMorphs: aCollection in: paper
@@ -1797,13 +1817,13 @@ delta: aPoint
 selection: aCollection
 	selection := aCollection ! !
 
-!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024, 9:42:09 am (UTC)'!
+!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 1:56:31 pm (UTC)'!
 execute
-	selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition + delta		 ]! !
+	selection do: [:aMorph | aMorph morphPosition: aMorph morphPosition + delta]! !
 
-!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 19/Oct/2024, 10:17:55 am (UTC)'!
+!MoveGroupCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 2:01:36 pm (UTC)'!
 unexecute
-	selection do: [:aMorph | 			aMorph morphPosition: aMorph morphPosition - delta		 ].! !
+	selection do: [:aMorph | aMorph morphPosition: aMorph morphPosition - delta ].! !
 
 !MoveGroupCommand class methodsFor: 'instance creation' stamp: 'hlsf 24/Oct/2024, 10:26:59 am (UTC)'!
 moveGroup: aCollection to: aPoint in: aPaper
@@ -1887,12 +1907,14 @@ erasedStrokes: aDictionayOfStroke in: aPaper
 		ifFalse: [ErasingCommand].
 	stack nextPut: (command erasedStrokes: aDictionayOfStroke in: aPaper )! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 1/Sep/2026, 10:10:09 am (UTC)'!
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 1/Sep/2026, 2:04:57 pm (UTC)'!
 groupDelete: aCollection in: aPaper
 " Read EraserToolStateErasing>>handleMouseAt:in: "
 	| command |
+	aCollection ifEmpty: [^self].
 	command := GroupDeleteCommand.
-	stack nextPut: (command deleteMorphs: aCollection in: aPaper )! !
+	stack nextPut: (command := command deleteMorphs: aCollection in: aPaper).
+	command execute! !
 
 !CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Oct/2024, 12:02:16 pm (UTC)'!
 move: aAnnotator to: delta in: aPage
@@ -2313,9 +2335,8 @@ handlePress: localPosition in: paper
 		switchState: EraserToolStateErasing; 	" Prepare to erase... "
 		handleMouseAt: localPosition in: paper "...then start erasing "! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 10:20:28 am (UTC)'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 2:02:31 pm (UTC)'!
 handleKeyStroke: keyboardEvent in: paper
-'there' print.
 	(keyboardEvent isDelete or: [keyboardEvent isBackspace]) ifTrue:[
 		self commandsManager groupDelete: context selection in: paper.
 		context switchState: GroupToolStateNeutral.]! !
