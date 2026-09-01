@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8150] on 1 September 2026 at 9:45:44 pm'!
+'From Cuis7.9 [latest update: #8150] on 1 September 2026 at 9:48:17 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 285!
+!provides: 'DyboDoc' 1 286!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -2743,14 +2743,14 @@ openScript: scriptMetadata
 	annotator := AnnotatorMorph newOn: targetPage presenter for: dkmScript.
 	annotator openInHand.! !
 
-!CommandStack methodsFor: 'private' stamp: 'hlsf 10/Sep/2024, 7:00:31 pm (UTC)'!
+!CommandStack methodsFor: 'private' stamp: 'hlsf 1/Sep/2026, 7:46:59 pm (UTC)'!
 truncate
 	|oldReadLimit|
 	oldReadLimit := readLimit.
 	readLimit := position.
 	oldReadLimit > readLimit ifTrue:
-			[readLimit to: oldReadLimit do:
-				[:index| collection at: index + 1 put: nil]]! !
+			[readLimit + 1 to: oldReadLimit do:
+				[:index| collection at: index put: nil]]! !
 
 !CommandStack methodsFor: 'accessing' stamp: 'hlsf 10/Sep/2024, 7:00:20 pm (UTC)'!
 nextPut: aCommand
