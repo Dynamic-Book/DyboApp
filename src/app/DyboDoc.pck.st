@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8147] on 30 August 2026 at 12:22:54 pm'!
+'From Cuis7.9 [latest update: #8149] on 1 September 2026 at 12:23:50 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 282!
+!provides: 'DyboDoc' 1 283!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -100,7 +100,7 @@ Command class
 
 !classDefinition: #ErasingCommand category: #'DyboDoc-Presenter-Command'!
 Command subclass: #ErasingCommand
-	instanceVariableNames: 'deletedStrokes'
+	instanceVariableNames: 'erasedStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Presenter-Command'!
@@ -116,6 +116,16 @@ ErasingCommand subclass: #ErasingAnnotatorCommand
 	category: 'DyboDoc-Presenter-Command'!
 !classDefinition: 'ErasingAnnotatorCommand class' category: #'DyboDoc-Presenter-Command'!
 ErasingAnnotatorCommand class
+	instanceVariableNames: ''!
+
+!classDefinition: #GroupDeleteCommand category: #'DyboDoc-Presenter-Command'!
+Command subclass: #GroupDeleteCommand
+	instanceVariableNames: 'deletedMorphs'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Presenter-Command'!
+!classDefinition: 'GroupDeleteCommand class' category: #'DyboDoc-Presenter-Command'!
+GroupDeleteCommand class
 	instanceVariableNames: ''!
 
 !classDefinition: #MoveAnnotatorCommand category: #'DyboDoc-Presenter-Command'!
@@ -260,7 +270,7 @@ PageToolState class
 
 !classDefinition: #EraserToolStateErasing category: #'DyboDoc-Presenter-Tool'!
 PageToolState subclass: #EraserToolStateErasing
-	instanceVariableNames: 'deletedStrokes'
+	instanceVariableNames: 'erasedStrokes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Presenter-Tool'!
@@ -679,7 +689,7 @@ domain is specific to the represented action, it can be a paper or a document.!
 !ErasingCommand commentStamp: '<historical>' prior: 0!
 The command records erasing occuring between eraser down - eraser up event
 - domain is a paper morph instance where the erasing occured
-- deletedStrokes : a dictionany of deleted strokes (value) per stroke group (key). Those strokes can, and very likely, belong to several different stroke groupe!
+- deletedStrokes : a dictionany of deleted strokes (value) per stroke group (key). Those strokes can, and very likely, belong to several different stroke groups!
 
 !ErasingAnnotatorCommand commentStamp: '<historical>' prior: 0!
 A command to record erasing on an AnnotatorMorph
@@ -1691,30 +1701,30 @@ domain: aDomain
 release
 "Let my child do some clean up"! !
 
-!ErasingCommand methodsFor: 'accessing' stamp: 'hlsf 11/Sep/2024, 7:02:30 pm (UTC)'!
-deletedStrokes: aDictionnary
+!ErasingCommand methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2026, 10:02:56 am (UTC)'!
+erasedStrokes: aDictionnary
 " Read EraserToolStateErasing>>handleMouseAt:in: "
-	deletedStrokes := aDictionnary ! !
+	erasedStrokes := aDictionnary ! !
 
-!ErasingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 3:23:49 pm (UTC)'!
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 10:02:56 am (UTC)'!
 execute
-	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
+	erasedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
 		aCollection == aStrokeGroup 
 			ifTrue:  [domain removeMorph: aStrokeGroup ]
-			ifFalse: [ aStrokeGroup removeAllMorphsIn: aCollection ] 		]! !
+			ifFalse: [ aStrokeGroup removeAllMorphsIn: aCollection ] ]! !
 
-!ErasingCommand methodsFor: 'command' stamp: 'hlsf 29/Sep/2024, 3:23:35 pm (UTC)'!
+!ErasingCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 10:02:56 am (UTC)'!
 unexecute
-	deletedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
+	erasedStrokes keysAndValuesDo: [:aStrokeGroup :aCollection |
 		aCollection == aStrokeGroup 
 			ifTrue:  [domain addMorph: aStrokeGroup ]
-			ifFalse: [ aStrokeGroup addAllMorphs: aCollection ] 		]! !
+			ifFalse: [ aStrokeGroup addAllMorphs: aCollection ] ]! !
 
-!ErasingCommand class methodsFor: 'instance creation' stamp: 'hlsf 11/Sep/2024, 6:57:11 pm (UTC)'!
-deletedStrokes: aDictionayOfStroke in: aPage
+!ErasingCommand class methodsFor: 'instance creation' stamp: 'hlsf 1/Sep/2026, 10:23:13 am (UTC)'!
+erasedStrokes: aDictionayOfStroke in: aPaper
 	^ self basicNew
-		domain: aPage;
-		deletedStrokes: aDictionayOfStroke ;
+		domain: aPaper ;
+		erasedStrokes: aDictionayOfStroke ;
 		initialize
 		! !
 
@@ -1733,6 +1743,26 @@ execute
 unexecute
 	domain adjustBoundsTo: bounds.
 	super unexecute! !
+
+!GroupDeleteCommand methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2026, 10:18:30 am (UTC)'!
+deleteMorphs: aCollection
+	deletedMorphs := aCollection ! !
+
+!GroupDeleteCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 10:07:05 am (UTC)'!
+execute
+	deletedMorphs do: [:aMorph  | domain removeMorph: aMorph ]! !
+
+!GroupDeleteCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 10:07:57 am (UTC)'!
+unexecute
+	deletedMorphs do: [:aMorph |domain addMorph: aMorph ]! !
+
+!GroupDeleteCommand class methodsFor: 'as yet unclassified' stamp: 'hlsf 1/Sep/2026, 10:23:22 am (UTC)'!
+deleteMorphs: aCollection in: paper
+	^ self basicNew
+		domain: paper;
+		deleteMorphs: aCollection ;
+		initialize
+		! !
 
 !MoveAnnotatorCommand methodsFor: 'accessing' stamp: 'hlsf 24/Oct/2024, 10:34:12 am (UTC)'!
 annotator: aMorph
@@ -1848,14 +1878,21 @@ release
 	stack contents do: [:c | c release].
 	stack reset! !
 
-!CommandManager methodsFor: 'commands' stamp: 'hlsf 19/Oct/2024, 9:24:14 am (UTC)'!
-deletedStrokes: aDictionayOfStroke in: aPaper
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 1/Sep/2026, 9:33:44 am (UTC)'!
+erasedStrokes: aDictionayOfStroke in: aPaper
 " Read EraserToolStateErasing>>handleMouseAt:in: "
 	| command |
 	command := (aPaper is: #AnnotatorMorph) 
 		ifTrue: [ErasingAnnotatorCommand] 
 		ifFalse: [ErasingCommand].
-	stack nextPut: (command deletedStrokes: aDictionayOfStroke in: aPaper )! !
+	stack nextPut: (command erasedStrokes: aDictionayOfStroke in: aPaper )! !
+
+!CommandManager methodsFor: 'commands' stamp: 'hlsf 1/Sep/2026, 10:10:09 am (UTC)'!
+groupDelete: aCollection in: aPaper
+" Read EraserToolStateErasing>>handleMouseAt:in: "
+	| command |
+	command := GroupDeleteCommand.
+	stack nextPut: (command deleteMorphs: aCollection in: aPaper )! !
 
 !CommandManager methodsFor: 'commands' stamp: 'hlsf 24/Oct/2024, 12:02:16 pm (UTC)'!
 move: aAnnotator to: delta in: aPage
@@ -1919,17 +1956,21 @@ toolName
 release
 	self removeAllActions ! !
 
-!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:10 pm (UTC)'!
-handleMouseAt: localPosition in: page
-	state handleMouseAt: localPosition in: page! !
+!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 10:16:44 am (UTC)'!
+handleKeyStroke: keyboardEvent in: paper
+	state handleKeyStroke: keyboardEvent in: paper ! !
 
-!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:15 pm (UTC)'!
-handlePress: localPosition in: page
-	state handlePress: localPosition in: page! !
+!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 9:37:38 am (UTC)'!
+handleMouseAt: localPosition in: paper
+	state handleMouseAt: localPosition in: paper ! !
 
-!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:27 pm (UTC)'!
-handleRelease: localPosition in:page
-	state handleRelease: localPosition in: page! !
+!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 9:37:46 am (UTC)'!
+handlePress: localPosition in: paper
+	state handlePress: localPosition in: paper! !
+
+!PageTool methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 9:37:54 am (UTC)'!
+handleRelease: localPosition in: paper
+	state handleRelease: localPosition in: paper! !
 
 !PageTool methodsFor: 'state' stamp: 'hlsf 19/Oct/2024, 2:21:20 pm (UTC)'!
 switchState: aStateClass
@@ -2217,6 +2258,9 @@ commandsManager
 context: aTool
 	context := aTool! !
 
+!PageToolState methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 10:12:04 am (UTC)'!
+handleKeyStroke: keyboardEvent in: page! !
+
 !PageToolState methodsFor: 'handling' stamp: 'hlsf 1/Sep/2024, 1:35:35 pm (UTC)'!
 handleMouseAt: localPosition in: page
 ! !
@@ -2229,45 +2273,52 @@ handlePress: localPosition in: page
 handleRelease: localPosition in: page
 ! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 30/Jul/2026, 7:36:06 pm (UTC)'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 9:34:14 am (UTC)'!
 handleMouseAt: localPosition in: paper
 " From time to time, strokeGroups are not detected. Activating their halo makes it work again...
 "
 	| worldCoordinate |
 	worldCoordinate := paper externalizeToWorld: localPosition.
 	(paper strokeGroupsAt: worldCoordinate) do: [:aGroup | 
-		(deletedStrokes at: aGroup ifAbsentPut: [OrderedCollection new])
+		(erasedStrokes at: aGroup ifAbsentPut: [OrderedCollection new])
 			addAll: (aGroup removeStrokesAt: worldCoordinate ).
 		aGroup lastStroke ifNil: [" the stroke group was entirely deleted "
 			paper removeMorph: aGroup.
 			"Reconstitute the strokeGroup... "
-			aGroup addAllMorphs: (deletedStrokes at: aGroup).
+			aGroup addAllMorphs: (erasedStrokes at: aGroup).
 			"... then we don't need the individual strokes, we remember of the whole group "
-			deletedStrokes at: aGroup put: aGroup.
+			erasedStrokes at: aGroup put: aGroup.
 			paper redrawNeeded ] ].
 	! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:41:16 pm (UTC)'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 9:34:14 am (UTC)'!
 handleRelease: localPosition in: paper
 	paper redrawNeeded.
 	context deleteBitMasks.
-	deletedStrokes ifNotEmpty: [	
-		 (deletedStrokes values first isCollection 
-			and: [deletedStrokes values first isEmpty]) ifTrue: [self halt: 'Should have strokes but is empty'].
-		self commandsManager deletedStrokes: deletedStrokes in: paper ].
+	erasedStrokes ifNotEmpty: [	
+		 (erasedStrokes values first isCollection 
+			and: [erasedStrokes values first isEmpty]) ifTrue: [self halt: 'Should have strokes but is empty'].
+		self commandsManager erasedStrokes: erasedStrokes in: paper ].
 	context presenter modified.
 	context switchState: EraserToolStateNeutral ! !
 
-!EraserToolStateErasing methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2024, 6:48:01 pm (UTC)'!
+!EraserToolStateErasing methodsFor: 'initialization' stamp: 'hlsf 1/Sep/2026, 9:34:14 am (UTC)'!
 initialize
 	super initialize.
-	deletedStrokes := Dictionary new.! !
+	erasedStrokes := Dictionary new.! !
 
 !EraserToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:42:30 pm (UTC)'!
 handlePress: localPosition in: paper
 	context 
 		switchState: EraserToolStateErasing; 	" Prepare to erase... "
 		handleMouseAt: localPosition in: paper "...then start erasing "! !
+
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 10:20:28 am (UTC)'!
+handleKeyStroke: keyboardEvent in: paper
+'there' print.
+	(keyboardEvent isDelete or: [keyboardEvent isBackspace]) ifTrue:[
+		self commandsManager groupDelete: context selection in: paper.
+		context switchState: GroupToolStateNeutral.]! !
 
 !GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:23:23 pm (UTC)'!
 handleMouseAt: localPosition in: paper
@@ -3405,10 +3456,20 @@ tool
 writingTool
 	^ presenter writingTool ! !
 
+!PaperMorph methodsFor: 'event handling testing' stamp: 'hlsf 1/Sep/2026, 9:01:07 am (UTC)'!
+handlesKeyboardFocus
+	^ true ! !
+
 !PaperMorph methodsFor: 'event handling testing' stamp: 'hlsf 23/Oct/2024, 5:02:49 pm (UTC)'!
 handlesMouseDown: event
 	^ true
 ! !
+
+!PaperMorph methodsFor: 'events' stamp: 'hlsf 1/Sep/2026, 10:15:15 am (UTC)'!
+keyStroke: keyboardEvent
+	super keyStroke: keyboardEvent.
+	keyboardEvent wasHandled ifTrue: [^ self].
+	self tool handleKeyStroke: keyboardEvent in: self! !
 
 !PaperMorph methodsFor: 'events' stamp: 'hlsf 11/Oct/2025, 3:49:17 pm (UTC)'!
 mouseButton1Down: event localPosition: localPosition
