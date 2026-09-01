@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8149] on 1 September 2026 at 6:10:26 pm'!
+'From Cuis7.9 [latest update: #8150] on 1 September 2026 at 9:45:44 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 284!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 285!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
-!requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1770,11 +1770,12 @@ execute
 	self page removeAllMorphsIn: self annotators 
 ! !
 
-!GroupDeleteCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 4:05:07 pm (UTC)'!
+!GroupDeleteCommand methodsFor: 'command' stamp: 'hlsf 1/Sep/2026, 7:35:44 pm (UTC)'!
 unexecute
 	self paper addAllMorphs: self strokeGroups.
 	self page addAllMorphs: self annotators.
-	self annotators do: #comeToFront! !
+	self annotators do: #comeToFront.
+	self strokeGroups do: #comeToFront! !
 
 !GroupDeleteCommand class methodsFor: 'as yet unclassified' stamp: 'hlsf 1/Sep/2026, 10:23:22 am (UTC)'!
 deleteMorphs: aCollection in: paper
