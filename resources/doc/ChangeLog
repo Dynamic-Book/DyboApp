@@ -1,3 +1,12 @@
+2026-09-03  Hilaire Fernandes  <hilaire@gnu.org>
+
+	* #28 Sorted topics
+	* #30 PDF export: Ensure double quote between filename
+	* #31 Delete group of strokesenhancement
+	* Upstream Vector Graphics speed improvments, particularly when
+	rendering vertical or horizontal lines in the millimeter paper
+	model.
+
 2026-08-26  Hilaire Fernandes  <hilaire@gnu.org>
 
 	* #27 Sorted tasks

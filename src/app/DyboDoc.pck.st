@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8150] on 1 September 2026 at 9:48:17 pm'!
+'From Cuis7.9 [latest update: #8151] on 3 September 2026 at 9:26:11 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 286!
+!provides: 'DyboDoc' 1 287!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -3685,20 +3685,20 @@ lineWritingFrom: startPoint to: endPoint
 	self stroker: legacyStroker.
 	^ result! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 21/Aug/2026, 8:32:46 pm (UTC)'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 3/Sep/2026, 7:25:21 pm (UTC)'!
 startWritingAt: localPosition
 " Initilize the user writing "
 	self resetSamplingTo: localPosition.
 	self addMorph: (currentStrokeGroup := StrokeGroupMorph new).
-	distanceThreshold := 5.0! !
+	distanceThreshold := 4.0! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 30/Jul/2026, 1:16:11 pm (UTC)'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 3/Sep/2026, 7:20:09 pm (UTC)'!
 startWritingContourAt: localPosition
 " Initilize the user writing "
 	self resetSamplingTo: localPosition.
 	self addMorph: (currentStrokeGroup := StrokeGroupContourMorph new).
 	"Minium squared distance to accept a new sample "
-	distanceThreshold := 16.0 / owner scale! !
+	distanceThreshold := 10! !
 
 !PaperMorph methodsFor: 'writing' stamp: 'hlsf 4/Jan/2025, 12:55:34 pm (UTC)'!
 writingAt: localPosition
