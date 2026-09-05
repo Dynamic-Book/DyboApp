@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 3:47:37 pm'!
+'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 4:03:28 pm'!
 'Description '!
-!provides: 'Dybo' 1 274!
+!provides: 'Dybo' 1 275!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1174,11 +1174,11 @@ installComponents
 	self goStart.
 ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2026, 1:46:36 pm (UTC)'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2026, 1:48:23 pm (UTC)'!
 load
 	| loadProcess |
 	loadProcess := [
-		[DyboSystem newProgressBar: 'Loading document...'.
+		[DyboSystem newProgressBar: 'Loading documents...'.
 		DyboSystem progressBar color: controlsManager defaultColor .
 		DyUserData load] 
 	ensure: [
