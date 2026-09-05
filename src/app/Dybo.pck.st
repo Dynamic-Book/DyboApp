@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 3:29:32 pm'!
+'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 3:47:37 pm'!
 'Description '!
-!provides: 'Dybo' 1 273!
+!provides: 'Dybo' 1 274!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -89,7 +89,7 @@ Object subclass: #DyboSystem
 	category: 'Dybo-System'!
 !classDefinition: 'DyboSystem class' category: #'Dybo-System'!
 DyboSystem class
-	instanceVariableNames: 'platform'!
+	instanceVariableNames: 'platform progressBar'!
 
 !classDefinition: #DyControlsManager category: #'Dybo-View'!
 Object subclass: #DyControlsManager
@@ -1174,11 +1174,16 @@ installComponents
 	self goStart.
 ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2026, 11:31:48 am (UTC)'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2026, 1:46:36 pm (UTC)'!
 load
 	| loadProcess |
 	loadProcess := [
-		[DyUserData load] ensure: [controlsManager activeView updateView]
+		[DyboSystem newProgressBar: 'Loading document...'.
+		DyboSystem progressBar color: controlsManager defaultColor .
+		DyUserData load] 
+	ensure: [
+		DyboSystem deleteProgressBar.
+		controlsManager activeView updateView]
 	] newProcess .
 	loadProcess 
 		priority: Processor userBackgroundPriority;
@@ -1532,6 +1537,10 @@ beDevelopment
 reset
 	platform reset! !
 
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 5/Sep/2026, 1:37:10 pm (UTC)'!
+deleteProgressBar
+	progressBar ifNotNil: [progressBar delete]! !
+
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 14/Aug/2023, 8:11:06 pm (UTC)'!
 iconToolbarSize
 " Size of the squared icons in the top toolbar"
@@ -1547,6 +1556,12 @@ miniToolbarSize
 " Size of the squared icons in the secondary toolbar"
 	^ platform miniToolbarSize ! !
 
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 5/Sep/2026, 1:41:07 pm (UTC)'!
+newProgressBar: aTitle
+	self deleteProgressBar.
+	progressBar := ProgressMorph label: aTitle.
+	progressBar openInWorld ! !
+
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 3/May/2026, 11:09:23 am (UTC)'!
 ppcm
 	^ Preferences at: #ppcm! !
@@ -1557,6 +1572,10 @@ ppcm: number
 	Preferences saveToDisk: #ppcm
 	! !
 
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 5/Sep/2026, 1:45:08 pm (UTC)'!
+progressBar
+	^ progressBar ! !
+
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 12/Oct/2024, 7:40:04 am (UTC)'!
 screenSize
 	^ self runningWorld morphExtent! !
@@ -1564,6 +1583,13 @@ screenSize
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 24/Feb/2026, 1:03:05 pm (UTC)'!
 toggleFullscreen
 	platform toggleFullscreen ! !
+
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 5/Sep/2026, 1:42:19 pm (UTC)'!
+updateProgressBar: info
+	progressBar ifNotNil: [
+		progressBar 
+			incrDone: 0.01;
+			subLabel: info]! !
 
 !DyboSystem class methodsFor: 'path - file' stamp: 'hlsf 15/May/2026, 2:58:26 pm (UTC)'!
 exchangePath

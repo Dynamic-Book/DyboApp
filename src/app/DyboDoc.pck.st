@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 1:40:12 pm'!
+'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 3:47:41 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 288!
+!provides: 'DyboDoc' 1 289!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -1529,12 +1529,12 @@ initializeStrokeTools
 	eraser := Pen new width: 2
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 5/Sep/2026, 11:35:28 am (UTC)'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 5/Sep/2026, 1:40:00 pm (UTC)'!
 comeFullyUpOnReload: smartRefStream
 	self initializeStrokeTools.
 	savesReal := false.
 	isSaved := true.
-	Transcript show: 'Load '; show: model title; cr! !
+	DyboSystem updateProgressBar: model title! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 8/Dec/2024, 11:00:55 am (UTC)'!
 isSaved
