@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8147] on 30 August 2026 at 12:31:38 pm'!
+'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 1:40:08 pm'!
 'Description '!
-!provides: 'Dybo' 1 271!
+!provides: 'Dybo' 1 272!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1174,9 +1174,15 @@ installComponents
 	self goStart.
 ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026, 10:42:01 am (UTC)'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2026, 11:31:48 am (UTC)'!
 load
-	DyUserData load.
+	| loadProcess |
+	loadProcess := [
+		[DyUserData load] ensure: [controlsManager activeView updateView]
+	] newProcess .
+	loadProcess 
+		priority: Processor userBackgroundPriority;
+		resume.
 	self installComponents ! !
 
 !Dybo methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026, 10:41:18 am (UTC)'!
@@ -4271,7 +4277,7 @@ classGroupsQuery
 		ifFalse: [classGroups add: self classGroup].						"A specific class "
 	^ classGroups ! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 11/Jun/2026, 8:35:36 am (UTC)'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 5/Sep/2026, 10:35:40 am (UTC)'!
 documentsQuery
 	" Documents according to the user selection "
 	| classGroups types documents |
@@ -4284,8 +4290,9 @@ documentsQuery
 				ifTrue: [documents addAll: aClassGroup documents].
 			aDocType = #task
 				ifTrue: [documents addAll: (
-					(DyUserData current tasksOf: aClassGroup) collect: [:aTask | aTask document]
-			) ] ] ].
+					(DyUserData current tasksOf: aClassGroup) collect: [:aTask | aTask document]) ]
+		 ] 
+	].
 	documents := documents sort: self sortBloc.
 	^ documents size <= self quantity 
 		ifTrue: [documents]

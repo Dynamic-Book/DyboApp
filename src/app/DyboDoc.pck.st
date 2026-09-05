@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8151] on 3 September 2026 at 9:26:11 pm'!
+'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 1:40:12 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 287!
+!provides: 'DyboDoc' 1 288!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -1529,12 +1529,12 @@ initializeStrokeTools
 	eraser := Pen new width: 2
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 7/Sep/2025, 3:51:46 pm (UTC)'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 5/Sep/2026, 11:35:28 am (UTC)'!
 comeFullyUpOnReload: smartRefStream
 	self initializeStrokeTools.
 	savesReal := false.
 	isSaved := true.
-	'presenter came to life' print! !
+	Transcript show: 'Load '; show: model title; cr! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 8/Dec/2024, 11:00:55 am (UTC)'!
 isSaved
@@ -4621,14 +4621,13 @@ resetPreview
 	preview := nil
 	! !
 
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 19/Apr/2026, 5:12:18 pm (UTC)'!
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 5/Sep/2026, 11:35:59 am (UTC)'!
 comeFullyUpOnReload: smartRefStream
 	submorphs := #().
 	self installPageContainer.
 	viewType == #mini
 		ifTrue: [self installMiniView]
-		ifFalse: [	self installView].
-	'view came to life' print! !
+		ifFalse: [	self installView]! !
 
 !DocumentView methodsFor: 'persistence' stamp: 'hlsf 28/Dec/2024, 6:34:59 pm (UTC)'!
 prepareToBeSaved
