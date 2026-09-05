@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 1:40:08 pm'!
+'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 3:29:32 pm'!
 'Description '!
-!provides: 'Dybo' 1 272!
+!provides: 'Dybo' 1 273!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -4101,14 +4101,14 @@ initialize
 	self addMorphUseAll: self previewsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 11/Jun/2026, 8:38:05 am (UTC)'!
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 5/Sep/2026, 1:27:10 pm (UTC)'!
 updateView
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
 	documents := self topic ifNil: [`Array new`] ifNotNil: [:aTopic | aTopic documents].
 	documents := documents sort: self sortBloc.
 	previewPanel removeAllMorphs.
-	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + DocumentView previewGap).
+	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + (DocumentView previewGap * 2) + 10).
 	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
 		previewPanel addMorph: (	documentsRow 
 			inject: self previewRow 
@@ -4310,7 +4310,7 @@ typesQuery
 				ifFalse: [#task]) ].
 	^ types! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 7/May/2026, 8:49:21 am (UTC)'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 5/Sep/2026, 1:27:46 pm (UTC)'!
 updateView
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
 	| previewsPerLine  documents |
