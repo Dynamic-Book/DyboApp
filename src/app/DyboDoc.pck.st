@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8151] on 5 September 2026 at 3:47:41 pm'!
+'From Cuis7.9 [latest update: #8156] on 5 September 2026 at 5:20:10 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 289!
-!requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
-!requires: 'UI-Click-Select' 1 78 nil!
-!requires: 'UI-Panel' 1 122 nil!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'SimplifiedDebugger' 1 0 nil!
+!provides: 'DyboDoc' 1 292!
 !requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-Extention' 1 1 nil!
+!requires: 'UI-Click-Select' 1 78 nil!
+!requires: 'SimplifiedDebugger' 1 0 nil!
+!requires: 'UI-Panel' 1 122 nil!
+!requires: 'DyboTools-Geometry' 1 26 nil!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -3410,9 +3410,38 @@ acceptDroppingMorph: aMorph event: dropEvent
 	(aMorph is: #FlapItem) ifTrue: [self acceptDroppingFromFlap: aMorph event: dropEvent].
 	(aMorph is: #AnnotatorMorph) ifTrue: [self acceptDroppingAnnotator: aMorph event: dropEvent]! !
 
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 5/Sep/2026, 2:18:05 pm (UTC)'!
+allowsFilesDrop
+	^ true! !
+
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 9/Feb/2025, 4:15:45 pm (UTC)'!
 allowsMorphDrop
 	^ true! !
+
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 5/Sep/2026, 2:37:06 pm (UTC)'!
+dropFiles: dropFilesEvent
+	| anImage annotator positionShift |
+	positionShift := 0@0.
+	dropFilesEvent fileNamesDo: [:fileName |
+		anImage := Form fromFileNamed: fileName.
+		anImage ifNotNil: [
+			annotator := AnnotatorMorph newOn: presenter annotate: (ImageMorph newWith: (self resizePicture: anImage)).
+			self addMorphFront: annotator.
+			annotator morphPosition: (self internalizeFromWorld: dropFilesEvent eventPosition) + positionShift.
+			positionShift := positionShift + (20@20)] ].
+	positionShift = (0@0) ifFalse: [presenter modified]! !
+
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 5/Sep/2026, 2:24:44 pm (UTC)'!
+resizePicture: aForm
+"	We avoid overlarge picture "
+	| resizedForm maxPixels size ratio |
+	maxPixels := 250000.
+	size := aForm extent x * aForm extent y.
+	size > maxPixels 
+		ifTrue: [ratio := (maxPixels  / size) sqrt.
+			resizedForm := aForm magnifyBy: ratio]
+		ifFalse: [resizedForm  := aForm].
+	^ resizedForm ! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026, 3:37:18 pm (UTC)'!
 wantsDroppedMorph: aMorph event: evt
@@ -3926,36 +3955,55 @@ editAnnoted
 	self removeHalo.
 	^ editor! !
 
-!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 7/Feb/2026, 9:11:16 am (UTC)'!
-haloSpecifications
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 5/Sep/2026, 3:03:41 pm (UTC)'!
+haloSpecForDKM
 	^ {	"selector 						horiz 			vert 			color info 			icon key	"
 		{#addDismissHandle:.			#left.			#top.			#(red).				#haloAnnDismissIcon. 	'Remove' translated}.
 		{#addMenuHandle:. 			#leftCenter.	#top.			#(blue darker).		#haloMenuIcon.		'Menu' translated}.
+		{#addDragHandle:.			#center.		#top.			#(brown).			#haloAnnDragIcon. 	'Move' translated}.
 		{#addEditAnnotatedHandle:.	#right.		 	#topCenter.	#(orange darker).	#haloAnnEditIcon.		'Edit' translated}.
+		{#addInspectHandle:.			#right.			#center.		#(orange lighter).	#haloAnnInspectIcon. 	'Inspect' translated}.
+		{#addRotateHandle:.			#left.			#bottom.		#(blue).			#haloAnnRotateIcon.	'Rotate' translated}.		
+		{#addResizeAnnotatedHandle:.#right.			#bottom.		#(yellow).			#haloAnnResizeIcon. 	'Change size' translated}.
+		{#addHelpHandle:.				#center.		#bottom.		#(lightBlue).		#haloAnnHelpIcon. 	'Help' translated}
+	}! !
+
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 5/Sep/2026, 3:04:45 pm (UTC)'!
+haloSpecForMorph
+	^ {	"selector 						horiz 			vert 			color info 			icon key	"
+		{#addDismissHandle:.			#left.			#top.			#(red).				#haloAnnDismissIcon. 	'Remove' translated}.
+		{#addMenuHandle:. 			#leftCenter.	#top.			#(blue darker).		#haloMenuIcon.		'Menu' translated}.
 		{#addDragHandle:.			#center.		#top.			#(brown).			#haloAnnDragIcon. 	'Move' translated}.
 		{#addInspectHandle:.			#right.			#center.		#(orange lighter).	#haloAnnInspectIcon. 	'Inspect' translated}.
 		{#addRotateHandle:.			#left.			#bottom.		#(blue).			#haloAnnRotateIcon.	'Rotate' translated}.		
 		{#addResizeAnnotatedHandle:.#right.			#bottom.		#(yellow).			#haloAnnResizeIcon. 	'Change size' translated}.
 		{#addHelpHandle:.				#center.		#bottom.		#(lightBlue).		#haloAnnHelpIcon. 	'Help' translated}
-	} collect: [:anArray | HaloSpec from: anArray]! !
+	}! !
+
+!AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 5/Sep/2026, 3:04:27 pm (UTC)'!
+haloSpecifications
+	^ (script ifNil: [self haloSpecForMorph] ifNotNil: [self haloSpecForDKM])
+		collect: [:anArray | HaloSpec from: anArray]! !
 
 !AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 31/Aug/2025, 9:25:11 am (UTC)'!
 inspectAnnoted
 	^ annotatedMorph inspect! !
 
-!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026, 2:03:32 pm (UTC)'!
+!AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 5/Sep/2026, 2:42:44 pm (UTC)'!
 balloonText
-	^ script description ! !
+	^ script 
+		ifNil: ['No additional descirption' translated] 
+		ifNotNil: [script description]! !
 
 !AnnotatorMorph methodsFor: 'halos and balloon help' stamp: 'hlsf 22/Mar/2026, 2:08:11 pm (UTC)'!
 wantsBalloon
 	^ false! !
 
-!AnnotatorMorph methodsFor: 'initialization' stamp: 'hlsf 15/Jul/2026, 10:26:57 am (UTC)'!
+!AnnotatorMorph methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2026, 2:37:33 pm (UTC)'!
 initialize
 	super initialize.
 	frozen := false.
-	self annotate: script execute! !
+	script ifNotNil: [self annotate: script execute]! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 15/Jul/2026, 10:28:58 am (UTC)'!
 addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
@@ -3973,7 +4021,7 @@ addStandardHaloMenuItemsTo: aMenu hand: aHandMorph
 		addUpdating: #frozenString 
 		action: #toggleFrozen) setBalloonText: 'When frozen, I am inert to all user interactions.' translated! !
 
-!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 15/Feb/2026, 9:36:30 am (UTC)'!
+!AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 5/Sep/2026, 2:40:26 pm (UTC)'!
 buildHandleMenu: aHand
 	| menu |
 	menu := MenuMorph new defaultTarget: self.
@@ -3981,7 +4029,7 @@ buildHandleMenu: aHand
 	menu addLine.
 	self addStandardHaloMenuItemsTo: menu hand: aHand.
 	menu defaultTarget: annotatedMorph .
-	script addCustomMenuItems: menu annoted: annotatedMorph.
+	script ifNotNil: [script addCustomMenuItems: menu annoted: annotatedMorph].
 	^ menu! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 1/Mar/2025, 1:10:49 pm (UTC)'!
@@ -4006,9 +4054,11 @@ reconcileToFrozeenState
 toggleFrozen
 	self frozen: self isFrozen not! !
 
-!AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 22/Feb/2025, 9:30:37 pm (UTC)'!
+!AnnotatorMorph methodsFor: 'printing' stamp: 'hlsf 5/Sep/2026, 2:39:00 pm (UTC)'!
 shortPrintString
-	^script title translated contractTo: 20! !
+	^script 
+		ifNil: [annotatedMorph printString]
+		ifNotNil: [script title translated contractTo: 20]! !
 
 !AnnotatorMorph methodsFor: 'submorphs-accessing' stamp: 'hlsf 7/Sep/2025, 9:08:13 am (UTC)'!
 noteNewOwner: newOwner
@@ -5573,6 +5623,10 @@ handlesMouseOver: evt
 !HaloHandleMorph methodsFor: '*DyboDoc' stamp: 'hlsf 25/Jan/2025, 5:14:00 pm (UTC)'!
 mouseEnter: evt
 	owner target removeAlarm: #removeHalo! !
+
+!ImageMorph methodsFor: '*DyboDoc' stamp: 'hlsf 5/Sep/2026, 3:14:59 pm (UTC)'!
+okayToResizeEasily
+	^ false! !
 
 !Flap methodsFor: '*DyboDoc' stamp: 'hlsf 21/Jun/2026, 10:10:30 am (UTC)'!
 scripts: dyboScripts
