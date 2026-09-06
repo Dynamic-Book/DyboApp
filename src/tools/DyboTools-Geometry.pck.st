@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8031] on 3 July 2026 at 8:19:38 pm'!
+'From Cuis7.9 [latest update: #8157] on 6 September 2026 at 9:08:44 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 77!
+!provides: 'DyboTools-Geometry' 1 78!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -1462,13 +1462,13 @@ length: newLength
 	self positioningButtons.
 	self redrawNeeded ! !
 
-!SetSquare methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025, 5:22:01 pm (UTC)'!
+!SetSquare methodsFor: 'accessing' stamp: 'hlsf 6/Sep/2026, 7:03:24 pm (UTC)'!
 resizeIcon
 	| icon canvas iconExtent c |
 	c := 50 * (extent x / extent y) sqrt.
 	iconExtent := c @ (c * extent y / extent x) rounded.
 	icon := Form extent: iconExtent depth: 32.
-	canvas := VectorCanvas onForm: icon.
+	canvas := VectorCanvas onFormWithTranslucency: icon.
 	canvas fillColor: `Color white alpha: 0.5` do: [
 		canvas moveTo: 0@0;
 			lineTo: iconExtent x @0;
