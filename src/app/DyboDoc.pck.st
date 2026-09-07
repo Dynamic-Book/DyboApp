@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8158] on 7 September 2026 at 7:00:41 pm'!
+'From Cuis7.9 [latest update: #8158] on 7 September 2026 at 9:09:39 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 293!
+!provides: 'DyboDoc' 1 294!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -648,6 +648,16 @@ DialogPanel subclass: #DKMScriptEditor
 DKMScriptEditor class
 	instanceVariableNames: ''!
 
+!classDefinition: #DyImageMorph category: #'DyboDoc-View'!
+StaticImageMorph subclass: #DyImageMorph
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-View'!
+!classDefinition: 'DyImageMorph class' category: #'DyboDoc-View'!
+DyImageMorph class
+	instanceVariableNames: ''!
+
 
 !Pen commentStamp: '<historical>' prior: 0!
 Depending on the use of the pen, we have different threshold
@@ -903,6 +913,9 @@ An editor to edit DKM script.
 - playButton: the button to play and pause the Smalltalk sketch execution
 - debugger: a debugger window whose content is plug in the editor when appropriate
 !
+
+!DyImageMorph commentStamp: '<historical>' prior: 0!
+An image morph to encapsulate in an annotator. Clean-up before serialization !
 
 !Pen methodsFor: 'accessing' stamp: 'hlsf 11/Apr/2023, 7:04:47 am (UTC)'!
 adjustWidth
@@ -3418,14 +3431,14 @@ allowsFilesDrop
 allowsMorphDrop
 	^ true! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 5/Sep/2026, 2:37:06 pm (UTC)'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 7/Sep/2026, 6:51:25 pm (UTC)'!
 dropFiles: dropFilesEvent
 	| anImage annotator positionShift |
 	positionShift := 0@0.
 	dropFilesEvent fileNamesDo: [:fileName |
 		anImage := Form fromFileNamed: fileName.
 		anImage ifNotNil: [
-			annotator := AnnotatorMorph newOn: presenter annotate: (ImageMorph newWith: (self resizePicture: anImage)).
+			annotator := AnnotatorMorph newOn: presenter annotate: (DyImageMorph newWith: (self resizePicture: anImage)).
 			self addMorphFront: annotator.
 			annotator morphPosition: (self internalizeFromWorld: dropFilesEvent eventPosition) + positionShift.
 			positionShift := positionShift + (20@20)] ].
@@ -4328,7 +4341,7 @@ drawOn: canvas
 is: aSymbol
 	^ aSymbol == #PageModelPdf or: [super is: aSymbol ]! !
 
-!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 23/Aug/2026, 4:35:42 pm (UTC)'!
+!PageModelPdf methodsFor: 'updating' stamp: 'hlsf 7/Sep/2026, 7:08:28 pm (UTC)'!
 sampleAt: newDpi in: documentPath
 	| process number pdfForm |
 	number := self page number.
@@ -4339,8 +4352,8 @@ sampleAt: newDpi in: documentPath
 		page:  number
 		dpi: newDpi .
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
-	pdfForm := ImageReadWriter formFromFileEntry: self documentModel path // 'currentPage.jpg'.
-	(self documentModel path // 'currentPage.jpg') delete.
+	pdfForm := ImageReadWriter formFromFileEntry: '/tmp/currentPage.jpg' asFileEntry.
+	'/tmp/currentPage.jpg' asFileEntry delete.
 	extent :=pdfForm extent.
 	^ pdfForm ! !
 
@@ -5448,6 +5461,14 @@ doItContext
 doItReceiver
 	^ nil! !
 
+!DyImageMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 7/Sep/2026, 6:55:14 pm (UTC)'!
+okayToResizeEasily
+	^ false! !
+
+!DyImageMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 7/Sep/2026, 6:50:59 pm (UTC)'!
+prepareToBeSaved
+	scaledImage := nil! !
+
 !Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 31/Mar/2023, 8:22:27 pm (UTC)'!
 covariance: y
 	^ (self * y) sum / self size - (self mean * y mean)! !
@@ -5638,10 +5659,6 @@ handlesMouseOver: evt
 !HaloHandleMorph methodsFor: '*DyboDoc' stamp: 'hlsf 25/Jan/2025, 5:14:00 pm (UTC)'!
 mouseEnter: evt
 	owner target removeAlarm: #removeHalo! !
-
-!ImageMorph methodsFor: '*DyboDoc' stamp: 'hlsf 5/Sep/2026, 3:14:59 pm (UTC)'!
-okayToResizeEasily
-	^ false! !
 
 !Flap methodsFor: '*DyboDoc' stamp: 'hlsf 21/Jun/2026, 10:10:30 am (UTC)'!
 scripts: dyboScripts

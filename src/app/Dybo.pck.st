@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8158] on 7 September 2026 at 7:00:35 pm'!
+'From Cuis7.9 [latest update: #8158] on 7 September 2026 at 9:09:34 pm'!
 'Description '!
-!provides: 'Dybo' 1 276!
+!provides: 'Dybo' 1 277!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1691,14 +1691,14 @@ pageSize
 scriptLibrary
 	^ platform scriptLibrary ! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 7/Sep/2026, 4:39:07 pm (UTC)'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 7/Sep/2026, 7:07:57 pm (UTC)'!
 convert: destEntry page: number dpi: integer
 " 
 	In destEntry, convert the import.pdf interval pages at interger resolution	   
 "
 	| convertionCommand resolution |
 	resolution := integer min: 300 max: 75.
-	convertionCommand := 'pdftocairo -r {1} -jpeg -jpegopt quality=100 -singlefile -f {2} -l {2} "{3}/import.pdf" "{3}/currentPage"' format: {
+	convertionCommand := 'pdftocairo -r {1} -jpeg -jpegopt quality=100 -singlefile -f {2} -l {2} "{3}/import.pdf" "/tmp/currentPage"' format: {
 			resolution. 
 			number .
 			destEntry pathName }.
