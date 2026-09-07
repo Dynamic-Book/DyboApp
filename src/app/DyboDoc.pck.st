@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8156] on 5 September 2026 at 5:21:05 pm'!
+'From Cuis7.9 [latest update: #8158] on 7 September 2026 at 7:00:41 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 292!
-!requires: 'Commander' 1 7 nil!
+!provides: 'DyboDoc' 1 293!
+!requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'DKM-History-Timeline' 1 2 nil!
 !requires: 'UI-Click-Select' 1 78 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
+!requires: 'Commander' 1 7 nil!
+!requires: 'DKM-Extention' 1 1 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -4285,6 +4285,14 @@ form
 	^ form ifNil: [
 		form := self sampleAt: dpi in: self documentModel path]! !
 
+!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2026, 4:34:24 pm (UTC)'!
+preScaledForm
+	^ self valueOfProperty: #preScaledForm! !
+
+!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2026, 4:27:06 pm (UTC)'!
+preScaledForm: aForm
+	self setProperty: #preScaledForm toValue: aForm! !
+
 !PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 11:38:24 am (UTC)'!
 defaultExtent
 	^ 50@50! !
@@ -4298,17 +4306,23 @@ initialize
 updateExtent
 	extent := self form extent! !
 
-!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 23/Aug/2026, 12:24:50 pm (UTC)'!
+!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 7/Sep/2026, 4:55:24 pm (UTC)'!
 drawOn: canvas
-	| localViewport |
+	| localViewport ct scale |
 	viewport := owner viewport.
 	localViewport := (self internalize: viewport origin) corner: (self internalize: viewport corner).
-	canvas image: self form at: localViewport origin sourceRect: localViewport ."
-	canvas image: self form at: 0@0."
-"	canvas 
-		frameRectangle: localViewport 
-		borderWidth: 4 
-		color: Color pink"! !
+"	canvas image: self form at: localViewport origin sourceRect: localViewport .
+"	
+	ct := canvas currentTransformation.
+	ct doesNotRotate ifTrue: [
+		scale := ct scale.
+		(self preScaledForm isNil or: [ self preScaledForm extent ~= (self form extent * scale) truncated ]) ifTrue: [
+			self preScaledForm: ​(self form magnifyBy: scale) ].
+		canvas geometryTransformation: (MorphicTranslation withTranslation: ct translation).
+		canvas image: self preScaledForm at: 0@0.
+		canvas geometryTransformation: ct]
+	
+	"canvas image: self form at: 0@0."! !
 
 !PageModelPdf methodsFor: 'testing' stamp: 'hlsf 21/Jul/2026, 1:07:26 pm (UTC)'!
 is: aSymbol
@@ -4330,9 +4344,10 @@ sampleAt: newDpi in: documentPath
 	extent :=pdfForm extent.
 	^ pdfForm ! !
 
-!PageModelPdf methodsFor: 'object serialization' stamp: 'hlsf 24/Nov/2024, 5:09:38 pm (UTC)'!
+!PageModelPdf methodsFor: 'object serialization' stamp: 'hlsf 7/Sep/2026, 4:26:11 pm (UTC)'!
 prepareToBeSaved
-	form := nil! !
+	form := nil.
+	self removeProperty: #preScaledForm! !
 
 !PageModelPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:46:25 pm (UTC)'!
 knowsOwnLocalBounds
