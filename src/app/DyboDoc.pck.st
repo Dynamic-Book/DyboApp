@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8160] on 8 September 2026 at 9:04:09 pm'!
+'From Cuis7.9 [latest update: #8160] on 8 September 2026 at 10:06:10 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 297!
+!provides: 'DyboDoc' 1 300!
 !requires: 'DKM-History-Timeline' 1 18 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-Math-Geometry' 1 17 nil!
@@ -1200,16 +1200,14 @@ currentPage
 model
 	^ model! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 8/Sep/2026, 3:51:03 pm (UTC)'!
+!Document methodsFor: 'accessing' stamp: 'dau 8/Sep/2026, 8:06:08 pm (UTC)'!
 preview
-" By default read the saved preview "
-"
+" 
 	DyUserData current allDocuments do: #savePreview
 "
 	^ [ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
 			on: Error 
-			do: [`Form extent: DocumentView previewExtent depth: 32`
-				"view preview"]
+			do: [Form extent: DocumentView previewExtent depth: 32]
 	! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:42:08 am (UTC)'!
