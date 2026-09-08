@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8158] on 7 September 2026 at 9:09:34 pm'!
+'From Cuis7.9 [latest update: #8158] on 8 September 2026 at 11:32:48 am'!
 'Description '!
-!provides: 'Dybo' 1 277!
+!provides: 'Dybo' 1 278!
 !requires: 'Gettext' 1 26 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 9 nil!
@@ -1415,7 +1415,7 @@ desktopPreferences
 		at: #fullScreenLeavesDeskMargins put: false.
 ! !
 
-!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 21/Jul/2026, 1:38:28 pm (UTC)'!
+!DyPlatform methodsFor: 'preferences' stamp: 'hlsf 8/Sep/2026, 7:34:11 am (UTC)'!
 pagePreferences
 	Preferences 
 		name: #pageRatio
@@ -1434,7 +1434,7 @@ pagePreferences
 		description: 'Pixels Per CM. This value indicates the number of pixel for one centimeter. This value depends on the user workstation and it can be adjusted from the Settings panel.' translated
 		category: #dybo 
 		type: SmallFloat64
-		value: 59.0.
+		value: 118.0.
 ! !
 
 !DyPlatform methodsFor: 'preferences' stamp: 'hlsf 21/Jul/2026, 1:12:15 pm (UTC)'!

@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8157] on 6 September 2026 at 9:08:44 pm'!
+'From Cuis7.9 [latest update: #8158] on 8 September 2026 at 11:32:53 am'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 78!
+!provides: 'DyboTools-Geometry' 1 79!
 !requires: 'VectorGraphics' 1 185 nil!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
@@ -169,9 +169,9 @@ end: aPoint
 start: aPoint
 	start := aPoint! !
 
-!GradMorph methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 3:04:54 pm (UTC)'!
+!GradMorph methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 8:57:35 am (UTC)'!
 drawOn: canvas
-	canvas strokeWidth: 0.8 color: `Color black` do: [canvas moveTo: start; lineTo: end]! !
+	canvas strokeWidth: 1.6 color: `Color black` do: [canvas moveTo: start; lineTo: end]! !
 
 !GradMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Jun/2026, 3:50:50 pm (UTC)'!
 from: point1 to: point2
@@ -179,17 +179,17 @@ from: point1 to: point2
 		start: point1;
 		end: point2! !
 
-!SubGradMorph methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 3:05:55 pm (UTC)'!
+!SubGradMorph methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 8:57:41 am (UTC)'!
 drawOn: canvas
-	canvas strokeWidth: 0.3 color: `Color black` do: [canvas moveTo: start; lineTo: end]! !
+	canvas strokeWidth: 0.6 color: `Color black` do: [canvas moveTo: start; lineTo: end]! !
 
 !MarkMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Jun/2026, 7:34:54 pm (UTC)'!
 center: aPoint
 	center := aPoint! !
 
-!MarkMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Jun/2026, 7:34:39 pm (UTC)'!
+!MarkMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 8/Sep/2026, 9:07:24 am (UTC)'!
 drawOn: canvas
-	canvas strokeWidth: 0.3 color: `Color red` do: [canvas ellipseCenter: center radius: 4@4]! !
+	canvas strokeWidth: 0.6 color: `Color red` do: [canvas ellipseCenter: center radius: 4@4]! !
 
 !MarkMorph class methodsFor: 'as yet unclassified' stamp: 'hlsf 22/Jun/2026, 7:35:08 pm (UTC)'!
 center: aPoint
@@ -243,10 +243,10 @@ writingTool
 
 	^ [self paper writingTool] on: MessageNotUnderstood do:[ nil]! !
 
-!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026, 8:04:18 pm (UTC)'!
+!GeometryTool methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 8:18:59 am (UTC)'!
 initialize
 	super initialize.
-	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 8.
+	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 14.
 	ppcm := DyboSystem ppcm! !
 
 !GeometryTool methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025, 7:11:59 am (UTC)'!
@@ -263,6 +263,20 @@ constrainToDirection: localHandPosition
 !GeometryTool methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 7:13:42 am (UTC)'!
 rotationCenter
 	^ `0@0`! !
+
+!GeometryTool methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 7:59:36 am (UTC)'!
+smalltick
+"	Lenght of the graduation mark between each mm or degrees "
+	^ 8! !
+
+!GeometryTool methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:41:14 am (UTC)'!
+strokeZoneHeight
+	^ self tick * 2! !
+
+!GeometryTool methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:03:25 am (UTC)'!
+tick
+"	Lenght of the graduation mark between each 10 mm or 10 degrees "
+	^ 20! !
 
 !GeometryTool methodsFor: 'event handling' stamp: 'hlsf 28/Jun/2026, 2:42:03 pm (UTC)'!
 endWriting: event localPosition: localPosition
@@ -399,12 +413,12 @@ width: pixels
 	self positioningButtons.
 	self redrawNeeded ! !
 
-!Compass methodsFor: 'initialization' stamp: 'hlsf 21/Sep/2025, 8:42:32 am (UTC)'!
+!Compass methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 9:30:28 am (UTC)'!
 initialize
 	super initialize.
 	extent := 0.
-	length := 5.
-	width := 16.
+	length := 4.
+	width := 20.
 	self insertButtons! !
 
 !Compass methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:31:20 pm (UTC)'!
@@ -451,7 +465,7 @@ drawCompassPoint
 	pen become: altPen 
 	! !
 
-!Compass methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 1:24:49 pm (UTC)'!
+!Compass methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 9:31:29 am (UTC)'!
 drawOn: canvas
 	| symmetricLeg |
 	self legVertices.
@@ -460,7 +474,7 @@ drawOn: canvas
 	" Pen "
 	canvas fillColor: self penColor do: [canvas polyLine: (legVertices last: 3)].
 	" Aperture "
-	canvas drawString: ((self aperture roundTo: 0.1) printStringFractionDigits: 1) at: legVertices fifth + (10@0) font: font color: `Color black`.
+	canvas drawString: ((self aperture roundTo: 0.1) printStringFractionDigits: 1) at: legVertices fifth + (20@0) font: font color: `Color black`.
 	symmetricLeg := legVertices * (-1 @ 1).
 	" Leg holding the compass point "
 	canvas strokeWidth: 1 color: `Color black` fillColor: self color do: [canvas polyLine: symmetricLeg allButLast ].
@@ -624,28 +638,27 @@ mouseMove: event localPosition: localPosition
 name
 	^ 'Compass' translated! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 28/Jun/2026, 11:03:45 am (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 8:53:35 am (UTC)'!
 initialize
 	super initialize.
-	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 12.
 	self length: 8.
 	self setGraduationMorphs.
 	self insertButtons! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 28/Jun/2026, 11:02:54 am (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 9:19:51 am (UTC)'!
 insertButtons
 | btn buttonExtent |
-	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	buttonExtent := Theme current refreshIcon extent * 4. 
 	btn := ButtonMorph model: self action: #rotateMe ::
 		actWhen: #buttonStillDown;
-		icon: Theme current refreshIcon;
+		icon: (Theme current refreshIcon magnifyBy: 2);
 		color: Color transparent;
 		selectedColor: self darkerColor;
 		morphExtent: buttonExtent.
 	self addMorph: btn.
 
 	btn := ButtonMorph model: self action: #delete ::
-		icon: Theme current closeIcon ;
+		icon: (Theme current closeIcon magnifyBy: 2);
 		color: Color transparent;
 		selectedColor: self darkerColor ;		
 		morphExtent: buttonExtent.
@@ -653,7 +666,7 @@ insertButtons
 			
 	self positioningButtons ! !
 
-!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 26/Jun/2026, 7:17:46 pm (UTC)'!
+!Geodreieck methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 9:16:32 am (UTC)'!
 setGraduationMorphs
 "	The set square graduations 
 	For the record: 'extent x' is the raidus (usually 8 cm) expressed in pixels
@@ -666,7 +679,7 @@ setGraduationMorphs
 "	millimeter numbers on the ruler side "
 	posA := extent y negated + self ppcm.
 	(length - 1) negated to: length - 1 do: [:grad |
-		self addLabel: grad abs asString font: font centeredAt: posA @(14 + font pointSize)rotationDegrees: 180.
+		self addLabel: grad abs asString font: font centeredAt: posA @(self tick + font pointSize + 4) rotationDegrees: 180.
 		posA := posA + self ppcm].
 "	degrees on the yellow strip & circular graduations "
 	10 to: 170 by: 10 do: [:angle | 
@@ -832,10 +845,10 @@ addMiscGraduations
 	self addGrads: (coordinates collect: [:pt | pt x negated @ pt y])
 	! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 3:48:11 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 9:24:01 am (UTC)'!
 addSetSquareDegreeGradAt: angle
 	| mark line |
-	mark := self gradMarkAt: angle length: 12.
+	mark := self gradMarkAt: angle length: self tick.
 	line := GradMorph from: mark first to: mark second.
 	self addMorph: line.
 	" do we want graduation number? "
@@ -851,11 +864,11 @@ addSetSquareDegreeGradAt: angle
 			rotationDegrees: rotation].	
 	^ line! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 28/Jun/2026, 3:48:19 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 9:24:26 am (UTC)'!
 addSetSquareDegreeSubGradAt: angle
 	| mark line |
 
-	mark := self gradMarkAt: angle length: 6.
+	mark := self gradMarkAt: angle length: self smalltick .
 	line := GradMorph from: mark first to: mark second.
 	self addMorph: line.
 	^ line! !
@@ -867,10 +880,10 @@ addSubGrads: cmCoordinates
 		line := SubGradMorph from: pt1 to: pt2.
 		self addMorph: line]! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Jun/2026, 2:17:22 pm (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 9:12:57 am (UTC)'!
 drawOn: canvas
 "	The drawing requiring needing complex computation (trigonometric and division) are rendered as submorphs "
-	| apex pos gradQty step |
+	| apex pos gradQty step smallTick tick |
 	apex := extent y.
 	canvas fillColor: self transparentColor do: [
 		canvas moveTo: apex negated @ 0;
@@ -894,23 +907,26 @@ drawOn: canvas
 		"canvas lineTo: innerR negated @ 0"].
 		
 " Ruler cm graduation "
+	
+	tick := self tick.
+	smallTick := self smalltick.	
 	" half centimer grad "
 	pos := extent y negated + self ppcm.
 	gradQty := (length - 1) * 2.
 	step := self ppcm / 2.
 	gradQty := (length -1) * 4 + 1.
-	canvas strokeWidth: 0.8 color: `Color black` do: [
+	canvas strokeWidth: 1.6 color: `Color black` do: [
 		gradQty timesRepeat: [
-			canvas moveTo: pos @ 0.5; lineToY: 10.
+			canvas moveTo: pos @ 0.5; lineToY: tick.
 			pos := pos + step ] ].
 	" millimeter grad"
 	pos := extent y negated + self ppcm.
 	step := self ppcm / 10.
-	canvas strokeWidth: 0.3 color: `Color black` do: [
+	canvas strokeWidth: 0.6 color: `Color black` do: [
 		gradQty -1 timesRepeat: [
 			4 timesRepeat: [
 				pos := pos + step.
-				canvas moveTo: pos @ 0.2; lineToY: 4].
+				canvas moveTo: pos @ 0.2; lineToY: smallTick].
 			pos := pos + step] ]
 ! !
 
@@ -1066,11 +1082,12 @@ addLabel: string font: aFont centeredAt: position rotationDegrees: angle
 	label morphPosition: p.
 	^ label! !
 
-!Protractor methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:12:31 pm (UTC)'!
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 8:30:57 am (UTC)'!
 drawOn: canvas
-|  p1 p2 innerR outerR|
+|  p1 p2 innerR outerR interTick smallTick tick |
 	innerR := extent x.
 	outerR := extent y.
+
 	canvas fillColor: self transparentColor do: [
 		canvas moveTo: innerR negated @ 0.
 		canvas arcTo: innerR @ 0 radius: innerR @ innerR angleOfXAxis: 0 largeFlag: true sweepFlag: true.
@@ -1084,37 +1101,41 @@ drawOn: canvas
 		canvas lineTo: innerR negated @ 0].
 	
 	
-	" graduation"
-	canvas strokeWidth: 1 color: `Color black` do: [
-		canvas moveTo: 0 @ -0.5; lineTo: 0 @ -8].
+"	Graduations "
+	tick := self tick.
+	smallTick := self smalltick.
+	interTick := tick + smallTick / 2.	
+	canvas strokeWidth: 1.6 color: `Color black` do: [
+		canvas moveTo: 0 @ -0.5; lineTo: 0 @ tick negated].
+	" Each degree "
 	-179 to: -1 do: [:degree |
-		canvas strokeWidth: 0.5 color: `Color black` do: [:engine |
+		canvas strokeWidth: 0.6 color: `Color black` do: [:engine |
 			p1 := Point r: outerR degrees: degree.
-			p2 := Point r: outerR -5 degrees: degree.
+			p2 := Point r: outerR - smallTick degrees: degree.
 			engine moveTo: p1 ; lineTo: p2]].
 	-180 to: 0 by: 10 do: [:degree |
-		canvas strokeWidth: 1 color: `Color black` do: [:engine |
+		canvas strokeWidth: 1.6 color: `Color black` do: [:engine |
 			p1 := Point r: outerR degrees: degree.
-			p2 := Point r: outerR -10 degrees: degree.
+			p2 := Point r: outerR - tick degrees: degree.
 			engine moveTo: p1; lineTo: p2 ]].
 	-175 to: -5 by: 10 do: [:degree |
 		canvas strokeWidth: 0.6 color: `Color black` do: [:engine |
 			p1 := Point r: outerR degrees: degree.
-			p2 := Point r: outerR - 8 degrees: degree.
+			p2 := Point r: outerR - interTick degrees: degree.
 			engine moveTo: p1; lineTo: p2 ]]! !
 
 !Protractor methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 9:25:18 am (UTC)'!
 icon
 	^ (self imageForm: 32) magnifyBy: 100.0 / (extent y * 2)! !
 
-!Protractor methodsFor: 'drawing' stamp: 'hlsf 22/Jun/2026, 4:53:21 pm (UTC)'!
+!Protractor methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 8:29:01 am (UTC)'!
 updateGraduations
 	self graduations do: [:each | each delete].
 	10 to: 170 by: 10 do: [:angle | 
 		self 
 			addLabel: (zeroAtRight ifTrue: [angle] ifFalse: [180 - angle]) asString 
 			font: font 
-			centeredAt: (Point r: extent y - 12 degrees: angle negated)
+			centeredAt: (Point r: extent y - self tick - 2 degrees: angle negated)
 			rotationDegrees: 90 - angle].
 ! !
 
@@ -1124,19 +1145,18 @@ constrainToDirection: localHandPosition
 		rho: localHandPosition rho 
 		theta: (localHandPosition theta < Float pi  ifTrue: [Float pi + strokeAngle] ifFalse: [strokeAngle ])! !
 
-!Protractor methodsFor: 'initialization' stamp: 'hlsf 13/Sep/2025, 2:22:38 pm (UTC)'!
+!Protractor methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 8:44:19 am (UTC)'!
 initialize
 	super initialize .
-	font := FontFamily familyName: FontFamily defaultFamilyName pointSize: 7.
-	extent := 130 @160.
+	extent := 320 - self strokeZoneHeight @320.
 	zeroAtRight := true.
 	self updateGraduations.
 	self insertButtons ! !
 
-!Protractor methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:32:02 pm (UTC)'!
+!Protractor methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 8:23:53 am (UTC)'!
 insertButtons
 | btn buttonExtent pos |
-	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	buttonExtent := Theme current refreshIcon extent * 3. 
 	btn := ButtonMorph model: self action: #rotateMe ::
 		actWhen: #buttonStillDown;
 		icon: Theme current refreshIcon;
@@ -1189,34 +1209,37 @@ inStrokeZone: localPosition
 is: aSymbol
 	^ aSymbol == #Protractor or: [super is: aSymbol]! !
 
-!Ruler methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 2:48:24 pm (UTC)'!
+!Ruler methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 8:14:02 am (UTC)'!
 drawOn: canvas
-	| posX step roundedLength |
+	| posX step roundedLength tick smallTick interTick |
 	roundedLength := length rounded.
 	
 	canvas fillRectangle: self strokeZone color: self color.
 	canvas fillRectangle: self dragZone color: self transparentColor .
 	canvas frameRectangle: (-5@0 corner: extent) borderWidth: 0.5 color: self darkerColor.
 
+	tick := self tick.
+	smallTick := self smalltick.
+	interTick := tick + smallTick / 2.	
 	step :=  self ppcm / 2. " half centimeter step "
 	posX := 0.
-	canvas strokeWidth: 0.8 color: `Color black` do: [
+	canvas strokeWidth: 1.6 color: `Color black` do: [
 		roundedLength + 1 timesRepeat: [
-			canvas moveTo: posX @ 0.5; lineToY: 10.
-			canvas moveTo: (posX  + step) @ 0.5 ; lineToY: 6.
+			canvas moveTo: posX @ 0.5; lineToY: tick .
+			canvas moveTo: (posX  + step) @ 0.5 ; lineToY: interTick .
 			posX := posX + self ppcm] ].
 
 	posX := step := self ppcm / 10. "millimeter step "
-	canvas strokeWidth: 0.3 color: `Color black` do: [
+	canvas strokeWidth: 0.6 color: `Color black` do: [
 		roundedLength * 2 + 1 timesRepeat: [
 			4 timesRepeat: [
-				canvas moveTo: posX @ 0.2; lineToY: 4.
+				canvas moveTo: posX @ 0.2; lineToY: smallTick .
 				posX := posX + step].
 			posX := posX + step] ].
 
 	step := posX := 0.
 	roundedLength + 1 timesRepeat: [
-		canvas drawString: step asString atCenterX: posX @12 font: font color: `Color black`.
+		canvas drawString: step asString atCenterX: posX @(tick + 2) font: font color: `Color black`.
 		step := step + 1.
 		posX := posX + self ppcm].! !
 
@@ -1226,13 +1249,6 @@ icon
 	smallMorph := self class new length: 4.
 	^ (smallMorph imageForm: 32) magnifyBy: 100 / smallMorph extent x! !
 
-!Ruler methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2025, 10:08:24 am (UTC)'!
-length: newLength
-	length := newLength max: 1.
-	extent := length rounded * self ppcm + (self ppcm / 2) @ 60.
-	self positioningButtons.
-	self redrawNeeded ! !
-
 !Ruler methodsFor: 'initialization' stamp: 'hlsf 11/Sep/2025, 11:11:15 am (UTC)'!
 initialize
 	super initialize.
@@ -1240,10 +1256,10 @@ initialize
 	self insertButtons 
 	! !
 
-!Ruler methodsFor: 'initialization' stamp: 'hlsf 14/Sep/2025, 5:25:38 pm (UTC)'!
+!Ruler methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 8:43:06 am (UTC)'!
 insertButtons
 | btn buttonExtent |
-	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	buttonExtent := Theme current refreshIcon extent * 3. 
 	
 	btn := ButtonMorph model: self action: #delete ::
 		icon: Theme current closeIcon ;
@@ -1251,7 +1267,7 @@ insertButtons
 		selectedColor: Color yellow darker;		
 		morphExtent: buttonExtent.
 	self addMorph: btn.
-	btn morphPosition: 0 @ 30.	
+	btn morphPosition: 0 @ self strokeZoneHeight .	
 	
 	btn := ButtonMorph model: self action: #rotateMe ::
 		actWhen: #buttonStillDown;
@@ -1308,34 +1324,41 @@ alignToNearbyTool
 constrainToDirection: localHandPosition
 	^ localHandPosition x @ 0! !
 
-!Ruler methodsFor: 'geometry' stamp: 'hlsf 7/Sep/2025, 10:09:35 am (UTC)'!
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:13:26 am (UTC)'!
 dragZone
 
-	^ -5@25 corner: extent! !
+	^ -5@(self tick * 2) corner: extent! !
 
-!Ruler methodsFor: 'geometry' stamp: 'hlsf 14/Sep/2025, 5:24:38 pm (UTC)'!
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:42:21 am (UTC)'!
+length: newLength
+	length := newLength max: 1.
+	extent := length rounded * self ppcm + (self ppcm / 2) @ (self tick * 2.5 + self strokeZoneHeight ).
+	self positioningButtons.
+	self redrawNeeded ! !
+
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:41:36 am (UTC)'!
 positioningButtons
 | buttonWidth position |
 	submorphs isEmptyOrNil ifTrue: [^ self].
 	buttonWidth := submorphs first morphWidth.
-	position := length rounded * self ppcm -4 @ 30.
+	position := length rounded * self ppcm -4 @ self strokeZoneHeight.
 	(submorphs first: 2) do: [:btn |
 		btn morphPosition: position.
 		position :=  position translatedBy:  - 4 - buttonWidth @ 0 ]
 		! !
 
-!Ruler methodsFor: 'geometry' stamp: 'hlsf 7/Sep/2025, 10:09:09 am (UTC)'!
+!Ruler methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:41:48 am (UTC)'!
 strokeZone
 
-	^ -5@0 corner: extent x @ 25! !
+	^ -5@0 corner: extent x @ self strokeZoneHeight ! !
 
 !Ruler methodsFor: 'accessing - properties' stamp: 'hlsf 12/Feb/2026, 9:35:01 am (UTC)'!
 name
 	^  'Ruler' translated! !
 
-!SetSquare methodsFor: 'drawing' stamp: 'hlsf 21/Jun/2026, 1:33:07 pm (UTC)'!
+!SetSquare methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 8:51:32 am (UTC)'!
 drawOn: canvas
-	| roundedLength  step pos |
+	| roundedLength  step pos interTick smallTick tick |
 	roundedLength := length rounded.
 	canvas fillColor: self color do: [canvas polyLine: self strokeZone].
 	canvas fillColor: self transparentColor do: [	canvas polyLine: self dragZone].
@@ -1344,51 +1367,54 @@ drawOn: canvas
 			lineTo: extent x @ 0;
 			lineTo: 0 @ extent y;
 			lineTo: 0@0].
-		
+
+	tick := self tick.
+	smallTick := self smalltick.
+	interTick := tick + smallTick / 2.	
 	" ox graduation "
 	pos := step :=  self ppcm / 2. " half centimeter step "
-	canvas strokeWidth: 0.8 color: `Color black` do: [
+	canvas strokeWidth: 1.6 color: `Color black` do: [
 		roundedLength x timesRepeat: [
-			canvas moveTo: pos @ 0.5; lineToY: 6.
-			canvas moveTo: (pos + step) @ 0.5 ; lineToY: 10.
+			canvas moveTo: pos @ 0.5; lineToY: interTick .
+			canvas moveTo: (pos + step) @ 0.5 ; lineToY: tick .
 			pos := pos + self ppcm] ].
 
 	step := self ppcm / 10. "millimeter step "
-	canvas strokeWidth: 0.3 color: `Color black` do: [
+	canvas strokeWidth: 0.6 color: `Color black` do: [
 		pos := step.
 		roundedLength x * 2 + 1 timesRepeat: [
 			4 timesRepeat: [
-				canvas moveTo: pos @ 0.2; lineToY: 4.
+				canvas moveTo: pos @ 0.2; lineToY: smallTick .
 				pos := pos + step].
 			pos := pos + step] ].
 	
 	" oy graduation "
 	pos := step :=  self ppcm / 2. " half centimeter step "
-	canvas strokeWidth: 0.8 color: `Color black` do: [
+	canvas strokeWidth: 1.6 color: `Color black` do: [
 		roundedLength y timesRepeat: [
-			canvas moveTo: 0.5 @ pos; lineToX: 6.
-			canvas moveTo: 0.5 @ (pos + step) ; lineToX: 10.
+			canvas moveTo: 0.5 @ pos; lineToX: interTick .
+			canvas moveTo: 0.5 @ (pos + step) ; lineToX: tick .
 			pos := pos + self ppcm] ].
 
 	step := self ppcm / 10. "millimeter step "
-	canvas strokeWidth: 0.3 color: `Color black` do: [
+	canvas strokeWidth: 0.6 color: `Color black` do: [
 		pos := step.
 		roundedLength y * 2 + 1 timesRepeat: [
 			4 timesRepeat: [
-				canvas moveTo: 0.2 @ pos; lineToX: 4.
+				canvas moveTo: 0.2 @ pos; lineToX: smallTick .
 				pos := pos + step].
 			pos := pos + step] ].
 
 	step := 1.
 	pos := self ppcm.
 	roundedLength x -1 timesRepeat: [
-		canvas drawString: step asString atCenterX: pos @12 font: font color: `Color black`.
+		canvas drawString: step asString atCenterX: pos @(tick + 2) font: font color: `Color black`.
 		step := step + 1.
 		pos := pos + self ppcm].
 	step := 1.
 	pos := self ppcm.
 	roundedLength y - 1 timesRepeat: [
-		canvas drawString: step asString atWaistCenter: 15 @ pos font: font color: `Color black`.
+		canvas drawString: step asString atWaistCenter: tick + 8 @ pos font: font color: `Color black`.
 		step := step + 1.
 		pos := pos + self ppcm].! !
 
@@ -1407,10 +1433,10 @@ constrainToDirection: localHandPosition
 		ifTrue: [localHandPosition x @ 0]
 		ifFalse: [ 0 @ localHandPosition y]! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 9:11:19 am (UTC)'!
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:46:51 am (UTC)'!
 dragZone
 	^ Array 
-		with: 25@25
+		with: self strokeZoneHeight asPoint
 		with: (self strokeZone at: 3)
 		with: (strokeZone at: 6)
 ! !
@@ -1429,26 +1455,26 @@ positioningButtons
 		icon: icon;
 		morphPosition: -2 @ (extent y - icon extent y - 2).! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 8:44:55 am (UTC)'!
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:47:59 am (UTC)'!
 strokeZone
-	^ strokeZone ifNil: [ 
+	^ strokeZone ifNil: [
 		strokeZone := Array 
 			with: 0 @ 0
 			with: extent x @ 0
-			with: ( extent x - (25 * extent x / extent y) ) @ 25
-			with: 25 @ 25
-			with: 25 @ ( extent y - (25 * extent y / extent x) )
+			with: ( extent x - (self strokeZoneHeight * extent x / extent y) ) @ self strokeZoneHeight 
+			with: self strokeZoneHeight asPoint 
+			with: self strokeZoneHeight @ ( extent y - (self strokeZoneHeight  * extent y / extent x) )
 			with: 0 @ extent y]! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 1:51:59 pm (UTC)'!
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:48:13 am (UTC)'!
 strokeZoneX
 " The stroke zone along the x-axis "
-	^ Rectangle origin: 0@0 corner: extent x @ 25! !
+	^ Rectangle origin: 0@0 corner: extent x @ self strokeZoneHeight ! !
 
-!SetSquare methodsFor: 'geometry' stamp: 'hlsf 11/Sep/2025, 1:52:16 pm (UTC)'!
+!SetSquare methodsFor: 'geometry' stamp: 'hlsf 8/Sep/2026, 8:48:19 am (UTC)'!
 strokeZoneY
 " The stroke zone along the y-axis "
-	^ Rectangle origin: 0@0 corner: 25 @ extent y! !
+	^ Rectangle origin: 0@0 corner: self strokeZoneHeight  @ extent y! !
 
 !SetSquare methodsFor: 'accessing' stamp: 'hlsf 16/Sep/2025, 7:55:49 pm (UTC)'!
 alignToNearbyTool
@@ -1483,10 +1509,10 @@ initialize
 	self insertButtons 
 	! !
 
-!SetSquare methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 1:33:49 pm (UTC)'!
+!SetSquare methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 8:45:59 am (UTC)'!
 insertButtons
 | btn buttonExtent |
-	buttonExtent := Theme current refreshIcon extent * 1.5. 
+	buttonExtent := Theme current refreshIcon extent * 3. 
 	btn := ButtonMorph model: self action: #rotateMe ::
 		actWhen: #buttonStillDown;
 		icon: Theme current refreshIcon;
@@ -1500,7 +1526,7 @@ insertButtons
 		selectedColor: self darkerColor ;		
 		morphExtent: buttonExtent.
 	self addMorph: btn.
-	btn morphPosition: 25 @ 25.
+	btn morphPosition: self strokeZoneHeight asPoint.
 	
 	oxButton := ButtonMorph model: self action: #resizeOX ::
 		actWhen: #buttonStillDown;
@@ -1567,7 +1593,7 @@ etalon: form
 ppcm
 	^ ppcm ! !
 
-!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 11/Jun/2026, 9:15:29 am (UTC)'!
+!CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 8/Sep/2026, 7:51:27 am (UTC)'!
 initialize
 	super initialize.
 	ppcm := DyboSystem ppcm.
@@ -1576,7 +1602,7 @@ initialize
 		ppcm: ppcm;
 		length: 10;
 		lock.
-	self	addMorph: ruler position: 22.5@80.
+	self	addMorph: ruler position: 18@80.
 	self insertButtons! !
 
 !CalibratorMorph methodsFor: 'initialization' stamp: 'hlsf 1/Mar/2026, 4:00:16 pm (UTC)'!
@@ -1611,9 +1637,9 @@ decreasePPCM
 		length: 10.
 	self redrawNeeded ! !
 
-!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 1/Mar/2026, 8:06:18 pm (UTC)'!
+!CalibratorMorph methodsFor: 'actions' stamp: 'hlsf 8/Sep/2026, 7:51:54 am (UTC)'!
 increasePPCM
-	ppcm > 70 ifTrue: [^ self].
+	ppcm > 200 ifTrue: [^ self].
 	ppcm := ppcm + step.
 	ruler ppcm: ppcm;
 		length: 10.
