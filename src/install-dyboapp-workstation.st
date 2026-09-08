@@ -1,3 +1,3 @@
 ChangeSet installNewUpdates.
-Feature require: #'Dybo'.
+Feature require: #Dybo.
 (Smalltalk at: #DyboSystem) perform: #install.

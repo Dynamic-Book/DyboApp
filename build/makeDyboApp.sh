@@ -43,7 +43,7 @@ buildImage () {
     cp $imagePath/$smalltalk.image $imagePath/dybo.image
     cp $imagePath/$smalltalk.changes $imagePath/dybo.changes
     # install source code in the dybo image and configure it
-    $vmExec $imagePath/dybo.image -s $installScript
+    $vmExec $imagePath/dybo.image -e -s $installScript
     ls -lh $imagePath/dybo.image
     echo "--== DONE building DyboApp image ==--"    
 }
