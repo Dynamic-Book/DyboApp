@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8158] on 7 September 2026 at 9:09:39 pm'!
+'From Cuis7.9 [latest update: #8158] on 8 September 2026 at 12:12:40 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 294!
+!provides: 'DyboDoc' 1 295!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -1200,12 +1200,19 @@ currentPage
 model
 	^ model! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 15/Jul/2026, 1:50:22 pm (UTC)'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 8/Sep/2026, 10:11:34 am (UTC)'!
 preview
 " By default read the saved preview "
-	^ [PNGReadWriter  formFromFileEntry: model path // 'preview.png'] 
+	^ "[(model path // 'preview.jpg') exists 
+			ifTrue: [ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
+			ifFalse: [ImageReadWriter  formFromFileEntry: model path // 'preview.png'] ]
 		on: Error 
-		do: [view preview]! !
+		do: [view preview]"
+		[ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
+			on: Error 
+			do: [Form extent: 10@10 depth: 32
+				"view preview"]
+	! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:42:08 am (UTC)'!
 selectedTool
@@ -1499,7 +1506,7 @@ penWhite
 redoAction
 	self commandsManager redo ifTrue: [self modified]! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 21/Aug/2026, 8:18:16 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 8/Sep/2026, 10:05:46 am (UTC)'!
 saveDocument
 	model isNote ifTrue: [
 		^ PopUpMenu inform: 'Quick notes can''t be saved, but can be exported to PDF. 
@@ -1509,8 +1516,13 @@ To save your work, go to your binder and create a new document.' translated].
 	savesReal := false.
 	isSaved := true.
 	self currentPage redrawNeeded.
-	PNGReadWriter putForm: view preview onFile: model path // 'preview.png'.
+	self savePreview.
 	^ true! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 8/Sep/2026, 10:05:46 am (UTC)'!
+savePreview
+
+	^ JPEGReadWriter2 putForm: view preview onFile: model path // 'preview.jpg'! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 3/Aug/2026, 2:09:05 pm (UTC)'!
 switchToPageModel: pageModelSymbol
