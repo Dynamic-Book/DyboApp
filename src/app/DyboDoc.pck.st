@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8158] on 8 September 2026 at 12:12:40 pm'!
+'From Cuis7.9 [latest update: #8158] on 8 September 2026 at 6:09:48 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 295!
+!provides: 'DyboDoc' 1 296!
 !requires: 'DKM-Math-Geometry' 1 10 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 11 nil!
 !requires: 'DKM-History-Timeline' 1 2 nil!
@@ -650,7 +650,7 @@ DKMScriptEditor class
 
 !classDefinition: #DyImageMorph category: #'DyboDoc-View'!
 StaticImageMorph subclass: #DyImageMorph
-	instanceVariableNames: ''
+	instanceVariableNames: 'pictureName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-View'!
@@ -1200,17 +1200,15 @@ currentPage
 model
 	^ model! !
 
-!Document methodsFor: 'accessing' stamp: 'hlsf 8/Sep/2026, 10:11:34 am (UTC)'!
+!Document methodsFor: 'accessing' stamp: 'hlsf 8/Sep/2026, 3:51:03 pm (UTC)'!
 preview
 " By default read the saved preview "
-	^ "[(model path // 'preview.jpg') exists 
-			ifTrue: [ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
-			ifFalse: [ImageReadWriter  formFromFileEntry: model path // 'preview.png'] ]
-		on: Error 
-		do: [view preview]"
-		[ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
+"
+	DyUserData current allDocuments do: #savePreview
+"
+	^ [ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
 			on: Error 
-			do: [Form extent: 10@10 depth: 32
+			do: [`Form extent: DocumentView previewExtent depth: 32`
 				"view preview"]
 	! !
 
@@ -3443,7 +3441,7 @@ allowsFilesDrop
 allowsMorphDrop
 	^ true! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 7/Sep/2026, 6:51:25 pm (UTC)'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 8/Sep/2026, 4:04:26 pm (UTC)'!
 dropFiles: dropFilesEvent
 	| anImage annotator positionShift |
 	positionShift := 0@0.
@@ -3451,9 +3449,10 @@ dropFiles: dropFilesEvent
 		anImage := Form fromFileNamed: fileName.
 		anImage ifNotNil: [
 			annotator := AnnotatorMorph newOn: presenter annotate: (DyImageMorph newWith: (self resizePicture: anImage)).
+			annotator annotated pictureName: fileName asFileEntry baseName.
 			self addMorphFront: annotator.
 			annotator morphPosition: (self internalizeFromWorld: dropFilesEvent eventPosition) + positionShift.
-			positionShift := positionShift + (20@20)] ].
+			positionShift := positionShift + (40@40)] ].
 	positionShift = (0@0) ifFalse: [presenter modified]! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 5/Sep/2026, 2:24:44 pm (UTC)'!
@@ -5477,9 +5476,19 @@ doItReceiver
 okayToResizeEasily
 	^ false! !
 
+!DyImageMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 8/Sep/2026, 4:01:36 pm (UTC)'!
+pictureName: string
+	pictureName := string! !
+
 !DyImageMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 7/Sep/2026, 6:50:59 pm (UTC)'!
 prepareToBeSaved
 	scaledImage := nil! !
+
+!DyImageMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 8/Sep/2026, 4:01:24 pm (UTC)'!
+printOn: str
+	pictureName 
+		ifNotNil:  [str nextPutAll: pictureName]
+		ifNil: [super printOn: str]! !
 
 !Collection methodsFor: '*DyboDoc-View' stamp: 'hlsf 31/Mar/2023, 8:22:27 pm (UTC)'!
 covariance: y
