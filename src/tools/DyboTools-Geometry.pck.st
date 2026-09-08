@@ -1,7 +1,6 @@
-'From Cuis7.9 [latest update: #8158] on 8 September 2026 at 11:32:53 am'!
+'From Cuis7.9 [latest update: #8160] on 8 September 2026 at 9:04:32 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 79!
-!requires: 'VectorGraphics' 1 185 nil!
+!provides: 'DyboTools-Geometry' 1 80!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
 

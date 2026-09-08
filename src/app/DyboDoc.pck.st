@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8158] on 8 September 2026 at 6:09:48 pm'!
+'From Cuis7.9 [latest update: #8160] on 8 September 2026 at 9:04:09 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 296!
-!requires: 'DKM-Math-Geometry' 1 10 nil!
-!requires: 'DKM-Physics-GasSimulation' 1 11 nil!
-!requires: 'DKM-History-Timeline' 1 2 nil!
-!requires: 'UI-Click-Select' 1 78 nil!
+!provides: 'DyboDoc' 1 297!
+!requires: 'DKM-History-Timeline' 1 18 nil!
+!requires: 'DKM-Physics-GasSimulation' 1 39 nil!
+!requires: 'DKM-Math-Geometry' 1 17 nil!
+!requires: 'UI-Click-Select' 1 103 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
-!requires: 'UI-Panel' 1 122 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'Commander' 1 7 nil!
-!requires: 'DKM-Extention' 1 1 nil!
+!requires: 'UI-Panel' 1 170 nil!
+!requires: 'Commander' 1 9 nil!
+!requires: 'DKM-Extention' 1 5 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!

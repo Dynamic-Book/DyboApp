@@ -1,16 +1,16 @@
-'From Cuis7.9 [latest update: #8158] on 8 September 2026 at 6:09:43 pm'!
+'From Cuis7.9 [latest update: #8160] on 8 September 2026 at 9:06:28 pm'!
 'Description '!
-!provides: 'Dybo' 1 279!
-!requires: 'Gettext' 1 26 nil!
+!provides: 'Dybo' 1 281!
+!requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
-!requires: 'Goodies' 1 9 nil!
-!requires: 'UI-Mold' 1 13 nil!
-!requires: 'DyboDoc' 1 5 nil!
+!requires: 'Goodies' 1 12 nil!
+!requires: 'UI-Mold' 1 21 nil!
+!requires: 'DyboDoc' 1 296 nil!
+!requires: 'UI-Graphic-Import' 1 8 nil!
 !requires: 'Neo-CSV-Core' 1 2 nil!
-!requires: 'UI-Graphic-Import' 1 0 nil!
-!requires: 'UI-Panel' 1 91 nil!
+!requires: 'UI-Panel' 1 170 nil!
+!requires: 'Compression' 1 45 nil!
 !requires: 'Commander' 1 9 nil!
-!requires: 'Compression' 1 42 nil!
 SystemOrganization addCategory: #Dybo!
 SystemOrganization addCategory: #'Dybo-Data'!
 SystemOrganization addCategory: #'Dybo-Model'!
