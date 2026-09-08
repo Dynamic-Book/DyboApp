@@ -44,6 +44,7 @@ git clone --depth 1 https://github.com/Cuis-Smalltalk/OSProcess
 cd Cuis-Smalltalk-Dev
 git clone --depth 1 https://github.com/Dynamic-Book/DyboLib
 git clone --depth 1 https://github.com/Dynamic-Book/DyboApp
+git clone --depth 1 https://github.com/istoa-eu/app.git
 ```
 
 ## 2. External Dependency.
