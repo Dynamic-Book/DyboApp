@@ -10,6 +10,7 @@ When installing a newer version of the DyboApp (from a ZIP archive),
 the user should request a merging installation, this operation depends
 on the Archive software used to install the DyboApp.
 
+
 FINE TUNING
 ----------------------------------------------------------------------
 To improve performance of the OpenSmalltalk VM, be sure to create the
@@ -17,6 +18,7 @@ file /etc/security/limits.d/squeak.conf with the contents:
 
 *       hard    rtprio  2
 *       soft    rtprio  2
+
 
 HOW TO START
 ----------------------------------------------------------------------
@@ -28,6 +30,9 @@ When the the DyboApp is installed in a read-only folder, run the
 application with its "startMultiUser.sh" script; adjust its USERDATA
 variable to indicate the location in the user disk space to save data,
 by default it is set to "$HOME/Documents/myDybo".
+
+When installing a newer version, be sure to delete the former
+application image directory at "$HOME/Documents/myDybo/app/image"
 
 
 PDF IMPORT/EXPORT
