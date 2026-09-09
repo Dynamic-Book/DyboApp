@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8160] on 8 September 2026 at 9:06:28 pm'!
+'From Cuis7.9 [latest update: #8160] on 9 September 2026 at 3:08:06 pm'!
 'Description '!
-!provides: 'Dybo' 1 281!
+!provides: 'Dybo' 1 282!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -1576,10 +1576,6 @@ ppcm: number
 progressBar
 	^ progressBar ! !
 
-!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 12/Oct/2024, 7:40:04 am (UTC)'!
-screenSize
-	^ self runningWorld morphExtent! !
-
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 24/Feb/2026, 1:03:05 pm (UTC)'!
 toggleFullscreen
 	platform toggleFullscreen ! !
@@ -1680,12 +1676,13 @@ pageModels
 pageRatios
 	^ `Array with: 16@9 with: 210@297 with: 297@210`! !
 
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 21/Jul/2026, 1:00:49 pm (UTC)'!
+!DyboSystem class methodsFor: 'accessing' stamp: 'dau 9/Sep/2026, 1:03:31 pm (UTC)'!
 pageSize
 " Its width fill the screen, according to its default ratio "
-	| paperRatio |
+	| paperRatio screenSize  |
+	screenSize := self runningWorld morphExtent.
 	paperRatio := Preferences at: #pageRatio.
-	^ (paperRatio * (self screenSize x / paperRatio x) asFloat) asIntegerPoint .! !
+	^ (paperRatio * (1.5 * screenSize x / paperRatio x) asFloat) asIntegerPoint .! !
 
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 15/Feb/2026, 1:13:37 pm (UTC)'!
 scriptLibrary

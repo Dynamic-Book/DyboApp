@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8160] on 8 September 2026 at 10:06:10 pm'!
+'From Cuis7.9 [latest update: #8160] on 9 September 2026 at 3:08:09 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 300!
+!provides: 'DyboDoc' 1 301!
 !requires: 'DKM-History-Timeline' 1 18 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-Math-Geometry' 1 17 nil!
@@ -1200,15 +1200,18 @@ currentPage
 model
 	^ model! !
 
-!Document methodsFor: 'accessing' stamp: 'dau 8/Sep/2026, 8:06:08 pm (UTC)'!
+!Document methodsFor: 'accessing' stamp: 'dau 9/Sep/2026, 12:53:31 pm (UTC)'!
 preview
-" 
+"	We want to reduce the load time at application start-up	
+
 	DyUserData current allDocuments do: #savePreview
 "
-	^ [ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
-			on: Error 
-			do: [Form extent: DocumentView previewExtent depth: 32]
-	! !
+	^ view isPreview 
+		ifTrue: [view preview] 
+		ifFalse: [				
+			[ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
+				on: Error 
+				do: [Form extent: DocumentView previewExtent depth: 32] ]! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:42:08 am (UTC)'!
 selectedTool
@@ -1515,9 +1518,10 @@ To save your work, go to your binder and create a new document.' translated].
 	self savePreview.
 	^ true! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 8/Sep/2026, 10:05:46 am (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'dau 9/Sep/2026, 12:42:56 pm (UTC)'!
 savePreview
-
+	" Save a fresh preview, for fast loading "
+	view resetPreview.
 	^ JPEGReadWriter2 putForm: view preview onFile: model path // 'preview.jpg'! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 3/Aug/2026, 2:09:05 pm (UTC)'!
@@ -1565,12 +1569,11 @@ isSaved
 loadFromDisk
 	^ ReferenceStream restoreFromCompressedFile: model path // 'doc.obj'! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 4/Jan/2025, 4:24:38 pm (UTC)'!
+!Document methodsFor: 'persistence' stamp: 'dau 9/Sep/2026, 12:43:58 pm (UTC)'!
 modified
 	" get notified the page was modified recently, ie changes not saved to disk "
 	isSaved ifFalse: [^ self].
 	isSaved := false.
-	view resetPreview.
 	view currentPage paper redrawNeeded 
 	! !
 
@@ -5012,6 +5015,10 @@ zoom100ButtonData
 	#zoom100 . 
 	#zoomPageTo100 . 
 	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
+
+!DocumentView methodsFor: 'testing' stamp: 'dau 9/Sep/2026, 12:45:56 pm (UTC)'!
+isPreview
+	^ preview notNil! !
 
 !DocumentView class methodsFor: 'ui' stamp: 'hlsf 23/Dec/2024, 8:24:19 am (UTC)'!
 previewExtent
