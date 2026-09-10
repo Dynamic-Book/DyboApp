@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8160] on 9 September 2026 at 3:08:09 pm'!
+'From Cuis7.9 [latest update: #8160] on 10 September 2026 at 10:55:02 am'!
 'Description '!
-!provides: 'DyboDoc' 1 301!
+!provides: 'DyboDoc' 1 302!
 !requires: 'DKM-History-Timeline' 1 18 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-Math-Geometry' 1 17 nil!
@@ -1505,17 +1505,17 @@ penWhite
 redoAction
 	self commandsManager redo ifTrue: [self modified]! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 8/Sep/2026, 10:05:46 am (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'dau 10/Sep/2026, 8:51:54 am (UTC)'!
 saveDocument
 	model isNote ifTrue: [
 		^ PopUpMenu inform: 'Quick notes can''t be saved, but can be exported to PDF. 
 To save your work, go to your binder and create a new document.' translated].
+	self savePreview.
 	savesReal := true.
 	self saveToDisk.
 	savesReal := false.
 	isSaved := true.
 	self currentPage redrawNeeded.
-	self savePreview.
 	^ true! !
 
 !Document methodsFor: 'actions ui' stamp: 'dau 9/Sep/2026, 12:42:56 pm (UTC)'!
@@ -2360,10 +2360,11 @@ handlePress: localPosition in: paper
 		switchState: EraserToolStateErasing; 	" Prepare to erase... "
 		handleMouseAt: localPosition in: paper "...then start erasing "! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 2:02:31 pm (UTC)'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'dau 10/Sep/2026, 8:53:47 am (UTC)'!
 handleKeyStroke: keyboardEvent in: paper
 	(keyboardEvent isDelete or: [keyboardEvent isBackspace]) ifTrue:[
 		self commandsManager groupDelete: context selection in: paper.
+		context presenter modified.
 		context switchState: GroupToolStateNeutral.]! !
 
 !GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:23:23 pm (UTC)'!
