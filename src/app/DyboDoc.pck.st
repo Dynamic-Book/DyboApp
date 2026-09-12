@@ -1,4 +1,4 @@
-'From Cuis7.9 [latest update: #8160] on 12 September 2026 at 12:30:18 pm'!
+'From Cuis7.9 [latest update: #8160] on 12 September 2026 at 12:42:19 pm'!
 'Description '!
 !provides: 'DyboDoc' 1 303!
 !requires: 'DKM-History-Timeline' 1 18 nil!
@@ -1200,18 +1200,20 @@ currentPage
 model
 	^ model! !
 
-!Document methodsFor: 'accessing' stamp: 'dau 9/Sep/2026, 12:53:31 pm (UTC)'!
+!Document methodsFor: 'accessing' stamp: 'dau 12/Sep/2026, 10:36:05 am (UTC)'!
 preview
 "	We want to reduce the load time at application start-up	
 
 	DyUserData current allDocuments do: #savePreview
 "
-	^ view isPreview 
+	^ view isPreviewCache 
 		ifTrue: [view preview] 
-		ifFalse: [				
-			[ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
+		ifFalse: [	| aPreview |		
+			aPreview := [ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
 				on: Error 
-				do: [Form extent: DocumentView previewExtent depth: 32] ]! !
+				do: [Form extent: DocumentView previewExtent depth: 32].
+			view preview: aPreview.
+			aPreview ]! !
 
 !Document methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:42:08 am (UTC)'!
 selectedTool
@@ -4506,6 +4508,11 @@ preview
 		form := form magnifyBy: (shrinkFactorX max: shrinkFactorY).
 		preview := form copy: (0@0 corner: DocumentView previewExtent)]! !
 
+!DocumentView methodsFor: 'accessing' stamp: 'dau 12/Sep/2026, 10:35:20 am (UTC)'!
+preview: aForm
+"	The preview may be load from disk, under that circumstance we cache it too"
+	preview := aForm ! !
+
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024, 5:51:30 pm (UTC)'!
 statusBarMessage: aString
 	statusBar ifNotNil: [
@@ -5022,8 +5029,8 @@ zoom100ButtonData
 	#zoomPageTo100 . 
 	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
 
-!DocumentView methodsFor: 'testing' stamp: 'dau 9/Sep/2026, 12:45:56 pm (UTC)'!
-isPreview
+!DocumentView methodsFor: 'testing' stamp: 'dau 12/Sep/2026, 10:34:14 am (UTC)'!
+isPreviewCache
 	^ preview notNil! !
 
 !DocumentView class methodsFor: 'ui' stamp: 'hlsf 23/Dec/2024, 8:24:19 am (UTC)'!
