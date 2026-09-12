@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8160] on 12 September 2026 at 12:42:19 pm'!
+'From Cuis7.9 [latest update: #8160] on 12 September 2026 at 12:46:16 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 303!
+!provides: 'DyboDoc' 1 304!
 !requires: 'DKM-History-Timeline' 1 18 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-Math-Geometry' 1 17 nil!
@@ -1200,9 +1200,11 @@ currentPage
 model
 	^ model! !
 
-!Document methodsFor: 'accessing' stamp: 'dau 12/Sep/2026, 10:36:05 am (UTC)'!
+!Document methodsFor: 'accessing' stamp: 'dau 12/Sep/2026, 10:45:45 am (UTC)'!
 preview
-"	We want to reduce the load time at application start-up	
+"	We want to reduce the load time at application start-up. 
+	So we do not want the preview to be computed	if it does not exist but instead rely on a preview saved on disk
+	or an empty Form
 
 	DyUserData current allDocuments do: #savePreview
 "
