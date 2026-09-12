@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8160] on 10 September 2026 at 10:55:02 am'!
+'From Cuis7.9 [latest update: #8160] on 12 September 2026 at 12:30:18 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 302!
+!provides: 'DyboDoc' 1 303!
 !requires: 'DKM-History-Timeline' 1 18 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-Math-Geometry' 1 17 nil!
@@ -3933,16 +3933,16 @@ adjustBounds
 	self morphPosition: self morphPosition + deltaPosition
 		! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 24/Jan/2025, 5:37:14 pm (UTC)'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'dau 12/Sep/2026, 10:25:45 am (UTC)'!
 adjustBoundsTo: newBoundsInOwner
 " adjust my bounds and translate my submoprhs accordingly
  " 
 	| translate |
-	translate := (newBoundsInOwner origin - self fullBoundsInOwner origin) asIntegerPoint.
-	self fitInto: (newBoundsInOwner origin asIntegerPoint corner: newBoundsInOwner corner asIntegerPoint). 
+	translate := self internalizeDistance: newBoundsInOwner origin - self fullBoundsInOwner origin.
+	self fitInto: (newBoundsInOwner origin corner: newBoundsInOwner corner). 
 	self submorphsDo: [:each | each morphPosition: each morphPosition - translate ]! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 24/Jan/2025, 5:39:03 pm (UTC)'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'dau 12/Sep/2026, 10:23:37 am (UTC)'!
 bottomRightCorner
 " 
 	the bottom right corner of the rectangle surrounding all my submorphs
@@ -3961,7 +3961,7 @@ morphCenter
 morphCenter: newCenter
 	^ self morphPosition: self  morphPosition + (newCenter - self morphCenter)! !
 
-!AnnotatorMorph methodsFor: 'geometry' stamp: 'hlsf 31/Aug/2025, 9:06:32 am (UTC)'!
+!AnnotatorMorph methodsFor: 'geometry' stamp: 'dau 12/Sep/2026, 10:24:32 am (UTC)'!
 topLeftCorner
 " 
 	the top left corner of the rectangle surrounding all my submorphs
@@ -3969,7 +3969,7 @@ topLeftCorner
 	| corner |
 	corner := extent.
 	self submorphsDo: [:each | corner := corner min: each  fullBoundsInOwner origin].
-	^ corner - self frameWidth
+	^ corner - self frameWidth - 1
 	! !
 
 !AnnotatorMorph methodsFor: 'halo' stamp: 'hlsf 9/Feb/2026, 10:22:31 am (UTC)'!
@@ -4075,6 +4075,11 @@ reconcileToFrozeenState
 	Frozen state is a necessary additional state to distingish from the lower lock property 
 "
 	annotatedMorph lock: self isFrozen! !
+
+!AnnotatorMorph methodsFor: 'menus' stamp: 'dau 12/Sep/2026, 10:18:09 am (UTC)'!
+removeStrokes
+	super removeStrokes.
+	self adjustBounds ! !
 
 !AnnotatorMorph methodsFor: 'menus' stamp: 'hlsf 3/Aug/2026, 1:51:04 pm (UTC)'!
 toggleFrozen
@@ -5486,7 +5491,7 @@ okayToResizeEasily
 pictureName: string
 	pictureName := string! !
 
-!DyImageMorph methodsFor: 'as yet unclassified' stamp: 'hlsf 7/Sep/2026, 6:50:59 pm (UTC)'!
+!DyImageMorph methodsFor: 'as yet unclassified' stamp: 'dau 10/Sep/2026, 10:04:24 am (UTC)'!
 prepareToBeSaved
 	scaledImage := nil! !
 
