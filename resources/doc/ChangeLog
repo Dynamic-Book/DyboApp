@@ -1,3 +1,11 @@
+2026-09-13  Hilaire Fernandes  <hilaire@gnu.org>
+
+	* Release 1.01
+	* #33 Improve backup
+	* #35 Annotated picture
+	* #36 A bit slow when opening binder
+	* Upstream changes in the Cuis-Smalltalk system
+
 2026-09-09  Hilaire Fernandes  <hilaire@gnu.org>
 
 	* Release 1.00
