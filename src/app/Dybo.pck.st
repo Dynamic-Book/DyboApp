@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8160] on 13 September 2026 at 11:48:48 am'!
+'From Cuis7.9 [latest update: #8171] on 13 September 2026 at 7:41:59 pm'!
 'Description '!
-!provides: 'Dybo' 1 283!
+!provides: 'Dybo' 1 287!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -1044,7 +1044,7 @@ chooseExchangePath: label
 	controlsManager setExchangePathIn: label
 	! !
 
-!Dybo methodsFor: 'actions exchange' stamp: 'dau 13/Sep/2026, 9:08:12 am (UTC)'!
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 13/Sep/2026, 4:41:36 pm (UTC)'!
 restoreUserData
 	| backupDir archive warningMsg |
 	self isExchangePath ifFalse: [^ self].
@@ -1070,8 +1070,40 @@ Do you really want to proceed?' translated format: { backupDir pathName }.
 		rsyncFrom: DyboSystem myScriptsPath to: archive.
 
 "	4. Delete the local user data, restore it from the backup and load the new data "
+	DyboSystem myDataPath recursiveDelete.
+	DyboSystem myScriptsPath recursiveDelete.
 	DyboSystem rsyncFrom: backupDir / 'myData' to: DyboSystem myDataPath parent;
 		rsyncFrom: backupDir / 'myScripts' to: DyboSystem myScriptsPath parent.
+	DyUserData load! !
+
+!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 13/Sep/2026, 5:29:05 pm (UTC)'!
+updateUserData
+	| backupDir archive warningMsg |
+	self isExchangePath ifFalse: [^ self].
+	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
+	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
+
+"	1. Ensure we have a valid backup "	
+	(backupDir / 'myData' // 'data.obj') exists ifFalse: [
+		^ PopUpMenu inform: 'No backup was found to update from.' translated].
+	
+"	2. Warning about the destructive operation on the local user data "	
+	warningMsg := 'You are about to update your user data from the backup at:
+{1}
+Only newer data will be replaced.
+Do you really want to proceed?' translated format: { backupDir pathName }.
+	(PopUpMenu 
+		confirm: warningMsg 
+		trueChoice: 'Update' translated
+ 		falseChoice: 'Cancel' translated) ifFalse: [^ self].
+
+"	3. Synchronize the archive with the current user data "
+	DyboSystem rsyncFrom: DyboSystem myDataPath to: archive;
+		rsyncFrom: DyboSystem myScriptsPath to: archive.
+
+"	4. Update date from the backup and load the new data "
+	DyboSystem updateFrom: backupDir / 'myData' to: DyboSystem myDataPath parent;
+		updateFrom: backupDir / 'myScripts' to: DyboSystem myScriptsPath parent.
 	DyUserData load! !
 
 !Dybo methodsFor: 'actions page' stamp: 'hlsf 21/Jul/2026, 12:55:09 pm (UTC)'!
@@ -1171,31 +1203,33 @@ installComponents
 	self goStart.
 ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 5/Sep/2026, 1:48:23 pm (UTC)'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 13/Sep/2026, 5:10:23 pm (UTC)'!
 load
 	| loadProcess |
 	loadProcess := [
 		[DyboSystem newProgressBar: 'Loading documents...'.
 		DyboSystem progressBar color: controlsManager defaultColor .
-		DyUserData load] 
+		DyUserData load.
+		(Delay forMilliseconds: 100) wait] 
 	ensure: [
 		DyboSystem deleteProgressBar.
-		controlsManager activeView updateView]
+		[controlsManager activeView updateView] on: MessageNotUnderstood do: []]
 	] newProcess .
+	self installComponents.
 	loadProcess 
-		priority: Processor userBackgroundPriority;
+		priority: Processor userBackgroundPriority ;
 		resume.
-	self installComponents ! !
+! !
 
 !Dybo methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026, 10:41:18 am (UTC)'!
 reset
 	controlsManager := activeViewType := currentTopic := nil! !
 
-!Dybo methodsFor: 'testing' stamp: 'hlsf 21/May/2026, 8:20:19 am (UTC)'!
+!Dybo methodsFor: 'testing' stamp: 'hlsf 13/Sep/2026, 4:48:50 pm (UTC)'!
 isExchangePath
 	^ DyboSystem exchangePath notEmpty or: [
 		PopUpMenu inform: 'No exchange folder defined.
-Go to Settings/Exchange Data to set one.' translated.
+Go to Settings/Data Exchange to set one.' translated.
 		false]! !
 
 !Dybo methodsFor: 'testing' stamp: 'hlsf 1/Dec/2024, 3:18:51 pm (UTC)'!
@@ -1305,10 +1339,10 @@ toolsMenu: builder
 		icon: #saveIcon;
 		help: 'Save this Dybo application as it is right now.' translated! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 8/Sep/2026, 3:53:20 pm (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 13/Sep/2026, 5:41:51 pm (UTC)'!
 version
 	^ 'Release ' translated, 
-		'1.00', 
+		'1.01', 
 		(String streamContents: [:str | 
 			str nextPut: Character lf; nextPut: Character lf.
 			str nextPutAll: self cuisVersion; nextPut: Character lf.
@@ -1729,11 +1763,11 @@ rename: oldName to: newName in: parentDir
 				ifTrue: [dir rename: newName asFileName ] 
 				ifFalse: [(parentDir / newName asFileName ) assureExistence]]! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'dau 13/Sep/2026, 9:37:54 am (UTC)'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 13/Sep/2026, 4:39:09 pm (UTC)'!
 rsyncFrom: sourceEntry to: destEntry
 	| command process |
 	destEntry assureExistence.
-	command := ' rsync -rptNW --delete --force "{1}" "{2}"'
+	command := ' rsync -rptW --delete --force "{1}" "{2}"'
 		format: {sourceEntry pathName . destEntry pathName}.
 	
 	[WaitSpinner start.
@@ -1746,6 +1780,18 @@ saveUserData
 	ReferenceStream 
 		dumpOnCompressedFile: DyboSystem userDataFile
 		object: DyUserData current! !
+
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 13/Sep/2026, 5:28:24 pm (UTC)'!
+updateFrom: sourceEntry to: destEntry
+	| command process |
+	destEntry assureExistence.
+	command := ' rsync -rptW -update --delete --force "{1}" "{2}"'
+		format: {sourceEntry pathName . destEntry pathName}.
+	
+	[WaitSpinner start.
+	process := OSProcess command: command.
+	[process isComplete] whileFalse: [(Delay forMilliseconds: 500) wait]		
+	] ensure: [WaitSpinner stop]! !
 
 !DyboSystem class methodsFor: 'system-support' stamp: 'hlsf 18/Aug/2026, 8:09:20 pm (UTC)'!
 install
@@ -2138,7 +2184,7 @@ calibratorView
 		action: [DyboSystem ppcm: pane pane ppcm].
 	^ pane! !
 
-!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 8/May/2026, 8:10:07 am (UTC)'!
+!DyControlsManager methodsFor: 'setting views' stamp: 'hlsf 13/Sep/2026, 4:46:48 pm (UTC)'!
 exchangeDataView
 	| column row label morph |
 	column := LayoutMorph newColumn color: Color transparent.
@@ -2158,6 +2204,11 @@ exchangeDataView
 		setBalloonText: 'Save a complete copy of all local data to the exchange folder.
 Warning: This will ovewrite the previous backup.' translated.
 	row addMorph: morph.
+	morph := PluggableButtonMorph model: self dyboPresenter action: #updateUserData label: 'Update' translated ::
+		setBalloonText: 'Update your data from the exchange folder. 
+Warning: Only newer data will be copied to your current local data.' translated.
+	row addMorph: morph.
+
 	morph := PluggableButtonMorph model: self dyboPresenter action: #restoreUserData label: 'Restore' translated ::
 		setBalloonText: 'Restore all data from the exchange folder. 
 Warning: This will overwrite your current local data.' translated.
