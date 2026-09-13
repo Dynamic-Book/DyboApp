@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8160] on 9 September 2026 at 3:08:06 pm'!
+'From Cuis7.9 [latest update: #8160] on 13 September 2026 at 11:48:48 am'!
 'Description '!
-!provides: 'Dybo' 1 282!
+!provides: 'Dybo' 1 283!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -902,7 +902,7 @@ quit
 toggleFullscreen
 	DyboSystem toggleFullscreen ! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'dau 13/Sep/2026, 9:45:27 am (UTC)'!
 deleteDocument: aDocument 
  | topic binderView |
 	binderView := controlsManager activeView.
@@ -910,7 +910,7 @@ deleteDocument: aDocument
 	(PopUpMenu 
 		confirm: ('Delete the document: {1}
 in the topic: {2}?' translated 
-			format: {aDocument model dirName. topic })
+			format: {aDocument model title. topic })
 		trueChoice: 'Yes, I want to delete it.' translated falseChoice: 'No, keep it.' translated) 
 			ifFalse: [^ self].
 	DyUserData current deleteDocument: aDocument from: topic.
@@ -1017,19 +1017,16 @@ saveDocument: aDocument
 	binderView := controlsManager activeView.
 	aDocument saveDocument ifTrue: [binderView updateView]! !
 
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 26/Jul/2026, 2:32:13 pm (UTC)'!
+!Dybo methodsFor: 'actions exchange' stamp: 'dau 13/Sep/2026, 9:09:02 am (UTC)'!
 backupUserData
 	| backupDir archive |
 	self isExchangePath ifFalse: [^ self].
-	WaitSpinner start.
 	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
 	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
-	archive recursiveDelete.
-	backupDir copyTo: archive pathName.
-	backupDir recursiveDelete.
-	DyboSystem myDataPath copyTo: (backupDir / 'myData') pathName.
-	DyboSystem myScriptsPath copyTo: (backupDir / 'myScripts') pathName.
-	WaitSpinner stop! !
+	DyboSystem 
+		rsyncFrom: backupDir to: archive;
+		rsyncFrom: DyboSystem myDataPath to: backupDir;
+		rsyncFrom: DyboSystem myScriptsPath to: backupDir! !
 
 !Dybo methodsFor: 'actions exchange' stamp: 'hlsf 15/May/2026, 3:04:00 pm (UTC)'!
 chooseExchangePath: label
@@ -1047,15 +1044,17 @@ chooseExchangePath: label
 	controlsManager setExchangePathIn: label
 	! !
 
-!Dybo methodsFor: 'actions exchange' stamp: 'hlsf 26/Jul/2026, 2:33:36 pm (UTC)'!
+!Dybo methodsFor: 'actions exchange' stamp: 'dau 13/Sep/2026, 9:08:12 am (UTC)'!
 restoreUserData
 	| backupDir archive warningMsg |
 	self isExchangePath ifFalse: [^ self].
 	backupDir := (DyboSystem exchangePath asDirectoryEntry / 'backup') assureExistence.
 	archive := DyboSystem exchangePath asDirectoryEntry / 'archive'.
+
 "	1. Ensure we have a valid backup "	
 	(backupDir / 'myData' // 'data.obj') exists ifFalse: [
 		^ PopUpMenu inform: 'No backup was found to restore.' translated].
+	
 "	2. Warning about the destructive operation on the local user data "	
 	warningMsg := 'You are about to restore your user data from the backup at:
 {1}
@@ -1065,17 +1064,15 @@ Do you really want to proceed?' translated format: { backupDir pathName }.
 		confirm: warningMsg 
 		trueChoice: 'Restore' translated
  		falseChoice: 'Cancel' translated) ifFalse: [^ self].
-	[WaitSpinner start.
-"	3. Delete the archive and make a copy of the local data in the archvie "
-	archive recursiveDelete.
-	DyboSystem myDataPath copyTo: (archive / 'myData') pathName.
-	DyboSystem myScriptsPath copyTo: (archive / 'myScritps') pathName.
+
+"	3. Synchronize the archive with the current user data "
+	DyboSystem rsyncFrom: DyboSystem myDataPath to: archive;
+		rsyncFrom: DyboSystem myScriptsPath to: archive.
+
 "	4. Delete the local user data, restore it from the backup and load the new data "
-	DyboSystem myDataPath recursiveDelete.
-	DyboSystem myScriptsPath recursiveDelete.
-	(backupDir / 'myData') copyTo: DyboSystem myDataPath pathName.
-	(backupDir / 'myScripts') copyTo: DyboSystem myScriptsPath pathName.
-	DyUserData load] ensure: [WaitSpinner stop].! !
+	DyboSystem rsyncFrom: backupDir / 'myData' to: DyboSystem myDataPath parent;
+		rsyncFrom: backupDir / 'myScripts' to: DyboSystem myScriptsPath parent.
+	DyUserData load! !
 
 !Dybo methodsFor: 'actions page' stamp: 'hlsf 21/Jul/2026, 12:55:09 pm (UTC)'!
 pageModelIndex
@@ -1731,6 +1728,18 @@ rename: oldName to: newName in: parentDir
 			(dir := parentDir / oldName asFileName) exists 
 				ifTrue: [dir rename: newName asFileName ] 
 				ifFalse: [(parentDir / newName asFileName ) assureExistence]]! !
+
+!DyboSystem class methodsFor: 'disk operations' stamp: 'dau 13/Sep/2026, 9:37:54 am (UTC)'!
+rsyncFrom: sourceEntry to: destEntry
+	| command process |
+	destEntry assureExistence.
+	command := ' rsync -rptNW --delete --force "{1}" "{2}"'
+		format: {sourceEntry pathName . destEntry pathName}.
+	
+	[WaitSpinner start.
+	process := OSProcess command: command.
+	[process isComplete] whileFalse: [(Delay forMilliseconds: 500) wait]		
+	] ensure: [WaitSpinner stop]! !
 
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
 saveUserData

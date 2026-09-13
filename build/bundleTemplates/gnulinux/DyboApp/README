@@ -35,16 +35,22 @@ When installing a newer version, be sure to delete the former
 application image directory at "$HOME/Documents/myDybo/app/image"
 
 
-PDF IMPORT/EXPORT
+ADDITIONAL REQUIREMENTS
 ----------------------------------------------------------------------
-To import/export PDF document, install the packages **poppler-utils**
-and **ImageMagick".
+Be sure to install the following packages to use the DyboApp with all
+its capabilities. On Debian based distribution:
 
-On Debian based distribution:
+   sudo apt install poppler-utils imagemagick rsync
 
-sudo apt install poppler-utils imagemagick
+* PDF
+To import/export PDF document, install the packages "poppler-utils"
+and "ImageMagick".
 
 Depending on your system ImageMagick, may need its security policy
 adjusted. Read:
 
 https://stackoverflow.com/questions/52998331/imagemagick-security-policy-pdf-blocking-conversion
+
+* Data Exchange
+To make back-up/restore/import/export of user data, you need the
+"rsync" package to be installed.
