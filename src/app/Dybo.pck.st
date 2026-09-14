@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8171] on 13 September 2026 at 7:41:59 pm'!
+'From Cuis7.9 [latest update: #8171] on 14 September 2026 at 9:59:11 pm'!
 'Description '!
-!provides: 'Dybo' 1 287!
+!provides: 'Dybo' 1 288!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -3761,11 +3761,11 @@ courseIndex: anIndex
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 11/Jun/2026, 8:45:12 am (UTC)'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 14/Sep/2026, 7:50:12 pm (UTC)'!
 sortBloc
 " Respond sorting block depending on the selected osrt option "
-	^ {	[:docA :docB | docA model modificationTime > docB model modificationTime].
-		[:docA :docB | docA model modificationTime < docB model modificationTime].
+	^ {	[:docA :docB | docA view modificationTime > docB view modificationTime].
+		[:docA :docB | docA view modificationTime < docB view modificationTime].
 		[:docA :docB | docA model title < docB model title ] } at: sortIndex ! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026, 9:58:00 am (UTC)'!
@@ -4285,7 +4285,7 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Jul/2026, 1:50:00 pm (UTC)'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 14/Sep/2026, 7:55:00 pm (UTC)'!
 previewFor: aDocument
 	| buttons preview decorated docModel classGroup indicativeColor title |
 	docModel := aDocument model.
@@ -4311,7 +4311,7 @@ previewFor: aDocument
 			nextPutAll: (('Creation time: ' translated, docModel dirName italic) pointSize: FontFamily defaultPointSize - 2);
 			nextPut: Character lf;
 			nextPutAll: (('Modification time: ' translated, 
-			(String streamContents: [:str2 | docModel modificationTime filenamePrintOn: str2]) italic) 
+			(String streamContents: [:str2 | aDocument view modificationTime filenamePrintOn: str2]) italic) 
 				pointSize: FontFamily defaultPointSize - 2) ]).
 	decorated := (DecoratedPane open: preview label: classGroup printString) 
 		layoutSpec: (LayoutSpec keepMorphExtent offAxisEdgeWeight: 0);

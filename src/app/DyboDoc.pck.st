@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8160] on 12 September 2026 at 12:46:16 pm'!
+'From Cuis7.9 [latest update: #8171] on 14 September 2026 at 9:59:15 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 304!
-!requires: 'DKM-History-Timeline' 1 18 nil!
+!provides: 'DyboDoc' 1 305!
+!requires: 'Commander' 1 9 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
-!requires: 'DKM-Math-Geometry' 1 17 nil!
+!requires: 'DKM-Extention' 1 5 nil!
 !requires: 'UI-Click-Select' 1 103 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
+!requires: 'DKM-Math-Geometry' 1 17 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'UI-Panel' 1 170 nil!
-!requires: 'Commander' 1 9 nil!
-!requires: 'DKM-Extention' 1 5 nil!
+!requires: 'DKM-History-Timeline' 1 18 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1600,14 +1600,15 @@ A Document is serialized on disk in its own directory. A document may be asked t
 		ifTrue: [	Transcript show: '   full object on disk: '; show: self; cr.
 			self]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026, 7:15:04 pm (UTC)'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 14/Sep/2026, 7:56:09 pm (UTC)'!
 saveToDisk
 " NEVER SEND MESSAGE DIRECTLY, use saveDocument if necessary 
 Save me in my model disk location "
 	'Saving to disk' print.
 	ReferenceStream 
 		dumpOnCompressedFile:  model path // 'doc.obj'
-		object: self
+		object: self.
+	self view forgetModificationTime 
 ! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 18/Dec/2024, 7:44:09 pm (UTC)'!
@@ -4486,10 +4487,20 @@ container
 controlsManager
 	^ presenter controlsManager! !
 
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 14/Sep/2026, 7:49:27 pm (UTC)'!
+forgetModificationTime
+"	We cache its value to avoid multiple file access "
+	^ self removeProperty: #modificationTime! !
+
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024, 9:01:30 am (UTC)'!
 model
 " The DocumentModel "
 	^ presenter model! !
+
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 14/Sep/2026, 7:48:59 pm (UTC)'!
+modificationTime
+"	We cache its value to avoid multiple file access "
+	^ self valueOfProperty: #modificationTime ifAbsentPut: [presenter model modificationTime]! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2024, 8:34:28 am (UTC)'!
 presenter
@@ -4734,9 +4745,10 @@ comeFullyUpOnReload: smartRefStream
 		ifTrue: [self installMiniView]
 		ifFalse: [	self installView]! !
 
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 28/Dec/2024, 6:34:59 pm (UTC)'!
+!DocumentView methodsFor: 'persistence' stamp: 'hlsf 14/Sep/2026, 7:54:24 pm (UTC)'!
 prepareToBeSaved
-	preview := nil! !
+	preview := nil.
+	self forgetModificationTime ! !
 
 !DocumentView methodsFor: 'persistence' stamp: 'hlsf 23/Dec/2024, 11:52:58 am (UTC)'!
 storeDataOn: aDataStream
