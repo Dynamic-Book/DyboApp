@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8171] on 14 September 2026 at 9:59:11 pm'!
+'From Cuis7.9 [latest update: #8182] on 15 September 2026 at 3:40:53 pm'!
 'Description '!
-!provides: 'Dybo' 1 288!
+!provides: 'Dybo' 1 289!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -4137,10 +4137,10 @@ previewFor: aDocument
 	preview when: #doubleClick send: #renameDocument: to: presenter.
 	^ preview ! !
 
-!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 7/May/2026, 1:04:30 pm (UTC)'!
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 15/Sep/2026, 1:29:00 pm (UTC)'!
 previewsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
-	| quickButtons scroller |
+	| quickButtons |
 	quickButtons := Array 
 		with: (PluggableButtonMorph model: presenter action: #newDocument ::
 			icon: Theme current listAddIcon;
@@ -4154,11 +4154,10 @@ previewsPanel
 			icon: Theme current goDownIcon ;
 			buttonStyle: #none;
 			setBalloonText: 'Import a document from the exchange folder.' translated).
-	scroller := PluggableScrollPane new ::
-		layoutSpec: LayoutSpec useAll;
-		scroller: (previewPanel := LayoutMorph newColumn) .
+
+	previewPanel := FlowLayoutMorph new :: name: 'Preview panel'.
 	^ DecoratedPane 
-		open: scroller
+		open: previewPanel 
 		label:  'My courses' translated
 		quickButtons: quickButtons ::
 		padding: 20! !
@@ -4184,23 +4183,13 @@ initialize
 	self addMorphUseAll: self previewsPanel.
 	self adoptWidgetsColor: self defaultBorderColor. ! !
 
-!DyBinderView methodsFor: 'update' stamp: 'hlsf 5/Sep/2026, 1:27:10 pm (UTC)'!
+!DyBinderView methodsFor: 'update' stamp: 'hlsf 15/Sep/2026, 1:25:52 pm (UTC)'!
 updateView
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
-	| previewsPerLine  documents |
+	| documents |
 	documents := self topic ifNil: [`Array new`] ifNotNil: [:aTopic | aTopic documents].
 	documents := documents sort: self sortBloc.
-	previewPanel removeAllMorphs.
-	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + (DocumentView previewGap * 2) + 10).
-	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
-		previewPanel addMorph: (	documentsRow 
-			inject: self previewRow 
-			into: [:row :document | row addMorph: (self previewFor: document) ]) ].
-	documents size \\ previewsPerLine ifNotZero: [ "There is an incomplete row to add "
-		previewPanel addMorph: (
-			(documents allButFirst: (documents size // previewsPerLine * previewsPerLine))
-				inject: self previewRow 
-				into: [:row :document | row addMorph: (self previewFor: document) ]) ].
+	previewPanel cells: (documents collect: [:document | self previewFor: document ]).
 	^ previewPanel ! !
 
 !DyStartView methodsFor: 'accessing' stamp: 'hlsf 7/May/2026, 8:49:21 am (UTC)'!
@@ -4319,15 +4308,12 @@ previewFor: aDocument
 	preview borderColor: indicativeColor.
 	^ decorated ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 19/Apr/2026, 9:27:00 am (UTC)'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Sep/2026, 12:54:45 pm (UTC)'!
 previewsPanel
 " A view to present previews of the selected documents from the documentSelectorPanel "
-	|  scroller |
-	scroller := PluggableScrollPane new ::
-		layoutSpec: LayoutSpec useAll;
-		scroller: (previewPanel := LayoutMorph newColumn :: name: 'Preview panel').
+	previewPanel := FlowLayoutMorph new :: name: 'Preview panel'.
 	^ DecoratedPane 
-		open: scroller
+		open: previewPanel 
 		label:  'My documents' translated ::
 		padding: 20! !
 
@@ -4393,23 +4379,12 @@ typesQuery
 				ifFalse: [#task]) ].
 	^ types! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 5/Sep/2026, 1:27:46 pm (UTC)'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Sep/2026, 1:02:27 pm (UTC)'!
 updateView
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
-	| previewsPerLine  documents |
-	previewPanel removeAllMorphs.
+	| documents |
 	documents := self documentsQuery ifEmpty: [^ self].
-	previewsPerLine := self owner morphWidth - 50 // (DocumentView previewExtent x + (DocumentView previewGap * 2) + 35).
-	previewsPerLine := previewsPerLine max: 1.
-	documents groupsOf: previewsPerLine atATimeDo: [:documentsRow | 
-		previewPanel addMorph: (	documentsRow 
-			inject: self previewRow 
-			into: [:row :document | row addMorph: (self previewFor: document) ]) ].
-	documents size \\ previewsPerLine ifNotZero: [ "There is an incomplete row to add "
-		previewPanel addMorph: (
-			(documents allButFirst: (documents size // previewsPerLine * previewsPerLine))
-				inject: self previewRow 
-				into: [:row :document | row addMorph: (self previewFor: document) ]) ].
+	previewPanel cells: (documents collect: [:document | self previewFor: document]).
 	^ previewPanel ! !
 
 !DyboFullscreenView methodsFor: 'accessing' stamp: 'hlsf 25/Feb/2026, 7:29:30 am (UTC)'!
