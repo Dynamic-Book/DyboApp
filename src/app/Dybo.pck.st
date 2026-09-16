@@ -1342,7 +1342,7 @@ toolsMenu: builder
 !Dybo class methodsFor: 'menu' stamp: 'hlsf 13/Sep/2026, 5:41:51 pm (UTC)'!
 version
 	^ 'Release ' translated, 
-		'1.01', 
+		'1.02', 
 		(String streamContents: [:str | 
 			str nextPut: Character lf; nextPut: Character lf.
 			str nextPutAll: self cuisVersion; nextPut: Character lf.
