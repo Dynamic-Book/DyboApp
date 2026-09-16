@@ -48,12 +48,12 @@ git clone --depth 1 https://github.com/istoa-eu/app.git
 ```
 
 ## 2. External Dependency.
-Optionally, to be able to import/export PDF document, install the
-needed packages **poppler-utils** and **ImageMagick". On Debian based
+Optionally, to be able to import/export PDF document, back-up your data, install the
+needed packages **poppler-utils**, **ImageMagick** and **rsync**. On Debian based
 distribution:
 
 ```bash
-sudo apt install poppler-utils imagemagick
+sudo apt install poppler-utils imagemagick rsync
 ```
 
 ## 3. Prepare Data.
