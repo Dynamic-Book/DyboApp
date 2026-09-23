@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8182] on 15 September 2026 at 3:40:53 pm'!
+'From Cuis7.9 [latest update: #8210] on 23 September 2026 at 6:41:43 pm'!
 'Description '!
-!provides: 'Dybo' 1 289!
+!provides: 'Dybo' 1 290!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -20,6 +20,16 @@ SystemOrganization addCategory: #'Dybo-Test'!
 SystemOrganization addCategory: #'Dybo-View'!
 SystemOrganization addCategory: #'Dybo-Wizard'!
 
+
+!classDefinition: #DocumentFile category: #'Dybo-Data'!
+Object subclass: #DocumentFile
+	instanceVariableNames: 'title creationTime modificationTime dirName preview owner document'
+	classVariableNames: 'Current'
+	poolDictionaries: ''
+	category: 'Dybo-Data'!
+!classDefinition: 'DocumentFile class' category: #'Dybo-Data'!
+DocumentFile class
+	instanceVariableNames: ''!
 
 !classDefinition: #DyUserData category: #'Dybo-Data'!
 Object subclass: #DyUserData

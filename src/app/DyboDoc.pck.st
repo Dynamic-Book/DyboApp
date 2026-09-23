@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8171] on 14 September 2026 at 9:59:15 pm'!
+'From Cuis7.9 [latest update: #8210] on 23 September 2026 at 6:41:52 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 305!
-!requires: 'Commander' 1 9 nil!
+!provides: 'DyboDoc' 1 306!
+!requires: 'UI-Panel' 1 170 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
-!requires: 'DKM-Extention' 1 5 nil!
+!requires: 'DKM-History-Timeline' 1 18 nil!
 !requires: 'UI-Click-Select' 1 103 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Math-Geometry' 1 17 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'UI-Panel' 1 170 nil!
-!requires: 'DKM-History-Timeline' 1 18 nil!
+!requires: 'Commander' 1 9 nil!
+!requires: 'DKM-Extention' 1 5 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -816,14 +816,13 @@ I am light because I don't create instance of DKMScript for each representative 
 !CommandStack commentStamp: '<historical>' prior: 0!
 I am stack of command to execute or to unexecute user action in a Document!
 
-!DocumentModel commentStamp: '<historical>' prior: 0!
+!DocumentModel commentStamp: 'hlsf 23/Sep/2026, 4:38:30 pm (UTC)' prior: 0!
 - owner: my onwer, a Topic or a Task
 - dirName : based on the creation time of a Document. It is used to create a dedicated directory on disk in the tasks or topic directory
 - title : the user can adjust it if needed. It falls back to dirName when nil
-- relPath, the path my folder is saved in with my associate data, relatively to userDataPath. Those my fullPath is userDataPath / relPath / dirName
-- pageBackground can be either 
+- pageModel can be either 
  1. a path to a pdf document used as a model for PageModelPdf. Each page of the Document use a PDF page as its model
- 2. a class in the  PageBackground hierachy, the default background for each page of the Document
+ 2. a class in the PageModel hierachy, the default background for each page of the Document
 !
 
 !Bezier2Morph commentStamp: '<historical>' prior: 0!
@@ -2809,68 +2808,17 @@ initialize
 	dirName := String streamContents: [:s | DateAndTime now filenamePrintOn: s].
 	pageModel := DyboSystem pageModel ! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026, 8:17:17 am (UTC)'!
-dirName
-	^ dirName ! !
-
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026, 1:42:39 pm (UTC)'!
-modificationTime
-	^ (self path // 'doc.obj') modificationTime ! !
-
 !DocumentModel methodsFor: 'accessing' stamp: 'hlsf 21/Jul/2026, 12:41:22 pm (UTC)'!
 newPageModel
 	^ pageModel new! !
 
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 16/Jul/2026, 1:43:53 pm (UTC)'!
-owner
-	^ owner ifNil: [
-		owner := DyUserData current documentOwner: self.
-		owner ifNil: ['Document model without an owner' print].
-		owner]! !
-
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026, 2:04:49 pm (UTC)'!
-owner: anObject
-" a Topic or a Task"
-	owner := anObject ! !
-
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
-path
-	^ DyboSystem myDataPath / self relPath ! !
-
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026, 6:11:24 pm (UTC)'!
-relPath
-	^ self owner relPath, '/', self dirName! !
-
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026, 10:31:01 am (UTC)'!
-title
-	^ title ifNil: [dirName]! !
-
-!DocumentModel methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026, 10:31:18 am (UTC)'!
-title: aString
-	title := aString ! !
-
-!DocumentModel methodsFor: 'testing' stamp: 'hlsf 17/Apr/2026, 6:11:07 pm (UTC)'!
-isCourse
-" Is the document a teaching document, therefore part of a course/topic "
-	^ self owner class = DyTopic! !
-
-!DocumentModel methodsFor: 'testing' stamp: 'hlsf 21/Aug/2026, 8:17:26 pm (UTC)'!
-isNote
-" A note is a document without owner, it can't be saved to disk "
-	^ (self isCourse or: [self isTask]) not! !
-
-!DocumentModel methodsFor: 'testing' stamp: 'hlsf 21/Aug/2026, 8:16:22 pm (UTC)'!
-isTask
-" Is the document a task document, therefore part of a task in the agenda "
-	^ self owner class = DyTask! !
-
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026, 8:55:53 am (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 16/Apr/2026, 8:55:53 am (UTC)'!
 description
 	^ self isCourse 
 		ifTrue:  [self descriptionCourse ]
 		ifFalse: [self descriptionTask ]! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 10/May/2026, 9:56:41 am (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 10/May/2026, 9:56:41 am (UTC)'!
 descriptionCourse
 	^ String streamContents: [:str | str 
 		nextPutAll: 'Document in class {1}' translated;	" Class group "
@@ -2878,12 +2826,51 @@ descriptionCourse
 		print: self owner course;											" Course " 
 		nextPut: $/; print: self owner]										" Topic "! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 10/May/2026, 9:59:25 am (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 10/May/2026, 9:59:25 am (UTC)'!
 descriptionTask
 	^ String streamContents: [:str | str 
 		nextPutAll: 'Homework for class {1}' translated]! !
 
-!DocumentModel methodsFor: 'printing' stamp: 'hlsf 17/Apr/2026, 6:11:19 pm (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 5/Apr/2026, 8:17:17 am (UTC)'!
+dirName
+	^ dirName ! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 17/Apr/2026, 6:11:07 pm (UTC)'!
+isCourse
+" Is the document a teaching document, therefore part of a course/topic "
+	^ self owner class = DyTopic! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 21/Aug/2026, 8:17:26 pm (UTC)'!
+isNote
+" A note is a document without owner, it can't be saved to disk "
+	^ (self isCourse or: [self isTask]) not! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 21/Aug/2026, 8:16:22 pm (UTC)'!
+isTask
+" Is the document a task document, therefore part of a task in the agenda "
+	^ self owner class = DyTask! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 15/Apr/2026, 1:42:39 pm (UTC)'!
+modificationTime
+	^ (self path // 'doc.obj') modificationTime ! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 16/Jul/2026, 1:43:53 pm (UTC)'!
+owner
+	^ owner ifNil: [
+		owner := DyUserData current documentOwner: self.
+		owner ifNil: ['Document model without an owner' print].
+		owner]! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 5/Apr/2026, 2:04:49 pm (UTC)'!
+owner: anObject
+" a Topic or a Task"
+	owner := anObject ! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
+path
+	^ DyboSystem myDataPath / self relPath ! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 17/Apr/2026, 6:11:19 pm (UTC)'!
 printOn: str
 	self isCourse 
 		ifTrue: [str 
@@ -2892,6 +2879,18 @@ printOn: str
 			print: self owner course; nextPut: $/; 
 			print: self owner course classGroup]
 		ifFalse: [str nextPutAll: 'Document in task '; print: self owner]! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 17/Apr/2026, 6:11:24 pm (UTC)'!
+relPath
+	^ self owner relPath, '/', self dirName! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 13/Apr/2026, 10:31:01 am (UTC)'!
+title
+	^ title ifNil: [dirName]! !
+
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 13/Apr/2026, 10:31:18 am (UTC)'!
+title: aString
+	title := aString ! !
 
 !DocumentModel methodsFor: 'persistence' stamp: 'hlsf 17/Apr/2026, 6:15:28 pm (UTC)'!
 storeDataOn: aDataStream
