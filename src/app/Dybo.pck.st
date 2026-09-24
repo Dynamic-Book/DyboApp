@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8210] on 23 September 2026 at 6:41:43 pm'!
+'From Cuis7.9 [latest update: #8225] on 24 September 2026 at 6:43:56 pm'!
 'Description '!
-!provides: 'Dybo' 1 290!
+!provides: 'Dybo' 1 291!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -20,16 +20,6 @@ SystemOrganization addCategory: #'Dybo-Test'!
 SystemOrganization addCategory: #'Dybo-View'!
 SystemOrganization addCategory: #'Dybo-Wizard'!
 
-
-!classDefinition: #DocumentFile category: #'Dybo-Data'!
-Object subclass: #DocumentFile
-	instanceVariableNames: 'title creationTime modificationTime dirName preview owner document'
-	classVariableNames: 'Current'
-	poolDictionaries: ''
-	category: 'Dybo-Data'!
-!classDefinition: 'DocumentFile class' category: #'Dybo-Data'!
-DocumentFile class
-	instanceVariableNames: ''!
 
 !classDefinition: #DyUserData category: #'Dybo-Data'!
 Object subclass: #DyUserData
@@ -199,6 +189,16 @@ DyObject subclass: #DyCourse
 	category: 'Dybo-Model'!
 !classDefinition: 'DyCourse class' category: #'Dybo-Model'!
 DyCourse class
+	instanceVariableNames: ''!
+
+!classDefinition: #DyDocFile category: #'Dybo-Model'!
+DyObject subclass: #DyDocFile
+	instanceVariableNames: 'title creationTime modificationTime dirName preview document'
+	classVariableNames: 'Current'
+	poolDictionaries: ''
+	category: 'Dybo-Model'!
+!classDefinition: 'DyDocFile class' category: #'Dybo-Model'!
+DyDocFile class
 	instanceVariableNames: ''!
 
 !classDefinition: #DySchool category: #'Dybo-Model'!
@@ -435,6 +435,15 @@ I describe a course of a teacher or a course attended by a student:
 
 My owner is a ClassGroup!
 
+!DyDocFile commentStamp: '<historical>' prior: 0!
+I represent a Document from the File perspective.
+- title: my optional title, if nil dirName
+- creationTime, modificationTime: DateAndTime instances set at the document creation time, set each time document is saved
+- dirName : the name of the directory where is saved the Document. On the disk, this directory is located in the tasks or topic directory
+- preview: a Form, miniature of the document view
+- owner: my onwer, a Topic or a Task
+- document: the DocumentPresenter instance I represent!
+
 !DySchool commentStamp: '<historical>' prior: 0!
 Description of the user's educational institutions. Possibly several per user.
 My owner is a DyUserData instance, so keep it nil as we can access from the Data Singleton if needed
@@ -470,8 +479,8 @@ I am the main view of the Dynabook app.!
 agenda
 	^ agenda ifNil: [agenda := DyAgenda new]! !
 
-!DyUserData methodsFor: 'accessing' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
-directory
+!DyUserData methodsFor: 'accessing' stamp: 'hlsf 24/Sep/2026, 4:37:10 pm (UTC)'!
+path
 	^ DyboSystem myDataPath ! !
 
 !DyUserData methodsFor: 'accessing' stamp: 'hlsf 16/Dec/2024, 7:45:36 pm (UTC)'!
@@ -501,10 +510,10 @@ purge
 		aTopic documents do: [:aDocument | aTopic documents remove: aDocument ]].
 	self tasks do: [:aTask | self deleteTask: aTask]! !
 
-!DyUserData methodsFor: 'db - manage' stamp: 'hlsf 7/May/2026, 8:43:56 am (UTC)'!
+!DyUserData methodsFor: 'db - manage' stamp: 'hlsf 24/Sep/2026, 4:37:10 pm (UTC)'!
 deleteDocument: aDocPresenter from: topic
 	topic documents remove: aDocPresenter .
-	(topic directory / aDocPresenter model dirName) recursiveDelete! !
+	(topic path / aDocPresenter model dirName) recursiveDelete! !
 
 !DyUserData methodsFor: 'db - manage' stamp: 'hlsf 7/May/2026, 8:43:40 am (UTC)'!
 deleteDocumentNamed: aDirName from: topic
@@ -944,7 +953,7 @@ Do you want to overwrite it?' translated
 	aDocument model path asDirectoryEntry copyTo: exportedDocDirectory pathName
 	! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 24/Sep/2026, 4:38:18 pm (UTC)'!
 importDocument
 	| answer importedDocument |
 	self isExchangePath ifFalse: [^ self].
@@ -955,7 +964,7 @@ importDocument
 "	2. Check it is a valid document, with a doc.obj file "
 	(answer directory // 'doc.obj') exists ifFalse: [^ PopUpMenu inform: 'Not a valid document.'].
 "	3. Check it does not exist in current topic "
-	(currentTopic directory / answer name) existsAsDirectory ifTrue: [
+	(currentTopic path / answer name) existsAsDirectory ifTrue: [
 		(PopUpMenu 
 		    confirm: 'This document already exists.
 Do you want to overwrite it?' translated
@@ -965,7 +974,7 @@ Do you want to overwrite it?' translated
 					DyUserData current deleteDocumentNamed: answer name from: currentTopic] 
 				ifFalse: [^ self] ].
 "	4. copy the document and open it "
-	answer directory copyTo: (currentTopic directory / answer name) pathName.
+	answer directory copyTo: (currentTopic path / answer name) pathName.
 	importedDocument := Document loadDocument: currentTopic relPath, '/', answer name.
 " 	5. Import the document in the topic "
 	DyUserData current importDocument: importedDocument in: currentTopic.
@@ -1684,15 +1693,15 @@ tasksRelPath
 userDataFile
 	^ self myDataPath // 'data.obj'! !
 
-!DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026, 8:23:38 am (UTC)'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 24/Sep/2026, 4:37:10 pm (UTC)'!
 renameClassGroup: aClassGroup from: prevName to: newName
 	'Class group renamed: maintenance operations' print.
-	self rename: prevName to: newName in: aClassGroup directory parent! !
+	self rename: prevName to: newName in: aClassGroup path parent! !
 
-!DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026, 8:23:25 am (UTC)'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 24/Sep/2026, 4:37:10 pm (UTC)'!
 renameCourse: aCourse from: prevName to: newName
 	'Course renamed: maintenance operations' print.
-	self rename: prevName to: newName in: aCourse directory parent! !
+	self rename: prevName to: newName in: aCourse path parent! !
 
 !DyboSystem class methodsFor: 'events' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 renameSchool: aSchool from: prevName to: newName
@@ -1700,10 +1709,10 @@ renameSchool: aSchool from: prevName to: newName
 	'School renamed: maintenance operations' print.
 	self rename: prevName to: newName in: DyboSystem myDataPath ! !
 
-!DyboSystem class methodsFor: 'events' stamp: 'hlsf 5/Apr/2026, 8:44:29 am (UTC)'!
+!DyboSystem class methodsFor: 'events' stamp: 'hlsf 24/Sep/2026, 4:37:10 pm (UTC)'!
 renameTopic: aTopic from: prevName to: newName
 	'Topic renamed: maintenance operations' print.
-	self rename: prevName to: newName in: aTopic directory parent! !
+	self rename: prevName to: newName in: aTopic path parent! !
 
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 21/Jul/2026, 12:49:39 pm (UTC)'!
 pageModel
@@ -2940,11 +2949,6 @@ start: startDateString end: endDateString
 dirName
 	self subclassResponsibility ! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026, 11:01:04 am (UTC)'!
-directory
-"Location on of the object data and associated document "
-	^ self owner directory / self dirName! !
-
 !DyObject methodsFor: 'accessing' stamp: 'hlsf 22/Aug/2023, 7:04:50 pm (UTC)'!
 owner
 	^ owner! !
@@ -2953,14 +2957,19 @@ owner
 owner: anObject
 	owner := anObject ! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 17/Apr/2026, 4:40:09 pm (UTC)'!
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 24/Sep/2026, 4:37:10 pm (UTC)'!
+path
+"Location on of the object data and associated document "
+	^ self owner path / self dirName! !
+
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 24/Sep/2026, 4:27:27 pm (UTC)'!
 relPath
-"relative path to the object within the data "
+"	Path to the object, relatively to the user data folder "
 	^ self owner relPath, '/', self dirName! !
 
-!DyObject methodsFor: 'disk operations' stamp: 'hlsf 5/Apr/2026, 12:56:34 pm (UTC)'!
+!DyObject methodsFor: 'disk operations' stamp: 'hlsf 24/Sep/2026, 4:37:10 pm (UTC)'!
 removeFromDisk
-	self directory recursiveDelete ! !
+	self path recursiveDelete ! !
 
 !DyObject class methodsFor: 'user interface' stamp: 'hlsf 8/Oct/2023, 9:29:21 pm (UTC)'!
 label
@@ -3269,6 +3278,122 @@ subject: aString in: aClassGroup
 	^ self new ::
 		subject: aString ;
 		owner: aClassGroup ! !
+
+!DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:32 pm (UTC)'!
+isCourse
+" Is the document a teaching document, therefore part of a course/topic "
+	^ self owner class = DyTopic! !
+
+!DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:37 pm (UTC)'!
+isNote
+" A note is a document without owner, it can't be saved to disk "
+	^ (self isCourse or: [self isTask]) not! !
+
+!DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:44 pm (UTC)'!
+isTask
+" Is the document a task document, therefore part of a task in the agenda "
+	^ self owner class = DyTask! !
+
+!DyDocFile methodsFor: 'accessing doc' stamp: 'hlsf 24/Sep/2026, 4:22:49 pm (UTC)'!
+description
+	^ self isCourse 
+		ifTrue:  [self descriptionCourse ]
+		ifFalse: [self descriptionTask ]! !
+
+!DyDocFile methodsFor: 'accessing doc' stamp: 'hlsf 24/Sep/2026, 4:22:38 pm (UTC)'!
+descriptionCourse
+	^ String streamContents: [:str | str 
+		nextPutAll: 'Document in class {1}' translated;	" Class group "
+		nextPut: Character lf;
+		print: self owner course;											" Course " 
+		nextPut: $/; print: self owner]										" Topic "! !
+
+!DyDocFile methodsFor: 'accessing doc' stamp: 'hlsf 24/Sep/2026, 4:22:33 pm (UTC)'!
+descriptionTask
+	^ String streamContents: [:str | str 
+		nextPutAll: 'Homework for class {1}' translated]! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+creationTime
+	"Answer the value of creationTime"
+
+	^ creationTime! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+creationTime: anObject
+	"Set the value of creationTime"
+
+	creationTime := anObject! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+dirName
+	"Answer the value of dirName"
+
+	^ dirName! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+dirName: anObject
+	"Set the value of dirName"
+
+	dirName := anObject! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+document
+	"Answer the value of document"
+
+	^ document! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+document: anObject
+	"Set the value of document"
+
+	document := anObject! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+modificationTime
+	"Answer the value of modificationTime"
+
+	^ modificationTime! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+modificationTime: anObject
+	"Set the value of modificationTime"
+
+	modificationTime := anObject! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+preview
+	"Answer the value of preview"
+
+	^ preview! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+preview: anObject
+	"Set the value of preview"
+
+	preview := anObject! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+title
+	"Answer the value of title"
+
+	^ title! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+title: anObject
+	"Set the value of title"
+
+	title := anObject! !
+
+!DyDocFile methodsFor: 'printing' stamp: 'hlsf 24/Sep/2026, 4:25:42 pm (UTC)'!
+printOn: str
+	self isCourse 
+		ifTrue: [str 
+			nextPutAll: 'Document in ';
+			print: self owner; nextPut: $/; 
+			print: self owner course; nextPut: $/; 
+			print: self owner course classGroup]
+		ifFalse: [str nextPutAll: 'Document in task '; print: self owner]! !
 
 !DySchool methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023, 9:33:45 pm (UTC)'!
 initialize
