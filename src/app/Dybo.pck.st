@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 24 September 2026 at 6:43:56 pm'!
+'From Cuis7.9 [latest update: #8225] on 25 September 2026 at 11:07:08 pm'!
 'Description '!
-!provides: 'Dybo' 1 291!
+!provides: 'Dybo' 1 292!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -630,12 +630,12 @@ unsavedDocuments
 unsavedTasks
 	^ DyUserData current tasks select: [:aTask | aTask document isSaved not].! !
 
-!DyUserData methodsFor: 'db - store' stamp: 'hlsf 17/Apr/2026, 10:28:09 am (UTC)'!
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 addDocument: aDocument to: topic
 	topic documents add: aDocument.
 	aDocument model owner: topic.
 	"Save the empty document in case the user does not do it after editing"
-	aDocument modified .
+	aDocument unsaved .
 	aDocument saveDocument.
 	^ aDocument ! !
 
@@ -645,13 +645,13 @@ importDocument: aDocument in: topic
 	aDocument model owner: topic.
 	^ aDocument ! !
 
-!DyUserData methodsFor: 'db - store' stamp: 'hlsf 17/Apr/2026, 10:08:26 am (UTC)'!
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 newTask: aTask
 	self tasks add: aTask.
 	aTask document model owner: aTask.
 	"Save the empty document in case the user does not do it after editing"
 	aTask document
-		modified;
+		unsaved;
 		saveDocument! !
 
 !DyUserData methodsFor: 'initialization' stamp: 'hlsf 2/Mar/2026, 5:38:09 pm (UTC)'!
@@ -982,7 +982,7 @@ Do you want to overwrite it?' translated
 	self activeView updateView.
 	DyboSystem saveUserData! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 23/Aug/2026, 5:19:22 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 importPDF
 	| newDoc answer |
 	currentTopic ifNil: [^ self].
@@ -999,7 +999,7 @@ importPDF
 		goFirstPage;
 		deletePage.
 	newDoc 
-		modified;
+		unsaved;
 		saveDocument.
 	self runningWorld doOneCycleNow.
 	newDoc fitPageToWidth.
@@ -3313,17 +3313,15 @@ descriptionTask
 	^ String streamContents: [:str | str 
 		nextPutAll: 'Homework for class {1}' translated]! !
 
+!DyDocFile methodsFor: 'accessing doc' stamp: 'hlsf 25/Sep/2026, 8:33:34 pm (UTC)'!
+document
+	^ document ifNil: [document :=  ReferenceStream restoreFromCompressedFile: self path // 'doc.obj']! !
+
 !DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
 creationTime
 	"Answer the value of creationTime"
 
 	^ creationTime! !
-
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
-creationTime: anObject
-	"Set the value of creationTime"
-
-	creationTime := anObject! !
 
 !DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
 dirName
@@ -3338,12 +3336,6 @@ dirName: anObject
 	dirName := anObject! !
 
 !DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
-document
-	"Answer the value of document"
-
-	^ document! !
-
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
 document: anObject
 	"Set the value of document"
 
@@ -3356,22 +3348,10 @@ modificationTime
 	^ modificationTime! !
 
 !DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
-modificationTime: anObject
-	"Set the value of modificationTime"
-
-	modificationTime := anObject! !
-
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
 preview
 	"Answer the value of preview"
 
 	^ preview! !
-
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
-preview: anObject
-	"Set the value of preview"
-
-	preview := anObject! !
 
 !DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
 title
@@ -3394,6 +3374,17 @@ printOn: str
 			print: self owner course; nextPut: $/; 
 			print: self owner course classGroup]
 		ifFalse: [str nextPutAll: 'Document in task '; print: self owner]! !
+
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 25/Sep/2026, 8:59:59 pm (UTC)'!
+saveDocument
+	ReferenceStream 
+		dumpOnCompressedFile:  self path // 'doc.obj'
+		object: self document.
+	document saved.
+	document currentPage redrawNeeded.
+"	Update the preview and the modification time, then save userData too "
+	preview := document view preview.
+	modificationTime := DateAndTime now! !
 
 !DySchool methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023, 9:33:45 pm (UTC)'!
 initialize

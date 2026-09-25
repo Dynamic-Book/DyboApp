@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8210] on 23 September 2026 at 6:41:52 pm'!
+'From Cuis7.9 [latest update: #8225] on 25 September 2026 at 11:07:12 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 306!
+!provides: 'DyboDoc' 1 307!
 !requires: 'UI-Panel' 1 170 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-History-Timeline' 1 18 nil!
@@ -1504,22 +1504,9 @@ penRed
 penWhite
 	self penColor: Color white! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024, 3:12:39 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 redoAction
-	self commandsManager redo ifTrue: [self modified]! !
-
-!Document methodsFor: 'actions ui' stamp: 'dau 10/Sep/2026, 8:51:54 am (UTC)'!
-saveDocument
-	model isNote ifTrue: [
-		^ PopUpMenu inform: 'Quick notes can''t be saved, but can be exported to PDF. 
-To save your work, go to your binder and create a new document.' translated].
-	self savePreview.
-	savesReal := true.
-	self saveToDisk.
-	savesReal := false.
-	isSaved := true.
-	self currentPage redrawNeeded.
-	^ true! !
+	self commandsManager redo ifTrue: [self unsaved]! !
 
 !Document methodsFor: 'actions ui' stamp: 'dau 9/Sep/2026, 12:42:56 pm (UTC)'!
 savePreview
@@ -1534,9 +1521,9 @@ switchToPageModel: pageModelSymbol
 		redrawNeeded 
 ! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 24/Dec/2024, 3:12:27 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 undoAction
-	self commandsManager undo ifTrue: [self modified].
+	self commandsManager undo ifTrue: [self unsaved].
 	self resetTool! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025, 3:51:46 pm (UTC)'!
@@ -1557,28 +1544,40 @@ initializeStrokeTools
 	eraser := Pen new width: 2
 ! !
 
+!Document methodsFor: 'document file' stamp: 'hlsf 19/Mar/2026, 7:15:36 pm (UTC)'!
+loadFromDisk
+	^ ReferenceStream restoreFromCompressedFile: model path // 'doc.obj'! !
+
+!Document methodsFor: 'document file' stamp: 'dau 10/Sep/2026, 8:51:54 am (UTC)'!
+saveDocument
+	model isNote ifTrue: [
+		^ PopUpMenu inform: 'Quick notes can''t be saved, but can be exported to PDF. 
+To save your work, go to your binder and create a new document.' translated].
+	self savePreview.
+	savesReal := true.
+	self saveToDisk.
+	savesReal := false.
+	isSaved := true.
+	self currentPage redrawNeeded.
+	^ true! !
+
+!Document methodsFor: 'document file' stamp: 'hlsf 14/Sep/2026, 7:56:09 pm (UTC)'!
+saveToDisk
+" NEVER SEND MESSAGE DIRECTLY, use saveDocument if necessary 
+Save me in my model disk location "
+	'Saving to disk' print.
+	ReferenceStream 
+		dumpOnCompressedFile:  model path // 'doc.obj'
+		object: self.
+	self view forgetModificationTime 
+! !
+
 !Document methodsFor: 'persistence' stamp: 'hlsf 5/Sep/2026, 1:40:00 pm (UTC)'!
 comeFullyUpOnReload: smartRefStream
 	self initializeStrokeTools.
 	savesReal := false.
 	isSaved := true.
 	DyboSystem updateProgressBar: model title! !
-
-!Document methodsFor: 'persistence' stamp: 'hlsf 8/Dec/2024, 11:00:55 am (UTC)'!
-isSaved
-	^ isSaved ifNil: [true]! !
-
-!Document methodsFor: 'persistence' stamp: 'hlsf 19/Mar/2026, 7:15:36 pm (UTC)'!
-loadFromDisk
-	^ ReferenceStream restoreFromCompressedFile: model path // 'doc.obj'! !
-
-!Document methodsFor: 'persistence' stamp: 'dau 9/Sep/2026, 12:43:58 pm (UTC)'!
-modified
-	" get notified the page was modified recently, ie changes not saved to disk "
-	isSaved ifFalse: [^ self].
-	isSaved := false.
-	view currentPage paper redrawNeeded 
-	! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 14/Jul/2026, 10:35:01 am (UTC)'!
 objectForDataStream: str
@@ -1599,16 +1598,9 @@ A Document is serialized on disk in its own directory. A document may be asked t
 		ifTrue: [	Transcript show: '   full object on disk: '; show: self; cr.
 			self]! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 14/Sep/2026, 7:56:09 pm (UTC)'!
-saveToDisk
-" NEVER SEND MESSAGE DIRECTLY, use saveDocument if necessary 
-Save me in my model disk location "
-	'Saving to disk' print.
-	ReferenceStream 
-		dumpOnCompressedFile:  model path // 'doc.obj'
-		object: self.
-	self view forgetModificationTime 
-! !
+!Document methodsFor: 'persistence' stamp: 'hlsf 25/Sep/2026, 8:52:07 pm (UTC)'!
+saved
+	isSaved := true! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 18/Dec/2024, 7:44:09 pm (UTC)'!
 storeDataOn: aDataStream
@@ -1616,6 +1608,14 @@ storeDataOn: aDataStream
 	backup := self backupThenNilAttributes.
 	super storeDataOn: aDataStream.
 	self restoreAttributes: backup! !
+
+!Document methodsFor: 'persistence' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
+unsaved
+	" get notified the page was modified recently, ie changes not saved to disk "
+	isSaved ifFalse: [^ self].
+	isSaved := false.
+	view currentPage paper redrawNeeded 
+	! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 24/Dec/2024, 2:17:11 pm (UTC)'!
 unsavedAttributes
@@ -1699,6 +1699,10 @@ tool: aToolClass
 !Document methodsFor: 'testing' stamp: 'hlsf 23/Aug/2026, 9:14:53 am (UTC)'!
 isExportingPDF
 	^ savesReal ! !
+
+!Document methodsFor: 'testing' stamp: 'hlsf 8/Dec/2024, 11:00:55 am (UTC)'!
+isSaved
+	^ isSaved ifNil: [true]! !
 
 !Document class methodsFor: 'object serialization' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 loadDocument: relativePath
@@ -2342,7 +2346,7 @@ handleMouseAt: localPosition in: paper
 			paper redrawNeeded ] ].
 	! !
 
-!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 1/Sep/2026, 9:34:14 am (UTC)'!
+!EraserToolStateErasing methodsFor: 'handling' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 handleRelease: localPosition in: paper
 	paper redrawNeeded.
 	context deleteBitMasks.
@@ -2350,7 +2354,7 @@ handleRelease: localPosition in: paper
 		 (erasedStrokes values first isCollection 
 			and: [erasedStrokes values first isEmpty]) ifTrue: [self halt: 'Should have strokes but is empty'].
 		self commandsManager erasedStrokes: erasedStrokes in: paper ].
-	context presenter modified.
+	context presenter unsaved.
 	context switchState: EraserToolStateNeutral ! !
 
 !EraserToolStateErasing methodsFor: 'initialization' stamp: 'hlsf 1/Sep/2026, 9:34:14 am (UTC)'!
@@ -2364,11 +2368,11 @@ handlePress: localPosition in: paper
 		switchState: EraserToolStateErasing; 	" Prepare to erase... "
 		handleMouseAt: localPosition in: paper "...then start erasing "! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'dau 10/Sep/2026, 8:53:47 am (UTC)'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 handleKeyStroke: keyboardEvent in: paper
 	(keyboardEvent isDelete or: [keyboardEvent isBackspace]) ifTrue:[
 		self commandsManager groupDelete: context selection in: paper.
-		context presenter modified.
+		context presenter unsaved.
 		context switchState: GroupToolStateNeutral.]! !
 
 !GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:23:23 pm (UTC)'!
@@ -2393,13 +2397,13 @@ handlePress: localPosition in: paper
 			context switchState: GroupToolStateNeutral.
 			^ context handlePress: localPosition in: paper ]! !
 
-!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 17/Feb/2025, 8:24:09 pm (UTC)'!
+!GroupToolStateDragging methodsFor: 'handling' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 handleRelease: locaPosition in: paper
 	self commandsManager 
 		moveGroup: context selection 
 		to: ((paper externalizeToWorld: locaPosition) - initialPosition) / context currentPage scale
 		in: context paper.
-	context presenter modified.! !
+	context presenter unsaved.! !
 
 !GroupToolStateGrabbing methodsFor: 'handling' stamp: 'hlsf 18/Oct/2024, 7:18:50 pm (UTC)'!
 handleMouseAt: localPosition in: paper
@@ -2453,21 +2457,21 @@ handleMouseAt: localPosition in: paper
 	paper writingAt: localPosition
 	! !
 
-!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 8/Dec/2024, 5:58:51 pm (UTC)'!
+!PenToolStateWriting methodsFor: 'handling' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
-	context presenter modified.
+	context presenter unsaved.
 	context switchState: PenToolStateNeutral 
 	! !
 
-!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 8/Dec/2024, 5:58:51 pm (UTC)'!
+!HighligtherToolStateWriting methodsFor: 'handling' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 handleRelease: localPosition in: paper
 	| finalStrokeGroup |
 	finalStrokeGroup := paper endWritingAt: localPosition.
 	self commandsManager strokeGroup: finalStrokeGroup in: paper.
-	context presenter modified.
+	context presenter unsaved.
 	context switchState: HighligtherToolStateNeutral 
 	! !
 
@@ -2488,13 +2492,13 @@ handleMouseAt: localPosition in: paper
 handlePress: localPosition in: paper
 	initialPosition := prevPosition := paper externalizeToWorld: localPosition ! !
 
-!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 8/Dec/2024, 5:58:51 pm (UTC)'!
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 handleRelease: localPosition in: paper
 	self commandsManager 
 		move: context grabbed 
 		to:  (paper externalizeToWorld: 	localPosition) - initialPosition / paper owner scale
 		in: paper owner.
-	context grabbed ifNotNil: [context presenter modified].
+	context grabbed ifNotNil: [context presenter unsaved].
 	context switchState: PointerToolStateNeutral ! !
 
 !PointerToolStateNeutral methodsFor: 'handling' stamp: 'hlsf 23/Oct/2024, 5:04:20 pm (UTC)'!
@@ -2509,13 +2513,13 @@ handlePress: localPosition in: paper
 handleMouseAt: localPosition in: paper
 	context endPoint: localPosition ! !
 
-!ShapeToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 14/Mar/2026, 11:45:58 am (UTC)'!
+!ShapeToolStateDrawing methodsFor: 'handling' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 handleRelease: localPosition in: paper
 	context endPoint: localPosition.
 	(context asStrokeGroupsIn: paper) do: [:aStrokeGroup |
 		self commandsManager strokeGroup: aStrokeGroup in: paper].
 	context removeShape.
-	context presenter modified.
+	context presenter unsaved.
 	context switchState: ShapeToolStateNeutral 
 ! !
 
@@ -3414,15 +3418,15 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Apr/2026, 12:47:06 pm (UTC)'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 acceptDroppingAnnotator: annotator event: dropEvent
 	presenter pointerTool.
 	self addMorphFront: annotator.
 	annotator morphPosition:  (self internalizeFromWorld: dropEvent eventPosition) - annotator annotated fullBoundsInOwner center.
-	presenter modified
+	presenter unsaved
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Apr/2026, 12:47:16 pm (UTC)'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 acceptDroppingFromFlap: flapItem event: dropEvent
 	| dropMorph |
 	dropMorph := (flapItem object is: #DKMScript) 
@@ -3432,7 +3436,7 @@ acceptDroppingFromFlap: flapItem event: dropEvent
 	self 	addMorphFront: dropMorph.
 	dropMorph morphPosition: (self internalizeFromWorld: dropEvent eventPosition) - dropMorph fullBoundsInOwner center.
 	flapItem flap fold.
-	presenter modified! !
+	presenter unsaved! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 14/Feb/2026, 3:05:58 pm (UTC)'!
 acceptDroppingMorph: aMorph event: dropEvent
@@ -3447,7 +3451,7 @@ allowsFilesDrop
 allowsMorphDrop
 	^ true! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 8/Sep/2026, 4:04:26 pm (UTC)'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
 dropFiles: dropFilesEvent
 	| anImage annotator positionShift |
 	positionShift := 0@0.
@@ -3459,7 +3463,7 @@ dropFiles: dropFilesEvent
 			self addMorphFront: annotator.
 			annotator morphPosition: (self internalizeFromWorld: dropFilesEvent eventPosition) + positionShift.
 			positionShift := positionShift + (40@40)] ].
-	positionShift = (0@0) ifFalse: [presenter modified]! !
+	positionShift = (0@0) ifFalse: [presenter unsaved]! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 5/Sep/2026, 2:24:44 pm (UTC)'!
 resizePicture: aForm
@@ -4723,13 +4727,13 @@ pageAt: anIndex
 pageNumber: aPageMorph
 	^ pages indexOf: aPageMorph ! !
 
-!DocumentView methodsFor: 'update' stamp: 'hlsf 18/Dec/2024, 5:11:49 pm (UTC)'!
+!DocumentView methodsFor: 'update' stamp: 'hlsf 25/Sep/2026, 9:06:10 pm (UTC)'!
 adjustPageCounter
 	self pageCounter 
 		contents: (String streamContents: [:str | 
 			str nextPutAll: self currentPageIndex printString;
 				nextPutAll: '/';
-				nextPutAll: self numberOfPages printString 		])! !
+				nextPutAll: self numberOfPages printString 	])! !
 
 !DocumentView methodsFor: 'update' stamp: 'hlsf 22/Dec/2024, 9:53:16 am (UTC)'!
 resetPreview
