@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 8:08:44 pm'!
+'From Cuis7.9 [latest update: #8225] on 27 September 2026 at 12:09:34 am'!
 'Description '!
-!provides: 'Dybo' 1 297!
+!provides: 'Dybo' 1 299!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -667,17 +667,19 @@ importDocument: aDocument in: topic
 	aDocument model owner: topic.
 	^ aDocument ! !
 
-!DyUserData methodsFor: 'db - store' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 26/Sep/2026, 8:52:14 pm (UTC)'!
 newTask: aTask
 	self tasks add: aTask.
-	aTask document model owner: aTask.
+	aTask document owner: aTask.
 	"Save the empty document in case the user does not do it after editing"
 	aTask document
 		unsaved;
 		saveDocument! !
 
-!DyUserData methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 5:25:39 pm (UTC)'!
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 10:06:50 pm (UTC)'!
 convertToDocFile
+"	Be sure to know first the owner as we will change the documents collections to docFiles " 
+	self allDocuments do: [:each | each model owner].
 	DyboSystem newProgressBar: 'Converting documents...'.
 	self tasks do: [:aTask |
 		DyboSystem updateProgressBar: aTask printString.
@@ -1018,7 +1020,7 @@ Do you want to overwrite it?' translated
 	self activeView updateView.
 	DyboSystem saveUserData! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 10:08:26 pm (UTC)'!
 importPDF
 	| newDoc answer |
 	currentTopic ifNil: [^ self].
@@ -1028,25 +1030,24 @@ importPDF
 		excludePattern: '.*') startUpWithCaption: 'Import a PDF document.' translated.
 	answer ifNil: [^ self].
 	newDoc := self newDocument.
-	newDoc model title: (answer name allButLast: 4) capitalized.
-	newDoc 	importPDF: answer directory // answer name.
+	newDoc title: (answer name allButLast: 4) capitalized.
+	newDoc 	document importPDF: answer directory // answer name.
 	" Remove the former first page and present the first page "
-	newDoc view 
+	newDoc document view 
 		goFirstPage;
 		deletePage.
 	newDoc 
 		unsaved;
 		saveDocument.
 	self runningWorld doOneCycleNow.
-	newDoc fitPageToWidth.
+	newDoc document fitPageToWidth.
 	^ newDoc! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 6:04:16 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 8:48:04 pm (UTC)'!
 newDocument
 	| newDoc |
 	currentTopic ifNil: [^ self].
 	newDoc := DyDocFile new.
-	newDoc createMyDocument.
 	DyUserData current addDocument: newDoc to: currentTopic.
 	self goDocument: newDoc document view.
 	DyboSystem saveUserData.
@@ -3429,17 +3430,14 @@ title
 title: anObject
 	title := anObject! !
 
-!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 6:02:25 pm (UTC)'!
-createMyDocument
+!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 8:46:44 pm (UTC)'!
+initialize
+	super initialize .
+	creationTime := DateAndTime now.
 	document := Document new ::
 		docFile: self.
 	DocumentView presenter: document ::
 		installView! !
-
-!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 2:09:06 pm (UTC)'!
-initialize
-	super initialize .
-	creationTime := DateAndTime now	! !
 
 !DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 1:05:22 pm (UTC)'!
 saveDocument
@@ -3455,11 +3453,15 @@ To save your work, go to your binder and create a new document.' translated].
 	preview := document view preview.
 	modificationTime := DateAndTime now! !
 
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 8:53:07 pm (UTC)'!
+unsaved
+	document ifNotNil: [document unsaved]! !
+
 !DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 9:15:22 am (UTC)'!
 unsavedAttributes
 	^ #(document)! !
 
-!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 5:30:01 pm (UTC)'!
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 9:53:54 pm (UTC)'!
 updateDocument
 	document := nil.
 	preview := self document view preview! !

@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 8:08:48 pm'!
+'From Cuis7.9 [latest update: #8225] on 27 September 2026 at 12:05:41 am'!
 'Description '!
-!provides: 'DyboDoc' 1 311!
+!provides: 'DyboDoc' 1 312!
 !requires: 'UI-Panel' 1 170 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-History-Timeline' 1 18 nil!
@@ -1417,12 +1417,12 @@ highlighterSize40
 highlighterYellow
 	self highlighterColor: Color yellow! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 23/Aug/2026, 5:10:56 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 26/Sep/2026, 8:50:38 pm (UTC)'!
 importPDF: aFileEntry
 	| numberOfPages |
 	numberOfPages := DyboSystem 
 		importPdf: aFileEntry
-		to: model path.
+		to: docFile path.
 	1 to: numberOfPages do: [:index | | newPage |
 		newPage := PageMorph newOn: self model: PageModelPdf new.
 		self view appendPage: newPage].
@@ -1524,11 +1524,15 @@ initializeStrokeTools
 	eraser := Pen new width: 2
 ! !
 
-!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 5:45:09 pm (UTC)'!
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 10:02:21 pm (UTC)'!
 asDocFile
 	| dirName myDocFile | 
 	dirName := model dirName.
-	myDocFile := DyDocFile new ::
+	myDocFile := DyDocFile basicNew.
+	docFile := myDocFile.
+	myDocFile 
+		document: self;
+		owner: model owner;
 		title: model title;
 		creationTime: (DateAndTime 
 			year: (dirName copyFrom: 1 count: 4) asNumber
@@ -1538,11 +1542,8 @@ asDocFile
 			minute: (dirName copyFrom: 15 count: 2) asNumber
 			second: (dirName copyFrom: 18 count: 2) asNumber );
 		modificationTime: model modificationTime;
-		document: self;
-		owner: model owner.
-	docFile := myDocFile.
-	myDocFile updateDocument.
-	^ docFile ! !
+		preview: self view preview.
+	^ myDocFile ! !
 
 !Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:13:30 pm (UTC)'!
 dirName
@@ -1603,15 +1604,15 @@ unsaved
 	view currentPage paper redrawNeeded 
 	! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 24/Dec/2024, 2:17:11 pm (UTC)'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 8:53:27 pm (UTC)'!
 unsavedAttributes
-	^ #(commandsManager controlsManager isSaved pen highlighter eraser tool)! !
+	^ #(commandsManager controlsManager isSaved pen highlighter eraser tool docFile)! !
 
-!Document methodsFor: 'printing' stamp: 'hlsf 26/Sep/2026, 5:22:28 pm (UTC)'!
+!Document methodsFor: 'printing' stamp: 'hlsf 26/Sep/2026, 9:49:56 pm (UTC)'!
 printOn: aStream
 	super printOn: aStream.
 	aStream nextPutAll: ' P. (';
-		nextPutAll: self docFile dirName;
+		nextPutAll: (self docFile ifNotNil: [:f | f dirName] ifNil:['no-dir']);
 		nextPut: $)! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 12/Aug/2026, 4:54:38 pm (UTC)'!
