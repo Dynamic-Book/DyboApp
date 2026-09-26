@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 1:10:21 pm'!
+'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 4:36:27 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 308!
+!provides: 'DyboDoc' 1 310!
 !requires: 'UI-Panel' 1 170 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-History-Timeline' 1 18 nil!
@@ -1199,23 +1199,6 @@ currentPage
 model
 	^ model! !
 
-!Document methodsFor: 'accessing' stamp: 'dau 12/Sep/2026, 10:45:45 am (UTC)'!
-preview
-"	We want to reduce the load time at application start-up. 
-	So we do not want the preview to be computed	if it does not exist but instead rely on a preview saved on disk
-	or an empty Form
-
-	DyUserData current allDocuments do: #savePreview
-"
-	^ view isPreviewCache 
-		ifTrue: [view preview] 
-		ifFalse: [	| aPreview |		
-			aPreview := [ImageReadWriter  formFromFileEntry: model path // 'preview.jpg'] 
-				on: Error 
-				do: [Form extent: DocumentView previewExtent depth: 32].
-			view preview: aPreview.
-			aPreview ]! !
-
 !Document methodsFor: 'accessing' stamp: 'hlsf 1/Sep/2024, 10:42:08 am (UTC)'!
 selectedTool
 	^ tool ifNotNil: [tool toolName] ifNil: [#none]! !
@@ -1363,14 +1346,15 @@ eraserSize4
 eraserSize8
 	self eraserSize: 8.! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 30/Aug/2026, 10:10:13 am (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 26/Sep/2026, 1:34:36 pm (UTC)'!
 exportPDF
-	| exportedFiles pdfCommand process |
+	| exportedFiles pdfCommand process title |
+	title := self docFile title.
 	savesReal := true.
 	exportedFiles := OrderedCollection new.
 	1 to: view numberOfPages do: [:i | 
 		| page formerScale |
-		exportedFiles add: model title,
+		exportedFiles add: title,
 			(String streamContents: [:str | i printOn: str base: 10 length: 4 padded: true]), '.jpg'.
 		page := view pageAt: i.
 		" PDF page model may need to be shacked if never open "
@@ -1389,13 +1373,11 @@ exportPDF
 		s 	nextPutAll: 'cd "{1}"'; lf;
 			nextPutAll: 'convert '.
 		exportedFiles do: [:each | s nextPut: $"; nextPutAll: each; nextPut: $"; space].
-		s nextPut: $"; nextPutAll: model title; nextPutAll: '.pdf'; nextPut: $"].
+		s nextPut: $"; nextPutAll: title; nextPutAll: '.pdf'; nextPut: $"].
 	pdfCommand := pdfCommand format: {DyboSystem myExportPath}.
 	process := OSProcess command: pdfCommand.
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 100) wait].
-	exportedFiles do: [:each | (DyboSystem myExportPath // each) delete]
-		
-		! !
+	exportedFiles do: [:each | (DyboSystem myExportPath // each) delete]! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:39:35 pm (UTC)'!
 highlighterBlue
@@ -1508,11 +1490,9 @@ penWhite
 redoAction
 	self commandsManager redo ifTrue: [self unsaved]! !
 
-!Document methodsFor: 'actions ui' stamp: 'dau 9/Sep/2026, 12:42:56 pm (UTC)'!
-savePreview
-	" Save a fresh preview, for fast loading "
-	view resetPreview.
-	^ JPEGReadWriter2 putForm: view preview onFile: model path // 'preview.jpg'! !
+!Document methodsFor: 'actions ui' stamp: 'hlsf 26/Sep/2026, 1:34:48 pm (UTC)'!
+saveDocument
+	self docFile saveDocument ! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 3/Aug/2026, 2:09:05 pm (UTC)'!
 switchToPageModel: pageModelSymbol
@@ -1526,12 +1506,11 @@ undoAction
 	self commandsManager undo ifTrue: [self unsaved].
 	self resetTool! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025, 3:51:46 pm (UTC)'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 1:12:33 pm (UTC)'!
 initialize
 	super initialize.
 	self initializeStrokeTools .
 	model := DocumentModel new.
-	savesReal := false. "Read comment in objectForDataStream:"
 	isSaved := true! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025, 3:51:46 pm (UTC)'!
@@ -1544,38 +1523,47 @@ initializeStrokeTools
 	eraser := Pen new width: 2
 ! !
 
-!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 9:57:00 am (UTC)'!
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:33:59 pm (UTC)'!
 asDocFile
+	| dirName | 
+	dirName := model dirName.
 	^ DyDocFile new ::
 		title: model title;
-		creationTime: (DateAndTime fromString: model dirName);
+		creationTime: (DateAndTime 
+			year: (dirName copyFrom: 1 count: 4) asNumber
+			month: (dirName copyFrom: 6 count: 2) asNumber
+			day: (dirName copyFrom: 9 count: 2) asNumber
+			hour: (dirName copyFrom: 12 count: 2) asNumber
+			minute: (dirName copyFrom: 15 count: 2) asNumber
+			second: (dirName copyFrom: 18 count: 2) asNumber );
 		modificationTime: model modificationTime;
-		preview: view preview;
 		document: self;
 		owner: model owner;
+		updateDocument;
 		yourself! !
 
-!Document methodsFor: 'document file' stamp: 'hlsf 19/Mar/2026, 7:15:36 pm (UTC)'!
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:13:30 pm (UTC)'!
+dirName
+	^ ''! !
+
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 1:35:17 pm (UTC)'!
+docFile
+	^ DyUserData current docFileOf: self! !
+
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:07:44 pm (UTC)'!
+isDocument: aDocPresenter
+	^ self = aDocPresenter ! !
+
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 1:19:36 pm (UTC)'!
 loadFromDisk
+	self shouldNotHappen.
 	^ ReferenceStream restoreFromCompressedFile: model path // 'doc.obj'! !
 
-!Document methodsFor: 'document file' stamp: 'dau 10/Sep/2026, 8:51:54 am (UTC)'!
-saveDocument
-	model isNote ifTrue: [
-		^ PopUpMenu inform: 'Quick notes can''t be saved, but can be exported to PDF. 
-To save your work, go to your binder and create a new document.' translated].
-	self savePreview.
-	savesReal := true.
-	self saveToDisk.
-	savesReal := false.
-	isSaved := true.
-	self currentPage redrawNeeded.
-	^ true! !
-
-!Document methodsFor: 'document file' stamp: 'hlsf 14/Sep/2026, 7:56:09 pm (UTC)'!
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 1:20:02 pm (UTC)'!
 saveToDisk
 " NEVER SEND MESSAGE DIRECTLY, use saveDocument if necessary 
 Save me in my model disk location "
+	self shouldNotHappen.
 	'Saving to disk' print.
 	ReferenceStream 
 		dumpOnCompressedFile:  model path // 'doc.obj'
@@ -1583,31 +1571,11 @@ Save me in my model disk location "
 	self view forgetModificationTime 
 ! !
 
-!Document methodsFor: 'persistence' stamp: 'hlsf 5/Sep/2026, 1:40:00 pm (UTC)'!
+!Document methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 2:21:36 pm (UTC)'!
 comeFullyUpOnReload: smartRefStream
 	self initializeStrokeTools.
-	savesReal := false.
 	isSaved := true.
 	DyboSystem updateProgressBar: model title! !
-
-!Document methodsFor: 'persistence' stamp: 'hlsf 14/Jul/2026, 10:35:01 am (UTC)'!
-objectForDataStream: str
-" 	
-A Document is serialized on disk in its own directory. A document may be asked to be serialized under two circumstances, those we have two states when saving a document.
-1. 	The default state saveReal == false
-	When the whole DyboApp data model is saved (see DyboSystem class>>saveData)-> respond a diskproxy, 
-	Indeed, we don't want to save the Document in the data model, just its proxy. 
-2. 	When the user saves the document itself (see #saveDocument) 	-> 	respond self, it is explicitly required,
-	It is serialized and saved in its own tree at its own directory location, so we respond the instance (self)	
-"
-	^ savesReal 
-		ifFalse: [Transcript show: '   proxy saved: '; show: self; cr.
-			DiskProxy 				
-				global: #Document 				
-				selector: #loadDocument:  				
-				args: (Array with: model relPath) ]
-		ifTrue: [	Transcript show: '   full object on disk: '; show: self; cr.
-			self]! !
 
 !Document methodsFor: 'persistence' stamp: 'hlsf 25/Sep/2026, 8:52:07 pm (UTC)'!
 saved
@@ -1632,11 +1600,11 @@ unsaved
 unsavedAttributes
 	^ #(commandsManager controlsManager isSaved pen highlighter eraser tool)! !
 
-!Document methodsFor: 'printing' stamp: 'hlsf 16/Apr/2026, 8:45:30 am (UTC)'!
+!Document methodsFor: 'printing' stamp: 'hlsf 26/Sep/2026, 2:12:36 pm (UTC)'!
 printOn: aStream
 	super printOn: aStream.
 	aStream nextPutAll: ' P. (';
-		nextPutAll: model dirName;
+		nextPutAll: (self docFile ifNotNil: [:docFile | docFile dirName] ifNil: ['']);
 		nextPut: $)! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 12/Aug/2026, 4:54:38 pm (UTC)'!
@@ -2827,8 +2795,9 @@ initialize
 newPageModel
 	^ pageModel new! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 16/Apr/2026, 8:55:53 am (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 1:20:12 pm (UTC)'!
 description
+	self shouldNotHappen.
 	^ self isCourse 
 		ifTrue:  [self descriptionCourse ]
 		ifFalse: [self descriptionTask ]! !
@@ -2846,7 +2815,7 @@ descriptionTask
 	^ String streamContents: [:str | str 
 		nextPutAll: 'Homework for class {1}' translated]! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 5/Apr/2026, 8:17:17 am (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:00:18 pm (UTC)'!
 dirName
 	^ dirName ! !
 
@@ -2865,12 +2834,14 @@ isTask
 " Is the document a task document, therefore part of a task in the agenda "
 	^ self owner class = DyTask! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 15/Apr/2026, 1:42:39 pm (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:03:56 pm (UTC)'!
 modificationTime
+	'Deprecated #modificationTime message to DocumentModel instance' print.
 	^ (self path // 'doc.obj') modificationTime ! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 16/Jul/2026, 1:43:53 pm (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:03:06 pm (UTC)'!
 owner
+	'Deprecated #owner message to DocumentModel instance' print.
 	^ owner ifNil: [
 		owner := DyUserData current documentOwner: self.
 		owner ifNil: ['Document model without an owner' print].
@@ -2881,8 +2852,9 @@ owner: anObject
 " a Topic or a Task"
 	owner := anObject ! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:04:18 pm (UTC)'!
 path
+	'Deprecated #path message to DocumentModel instance' print.
 	^ DyboSystem myDataPath / self relPath ! !
 
 !DocumentModel methodsFor: 'document file' stamp: 'hlsf 17/Apr/2026, 6:11:19 pm (UTC)'!
@@ -2895,16 +2867,19 @@ printOn: str
 			print: self owner course classGroup]
 		ifFalse: [str nextPutAll: 'Document in task '; print: self owner]! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 17/Apr/2026, 6:11:24 pm (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:04:31 pm (UTC)'!
 relPath
+	'Deprecated #relPath message to DocumentModel instance' print.
 	^ self owner relPath, '/', self dirName! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 13/Apr/2026, 10:31:01 am (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:02:36 pm (UTC)'!
 title
+	'Deprecated message #title to DocumentFile' print.
 	^ title ifNil: [dirName]! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 13/Apr/2026, 10:31:18 am (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 1:23:16 pm (UTC)'!
 title: aString
+	self shouldNotHappen.
 	title := aString ! !
 
 !DocumentModel methodsFor: 'persistence' stamp: 'hlsf 17/Apr/2026, 6:15:28 pm (UTC)'!
@@ -4178,6 +4153,10 @@ documentModel
 page
 	^ owner! !
 
+!PageModel methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2026, 1:37:31 pm (UTC)'!
+presenter
+	^ self page presenter! !
+
 !PageModel methodsFor: 'drawing' stamp: 'hlsf 5/Mar/2026, 9:27:01 am (UTC)'!
 drawOn: canvas
 	viewport := owner viewport.
@@ -4330,10 +4309,10 @@ initialize
 title
 	^ 'Graph paper' translated! !
 
-!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 23/Aug/2026, 4:29:34 pm (UTC)'!
+!PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2026, 1:37:58 pm (UTC)'!
 form
 	^ form ifNil: [
-		form := self sampleAt: dpi in: self documentModel path]! !
+		form := self sampleAt: dpi in: self presenter docFile path]! !
 
 !PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2026, 4:34:24 pm (UTC)'!
 preScaledForm
@@ -4513,6 +4492,17 @@ presenter
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 2/Sep/2024, 7:23:41 pm (UTC)'!
 presenter: aPresenter
 	presenter := aPresenter ! !
+
+!DocumentView methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2026, 1:25:01 pm (UTC)'!
+preview
+" Shrinkg a bit then cut a piece from the origin with a given extent "
+	| shrinkFactorX shrinkFactorY form |
+	('compute preview: ', presenter printString) print.
+	form := (container imageForm: 32) copy: (0@0 corner: container morphWidth @ (container morphHeight -40)).
+	shrinkFactorX := DocumentView previewExtent x / form width.
+	shrinkFactorY := DocumentView previewExtent y / form height.
+	form := form magnifyBy: (shrinkFactorX max: shrinkFactorY).
+	^ form copy: (0@0 corner: DocumentView previewExtent)! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024, 5:51:30 pm (UTC)'!
 statusBarMessage: aString
@@ -5021,45 +5011,22 @@ zoom100ButtonData
 	#zoomPageTo100 . 
 	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
 
-!DocumentView methodsFor: 'document file' stamp: 'hlsf 14/Sep/2026, 7:49:27 pm (UTC)'!
+!DocumentView methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 1:23:36 pm (UTC)'!
 forgetModificationTime
 "	We cache its value to avoid multiple file access "
+	self shouldNotHappen.
 	^ self removeProperty: #modificationTime! !
 
-!DocumentView methodsFor: 'document file' stamp: 'dau 12/Sep/2026, 10:34:14 am (UTC)'!
+!DocumentView methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 1:23:40 pm (UTC)'!
 isPreviewCache
+	self shouldNotHappen.
 	^ preview notNil! !
 
-!DocumentView methodsFor: 'document file' stamp: 'hlsf 14/Sep/2026, 7:48:59 pm (UTC)'!
+!DocumentView methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 1:23:44 pm (UTC)'!
 modificationTime
 "	We cache its value to avoid multiple file access "
+	self shouldNotHappen.
 	^ self valueOfProperty: #modificationTime ifAbsentPut: [presenter model modificationTime]! !
-
-!DocumentView methodsFor: 'document file' stamp: 'hlsf 14/Sep/2026, 7:54:24 pm (UTC)'!
-prepareToBeSaved
-	preview := nil.
-	self forgetModificationTime ! !
-
-!DocumentView methodsFor: 'document file' stamp: 'hlsf 13/Apr/2026, 2:41:20 pm (UTC)'!
-preview
-" Shrinkg a bit then cut a piece from the origin with a given extent "
-	| shrinkFactorX shrinkFactorY form |
-	^ preview ifNil: [ ('compute preview: ', self printString) print.
-		form := (container imageForm: 32) copy: (0@0 corner: container morphWidth @ (container morphHeight -40)).
-		shrinkFactorX := DocumentView previewExtent x / form width.
-		shrinkFactorY := DocumentView previewExtent y / form height.
-		form := form magnifyBy: (shrinkFactorX max: shrinkFactorY).
-		preview := form copy: (0@0 corner: DocumentView previewExtent)]! !
-
-!DocumentView methodsFor: 'document file' stamp: 'dau 12/Sep/2026, 10:35:20 am (UTC)'!
-preview: aForm
-"	The preview may be load from disk, under that circumstance we cache it too"
-	preview := aForm ! !
-
-!DocumentView methodsFor: 'document file' stamp: 'hlsf 22/Dec/2024, 9:53:16 am (UTC)'!
-resetPreview
-	preview := nil
-	! !
 
 !DocumentView class methodsFor: 'ui' stamp: 'hlsf 23/Dec/2024, 8:24:19 am (UTC)'!
 previewExtent

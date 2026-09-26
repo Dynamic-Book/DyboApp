@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 1:27:52 pm'!
+'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 4:36:23 pm'!
 'Description '!
-!provides: 'Dybo' 1 294!
+!provides: 'Dybo' 1 296!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -619,6 +619,12 @@ courseAt: aDateTime
 " Search my course occuring at this date and time "
 	^ (self courseAndGroupAt: aDateTime) ifNotNil: [:anArray | anArray first]! !
 
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 26/Sep/2026, 2:10:11 pm (UTC)'!
+docFileOf: docPresenter
+	^ self allDocuments 
+		detect: [:aDocFile | aDocFile isDocument: docPresenter]
+		ifNone: [nil]! !
+
 !DyUserData methodsFor: 'db - queries' stamp: 'hlsf 30/Aug/2026, 9:22:20 am (UTC)'!
 futureTasks
 	| now |
@@ -670,19 +676,19 @@ newTask: aTask
 		unsaved;
 		saveDocument! !
 
-!DyUserData methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 10:42:48 am (UTC)'!
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 2:35:17 pm (UTC)'!
 convertToDocFile
-	DyboSystem newProgressBar: 'Converting documents in the tasks...'.
-	DyUserData current tasks do: [:aTask |
+	DyboSystem newProgressBar: 'Converting documents...'.
+	self tasks do: [:aTask |
 		DyboSystem updateProgressBar: aTask printString.
 		aTask document: aTask document asDocFile].
-	DyboSystem newProgressBar: 'Converting documents in the topics...'.
-	DyUserData current allTopics do: [:aTopic |
-		DyboSystem newProgressBar: aTopic printString.
-		aTopic documents: (aTopic documents collect: [:aDocPresenter | 
-			DyboSystem newProgressBar: aDocPresenter printString.
-			aDocPresenter asDocFile]) ]
-		! !
+	self allTopics do: [:aTopic |
+		DyboSystem updateProgressBar: aTopic printString.
+		aTopic documents: (aTopic documents collect: [:aDocPresenter | | docFile |
+			docFile := aDocPresenter asDocFile.
+			DyboSystem updateProgressBar: docFile printString.
+			docFile ]) ].
+	DyboSystem deleteProgressBar! !
 
 !DyUserData methodsFor: 'initialization' stamp: 'hlsf 2/Mar/2026, 5:38:09 pm (UTC)'!
 initialize
@@ -1060,11 +1066,12 @@ renameDocument: aPreviewMorph
 				controlsManager activeView updateView]
 			]! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026, 8:49:21 am (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 1:11:16 pm (UTC)'!
 saveDocument: aDocument 
  | binderView |
 	binderView := controlsManager activeView.
-	aDocument saveDocument ifTrue: [binderView updateView]! !
+	aDocument saveDocument.
+	binderView updateView! !
 
 !Dybo methodsFor: 'actions exchange' stamp: 'dau 13/Sep/2026, 9:09:02 am (UTC)'!
 backupUserData
@@ -1252,12 +1259,11 @@ installComponents
 	self goStart.
 ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 13/Sep/2026, 5:10:23 pm (UTC)'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 2:18:46 pm (UTC)'!
 load
 	| loadProcess |
 	loadProcess := [
 		[DyboSystem newProgressBar: 'Loading documents...'.
-		DyboSystem progressBar color: controlsManager defaultColor .
 		DyUserData load.
 		(Delay forMilliseconds: 100) wait] 
 	ensure: [
@@ -1270,18 +1276,16 @@ load
 		resume.
 ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 10:21:13 am (UTC)'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 2:32:19 pm (UTC)'!
 loadAndConvert
 	| loadProcess |
 	loadProcess := [
 		[DyboSystem newProgressBar: 'Loading documents...'.
-		DyboSystem progressBar color: controlsManager defaultColor .
 		DyUserData load.
 		(Delay forMilliseconds: 100) wait] 
 	ensure: [
-		DyboSystem newProgressBar: 'Converting documents...'.
-		DyUserData current convertToDocFile.
 		DyboSystem deleteProgressBar.
+		DyUserData current convertToDocFile.
 		[controlsManager activeView updateView] on: MessageNotUnderstood do: []]
 	] newProcess .
 	self installComponents.
@@ -1664,10 +1668,11 @@ miniToolbarSize
 " Size of the squared icons in the secondary toolbar"
 	^ platform miniToolbarSize ! !
 
-!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 5/Sep/2026, 1:41:07 pm (UTC)'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 26/Sep/2026, 2:18:32 pm (UTC)'!
 newProgressBar: aTitle
 	self deleteProgressBar.
 	progressBar := ProgressMorph label: aTitle.
+	progressBar color: (Theme current paneBackgroundFrom: Theme current transcript).
 	progressBar openInWorld ! !
 
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 3/May/2026, 11:09:23 am (UTC)'!
@@ -3414,16 +3419,16 @@ title
 title: anObject
 	title := anObject! !
 
-!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 9:46:19 am (UTC)'!
+!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 2:09:06 pm (UTC)'!
 initialize
 	super initialize .
-	creationTime := DateAndTime now.
-	dirName := String streamContents: [:s | creationTime filenamePrintOn: s].
-	
-	! !
+	creationTime := DateAndTime now	! !
 
-!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 25/Sep/2026, 8:59:59 pm (UTC)'!
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 1:05:22 pm (UTC)'!
 saveDocument
+	self isNote ifTrue: [
+		^ PopUpMenu inform: 'Quick notes can''t be saved, but can be exported to PDF. 
+To save your work, go to your binder and create a new document.' translated].
 	ReferenceStream 
 		dumpOnCompressedFile:  self path // 'doc.obj'
 		object: self document.
@@ -3436,6 +3441,11 @@ saveDocument
 !DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 9:15:22 am (UTC)'!
 unsavedAttributes
 	^ #(document)! !
+
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 2:34:13 pm (UTC)'!
+updateDocument
+	document := nil.
+	preview := self document view preview! !
 
 !DyDocFile methodsFor: 'printing' stamp: 'hlsf 24/Sep/2026, 4:25:42 pm (UTC)'!
 printOn: str
@@ -3451,6 +3461,10 @@ printOn: str
 isCourse
 " Is the document a teaching document, therefore part of a course/topic "
 	^ self owner class = DyTopic! !
+
+!DyDocFile methodsFor: 'testing' stamp: 'hlsf 26/Sep/2026, 1:02:58 pm (UTC)'!
+isDocument: aDocPresenter
+	^ document notNil and: [document = aDocPresenter]! !
 
 !DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:37 pm (UTC)'!
 isNote
@@ -4315,40 +4329,40 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 15/Jul/2026, 1:49:31 pm (UTC)'!
-previewFor: aDocument
-	| buttons preview |
+!DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 26/Sep/2026, 1:29:16 pm (UTC)'!
+previewFor: aDocFile
+	| buttons morph |
 	buttons := OrderedCollection new.
 	buttons add: 
-		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocument ::
+		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocFile ::
 			icon: Theme current textEditorIcon;
 			buttonStyle: #none;
 			setBalloonText: 'Edit this document.' translated).
-	aDocument isSaved ifFalse: [ buttons add:
-		(PluggableButtonMorph model: presenter action: #saveDocument: actionArgument: aDocument ::
+	aDocFile isSaved ifFalse: [ buttons add:
+		(PluggableButtonMorph model: presenter action: #saveDocument: actionArgument: aDocFile ::
 			icon: Theme current saveIcon;
 			buttonStyle: #none;
 			setBalloonText: 'Save this document.' translated)].
 	buttons add: 
-		(PluggableButtonMorph model: presenter action: #exportDocument: actionArgument: aDocument ::
+		(PluggableButtonMorph model: presenter action: #exportDocument: actionArgument: aDocFile ::
 			icon: Theme current goUpIcon ;
 			buttonStyle: #none;
 			setBalloonText: 'Export this document to the exchange folder.' translated).
 	buttons add: 
-		(PluggableButtonMorph model: presenter action: #deleteDocument: actionArgument: aDocument ::
+		(PluggableButtonMorph model: presenter action: #deleteDocument: actionArgument: aDocFile ::
 			icon: Theme current cancelIcon ;
 			buttonStyle: #none;
 			setBalloonText: 'Delete this document.' translated).
-	preview := PreviewMorph 
-		object:  aDocument 
-		image:  aDocument preview
+	morph := PreviewMorph 
+		object:  aDocFile 
+		image:  aDocFile preview
 		buttons: buttons
-		label: aDocument model title ::
+		label: aDocFile title ::
 		color: self defaultColor darker;
 		borderWidth: 2;
-		borderColor: (aDocument isSaved ifTrue: [self defaultColor muchDarker] ifFalse: [Color red]).
-	preview when: #doubleClick send: #renameDocument: to: presenter.
-	^ preview ! !
+		borderColor: (aDocFile isSaved ifTrue: [self defaultColor muchDarker] ifFalse: [Color red]).
+	morph when: #doubleClick send: #renameDocument: to: presenter.
+	^ morph ! !
 
 !DyBinderView methodsFor: 'GUI building' stamp: 'hlsf 15/Sep/2026, 1:29:00 pm (UTC)'!
 previewsPanel
@@ -4487,9 +4501,9 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 26/Sep/2026, 11:06:59 am (UTC)'!
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 26/Sep/2026, 1:29:44 pm (UTC)'!
 previewFor: aDocFile
-	| buttons preview decorated classGroup indicativeColor |
+	| buttons morph decorated classGroup indicativeColor |
 	indicativeColor := aDocFile isCourse ifTrue: [Color blue darker] ifFalse: [Color red darker].
 	classGroup := DyUserData current classGroupOf: aDocFile .
 	buttons := OrderedCollection new.
@@ -4497,13 +4511,13 @@ previewFor: aDocFile
 		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocFile ::
 			icon: Theme current textEditorIcon;
 			setBalloonText: 'Edit this document' translated).
-	preview := PreviewMorph 
+	morph := PreviewMorph 
 		object:  aDocFile 
 		image:  aDocFile preview
 		buttons: buttons
 		label: aDocFile title ::
 		borderWidth: 2.
-	preview setBalloonText: (Text streamContents: [:str |
+	morph setBalloonText: (Text streamContents: [:str |
 		str nextPutAll: aDocFile title bold;
 			nextPut: Character lf;
 			nextPutAll: ((aDocFile description format: {classGroup}) color: indicativeColor) ;
@@ -4511,10 +4525,10 @@ previewFor: aDocFile
 			nextPutAll: ('Creation time: ' translated, (aDocFile creationTimeString italic pointSize: FontFamily defaultPointSize - 2) );
 			nextPut: Character lf;
 			nextPutAll: ('Modification time: ' translated, (aDocFile modificationTimeString italic pointSize: FontFamily defaultPointSize - 2) ) ]).
-	decorated := (DecoratedPane open: preview label: classGroup printString) 
+	decorated := (DecoratedPane open: morph label: classGroup printString) 
 		layoutSpec: (LayoutSpec keepMorphExtent offAxisEdgeWeight: 0);
 		padding: 20@10.
-	preview borderColor: indicativeColor.
+	morph borderColor: indicativeColor.
 	^ decorated ! !
 
 !DyStartView methodsFor: 'GUI building' stamp: 'hlsf 15/Sep/2026, 12:54:45 pm (UTC)'!
