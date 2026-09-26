@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 4:36:23 pm'!
+'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 8:08:44 pm'!
 'Description '!
-!provides: 'Dybo' 1 296!
+!provides: 'Dybo' 1 297!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -652,14 +652,14 @@ unsavedDocuments
 unsavedTasks
 	^ DyUserData current tasks select: [:aTask | aTask document isSaved not].! !
 
-!DyUserData methodsFor: 'db - store' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
-addDocument: aDocument to: topic
-	topic documents add: aDocument.
-	aDocument model owner: topic.
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 26/Sep/2026, 6:01:19 pm (UTC)'!
+addDocument: aDocFile to: topic
+	topic documents add: aDocFile .
+	aDocFile owner: topic.
 	"Save the empty document in case the user does not do it after editing"
-	aDocument unsaved .
-	aDocument saveDocument.
-	^ aDocument ! !
+	aDocFile document unsaved .
+	aDocFile saveDocument.
+	^ aDocFile ! !
 
 !DyUserData methodsFor: 'db - store' stamp: 'hlsf 7/May/2026, 10:08:03 am (UTC)'!
 importDocument: aDocument in: topic
@@ -676,7 +676,7 @@ newTask: aTask
 		unsaved;
 		saveDocument! !
 
-!DyUserData methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 2:35:17 pm (UTC)'!
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 5:25:39 pm (UTC)'!
 convertToDocFile
 	DyboSystem newProgressBar: 'Converting documents...'.
 	self tasks do: [:aTask |
@@ -915,10 +915,10 @@ goBinder
 	controlsManager plugBinder.
 	self changed: #isView:	! !
 
-!Dybo methodsFor: 'actions' stamp: 'hlsf 16/Aug/2025, 2:21:10 pm (UTC)'!
+!Dybo methodsFor: 'actions' stamp: 'hlsf 26/Sep/2026, 6:06:17 pm (UTC)'!
 goDocument
-" Plug a new document "
-	^ self goDocument:  (DocumentView presenter: Document new :: installView)
+" Plug a new document for quick note "
+	self goDocument:  (DocumentView presenter: Document new :: installView)
 ! !
 
 !Dybo methodsFor: 'actions' stamp: 'hlsf 14/Dec/2024, 12:55:15 pm (UTC)'!
@@ -1041,11 +1041,14 @@ importPDF
 	newDoc fitPageToWidth.
 	^ newDoc! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 6:04:16 pm (UTC)'!
 newDocument
 	| newDoc |
 	currentTopic ifNil: [^ self].
-	newDoc := DyUserData current addDocument: self goDocument to: currentTopic.
+	newDoc := DyDocFile new.
+	newDoc createMyDocument.
+	DyUserData current addDocument: newDoc to: currentTopic.
+	self goDocument: newDoc document view.
 	DyboSystem saveUserData.
 	^ newDoc ! !
 
@@ -1857,11 +1860,15 @@ rsyncFrom: sourceEntry to: destEntry
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 500) wait]		
 	] ensure: [WaitSpinner stop]! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 26/Sep/2026, 6:07:54 pm (UTC)'!
 saveUserData
+	'Data NOT saved, for now' print.
+
+"
 	ReferenceStream 
 		dumpOnCompressedFile: DyboSystem userDataFile
-		object: DyUserData current! !
+		object: DyUserData current
+"! !
 
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 13/Sep/2026, 5:28:24 pm (UTC)'!
 updateFrom: sourceEntry to: destEntry
@@ -3020,10 +3027,10 @@ owner
 owner: anObject
 	owner := anObject ! !
 
-!DyObject methodsFor: 'accessing' stamp: 'hlsf 24/Sep/2026, 4:37:10 pm (UTC)'!
+!DyObject methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2026, 5:11:47 pm (UTC)'!
 path
 "Location on of the object data and associated document "
-	^ self owner path / self dirName! !
+	^ DyboSystem myDataPath / self relPath ! !
 
 !DyObject methodsFor: 'accessing' stamp: 'hlsf 24/Sep/2026, 4:27:27 pm (UTC)'!
 relPath
@@ -3361,9 +3368,12 @@ descriptionTask
 	^ String streamContents: [:str | str 
 		nextPutAll: 'Homework for class {1}' translated]! !
 
-!DyDocFile methodsFor: 'accessing doc' stamp: 'hlsf 25/Sep/2026, 8:33:34 pm (UTC)'!
+!DyDocFile methodsFor: 'accessing doc' stamp: 'hlsf 26/Sep/2026, 5:26:59 pm (UTC)'!
 document
-	^ document ifNil: [document :=  ReferenceStream restoreFromCompressedFile: self path // 'doc.obj']! !
+	^ document ifNil: [
+		document :=  ReferenceStream restoreFromCompressedFile: self path // 'doc.obj'.
+		document docFile: self.
+		document]! !
 
 !DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:48:28 am (UTC)'!
 creationTime
@@ -3419,6 +3429,13 @@ title
 title: anObject
 	title := anObject! !
 
+!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 6:02:25 pm (UTC)'!
+createMyDocument
+	document := Document new ::
+		docFile: self.
+	DocumentView presenter: document ::
+		installView! !
+
 !DyDocFile methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 2:09:06 pm (UTC)'!
 initialize
 	super initialize .
@@ -3442,7 +3459,7 @@ To save your work, go to your binder and create a new document.' translated].
 unsavedAttributes
 	^ #(document)! !
 
-!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 2:34:13 pm (UTC)'!
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 5:30:01 pm (UTC)'!
 updateDocument
 	document := nil.
 	preview := self document view preview! !

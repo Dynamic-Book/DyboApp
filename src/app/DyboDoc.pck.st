@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 4:36:27 pm'!
+'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 8:08:48 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 310!
+!provides: 'DyboDoc' 1 311!
 !requires: 'UI-Panel' 1 170 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-History-Timeline' 1 18 nil!
@@ -80,7 +80,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'DyboDoc-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'tool pen highlighter eraser commandsManager model view savesReal isSaved controlsManager'
+	instanceVariableNames: 'tool pen highlighter eraser commandsManager model view savesReal isSaved controlsManager docFile'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Presenter'!
@@ -1506,12 +1506,13 @@ undoAction
 	self commandsManager undo ifTrue: [self unsaved].
 	self resetTool! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 1:12:33 pm (UTC)'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 5:39:12 pm (UTC)'!
 initialize
 	super initialize.
 	self initializeStrokeTools .
 	model := DocumentModel new.
-	isSaved := true! !
+	isSaved := true.
+	savesReal := false! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025, 3:51:46 pm (UTC)'!
 initializeStrokeTools
@@ -1523,11 +1524,11 @@ initializeStrokeTools
 	eraser := Pen new width: 2
 ! !
 
-!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:33:59 pm (UTC)'!
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 5:45:09 pm (UTC)'!
 asDocFile
-	| dirName | 
+	| dirName myDocFile | 
 	dirName := model dirName.
-	^ DyDocFile new ::
+	myDocFile := DyDocFile new ::
 		title: model title;
 		creationTime: (DateAndTime 
 			year: (dirName copyFrom: 1 count: 4) asNumber
@@ -1538,17 +1539,23 @@ asDocFile
 			second: (dirName copyFrom: 18 count: 2) asNumber );
 		modificationTime: model modificationTime;
 		document: self;
-		owner: model owner;
-		updateDocument;
-		yourself! !
+		owner: model owner.
+	docFile := myDocFile.
+	myDocFile updateDocument.
+	^ docFile ! !
 
 !Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:13:30 pm (UTC)'!
 dirName
 	^ ''! !
 
-!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 1:35:17 pm (UTC)'!
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 5:23:08 pm (UTC)'!
 docFile
-	^ DyUserData current docFileOf: self! !
+	^ docFile
+	"DyUserData current docFileOf: self"! !
+
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 5:22:54 pm (UTC)'!
+docFile: aDocFile
+	docFile := aDocFile ! !
 
 !Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:07:44 pm (UTC)'!
 isDocument: aDocPresenter
@@ -1600,11 +1607,11 @@ unsaved
 unsavedAttributes
 	^ #(commandsManager controlsManager isSaved pen highlighter eraser tool)! !
 
-!Document methodsFor: 'printing' stamp: 'hlsf 26/Sep/2026, 2:12:36 pm (UTC)'!
+!Document methodsFor: 'printing' stamp: 'hlsf 26/Sep/2026, 5:22:28 pm (UTC)'!
 printOn: aStream
 	super printOn: aStream.
 	aStream nextPutAll: ' P. (';
-		nextPutAll: (self docFile ifNotNil: [:docFile | docFile dirName] ifNil: ['']);
+		nextPutAll: self docFile dirName;
 		nextPut: $)! !
 
 !Document methodsFor: 'tool' stamp: 'hlsf 12/Aug/2026, 4:54:38 pm (UTC)'!

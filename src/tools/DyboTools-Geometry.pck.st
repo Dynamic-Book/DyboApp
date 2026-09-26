@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8160] on 8 September 2026 at 9:04:32 pm'!
+'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 8:08:54 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 80!
+!provides: 'DyboTools-Geometry' 1 81!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
 
@@ -879,8 +879,13 @@ addSubGrads: cmCoordinates
 		line := SubGradMorph from: pt1 to: pt2.
 		self addMorph: line]! !
 
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 8/Sep/2026, 9:12:57 am (UTC)'!
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Sep/2026, 5:43:22 pm (UTC)'!
 drawOn: canvas
+
+! !
+
+!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Sep/2026, 5:36:23 pm (UTC)'!
+drawOnOriginal: canvas
 "	The drawing requiring needing complex computation (trigonometric and division) are rendered as submorphs "
 	| apex pos gradQty step smallTick tick |
 	apex := extent y.
