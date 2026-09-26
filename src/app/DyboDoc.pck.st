@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 25 September 2026 at 11:07:12 pm'!
+'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 1:10:21 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 307!
+!provides: 'DyboDoc' 1 308!
 !requires: 'UI-Panel' 1 170 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-History-Timeline' 1 18 nil!
@@ -1543,6 +1543,17 @@ initializeStrokeTools
 		threshold: 6 squared.
 	eraser := Pen new width: 2
 ! !
+
+!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 9:57:00 am (UTC)'!
+asDocFile
+	^ DyDocFile new ::
+		title: model title;
+		creationTime: (DateAndTime fromString: model dirName);
+		modificationTime: model modificationTime;
+		preview: view preview;
+		document: self;
+		owner: model owner;
+		yourself! !
 
 !Document methodsFor: 'document file' stamp: 'hlsf 19/Mar/2026, 7:15:36 pm (UTC)'!
 loadFromDisk
@@ -4490,20 +4501,10 @@ container
 controlsManager
 	^ presenter controlsManager! !
 
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 14/Sep/2026, 7:49:27 pm (UTC)'!
-forgetModificationTime
-"	We cache its value to avoid multiple file access "
-	^ self removeProperty: #modificationTime! !
-
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 16/Nov/2024, 9:01:30 am (UTC)'!
 model
 " The DocumentModel "
 	^ presenter model! !
-
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 14/Sep/2026, 7:48:59 pm (UTC)'!
-modificationTime
-"	We cache its value to avoid multiple file access "
-	^ self valueOfProperty: #modificationTime ifAbsentPut: [presenter model modificationTime]! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 31/Aug/2024, 8:34:28 am (UTC)'!
 presenter
@@ -4512,22 +4513,6 @@ presenter
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 2/Sep/2024, 7:23:41 pm (UTC)'!
 presenter: aPresenter
 	presenter := aPresenter ! !
-
-!DocumentView methodsFor: 'accessing' stamp: 'hlsf 13/Apr/2026, 2:41:20 pm (UTC)'!
-preview
-" Shrinkg a bit then cut a piece from the origin with a given extent "
-	| shrinkFactorX shrinkFactorY form |
-	^ preview ifNil: [ ('compute preview: ', self printString) print.
-		form := (container imageForm: 32) copy: (0@0 corner: container morphWidth @ (container morphHeight -40)).
-		shrinkFactorX := DocumentView previewExtent x / form width.
-		shrinkFactorY := DocumentView previewExtent y / form height.
-		form := form magnifyBy: (shrinkFactorX max: shrinkFactorY).
-		preview := form copy: (0@0 corner: DocumentView previewExtent)]! !
-
-!DocumentView methodsFor: 'accessing' stamp: 'dau 12/Sep/2026, 10:35:20 am (UTC)'!
-preview: aForm
-"	The preview may be load from disk, under that circumstance we cache it too"
-	preview := aForm ! !
 
 !DocumentView methodsFor: 'accessing' stamp: 'hlsf 24/Nov/2024, 5:51:30 pm (UTC)'!
 statusBarMessage: aString
@@ -4735,11 +4720,6 @@ adjustPageCounter
 				nextPutAll: '/';
 				nextPutAll: self numberOfPages printString 	])! !
 
-!DocumentView methodsFor: 'update' stamp: 'hlsf 22/Dec/2024, 9:53:16 am (UTC)'!
-resetPreview
-	preview := nil
-	! !
-
 !DocumentView methodsFor: 'persistence' stamp: 'hlsf 5/Sep/2026, 11:35:59 am (UTC)'!
 comeFullyUpOnReload: smartRefStream
 	submorphs := #().
@@ -4747,11 +4727,6 @@ comeFullyUpOnReload: smartRefStream
 	viewType == #mini
 		ifTrue: [self installMiniView]
 		ifFalse: [	self installView]! !
-
-!DocumentView methodsFor: 'persistence' stamp: 'hlsf 14/Sep/2026, 7:54:24 pm (UTC)'!
-prepareToBeSaved
-	preview := nil.
-	self forgetModificationTime ! !
 
 !DocumentView methodsFor: 'persistence' stamp: 'hlsf 23/Dec/2024, 11:52:58 am (UTC)'!
 storeDataOn: aDataStream
@@ -5046,9 +5021,45 @@ zoom100ButtonData
 	#zoomPageTo100 . 
 	'Zoom the page to its natural scale of 1:1 or 100%.' translated  }! !
 
-!DocumentView methodsFor: 'testing' stamp: 'dau 12/Sep/2026, 10:34:14 am (UTC)'!
+!DocumentView methodsFor: 'document file' stamp: 'hlsf 14/Sep/2026, 7:49:27 pm (UTC)'!
+forgetModificationTime
+"	We cache its value to avoid multiple file access "
+	^ self removeProperty: #modificationTime! !
+
+!DocumentView methodsFor: 'document file' stamp: 'dau 12/Sep/2026, 10:34:14 am (UTC)'!
 isPreviewCache
 	^ preview notNil! !
+
+!DocumentView methodsFor: 'document file' stamp: 'hlsf 14/Sep/2026, 7:48:59 pm (UTC)'!
+modificationTime
+"	We cache its value to avoid multiple file access "
+	^ self valueOfProperty: #modificationTime ifAbsentPut: [presenter model modificationTime]! !
+
+!DocumentView methodsFor: 'document file' stamp: 'hlsf 14/Sep/2026, 7:54:24 pm (UTC)'!
+prepareToBeSaved
+	preview := nil.
+	self forgetModificationTime ! !
+
+!DocumentView methodsFor: 'document file' stamp: 'hlsf 13/Apr/2026, 2:41:20 pm (UTC)'!
+preview
+" Shrinkg a bit then cut a piece from the origin with a given extent "
+	| shrinkFactorX shrinkFactorY form |
+	^ preview ifNil: [ ('compute preview: ', self printString) print.
+		form := (container imageForm: 32) copy: (0@0 corner: container morphWidth @ (container morphHeight -40)).
+		shrinkFactorX := DocumentView previewExtent x / form width.
+		shrinkFactorY := DocumentView previewExtent y / form height.
+		form := form magnifyBy: (shrinkFactorX max: shrinkFactorY).
+		preview := form copy: (0@0 corner: DocumentView previewExtent)]! !
+
+!DocumentView methodsFor: 'document file' stamp: 'dau 12/Sep/2026, 10:35:20 am (UTC)'!
+preview: aForm
+"	The preview may be load from disk, under that circumstance we cache it too"
+	preview := aForm ! !
+
+!DocumentView methodsFor: 'document file' stamp: 'hlsf 22/Dec/2024, 9:53:16 am (UTC)'!
+resetPreview
+	preview := nil
+	! !
 
 !DocumentView class methodsFor: 'ui' stamp: 'hlsf 23/Dec/2024, 8:24:19 am (UTC)'!
 previewExtent

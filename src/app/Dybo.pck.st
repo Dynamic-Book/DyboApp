@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 25 September 2026 at 11:07:08 pm'!
+'From Cuis7.9 [latest update: #8225] on 26 September 2026 at 1:27:52 pm'!
 'Description '!
-!provides: 'Dybo' 1 292!
+!provides: 'Dybo' 1 294!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -193,7 +193,7 @@ DyCourse class
 
 !classDefinition: #DyDocFile category: #'Dybo-Model'!
 DyObject subclass: #DyDocFile
-	instanceVariableNames: 'title creationTime modificationTime dirName preview document'
+	instanceVariableNames: 'title creationTime modificationTime preview document'
 	classVariableNames: 'Current'
 	poolDictionaries: ''
 	category: 'Dybo-Model'!
@@ -439,7 +439,6 @@ My owner is a ClassGroup!
 I represent a Document from the File perspective.
 - title: my optional title, if nil dirName
 - creationTime, modificationTime: DateAndTime instances set at the document creation time, set each time document is saved
-- dirName : the name of the directory where is saved the Document. On the disk, this directory is located in the tasks or topic directory
 - preview: a Form, miniature of the document view
 - owner: my onwer, a Topic or a Task
 - document: the DocumentPresenter instance I represent!
@@ -527,6 +526,40 @@ deleteTask: aTask
 	self tasks remove: aTask.
 	(DyboSystem myDataPath / DyboSystem tasksRelPath / aTask document model dirName) recursiveDelete! !
 
+!DyUserData methodsFor: 'To review db - queries' stamp: 'hlsf 26/Sep/2026, 11:19:42 am (UTC)'!
+documentFileOwner: docFile
+"Search in my tasks "
+	self tasks 
+		detect: [:aTask | aTask document = docFile ] 
+		ifFound: [:ownerTask | ^ ownerTask]
+		ifNone: [nil].
+" Search in document in all ClassGroups/Courses/Topics "
+	self allTopics 
+		detect:  [:aTopic | aTopic documents 
+			detect: [:aDocFile | aDocFile = docFile] 
+			ifFound: [:matchingTopic | true ]
+			ifNone: [false] ]
+		ifFound: [:ownerTopic | ^ ownerTopic ]
+		ifNone: [].
+	^ nil! !
+
+!DyUserData methodsFor: 'To review db - queries' stamp: 'hlsf 17/Apr/2026, 6:36:48 pm (UTC)'!
+documentOwner: docModel
+"Search in my tasks "
+	self tasks 
+		detect: [:aTask | aTask document model = docModel] 
+		ifFound: [:ownerTask | ^ ownerTask]
+		ifNone: [nil].
+" Search in document in all ClassGroups/Courses/Topics "
+	self allTopics 
+		detect:  [:aTopic | aTopic documents 
+			detect: [:aDocPresenter | aDocPresenter model = docModel ] 
+			ifFound: [:matchingTopic | true ]
+			ifNone: [false] ]
+		ifFound: [:ownerTopic | ^ ownerTopic ]
+		ifNone: [].
+	^ nil! !
+
 !DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:09:48 am (UTC)'!
 allCourses
 " Returns the collection of the user's courses"
@@ -534,9 +567,9 @@ allCourses
 		courses 	addAll: aClassGroup courses.
 		courses ]! !
 
-!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Aug/2026, 7:17:25 pm (UTC)'!
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 26/Sep/2026, 11:17:44 am (UTC)'!
 allDocuments
-" Returns the collection of the user's documents "
+" Returns the collection of the user's documents (docFile)"
 	^ self allTopics inject: OrderedCollection new into: [:documents :aTopic |
 		documents addAll: aTopic documents .
 		documents]! !
@@ -548,13 +581,13 @@ allTopics
 		topics addAll: aCourse topics.
 		topics ]! !
 
-!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:09:57 am (UTC)'!
-classGroupOf: aDocumentModel
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 26/Sep/2026, 10:59:15 am (UTC)'!
+classGroupOf: aDocFile
 "	Determine the class group this document belongs to. 
 	The document may come from a topic of  a course or a task "
-	^ aDocumentModel isCourse
-		ifTrue: [aDocumentModel owner course classGroup]
-		ifFalse: [(self courseAndGroupOf: aDocumentModel owner) ifNotNil: [:array | array second] ]! !
+	^ aDocFile isCourse
+		ifTrue: [aDocFile owner course classGroup]
+		ifFalse: [(self courseAndGroupOf: aDocFile owner) ifNotNil: [:array | array second] ]! !
 
 !DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 10:10:04 am (UTC)'!
 classGroups
@@ -586,23 +619,6 @@ courseAt: aDateTime
 " Search my course occuring at this date and time "
 	^ (self courseAndGroupAt: aDateTime) ifNotNil: [:anArray | anArray first]! !
 
-!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 17/Apr/2026, 6:36:48 pm (UTC)'!
-documentOwner: docModel
-"Search in my tasks "
-	self tasks 
-		detect: [:aTask | aTask document model = docModel] 
-		ifFound: [:ownerTask | ^ ownerTask]
-		ifNone: [nil].
-" Search in document in all ClassGroups/Courses/Topics "
-	self allTopics 
-		detect:  [:aTopic | aTopic documents 
-			detect: [:aDocPresenter | aDocPresenter model = docModel ] 
-			ifFound: [:matchingTopic | true ]
-			ifNone: [false] ]
-		ifFound: [:ownerTopic | ^ ownerTopic ]
-		ifNone: [].
-	^ nil! !
-
 !DyUserData methodsFor: 'db - queries' stamp: 'hlsf 30/Aug/2026, 9:22:20 am (UTC)'!
 futureTasks
 	| now |
@@ -621,10 +637,10 @@ nextCourseHourAfter: aDateAndTime
 tasksOf: aClassGroup
 	^ self tasks select: [:aTask | (self courseAndGroupOf: aTask) second = aClassGroup]! !
 
-!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 30/Aug/2026, 9:28:56 am (UTC)'!
+!DyUserData methodsFor: 'db - queries' stamp: 'hlsf 26/Sep/2026, 11:21:20 am (UTC)'!
 unsavedDocuments
-	^ DyUserData current allDocuments select: [:aDoc | 
-		aDoc model isNote not and: [aDoc isSaved not]].! !
+	^ DyUserData current allDocuments select: [:aDocFile | 
+		aDocFile isNote not and: [aDocFile isSaved not]].! !
 
 !DyUserData methodsFor: 'db - queries' stamp: 'hlsf 30/Aug/2026, 9:31:57 am (UTC)'!
 unsavedTasks
@@ -653,6 +669,20 @@ newTask: aTask
 	aTask document
 		unsaved;
 		saveDocument! !
+
+!DyUserData methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 10:42:48 am (UTC)'!
+convertToDocFile
+	DyboSystem newProgressBar: 'Converting documents in the tasks...'.
+	DyUserData current tasks do: [:aTask |
+		DyboSystem updateProgressBar: aTask printString.
+		aTask document: aTask document asDocFile].
+	DyboSystem newProgressBar: 'Converting documents in the topics...'.
+	DyUserData current allTopics do: [:aTopic |
+		DyboSystem newProgressBar: aTopic printString.
+		aTopic documents: (aTopic documents collect: [:aDocPresenter | 
+			DyboSystem newProgressBar: aDocPresenter printString.
+			aDocPresenter asDocFile]) ]
+		! !
 
 !DyUserData methodsFor: 'initialization' stamp: 'hlsf 2/Mar/2026, 5:38:09 pm (UTC)'!
 initialize
@@ -1013,9 +1043,9 @@ newDocument
 	DyboSystem saveUserData.
 	^ newDoc ! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 31/Dec/2024, 10:35:33 am (UTC)'!
-openDocument: aDocument
-	self goDocument: aDocument view! !
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 11:10:56 am (UTC)'!
+openDocument: aDocFile
+	self goDocument: aDocFile document view! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 11/Jun/2026, 8:50:55 am (UTC)'!
 renameDocument: aPreviewMorph 
@@ -1240,6 +1270,26 @@ load
 		resume.
 ! !
 
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 10:21:13 am (UTC)'!
+loadAndConvert
+	| loadProcess |
+	loadProcess := [
+		[DyboSystem newProgressBar: 'Loading documents...'.
+		DyboSystem progressBar color: controlsManager defaultColor .
+		DyUserData load.
+		(Delay forMilliseconds: 100) wait] 
+	ensure: [
+		DyboSystem newProgressBar: 'Converting documents...'.
+		DyUserData current convertToDocFile.
+		DyboSystem deleteProgressBar.
+		[controlsManager activeView updateView] on: MessageNotUnderstood do: []]
+	] newProcess .
+	self installComponents.
+	loadProcess 
+		priority: Processor userBackgroundPriority ;
+		resume.
+! !
+
 !Dybo methodsFor: 'initialization' stamp: 'hlsf 17/Apr/2026, 10:41:18 am (UTC)'!
 reset
 	controlsManager := activeViewType := currentTopic := nil! !
@@ -1409,6 +1459,12 @@ load
 " load the user data in a new Dybo window "
 	^ self basicNew
 		load! !
+
+!Dybo class methodsFor: 'instance creation' stamp: 'hlsf 26/Sep/2026, 10:17:44 am (UTC)'!
+loadAndConvert
+" load the user data and convert to the DocFile format "
+	^ self basicNew
+		loadAndConvert! !
 
 !Dybo class methodsFor: 'instance creation' stamp: 'hlsf 24/Jul/2026, 11:46:04 am (UTC)'!
 start
@@ -1587,9 +1643,11 @@ beDevelopment
 reset
 	platform reset! !
 
-!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 5/Sep/2026, 1:37:10 pm (UTC)'!
+!DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 26/Sep/2026, 10:49:38 am (UTC)'!
 deleteProgressBar
-	progressBar ifNotNil: [progressBar delete]! !
+	progressBar ifNotNil: [
+		progressBar delete.
+		progressBar := nil]! !
 
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 14/Aug/2023, 8:11:06 pm (UTC)'!
 iconToolbarSize
@@ -3279,21 +3337,6 @@ subject: aString in: aClassGroup
 		subject: aString ;
 		owner: aClassGroup ! !
 
-!DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:32 pm (UTC)'!
-isCourse
-" Is the document a teaching document, therefore part of a course/topic "
-	^ self owner class = DyTopic! !
-
-!DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:37 pm (UTC)'!
-isNote
-" A note is a document without owner, it can't be saved to disk "
-	^ (self isCourse or: [self isTask]) not! !
-
-!DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:44 pm (UTC)'!
-isTask
-" Is the document a task document, therefore part of a task in the agenda "
-	^ self owner class = DyTask! !
-
 !DyDocFile methodsFor: 'accessing doc' stamp: 'hlsf 24/Sep/2026, 4:22:49 pm (UTC)'!
 description
 	^ self isCourse 
@@ -3317,63 +3360,67 @@ descriptionTask
 document
 	^ document ifNil: [document :=  ReferenceStream restoreFromCompressedFile: self path // 'doc.obj']! !
 
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:48:28 am (UTC)'!
 creationTime
-	"Answer the value of creationTime"
-
 	^ creationTime! !
 
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 8:36:55 am (UTC)'!
+creationTime: aDateAndTime
+	creationTime := aDateAndTime ! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 11:01:50 am (UTC)'!
+creationTimeString
+	^ String streamContents: [:str | creationTime filenamePrintOn: str]! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:56:47 am (UTC)'!
 dirName
-	"Answer the value of dirName"
+" The name of the directory where the Document is saved. 
+  On the disk, this directory is located in the tasks or topic directory "
+	^ String streamContents: [:s | creationTime filenamePrintOn: s].! !
 
-	^ dirName! !
-
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
-dirName: anObject
-	"Set the value of dirName"
-
-	dirName := anObject! !
-
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:48:12 am (UTC)'!
 document: anObject
-	"Set the value of document"
-
 	document := anObject! !
 
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:48:07 am (UTC)'!
 modificationTime
-	"Answer the value of modificationTime"
-
 	^ modificationTime! !
 
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
-preview
-	"Answer the value of preview"
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 8:37:13 am (UTC)'!
+modificationTime: aDateAndTime
+	modificationTime := aDateAndTime ! !
 
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 11:02:03 am (UTC)'!
+modificationTimeString
+	^ String streamContents: [:str | modificationTime filenamePrintOn: str]! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:57:48 am (UTC)'!
+preview
 	^ preview! !
 
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:58:33 am (UTC)'!
+preview: aForm
+	preview := aForm ! !
+
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 10:56:48 am (UTC)'!
 title
-	"Answer the value of title"
+	^ self isCourse 
+		ifTrue: [title ifNil: [self dirName]] 
+		ifFalse: [owner printString "Task title"]
+	
+		! !
 
-	^ title! !
-
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 24/Sep/2026, 4:02:31 pm (UTC)'!
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:48:01 am (UTC)'!
 title: anObject
-	"Set the value of title"
-
 	title := anObject! !
 
-!DyDocFile methodsFor: 'printing' stamp: 'hlsf 24/Sep/2026, 4:25:42 pm (UTC)'!
-printOn: str
-	self isCourse 
-		ifTrue: [str 
-			nextPutAll: 'Document in ';
-			print: self owner; nextPut: $/; 
-			print: self owner course; nextPut: $/; 
-			print: self owner course classGroup]
-		ifFalse: [str nextPutAll: 'Document in task '; print: self owner]! !
+!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 9:46:19 am (UTC)'!
+initialize
+	super initialize .
+	creationTime := DateAndTime now.
+	dirName := String streamContents: [:s | creationTime filenamePrintOn: s].
+	
+	! !
 
 !DyDocFile methodsFor: 'persistence' stamp: 'hlsf 25/Sep/2026, 8:59:59 pm (UTC)'!
 saveDocument
@@ -3385,6 +3432,44 @@ saveDocument
 "	Update the preview and the modification time, then save userData too "
 	preview := document view preview.
 	modificationTime := DateAndTime now! !
+
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 9:15:22 am (UTC)'!
+unsavedAttributes
+	^ #(document)! !
+
+!DyDocFile methodsFor: 'printing' stamp: 'hlsf 24/Sep/2026, 4:25:42 pm (UTC)'!
+printOn: str
+	self isCourse 
+		ifTrue: [str 
+			nextPutAll: 'Document in ';
+			print: self owner; nextPut: $/; 
+			print: self owner course; nextPut: $/; 
+			print: self owner course classGroup]
+		ifFalse: [str nextPutAll: 'Document in task '; print: self owner]! !
+
+!DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:32 pm (UTC)'!
+isCourse
+" Is the document a teaching document, therefore part of a course/topic "
+	^ self owner class = DyTopic! !
+
+!DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:37 pm (UTC)'!
+isNote
+" A note is a document without owner, it can't be saved to disk "
+	^ (self isCourse or: [self isTask]) not! !
+
+!DyDocFile methodsFor: 'testing' stamp: 'hlsf 26/Sep/2026, 11:24:00 am (UTC)'!
+isSaved
+" 	Unloaded document is already saved, of course "
+	^ document isNil or: [document isSaved]! !
+
+!DyDocFile methodsFor: 'testing' stamp: 'hlsf 24/Sep/2026, 4:23:44 pm (UTC)'!
+isTask
+" Is the document a task document, therefore part of a task in the agenda "
+	^ self owner class = DyTask! !
+
+!DyDocFile methodsFor: 'temporary' stamp: 'hlsf 26/Sep/2026, 10:48:07 am (UTC)'!
+model
+	^ document model! !
 
 !DySchool methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023, 9:33:45 pm (UTC)'!
 initialize
@@ -3505,11 +3590,13 @@ course
 dirName
 	^ title asFileName ! !
 
-!DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023, 2:53:31 pm (UTC)'!
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2026, 10:40:27 am (UTC)'!
 documents
-	"Answer the value of documents"
-
 	^ documents! !
+
+!DyTopic methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2026, 10:40:35 am (UTC)'!
+documents: aCollection
+	documents := aCollection ! !
 
 !DyTopic methodsFor: 'accessing' stamp: 'hlsf 20/Aug/2023, 2:53:31 pm (UTC)'!
 title
@@ -3887,12 +3974,12 @@ courseIndex: anIndex
 presenter: aPresenter
 	presenter := aPresenter ! !
 
-!DyView methodsFor: 'accessing' stamp: 'hlsf 14/Sep/2026, 7:50:12 pm (UTC)'!
+!DyView methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2026, 10:50:56 am (UTC)'!
 sortBloc
 " Respond sorting block depending on the selected osrt option "
-	^ {	[:docA :docB | docA view modificationTime > docB view modificationTime].
-		[:docA :docB | docA view modificationTime < docB view modificationTime].
-		[:docA :docB | docA model title < docB model title ] } at: sortIndex ! !
+	^ {	[:docA :docB | docA modificationTime > docB modificationTime].
+		[:docA :docB | docA modificationTime < docB modificationTime].
+		[:docA :docB | docA title < docB title ] } at: sortIndex ! !
 
 !DyView methodsFor: 'accessing' stamp: 'hlsf 15/Apr/2026, 9:58:00 am (UTC)'!
 sortIndex
@@ -4400,34 +4487,30 @@ documentSelectorPanel
 		addMorphUseAll: DyControlsManager spacer;
 		addMorph: self sortListMorph layoutSpec: LayoutSpec keepMorphExtent ! !
 
-!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 14/Sep/2026, 7:55:00 pm (UTC)'!
-previewFor: aDocument
-	| buttons preview decorated docModel classGroup indicativeColor title |
-	docModel := aDocument model.
-	title := docModel isCourse ifTrue: [docModel title] ifFalse: [docModel owner printString].
-	indicativeColor := docModel isCourse ifTrue: [Color blue darker] ifFalse: [Color red darker].
-	classGroup := DyUserData current classGroupOf: docModel.
+!DyStartView methodsFor: 'GUI building' stamp: 'hlsf 26/Sep/2026, 11:06:59 am (UTC)'!
+previewFor: aDocFile
+	| buttons preview decorated classGroup indicativeColor |
+	indicativeColor := aDocFile isCourse ifTrue: [Color blue darker] ifFalse: [Color red darker].
+	classGroup := DyUserData current classGroupOf: aDocFile .
 	buttons := OrderedCollection new.
 	buttons add: 
-		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocument ::
+		(PluggableButtonMorph model: presenter action: #openDocument: actionArgument: aDocFile ::
 			icon: Theme current textEditorIcon;
 			setBalloonText: 'Edit this document' translated).
 	preview := PreviewMorph 
-		object:  aDocument 
-		image:  aDocument preview
+		object:  aDocFile 
+		image:  aDocFile preview
 		buttons: buttons
-		label: title ::
+		label: aDocFile title ::
 		borderWidth: 2.
 	preview setBalloonText: (Text streamContents: [:str |
-		str nextPutAll: title bold;
+		str nextPutAll: aDocFile title bold;
 			nextPut: Character lf;
-			nextPutAll: ((docModel description format: {classGroup}) color: indicativeColor) ;
+			nextPutAll: ((aDocFile description format: {classGroup}) color: indicativeColor) ;
 			nextPut: Character lf;
-			nextPutAll: (('Creation time: ' translated, docModel dirName italic) pointSize: FontFamily defaultPointSize - 2);
+			nextPutAll: ('Creation time: ' translated, (aDocFile creationTimeString italic pointSize: FontFamily defaultPointSize - 2) );
 			nextPut: Character lf;
-			nextPutAll: (('Modification time: ' translated, 
-			(String streamContents: [:str2 | aDocument view modificationTime filenamePrintOn: str2]) italic) 
-				pointSize: FontFamily defaultPointSize - 2) ]).
+			nextPutAll: ('Modification time: ' translated, (aDocFile modificationTimeString italic pointSize: FontFamily defaultPointSize - 2) ) ]).
 	decorated := (DecoratedPane open: preview label: classGroup printString) 
 		layoutSpec: (LayoutSpec keepMorphExtent offAxisEdgeWeight: 0);
 		padding: 20@10.
@@ -4505,12 +4588,12 @@ typesQuery
 				ifFalse: [#task]) ].
 	^ types! !
 
-!DyStartView methodsFor: 'updating' stamp: 'hlsf 15/Sep/2026, 1:02:27 pm (UTC)'!
+!DyStartView methodsFor: 'updating' stamp: 'hlsf 26/Sep/2026, 10:52:15 am (UTC)'!
 updateView
 " Fill the preview panel with document previews from the user selected classGroup-course-topic "
-	| documents |
-	documents := self documentsQuery ifEmpty: [^ self].
-	previewPanel cells: (documents collect: [:document | self previewFor: document]).
+	| docFiles |
+	docFiles := self documentsQuery ifEmpty: [^ self].
+	previewPanel cells: (docFiles collect: [:docFile | self previewFor: docFile]).
 	^ previewPanel ! !
 
 !DyboFullscreenView methodsFor: 'accessing' stamp: 'hlsf 25/Feb/2026, 7:29:30 am (UTC)'!
