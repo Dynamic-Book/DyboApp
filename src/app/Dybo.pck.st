@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 1:31:24 pm'!
+'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 6:26:56 pm'!
 'Description '!
-!provides: 'Dybo' 1 303!
+!provides: 'Dybo' 1 304!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -1406,10 +1406,10 @@ toolsMenu: builder
 		icon: #saveIcon;
 		help: 'Save this Dybo application as it is right now.' translated! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 13/Sep/2026, 5:41:51 pm (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 27/Sep/2026, 4:20:01 pm (UTC)'!
 version
 	^ 'Release ' translated, 
-		'1.02', 
+		'2.00', 
 		(String streamContents: [:str | 
 			str nextPut: Character lf; nextPut: Character lf.
 			str nextPutAll: self cuisVersion; nextPut: Character lf.
