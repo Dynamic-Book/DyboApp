@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8225] on 27 September 2026 at 12:09:34 am'!
+'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 12:12:11 pm'!
 'Description '!
-!provides: 'Dybo' 1 299!
+!provides: 'Dybo' 1 301!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -89,7 +89,7 @@ Object subclass: #DyboSystem
 	category: 'Dybo-System'!
 !classDefinition: 'DyboSystem class' category: #'Dybo-System'!
 DyboSystem class
-	instanceVariableNames: 'platform progressBar'!
+	instanceVariableNames: 'progressBar platform exportMode'!
 
 !classDefinition: #DyControlsManager category: #'Dybo-View'!
 Object subclass: #DyControlsManager
@@ -388,8 +388,12 @@ Pattern: strategy!
 Access to preferences, path, information in development mode.!
 
 !DyboSystem commentStamp: '<historical>' prior: 0!
-I map settings/preferences to the underneath hardware/os plateform
-Pattern: strategy!
+- platform : I map settings/preferences to the underneath hardware/os plateform
+- exportMode : a special mode, when true object may behave differently when data serialized. 
+It is used when exporting to PDF or exporting/importing document
+
+Pattern: strategy
+!
 
 !DyControlsManager commentStamp: '<historical>' prior: 0!
 A manager for the Dynabook user interface : main dynabook view, document view,  toolbars, controls and other widgets!
@@ -441,7 +445,7 @@ I represent a Document from the File perspective.
 - creationTime, modificationTime: DateAndTime instances set at the document creation time, set each time document is saved
 - preview: a Form, miniature of the document view
 - owner: my onwer, a Topic or a Task
-- document: the DocumentPresenter instance I represent!
+- document: the DocumentPresenter instance I represent, nil if the document has not be loaded!
 
 !DySchool commentStamp: '<historical>' prior: 0!
 Description of the user's educational institutions. Possibly several per user.
@@ -652,29 +656,28 @@ unsavedDocuments
 unsavedTasks
 	^ DyUserData current tasks select: [:aTask | aTask document isSaved not].! !
 
-!DyUserData methodsFor: 'db - store' stamp: 'hlsf 26/Sep/2026, 6:01:19 pm (UTC)'!
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
 addDocument: aDocFile to: topic
 	topic documents add: aDocFile .
 	aDocFile owner: topic.
 	"Save the empty document in case the user does not do it after editing"
 	aDocFile document unsaved .
-	aDocFile saveDocument.
+	aDocFile saveAndUpdate.
 	^ aDocFile ! !
 
-!DyUserData methodsFor: 'db - store' stamp: 'hlsf 7/May/2026, 10:08:03 am (UTC)'!
-importDocument: aDocument in: topic
-	topic documents add: aDocument.
-	aDocument model owner: topic.
-	^ aDocument ! !
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 27/Sep/2026, 9:55:03 am (UTC)'!
+importDocument: aDocFile in: topic
+	topic documents add: aDocFile .
+	^ aDocFile ! !
 
-!DyUserData methodsFor: 'db - store' stamp: 'hlsf 26/Sep/2026, 8:52:14 pm (UTC)'!
+!DyUserData methodsFor: 'db - store' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
 newTask: aTask
 	self tasks add: aTask.
 	aTask document owner: aTask.
 	"Save the empty document in case the user does not do it after editing"
 	aTask document
 		unsaved;
-		saveDocument! !
+		saveAndUpdate! !
 
 !DyUserData methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 10:06:50 pm (UTC)'!
 convertToDocFile
@@ -974,11 +977,11 @@ in the topic: {2}?' translated
 	binderView updateView.
 	DyboSystem saveUserData! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 7/May/2026, 12:49:43 pm (UTC)'!
-exportDocument: aDocument
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 9:36:26 am (UTC)'!
+exportDocument: docFile
 	| exportedDocDirectory |
 	self isExchangePath ifFalse: [^ self].
-	exportedDocDirectory := DyboSystem exchangePath asDirectoryEntry / 'exports' / aDocument model relPath.
+	exportedDocDirectory := DyboSystem exchangePath asDirectoryEntry / 'exports' / docFile title.
 	exportedDocDirectory exists
 		ifTrue: [(PopUpMenu 
 			confirm: 'This document has already been exported.
@@ -988,12 +991,17 @@ Do you want to overwrite it?' translated
 				ifTrue: ["delete previous export"
 					exportedDocDirectory recursiveDelete ] 
 				ifFalse: [^ self] ].
-	aDocument model path asDirectoryEntry copyTo: exportedDocDirectory pathName
+	DyboSystem exporting: true.
+	docFile path asDirectoryEntry copyTo: exportedDocDirectory pathName.
+	ReferenceStream 
+		dumpOnCompressedFile:  exportedDocDirectory // 'doc.obj'
+		object: docFile.
+	DyboSystem exporting: true.
 	! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 24/Sep/2026, 4:38:18 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 10:11:57 am (UTC)'!
 importDocument
-	| answer importedDocument |
+	| answer importedDocFile |
 	self isExchangePath ifFalse: [^ self].
 "	1. Select a document "
 	answer := (StandardFileMenu new oldDirectoryFrom: DyboSystem exchangePath asDirectoryEntry / 'exports')
@@ -1001,26 +1009,18 @@ importDocument
 	answer ifNil: [^ self].
 "	2. Check it is a valid document, with a doc.obj file "
 	(answer directory // 'doc.obj') exists ifFalse: [^ PopUpMenu inform: 'Not a valid document.'].
-"	3. Check it does not exist in current topic "
-	(currentTopic path / answer name) existsAsDirectory ifTrue: [
-		(PopUpMenu 
-		    confirm: 'This document already exists.
-Do you want to overwrite it?' translated
-		    trueChoice: 'Overwrite' translated
- 		falseChoice: 'Cancel' translated) 
-				ifTrue: ["delete previous import"
-					DyUserData current deleteDocumentNamed: answer name from: currentTopic] 
-				ifFalse: [^ self] ].
-"	4. copy the document and open it "
-	answer directory copyTo: (currentTopic path / answer name) pathName.
-	importedDocument := Document loadDocument: currentTopic relPath, '/', answer name.
-" 	5. Import the document in the topic "
-	DyUserData current importDocument: importedDocument in: currentTopic.
-"	6. Save data "
+"	3. copy the document and open it "
+	importedDocFile := DyDocFile load: answer directory // 'doc.obj'.
+	importedDocFile owner: currentTopic.
+	answer directory copyTo: importedDocFile path pathName.
+	importedDocFile save.
+" 	4. Import the document in the topic "
+	DyUserData current importDocument: importedDocFile in: currentTopic.
+"	5. Save data "
 	self activeView updateView.
 	DyboSystem saveUserData! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 10:08:26 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
 importPDF
 	| newDoc answer |
 	currentTopic ifNil: [^ self].
@@ -1038,7 +1038,7 @@ importPDF
 		deletePage.
 	newDoc 
 		unsaved;
-		saveDocument.
+		saveAndUpdate.
 	self runningWorld doOneCycleNow.
 	newDoc document fitPageToWidth.
 	^ newDoc! !
@@ -1057,24 +1057,24 @@ newDocument
 openDocument: aDocFile
 	self goDocument: aDocFile document view! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 11/Jun/2026, 8:50:55 am (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 9:00:26 am (UTC)'!
 renameDocument: aPreviewMorph 
 	StringRequestMorph 
 		request:  'Rename the document' translated
-		initialAnswer:  aPreviewMorph object model title
+		initialAnswer:  aPreviewMorph object title
 		do: [:aString |
 			aString ifNotEmpty: [
-				aPreviewMorph object model title: aString.
+				aPreviewMorph object title: aString.
 				aPreviewMorph relabel: aString.
-				aPreviewMorph object saveDocument.
+				DyboSystem saveUserData.
 				controlsManager activeView updateView]
 			]! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 1:11:16 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
 saveDocument: aDocument 
  | binderView |
 	binderView := controlsManager activeView.
-	aDocument saveDocument.
+	aDocument saveAndUpdate.
 	binderView updateView! !
 
 !Dybo methodsFor: 'actions exchange' stamp: 'dau 13/Sep/2026, 9:09:02 am (UTC)'!
@@ -1209,7 +1209,7 @@ deleteTask: aDyTask
 	DyboSystem saveUserData.
 	self activeView resetTask.! !
 
-!Dybo methodsFor: 'actions task' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
 	| task agendaView |
@@ -1217,7 +1217,7 @@ saveCurrentTask
 	task :=  agendaView task.
 	agendaView courseHourDate ifNil: [ ^ self ]. "Quit, no course hour date selected or one in the past nil-ified "
 	" Does the task's document have unsaved state? "
-	task document saveDocument.
+	task document saveAndUpdate.
 	" Was the task's course hour date modified? "
 	agendaView courseHourDate = task courseHourDate ifFalse: [	
 		task courseHourDate: agendaView courseHourDate .
@@ -1353,7 +1353,7 @@ LICENSES:
      with possible restrictions.' translated format: {self version. self copyright}.
 	^ text! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 30/Aug/2026, 9:48:32 am (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
 quit
 	| unsavedDoc unsavedTasks queryUI info choice | 
 	unsavedDoc := DyUserData current unsavedDocuments.
@@ -1378,8 +1378,8 @@ quit
 	choice := queryUI startUpWithCaption: info.
 	choice = 3 ifTrue: [^self].
 	choice = 1 ifTrue: [
-		unsavedDoc do: #saveDocument.
-		unsavedTasks do: [:aTask | aTask document saveDocument] ].
+		unsavedDoc do: #saveAndUpdate.
+		unsavedTasks do: [:aTask | aTask document saveAndUpdate] ].
 "	If the user did not discard the menu "
 	choice = 0 ifFalse: [Smalltalk quitPrimitive]! !
 
@@ -1647,6 +1647,10 @@ beApplication
 beDevelopment
 	platform := DyDevelopment new! !
 
+!DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 27/Sep/2026, 8:41:32 am (UTC)'!
+initialize
+	exportMode := false! !
+
 !DyboSystem class methodsFor: 'class initialization' stamp: 'hlsf 12/Oct/2024, 8:50:25 am (UTC)'!
 reset
 	platform reset! !
@@ -1780,6 +1784,10 @@ renameSchool: aSchool from: prevName to: newName
 renameTopic: aTopic from: prevName to: newName
 	'Topic renamed: maintenance operations' print.
 	self rename: prevName to: newName in: aTopic path parent! !
+
+!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 27/Sep/2026, 8:42:05 am (UTC)'!
+exporting: boolean
+	exportMode := boolean ! !
 
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 21/Jul/2026, 12:49:39 pm (UTC)'!
 pageModel
@@ -1940,6 +1948,10 @@ launch
 !DyboSystem class methodsFor: 'testing' stamp: 'hlsf 25/Feb/2026, 7:14:16 am (UTC)'!
 isDeployment
 	^ platform isDeployment ! !
+
+!DyboSystem class methodsFor: 'testing' stamp: 'hlsf 27/Sep/2026, 8:38:39 am (UTC)'!
+isExporting
+	^ exportMode! !
 
 !DyboSystem class methodsFor: 'testing' stamp: 'hlsf 21/May/2026, 8:28:40 am (UTC)'!
 isUserData
@@ -3430,41 +3442,54 @@ title
 title: anObject
 	title := anObject! !
 
-!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 8:46:44 pm (UTC)'!
+!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 27/Sep/2026, 9:51:53 am (UTC)'!
+initCreationTime
+
+	^ creationTime := DateAndTime now! !
+
+!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 27/Sep/2026, 9:51:53 am (UTC)'!
 initialize
 	super initialize .
-	creationTime := DateAndTime now.
+	self initCreationTime.
 	document := Document new ::
 		docFile: self.
 	DocumentView presenter: document ::
 		installView! !
 
-!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 1:05:22 pm (UTC)'!
-saveDocument
-	self isNote ifTrue: [
-		^ PopUpMenu inform: 'Quick notes can''t be saved, but can be exported to PDF. 
-To save your work, go to your binder and create a new document.' translated].
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 27/Sep/2026, 10:04:24 am (UTC)'!
+save
 	ReferenceStream 
 		dumpOnCompressedFile:  self path // 'doc.obj'
 		object: self document.
-	document saved.
+	document saved! !
+
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 27/Sep/2026, 10:00:10 am (UTC)'!
+saveAndUpdate
+	self isNote ifTrue: [
+		^ PopUpMenu inform: 'Quick notes can''t be saved, but can be exported to PDF. 
+To save your work, go to your binder and create a new document.' translated].
+	self save.
 	document currentPage redrawNeeded.
-"	Update the preview and the modification time, then save userData too "
+"	Update the preview and the modification time. It's up to the sender to save userData and docFile "
 	preview := document view preview.
 	modificationTime := DateAndTime now! !
+
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 27/Sep/2026, 9:26:13 am (UTC)'!
+storeDataOn: aDataStream
+	| backup |
+	backup := self backupThenNilAttributes.
+	super storeDataOn: aDataStream.
+	self restoreAttributes: backup! !
 
 !DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 8:53:07 pm (UTC)'!
 unsaved
 	document ifNotNil: [document unsaved]! !
 
-!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 9:15:22 am (UTC)'!
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 27/Sep/2026, 9:25:02 am (UTC)'!
 unsavedAttributes
-	^ #(document)! !
-
-!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 26/Sep/2026, 9:53:54 pm (UTC)'!
-updateDocument
-	document := nil.
-	preview := self document view preview! !
+	^  DyboSystem isExporting 
+		ifTrue: [#(owner)] 
+		ifFalse: [#(document)]! !
 
 !DyDocFile methodsFor: 'printing' stamp: 'hlsf 24/Sep/2026, 4:25:42 pm (UTC)'!
 printOn: str
@@ -3503,6 +3528,14 @@ isTask
 !DyDocFile methodsFor: 'temporary' stamp: 'hlsf 26/Sep/2026, 10:48:07 am (UTC)'!
 model
 	^ document model! !
+
+!DyDocFile class methodsFor: 'as yet unclassified' stamp: 'hlsf 27/Sep/2026, 10:01:46 am (UTC)'!
+load: docFileEntry
+	| docFile |
+	docFile := ReferenceStream restoreFromCompressedFile:  docFileEntry.
+	docFile initCreationTime.
+	docFile document docFile: docFile. 
+	^ docFile! !
 
 !DySchool methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023, 9:33:45 pm (UTC)'!
 initialize
@@ -5339,3 +5372,4 @@ replaceView: aPluggablePane byView: aLinearLayoutMorph
 	self replaceSubmorph: aPluggablePane by: aLinearLayoutMorph .
 	self morphExtent: self minimumExtent.
 	self adoptWidgetsColor: self defaultBorderColor ! !
+DyboSystem initialize!

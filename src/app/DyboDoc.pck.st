@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8225] on 27 September 2026 at 12:05:41 am'!
+'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 12:12:15 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 312!
-!requires: 'UI-Panel' 1 170 nil!
+!provides: 'DyboDoc' 1 314!
+!requires: 'Commander' 1 9 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
-!requires: 'DKM-History-Timeline' 1 18 nil!
+!requires: 'DKM-Extention' 1 5 nil!
 !requires: 'UI-Click-Select' 1 103 nil!
+!requires: 'UI-Panel' 1 170 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Math-Geometry' 1 17 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'Commander' 1 9 nil!
-!requires: 'DKM-Extention' 1 5 nil!
+!requires: 'DKM-History-Timeline' 1 18 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -80,7 +80,7 @@ StrokerBezier3XP class
 
 !classDefinition: #Document category: #'DyboDoc-Presenter'!
 Object subclass: #Document
-	instanceVariableNames: 'tool pen highlighter eraser commandsManager model view savesReal isSaved controlsManager docFile'
+	instanceVariableNames: 'tool pen highlighter eraser commandsManager model view isSaved controlsManager docFile'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Presenter'!
@@ -1346,11 +1346,11 @@ eraserSize4
 eraserSize8
 	self eraserSize: 8.! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 26/Sep/2026, 1:34:36 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 27/Sep/2026, 8:47:37 am (UTC)'!
 exportPDF
 	| exportedFiles pdfCommand process title |
 	title := self docFile title.
-	savesReal := true.
+	DyboSystem exporting: true.
 	exportedFiles := OrderedCollection new.
 	1 to: view numberOfPages do: [:i | 
 		| page formerScale |
@@ -1364,11 +1364,11 @@ exportPDF
 		page scale: 1.5.
 		JPEGReadWriter2 
 			putForm: (page imageForm: 32)  
-			quality: 80 
+			quality: 50 
 			progressiveJPEG: false 
 			onFileNamed: DyboSystem myExportPath // exportedFiles last.
 		page scale: formerScale].
-	savesReal := false.
+	DyboSystem exporting: false.
 	pdfCommand := String streamContents: [:s |
 		s 	nextPutAll: 'cd "{1}"'; lf;
 			nextPutAll: 'convert '.
@@ -1490,9 +1490,9 @@ penWhite
 redoAction
 	self commandsManager redo ifTrue: [self unsaved]! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 26/Sep/2026, 1:34:48 pm (UTC)'!
-saveDocument
-	self docFile saveDocument ! !
+!Document methodsFor: 'actions ui' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
+saveAndUpdate
+	self docFile saveAndUpdate ! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 3/Aug/2026, 2:09:05 pm (UTC)'!
 switchToPageModel: pageModelSymbol
@@ -1506,13 +1506,12 @@ undoAction
 	self commandsManager undo ifTrue: [self unsaved].
 	self resetTool! !
 
-!Document methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 5:39:12 pm (UTC)'!
+!Document methodsFor: 'initialization' stamp: 'hlsf 27/Sep/2026, 8:43:55 am (UTC)'!
 initialize
 	super initialize.
 	self initializeStrokeTools .
 	model := DocumentModel new.
-	isSaved := true.
-	savesReal := false! !
+	isSaved := true! !
 
 !Document methodsFor: 'initialization' stamp: 'hlsf 7/Sep/2025, 3:51:46 pm (UTC)'!
 initializeStrokeTools
@@ -1683,26 +1682,9 @@ tool: aToolClass
 	view statusBarMessage: aToolClass description.
 	self changed: #isTool:! !
 
-!Document methodsFor: 'testing' stamp: 'hlsf 23/Aug/2026, 9:14:53 am (UTC)'!
-isExportingPDF
-	^ savesReal ! !
-
 !Document methodsFor: 'testing' stamp: 'hlsf 8/Dec/2024, 11:00:55 am (UTC)'!
 isSaved
 	^ isSaved ifNil: [true]! !
-
-!Document class methodsFor: 'object serialization' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
-loadDocument: relativePath
-"
-	Once restored, the controlManager needs to be associated back and 
-	the view plug in the dynamic book main view
-"
-	| file |
-	file :=  DyboSystem myDataPath / relativePath // 'doc.obj'.
-	^ file exists 
-		ifTrue:  [ReferenceStream restoreFromCompressedFile:  file]
-		ifFalse: [self error: 'Document not on disk: ', relativePath	] 
-	! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024, 7:05:57 pm (UTC)'!
 execute
@@ -2827,9 +2809,11 @@ descriptionTask
 dirName
 	^ dirName ! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 17/Apr/2026, 6:11:07 pm (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 27/Sep/2026, 9:21:53 am (UTC)'!
 isCourse
 " Is the document a teaching document, therefore part of a course/topic "
+	self shouldNotHappen.
+
 	^ self owner class = DyTopic! !
 
 !DocumentModel methodsFor: 'document file' stamp: 'hlsf 21/Aug/2026, 8:17:26 pm (UTC)'!
@@ -2880,7 +2864,7 @@ relPath
 	'Deprecated #relPath message to DocumentModel instance' print.
 	^ self owner relPath, '/', self dirName! !
 
-!DocumentModel methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 2:02:36 pm (UTC)'!
+!DocumentModel methodsFor: 'document file' stamp: 'hlsf 27/Sep/2026, 9:20:58 am (UTC)'!
 title
 	'Deprecated message #title to DocumentFile' print.
 	^ title ifNil: [dirName]! !
@@ -3330,10 +3314,10 @@ unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 23/Aug/2026, 9:14:53 am (UTC)'!
+!PageMorph methodsFor: 'accessing' stamp: 'hlsf 27/Sep/2026, 8:43:31 am (UTC)'!
 viewport
 " I represent my visible surface to the user, in own coordinates system "
-	^ presenter isExportingPDF 
+	^ DyboSystem isExporting 
 		ifTrue: [self localBounds] 
 		ifFalse: [	((self internalize: 0@0) max: 0@0) 
 			corner: ((self internalize: owner morphExtent) min: extent)]! !
@@ -4980,11 +4964,11 @@ redoButtonData
 	#redoAction . 
 	'Redo your last undone action.' translated }! !
 
-!DocumentView methodsFor: 'controls data' stamp: 'hlsf 24/Dec/2024, 12:23:25 pm (UTC)'!
+!DocumentView methodsFor: 'controls data' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
 saveDocButtonData
 	^ {'Save document' translated . 
 	#save . 
-	#saveDocument . 
+	#saveAndUpdate . 
 	'Save the current document in my data.' translated } ! !
 
 !DocumentView methodsFor: 'controls data' stamp: 'hlsf 14/Mar/2026, 2:50:55 am (UTC)'!
