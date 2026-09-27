@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 6:27:04 pm'!
+'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 6:46:58 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 82!
+!provides: 'DyboTools-Geometry' 1 83!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
 
@@ -881,56 +881,6 @@ addSubGrads: cmCoordinates
 
 !Geodreieck methodsFor: 'drawing' stamp: 'hlsf 27/Sep/2026, 11:23:10 am (UTC)'!
 drawOn: canvas
-"	The drawing requiring needing complex computation (trigonometric and division) are rendered as submorphs "
-	| apex pos gradQty step smallTick tick |
-	apex := extent y.
-	canvas fillColor: self transparentColor do: [
-		canvas moveTo: apex negated @ 0;
-			lineTo: apex @ 0; lineTo: 0 @ apex].
-" The sides of the tool "
-	pos := 0.3 * self ppcm.
-	step := 0.7 * self ppcm.
-	canvas fillColor: self transparentColor do: [canvas polyLine: self oxStrokeZone ].
-	canvas fillColor: self transparentColor do: [canvas polyLine: self side2StrokeZone ].
-	canvas fillColor: self transparentColor do: [canvas polyLine: self side1StrokeZone ].
-		
-	canvas fillColor: `Color yellow darker alpha: 0.6` do: [
-		apex := 4.1 * self ppcm.
-		pos := Point r: apex degrees: 6.
-		canvas moveTo:  pos.
-		canvas arcTo: pos x negated @ pos y radius: apex @ apex angleOfXAxis: 0 largeFlag: false sweepFlag: false.
-		apex := 4.5 * self ppcm.
-		pos := Point r: apex degrees: 5.5.
-		canvas lineTo: pos x negated @ pos y.
-		canvas arcTo: pos radius: apex @ apex angleOfXAxis: 0 largeFlag: false sweepFlag: true.
-		"canvas lineTo: innerR negated @ 0"].
-		
-" Ruler cm graduation "
-	
-	tick := self tick.
-	smallTick := self smalltick.	
-	" half centimer grad "
-	pos := extent y negated + self ppcm.
-	gradQty := (length - 1) * 2.
-	step := self ppcm / 2.
-	gradQty := (length -1) * 4 + 1.
-	canvas strokeWidth: 1.6 color: `Color black` do: [
-		gradQty timesRepeat: [
-			canvas moveTo: pos @ 0.5; lineToY: tick.
-			pos := pos + step ] ].
-	" millimeter grad"
-	pos := extent y negated + self ppcm.
-	step := self ppcm / 10.
-	canvas strokeWidth: 0.6 color: `Color black` do: [
-		gradQty -1 timesRepeat: [
-			4 timesRepeat: [
-				pos := pos + step.
-				canvas moveTo: pos @ 0.2; lineToY: smallTick].
-			pos := pos + step] ]
-! !
-
-!Geodreieck methodsFor: 'drawing' stamp: 'hlsf 26/Sep/2026, 5:36:23 pm (UTC)'!
-drawOnOriginal: canvas
 "	The drawing requiring needing complex computation (trigonometric and division) are rendered as submorphs "
 	| apex pos gradQty step smallTick tick |
 	apex := extent y.

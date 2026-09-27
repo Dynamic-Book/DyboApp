@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 6:26:56 pm'!
+'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 6:46:55 pm'!
 'Description '!
-!provides: 'Dybo' 1 304!
+!provides: 'Dybo' 1 305!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -1343,7 +1343,7 @@ LICENSES:
      with possible restrictions.' translated format: {self version. self copyright}.
 	^ text! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 27/Sep/2026, 4:46:36 pm (UTC)'!
 quit
 	| unsavedDoc unsavedTasks queryUI info choice | 
 	unsavedDoc := DyUserData current unsavedDocuments.
@@ -1369,7 +1369,8 @@ quit
 	choice = 3 ifTrue: [^self].
 	choice = 1 ifTrue: [
 		unsavedDoc do: #saveAndUpdate.
-		unsavedTasks do: [:aTask | aTask document saveAndUpdate] ].
+		unsavedTasks do: [:aTask | aTask document saveAndUpdate].
+		DyboSystem saveUserData ].
 "	If the user did not discard the menu "
 	choice = 0 ifFalse: [Smalltalk quitPrimitive]! !
 
