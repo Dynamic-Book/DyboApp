@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 12:12:11 pm'!
+'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 12:32:42 pm'!
 'Description '!
-!provides: 'Dybo' 1 301!
+!provides: 'Dybo' 1 302!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -513,17 +513,17 @@ purge
 		aTopic documents do: [:aDocument | aTopic documents remove: aDocument ]].
 	self tasks do: [:aTask | self deleteTask: aTask]! !
 
-!DyUserData methodsFor: 'db - manage' stamp: 'hlsf 24/Sep/2026, 4:37:10 pm (UTC)'!
-deleteDocument: aDocPresenter from: topic
-	topic documents remove: aDocPresenter .
-	(topic path / aDocPresenter model dirName) recursiveDelete! !
+!DyUserData methodsFor: 'db - manage' stamp: 'hlsf 27/Sep/2026, 10:28:16 am (UTC)'!
+deleteDocument: docFile from: topic
+	topic documents remove: docFile .
+	docFile path recursiveDelete! !
 
-!DyUserData methodsFor: 'db - manage' stamp: 'hlsf 7/May/2026, 8:43:40 am (UTC)'!
+!DyUserData methodsFor: 'db - manage' stamp: 'hlsf 27/Sep/2026, 10:25:26 am (UTC)'!
 deleteDocumentNamed: aDirName from: topic
-	| docPresenter |
-	" Delete a document according to its unique dirName identifier, see DocumentModel "
-	docPresenter := topic documents detect: [:aDocument | aDocument model dirName = aDirName].
-	self deleteDocument: docPresenter from: topic! !
+	| docFileToDelete |
+	" Delete a document according to its unique dirName identifier, see DyDocFile "
+	docFileToDelete := topic documents detect: [:aDocFile | aDocFile dirName = aDirName].
+	self deleteDocument: docFileToDelete from: topic! !
 
 !DyUserData methodsFor: 'db - manage' stamp: 'hlsf 26/Jul/2026, 2:31:59 pm (UTC)'!
 deleteTask: aTask
@@ -962,18 +962,18 @@ quit
 toggleFullscreen
 	DyboSystem toggleFullscreen ! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'dau 13/Sep/2026, 9:45:27 am (UTC)'!
-deleteDocument: aDocument 
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 10:24:03 am (UTC)'!
+deleteDocument: docFile 
  | topic binderView |
 	binderView := controlsManager activeView.
 	topic := binderView topic.
 	(PopUpMenu 
 		confirm: ('Delete the document: {1}
 in the topic: {2}?' translated 
-			format: {aDocument model title. topic })
+			format: {docFile title. topic })
 		trueChoice: 'Yes, I want to delete it.' translated falseChoice: 'No, keep it.' translated) 
 			ifFalse: [^ self].
-	DyUserData current deleteDocument: aDocument from: topic.
+	DyUserData current deleteDocument: docFile from: topic.
 	binderView updateView.
 	DyboSystem saveUserData! !
 
@@ -1053,9 +1053,9 @@ newDocument
 	DyboSystem saveUserData.
 	^ newDoc ! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 11:10:56 am (UTC)'!
-openDocument: aDocFile
-	self goDocument: aDocFile document view! !
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 10:23:16 am (UTC)'!
+openDocument: docFile
+	self goDocument: docFile document view! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 9:00:26 am (UTC)'!
 renameDocument: aPreviewMorph 
