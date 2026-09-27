@@ -1,15 +1,15 @@
-'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 12:12:15 pm'!
+'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 12:46:14 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 314!
-!requires: 'Commander' 1 9 nil!
+!provides: 'DyboDoc' 1 315!
+!requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
-!requires: 'DKM-Extention' 1 5 nil!
+!requires: 'DKM-History-Timeline' 1 18 nil!
 !requires: 'UI-Click-Select' 1 103 nil!
 !requires: 'UI-Panel' 1 170 nil!
 !requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DKM-Math-Geometry' 1 17 nil!
-!requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-History-Timeline' 1 18 nil!
+!requires: 'Commander' 1 9 nil!
+!requires: 'DKM-Extention' 1 5 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
 SystemOrganization addCategory: #'DyboDoc-Presenter'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
@@ -1685,6 +1685,18 @@ tool: aToolClass
 !Document methodsFor: 'testing' stamp: 'hlsf 8/Dec/2024, 11:00:55 am (UTC)'!
 isSaved
 	^ isSaved ifNil: [true]! !
+
+!Document class methodsFor: 'object serialization' stamp: 'hlsf 27/Sep/2026, 10:46:05 am (UTC)'!
+loadDocument: relativePath
+"
+	Once restored, the controlManager needs to be associated back and 
+	the view plug in the dynamic book main view
+"
+	| file |
+	file :=  DyboSystem myDataPath / relativePath // 'doc.obj'.
+	^ file exists 
+		ifTrue:  [ReferenceStream restoreFromCompressedFile:  file]
+		ifFalse: [self error: 'Document not on disk: ', relativePath	] ! !
 
 !Command methodsFor: 'command' stamp: 'hlsf 10/Sep/2024, 7:05:57 pm (UTC)'!
 execute

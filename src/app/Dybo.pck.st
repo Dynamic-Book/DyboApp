@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 12:32:42 pm'!
+'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 1:31:24 pm'!
 'Description '!
-!provides: 'Dybo' 1 302!
+!provides: 'Dybo' 1 303!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -1020,7 +1020,7 @@ importDocument
 	self activeView updateView.
 	DyboSystem saveUserData! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 11:30:16 am (UTC)'!
 importPDF
 	| newDoc answer |
 	currentTopic ifNil: [^ self].
@@ -1039,6 +1039,7 @@ importPDF
 	newDoc 
 		unsaved;
 		saveAndUpdate.
+	DyboSystem saveUserData.
 	self runningWorld doOneCycleNow.
 	newDoc document fitPageToWidth.
 	^ newDoc! !
@@ -1263,22 +1264,11 @@ installComponents
 	self goStart.
 ! !
 
-!Dybo methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 2:18:46 pm (UTC)'!
+!Dybo methodsFor: 'initialization' stamp: 'hlsf 27/Sep/2026, 11:19:06 am (UTC)'!
 load
-	| loadProcess |
-	loadProcess := [
-		[DyboSystem newProgressBar: 'Loading documents...'.
-		DyUserData load.
-		(Delay forMilliseconds: 100) wait] 
-	ensure: [
-		DyboSystem deleteProgressBar.
-		[controlsManager activeView updateView] on: MessageNotUnderstood do: []]
-	] newProcess .
+	DyUserData load.
 	self installComponents.
-	loadProcess 
-		priority: Processor userBackgroundPriority ;
-		resume.
-! !
+	controlsManager activeView updateView.! !
 
 !Dybo methodsFor: 'initialization' stamp: 'hlsf 26/Sep/2026, 2:32:19 pm (UTC)'!
 loadAndConvert
@@ -1869,15 +1859,12 @@ rsyncFrom: sourceEntry to: destEntry
 	[process isComplete] whileFalse: [(Delay forMilliseconds: 500) wait]		
 	] ensure: [WaitSpinner stop]! !
 
-!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 26/Sep/2026, 6:07:54 pm (UTC)'!
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 27/Sep/2026, 11:00:26 am (UTC)'!
 saveUserData
-	'Data NOT saved, for now' print.
-
-"
 	ReferenceStream 
 		dumpOnCompressedFile: DyboSystem userDataFile
 		object: DyUserData current
-"! !
+! !
 
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 13/Sep/2026, 5:28:24 pm (UTC)'!
 updateFrom: sourceEntry to: destEntry
@@ -3485,7 +3472,7 @@ storeDataOn: aDataStream
 unsaved
 	document ifNotNil: [document unsaved]! !
 
-!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 27/Sep/2026, 9:25:02 am (UTC)'!
+!DyDocFile methodsFor: 'persistence' stamp: 'hlsf 27/Sep/2026, 11:04:26 am (UTC)'!
 unsavedAttributes
 	^  DyboSystem isExporting 
 		ifTrue: [#(owner)] 
@@ -3849,10 +3836,6 @@ printOn: aStream
 !DyTask methodsFor: 'accessing' stamp: 'hlsf 5/Apr/2026, 2:07:23 pm (UTC)'!
 relPath
 	^ DyboSystem tasksRelPath! !
-
-!DyTask methodsFor: 'persistence' stamp: 'hlsf 18/Dec/2024, 1:24:29 pm (UTC)'!
-restoreDocumentFromDisk
-	document := document loadFromDisk! !
 
 !DyTask methodsFor: 'comparing' stamp: 'hlsf 26/Aug/2026, 1:03:08 pm (UTC)'!
 <= aTask
@@ -4220,7 +4203,7 @@ task
 taskIndex
 	^ taskIndex! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 17/Apr/2026, 10:20:51 am (UTC)'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 27/Sep/2026, 11:11:00 am (UTC)'!
 taskIndex: anIndex
 	taskIndex := anIndex.
 	self changed: #taskIndex:.
@@ -4230,8 +4213,7 @@ taskIndex: anIndex
 				self classGroup: aCourseGroup second.
 				self course: aCourseGroup first.
 				self courseHourDate: aTask courseHourDate].
-			aTask restoreDocumentFromDisk.
-			self plugMiniDocument: aTask document view]
+			self plugMiniDocument: aTask document document view]
 		ifNil: [self plugNewMiniDocument]
 		! !
 
