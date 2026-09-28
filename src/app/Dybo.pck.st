@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 6:46:55 pm'!
+'From Cuis7.9 [latest update: #8239] on 28 September 2026 at 10:20:37 pm'!
 'Description '!
-!provides: 'Dybo' 1 305!
+!provides: 'Dybo' 1 306!
 !requires: 'Gettext' 1 32 nil!
 !requires: 'OSProcess' 1 36 nil!
 !requires: 'Goodies' 1 12 nil!
@@ -1044,11 +1044,11 @@ importPDF
 	newDoc document fitPageToWidth.
 	^ newDoc! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 26/Sep/2026, 8:48:04 pm (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 28/Sep/2026, 8:02:22 pm (UTC)'!
 newDocument
 	| newDoc |
 	currentTopic ifNil: [^ self].
-	newDoc := DyDocFile new.
+	newDoc := DyDocFile newDocument.
 	DyUserData current addDocument: newDoc to: currentTopic.
 	self goDocument: newDoc document view.
 	DyboSystem saveUserData.
@@ -1210,7 +1210,7 @@ deleteTask: aDyTask
 	DyboSystem saveUserData.
 	self activeView resetTask.! !
 
-!Dybo methodsFor: 'actions task' stamp: 'hlsf 27/Sep/2026, 9:59:19 am (UTC)'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 28/Sep/2026, 7:53:04 pm (UTC)'!
 saveCurrentTask
 	" The user is viewing an existing task, save what has been edited, if any "
 	| task agendaView |
@@ -1222,18 +1222,18 @@ saveCurrentTask
 	" Was the task's course hour date modified? "
 	agendaView courseHourDate = task courseHourDate ifFalse: [	
 		task courseHourDate: agendaView courseHourDate .
-		DyboSystem saveUserData.
-		agendaView changedFutureTasks]
+		agendaView changedFutureTasks].
+	DyboSystem saveUserData.
 	! !
 
-!Dybo methodsFor: 'actions task' stamp: 'hlsf 26/Jul/2026, 2:38:38 pm (UTC)'!
+!Dybo methodsFor: 'actions task' stamp: 'hlsf 28/Sep/2026, 8:07:08 pm (UTC)'!
 saveNewTask
 	| taskView task |
 	taskView := self activeView.
 	taskView isTaskValid ifFalse: [^ self].
 	task := DyTask new
 		courseHourDate: taskView courseHourDate;
-		document: controlsManager docPresenter.		
+		document: controlsManager docPresenter docFile.		
 	DyUserData current newTask: task.
 	DyboSystem saveUserData.
 	taskView resetTask 
@@ -1407,10 +1407,10 @@ toolsMenu: builder
 		icon: #saveIcon;
 		help: 'Save this Dybo application as it is right now.' translated! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 27/Sep/2026, 4:20:01 pm (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 28/Sep/2026, 8:20:26 pm (UTC)'!
 version
 	^ 'Release ' translated, 
-		'2.00', 
+		'2.01', 
 		(String streamContents: [:str | 
 			str nextPut: Character lf; nextPut: Character lf.
 			str nextPutAll: self cuisVersion; nextPut: Character lf.
@@ -3394,9 +3394,10 @@ dirName
   On the disk, this directory is located in the tasks or topic directory "
 	^ String streamContents: [:s | creationTime filenamePrintOn: s].! !
 
-!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:48:12 am (UTC)'!
+!DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 28/Sep/2026, 7:57:18 pm (UTC)'!
 document: anObject
-	document := anObject! !
+	document := anObject.
+	document docFile: self! !
 
 !DyDocFile methodsFor: 'accessing file' stamp: 'hlsf 26/Sep/2026, 9:48:07 am (UTC)'!
 modificationTime
@@ -3443,6 +3444,15 @@ initialize
 		docFile: self.
 	DocumentView presenter: document ::
 		installView! !
+
+!DyDocFile methodsFor: 'initialization' stamp: 'hlsf 28/Sep/2026, 8:03:23 pm (UTC)'!
+initializeMiniDoc
+	super initialize .
+	self initCreationTime.
+	document := Document new ::
+		docFile: self.
+	DocumentView presenter: document ::
+		installMiniView! !
 
 !DyDocFile methodsFor: 'persistence' stamp: 'hlsf 27/Sep/2026, 10:04:24 am (UTC)'!
 save
@@ -3517,13 +3527,22 @@ isTask
 model
 	^ document model! !
 
-!DyDocFile class methodsFor: 'as yet unclassified' stamp: 'hlsf 27/Sep/2026, 10:01:46 am (UTC)'!
+!DyDocFile class methodsFor: 'instance creation' stamp: 'hlsf 27/Sep/2026, 10:01:46 am (UTC)'!
 load: docFileEntry
 	| docFile |
 	docFile := ReferenceStream restoreFromCompressedFile:  docFileEntry.
 	docFile initCreationTime.
 	docFile document docFile: docFile. 
 	^ docFile! !
+
+!DyDocFile class methodsFor: 'as yet unclassified' stamp: 'hlsf 28/Sep/2026, 8:02:11 pm (UTC)'!
+newDocument
+	^ self new! !
+
+!DyDocFile class methodsFor: 'as yet unclassified' stamp: 'hlsf 28/Sep/2026, 8:02:42 pm (UTC)'!
+newMiniDocument
+	^ self basicNew
+		initializeMiniDoc! !
 
 !DySchool methodsFor: 'initialization' stamp: 'hlsf 8/Oct/2023, 9:33:45 pm (UTC)'!
 initialize
@@ -4204,7 +4223,7 @@ task
 taskIndex
 	^ taskIndex! !
 
-!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 27/Sep/2026, 11:11:00 am (UTC)'!
+!DyAgendaView methodsFor: 'accessing task' stamp: 'hlsf 28/Sep/2026, 8:05:00 pm (UTC)'!
 taskIndex: anIndex
 	taskIndex := anIndex.
 	self changed: #taskIndex:.
@@ -4214,7 +4233,7 @@ taskIndex: anIndex
 				self classGroup: aCourseGroup second.
 				self course: aCourseGroup first.
 				self courseHourDate: aTask courseHourDate].
-			self plugMiniDocument: aTask document document view]
+			self plugMiniDocument: aTask document]
 		ifNil: [self plugNewMiniDocument]
 		! !
 
@@ -4265,20 +4284,22 @@ initialize
 	
 ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 18/Dec/2024, 8:21:14 pm (UTC)'!
-plugMiniDocument: aDocView
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 28/Sep/2026, 8:05:49 pm (UTC)'!
+plugMiniDocument: docFile
 " plug the mini document in my view "
+	| docView |
+	docView := docFile document view.
 	miniDocView 
-		ifNotNil:  [self replaceSubmorph: miniDocView by: aDocView ]
-		ifNil: [	self addMorph: aDocView ].
+		ifNotNil:  [self replaceSubmorph: miniDocView by: docView ]
+		ifNil: [self addMorph: docView ].
 	self controlsManager triggerEvent: #switchView.
-	self controlsManager docView: aDocView.
-	miniDocView := aDocView ! !
+	self controlsManager docView: docView.
+	miniDocView := docView ! !
 
-!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 27/Sep/2025, 8:01:21 am (UTC)'!
+!DyAgendaView methodsFor: 'initialization' stamp: 'hlsf 28/Sep/2026, 8:04:32 pm (UTC)'!
 plugNewMiniDocument
 " Insert a new empty mini document  "
-	self plugMiniDocument: (DocumentView presenter: Document new :: installMiniView)
+	self plugMiniDocument: DyDocFile newMiniDocument 
 	
 	! !
 

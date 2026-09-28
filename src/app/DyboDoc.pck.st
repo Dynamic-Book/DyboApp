@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 12:46:14 pm'!
+'From Cuis7.9 [latest update: #8239] on 28 September 2026 at 10:20:40 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 315!
+!provides: 'DyboDoc' 1 316!
 !requires: 'DyboTools-Geometry' 1 26 nil!
 !requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'DKM-History-Timeline' 1 18 nil!
@@ -1523,12 +1523,11 @@ initializeStrokeTools
 	eraser := Pen new width: 2
 ! !
 
-!Document methodsFor: 'document file' stamp: 'hlsf 26/Sep/2026, 10:02:21 pm (UTC)'!
+!Document methodsFor: 'document file' stamp: 'hlsf 28/Sep/2026, 7:57:55 pm (UTC)'!
 asDocFile
 	| dirName myDocFile | 
 	dirName := model dirName.
 	myDocFile := DyDocFile basicNew.
-	docFile := myDocFile.
 	myDocFile 
 		document: self;
 		owner: model owner;
