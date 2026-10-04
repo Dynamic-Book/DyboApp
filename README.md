@@ -1,30 +1,31 @@
 # Introduction
 
-The cash register is a boring computer designed for efficiency. The
-Dybo, both software and hardware, wants to bring this efficiency
-to teachers and students to manage their job of teaching and learning.
+**DyboApp** (short for Dynamic Book Application) is an educational
+software layer designed to streamline and enrich the teaching and
+learning experience. Developed in Smalltalk and built to run on a
+GNU/Linux system, it acts as a digital "cash register" for education —
+optimizing daily tasks for teachers and students through
+interconnected workflow management and interactive dynamic tools.
 
-The DyboApp is the main user application of the Dybo
-device. It is through this app that teachers and students interact the
-most. Its features are interconnected to maximize user comfort and to
-save time. It anticipates the needs of the user according to their
-location and time of use, at home, school, in which class, and with
-which students.
+The app combines stylus-annotated PDF documents with pluggable
+**dynamic knowledge models** (interactive tools) that can be easily
+customized or retrieved from existing libraries, empowering users with
+an agile, distraction-free environment for organizing and creating
+study materials.
 
-It is developed in Cuis Smalltalk on top of GNU/Linux, it combines an
-administrative context and interactive pedagogical binders:
-handwritten stylus annotations on documents merged with live Dynamic
-Knowledge Models (DKMs)—interactive Smalltalk objects tailored for
-subjects like mathematics, history, languages, etc.  Check out our
-short video demonstrations on Mamot
-https://mamot.fr/deck/@drgeo/tagged/DyboAppDemo
-
-
-For more insights about the project, [watch this
-presentation](https://youtu.be/DBjJrAZSEHs?si=y1hHnFLp9mI_8yN9) at The
-Smalltalk 2023 Fast event in Buenos Aires.
+Check out our [short video
+demonstrations](https://mamot.fr/deck/@drgeo/tagged/DyboAppDemo).
 
 # Installation
+For a quick test, [download a
+bundle](https://github.com/Dynamic-Book/DyboApp/releases) from the
+relase page.
+
+Extract the bundle in your user directory then start the application
+by executing ``start.sh``. At the first start-up, a Wizard GUI asks
+minimal information to get you started.
+
+# Installation from source
 
 Instructions to install the DyboApp in a Cuis-Smalltalk developer
 environment.
