@@ -13,6 +13,10 @@ customized or retrieved from existing libraries, empowering users with
 an agile, distraction-free environment for organizing and creating
 study materials.
 
+The DyboApp is part of the [Dybo
+project](https://github.com/Dynamic-Book) to build a free ecosystem
+(software and hardware) for education.
+
 Check out our [short video
 demonstrations](https://mamot.fr/deck/@drgeo/tagged/DyboAppDemo).
 
