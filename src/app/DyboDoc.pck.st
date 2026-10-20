@@ -1,13 +1,14 @@
-'From Cuis7.9 [latest update: #8239] on 28 September 2026 at 10:20:40 pm'!
+'From Cuis7.9 [latest update: #8266] on 20 October 2026 at 12:52:22 pm'!
 'Description '!
-!provides: 'DyboDoc' 1 316!
+!provides: 'DyboDoc' 1 317!
+!requires: 'SimplifiedDebugger' 1 0 nil!
 !requires: 'DyboTools-Geometry' 1 26 nil!
-!requires: 'DKM-Physics-GasSimulation' 1 39 nil!
+!requires: 'DKM-Math-Geometry' 1 17 nil!
 !requires: 'DKM-History-Timeline' 1 18 nil!
+!requires: 'DKM-Physics-GasSimulation' 1 39 nil!
 !requires: 'UI-Click-Select' 1 103 nil!
 !requires: 'UI-Panel' 1 170 nil!
-!requires: 'SimplifiedDebugger' 1 0 nil!
-!requires: 'DKM-Math-Geometry' 1 17 nil!
+!requires: 'DKM-Misc-ConceptMap' 1 12 nil!
 !requires: 'Commander' 1 9 nil!
 !requires: 'DKM-Extention' 1 5 nil!
 SystemOrganization addCategory: #'DyboDoc-Model'!
@@ -3737,16 +3738,18 @@ lineWritingFrom: startPoint to: endPoint
 	self stroker: legacyStroker.
 	^ result! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 3/Sep/2026, 7:25:21 pm (UTC)'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 20/Oct/2026, 10:47:04 am (UTC)'!
 startWritingAt: localPosition
 " Initilize the user writing "
 	self resetSamplingTo: localPosition.
 	self addMorph: (currentStrokeGroup := StrokeGroupMorph new).
-	distanceThreshold := 4.0! !
+	distanceThreshold := owner scale < 0.5 
+		ifTrue:  [8.0 / owner scale ]
+		ifFalse: [4.0]! !
 
-!PaperMorph methodsFor: 'writing' stamp: 'hlsf 3/Sep/2026, 7:20:09 pm (UTC)'!
+!PaperMorph methodsFor: 'writing' stamp: 'hlsf 20/Oct/2026, 10:35:52 am (UTC)'!
 startWritingContourAt: localPosition
-" Initilize the user writing "
+" Initilize the user writing for line stroke"
 	self resetSamplingTo: localPosition.
 	self addMorph: (currentStrokeGroup := StrokeGroupContourMorph new).
 	"Minium squared distance to accept a new sample "
@@ -4581,12 +4584,13 @@ installPageContainer
 	self installScriptsFlap;
 		installGeometryToolsFlap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 10:08:15 am (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Oct/2026, 8:16:15 am (UTC)'!
 installScriptsFlap
 	| flap items |
 	items := Array 
 		with: (DKMScript for: TextModelMorph)
 		with: (DKMScript for: Timeline)
+		with: (DKMScript for: ConceptMap)
 		with: (DKMScript for: GasSimulation )
 		with: (DKMScript for: InteractiveGeometry)
 		with: (DKMScript for: Workspace).
