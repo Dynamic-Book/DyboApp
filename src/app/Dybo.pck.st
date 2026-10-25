@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8239] on 28 September 2026 at 10:20:37 pm'!
+'From Cuis7.9 [latest update: #8279] on 25 October 2026 at 11:27:43 am'!
 'Description '!
-!provides: 'Dybo' '1.306.0'!
+!provides: 'Dybo' '1.307.0'!
 !requires: 'Gettext' '1.32.0' '1.*.*'!
 !requires: 'OSProcess' '1.36.0' '1.*.*'!
 !requires: 'Goodies' '1.12.0' '1.*.*'!
@@ -444,8 +444,11 @@ I represent a Document from the File perspective.
 - title: my optional title, if nil dirName
 - creationTime, modificationTime: DateAndTime instances set at the document creation time, set each time document is saved
 - preview: a Form, miniature of the document view
-- owner: my onwer, a Topic or a Task
-- document: the DocumentPresenter instance I represent, nil if the document has not be loaded!
+- owner: my owner, a Topic or a Task
+- document: the DocumentPresenter instance I represent, nil if the document has not be loaded
+
+I am also used when a Document is exported for later importation. In that circumstance, the document attribute
+contains the DocumentPresenter!
 
 !DySchool commentStamp: '<historical>' prior: 0!
 Description of the user's educational institutions. Possibly several per user.
@@ -977,7 +980,7 @@ in the topic: {2}?' translated
 	binderView updateView.
 	DyboSystem saveUserData! !
 
-!Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 9:36:26 am (UTC)'!
+!Dybo methodsFor: 'actions binder' stamp: 'hlsf 25/Oct/2026, 10:14:23 am (UTC)'!
 exportDocument: docFile
 	| exportedDocDirectory |
 	self isExchangePath ifFalse: [^ self].
@@ -991,13 +994,13 @@ Do you want to overwrite it?' translated
 				ifTrue: ["delete previous export"
 					exportedDocDirectory recursiveDelete ] 
 				ifFalse: [^ self] ].
-	DyboSystem exporting: true.
+	[DyboSystem exporting: true.
 	docFile path asDirectoryEntry copyTo: exportedDocDirectory pathName.
+	docFile document.	"Ensure the Document is instanciated "
 	ReferenceStream 
 		dumpOnCompressedFile:  exportedDocDirectory // 'doc.obj'
-		object: docFile.
-	DyboSystem exporting: true.
-	! !
+		object: docFile] ensure: [DyboSystem exporting: false]
+! !
 
 !Dybo methodsFor: 'actions binder' stamp: 'hlsf 27/Sep/2026, 10:11:57 am (UTC)'!
 importDocument
@@ -1776,10 +1779,6 @@ renameTopic: aTopic from: prevName to: newName
 	'Topic renamed: maintenance operations' print.
 	self rename: prevName to: newName in: aTopic path parent! !
 
-!DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 27/Sep/2026, 8:42:05 am (UTC)'!
-exporting: boolean
-	exportMode := boolean ! !
-
 !DyboSystem class methodsFor: 'accessing' stamp: 'hlsf 21/Jul/2026, 12:49:39 pm (UTC)'!
 pageModel
 	^ Smalltalk at: (Preferences at: #pageModel)! !
@@ -1816,6 +1815,10 @@ convert: destEntry page: number dpi: integer
 			number .
 			destEntry pathName }.
 	^ OSProcess command: convertionCommand ! !
+
+!DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 27/Sep/2026, 8:42:05 am (UTC)'!
+exporting: boolean
+	exportMode := boolean ! !
 
 !DyboSystem class methodsFor: 'disk operations' stamp: 'hlsf 22/Aug/2026, 1:50:08 pm (UTC)'!
 importPdf: fileEntry to: destEntry
@@ -3527,7 +3530,7 @@ isTask
 model
 	^ document model! !
 
-!DyDocFile class methodsFor: 'instance creation' stamp: 'hlsf 27/Sep/2026, 10:01:46 am (UTC)'!
+!DyDocFile class methodsFor: 'instance creation' stamp: 'hlsf 25/Oct/2026, 9:57:56 am (UTC)'!
 load: docFileEntry
 	| docFile |
 	docFile := ReferenceStream restoreFromCompressedFile:  docFileEntry.
@@ -3535,11 +3538,11 @@ load: docFileEntry
 	docFile document docFile: docFile. 
 	^ docFile! !
 
-!DyDocFile class methodsFor: 'as yet unclassified' stamp: 'hlsf 28/Sep/2026, 8:02:11 pm (UTC)'!
+!DyDocFile class methodsFor: 'instance creation' stamp: 'hlsf 28/Sep/2026, 8:02:11 pm (UTC)'!
 newDocument
 	^ self new! !
 
-!DyDocFile class methodsFor: 'as yet unclassified' stamp: 'hlsf 28/Sep/2026, 8:02:42 pm (UTC)'!
+!DyDocFile class methodsFor: 'instance creation' stamp: 'hlsf 28/Sep/2026, 8:02:42 pm (UTC)'!
 newMiniDocument
 	^ self basicNew
 		initializeMiniDoc! !

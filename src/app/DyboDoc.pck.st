@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8266] on 20 October 2026 at 12:52:22 pm'!
+'From Cuis7.9 [latest update: #8279] on 25 October 2026 at 11:27:49 am'!
 'Description '!
-!provides: 'DyboDoc' '1.317.0'!
+!provides: 'DyboDoc' '1.318.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
 !requires: 'DyboTools-Geometry' '1.26.0' '1.*.*'!
 !requires: 'DKM-Math-Geometry' '1.17.0' '1.*.*'!
@@ -1347,11 +1347,11 @@ eraserSize4
 eraserSize8
 	self eraserSize: 8.! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 27/Sep/2026, 8:47:37 am (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 25/Oct/2026, 10:03:57 am (UTC)'!
 exportPDF
 	| exportedFiles pdfCommand process title |
 	title := self docFile title.
-	DyboSystem exporting: true.
+	[DyboSystem exporting: true.
 	exportedFiles := OrderedCollection new.
 	1 to: view numberOfPages do: [:i | 
 		| page formerScale |
@@ -1368,8 +1368,8 @@ exportPDF
 			quality: 50 
 			progressiveJPEG: false 
 			onFileNamed: DyboSystem myExportPath // exportedFiles last.
-		page scale: formerScale].
-	DyboSystem exporting: false.
+		page scale: formerScale] ] ensure: [DyboSystem exporting: false].
+	
 	pdfCommand := String streamContents: [:s |
 		s 	nextPutAll: 'cd "{1}"'; lf;
 			nextPutAll: 'convert '.
