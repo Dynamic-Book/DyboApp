@@ -8,7 +8,7 @@
 # variable to the wished DyboApp release number
 
 # DyboApp release number
-rel="2.01"
+rel="2.02"
 
 # Path
 dyboAppRepo=`echo "$0" | cut -d / -f 2`

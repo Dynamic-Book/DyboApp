@@ -1,7 +1,15 @@
+2026-10-25  Hilaire Fernandes  <hilaire@gnu.org>
+
+	* Release 2.02
+	* #43 fuzzy writting at low scale
+	* #44 DKM too small when dropped in a page
+	* #45 Exporting a document corrupt the data
+	* #46 Exported docFile may be without the document
+
 2026-09-28  Hilaire Fernandes  <hilaire@gnu.org>
 
 	* Release 2.01
-	* #41 New task can't be saved 
+	* #41 New task can't be saved
 
 2026-09-27  Hilaire Fernandes  <hilaire@gnu.org>
 

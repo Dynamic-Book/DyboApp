@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8279] on 25 October 2026 at 11:27:43 am'!
+'From Cuis7.9 [latest update: #8279] on 25 October 2026 at 11:44:08 am'!
 'Description '!
-!provides: 'Dybo' '1.307.0'!
+!provides: 'Dybo' '1.308.0'!
 !requires: 'Gettext' '1.32.0' '1.*.*'!
 !requires: 'OSProcess' '1.36.0' '1.*.*'!
 !requires: 'Goodies' '1.12.0' '1.*.*'!
@@ -1410,22 +1410,18 @@ toolsMenu: builder
 		icon: #saveIcon;
 		help: 'Save this Dybo application as it is right now.' translated! !
 
-!Dybo class methodsFor: 'menu' stamp: 'hlsf 28/Sep/2026, 8:20:26 pm (UTC)'!
+!Dybo class methodsFor: 'menu' stamp: 'hlsf 25/Oct/2026, 10:42:53 am (UTC)'!
 version
 	^ 'Release ' translated, 
-		'2.01', 
+		'2.02', 
 		(String streamContents: [:str | 
 			str nextPut: Character lf; nextPut: Character lf.
 			str nextPutAll: self cuisVersion; nextPut: Character lf.
 			#('Dybo' 'DyboDoc' 'DyboTools-Geometry') 
-				do: [:each | 
-					str nextPutAll: each; nextPut: Character space.
-					(CodePackage installedPackages at: each) featureSpec provides printVersionRevisionOn: str.
+				do: [:each | (CodePackage installedPackages at: each) featureSpec provides printDetailsOn: str.
 					str nextPut: Character lf].
 			(CodePackage installedPackages select: [:each | 'DKM-*' match: each packageName]) 
-				do:  [:package |
-					str nextPutAll: package packageName; nextPut: Character space.
-					package featureSpec provides printVersionRevisionOn: str]
+				do:  [:package | package featureSpec provides printDetailsOn: str]
 				separatedBy: [str nextPut: Character lf]
 			])! !
 
