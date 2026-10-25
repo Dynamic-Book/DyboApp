@@ -20,7 +20,7 @@ project](https://github.com/Dynamic-Book) to build a free ecosystem
 Check out our [short video
 demonstrations](https://mamot.fr/deck/@drgeo/tagged/DyboAppDemo).
 
-# Installation
+# Installation (GNU/Linux)
 For a quick test, [download a
 bundle](https://github.com/Dynamic-Book/DyboApp/releases) from the
 relase page.
@@ -28,6 +28,11 @@ relase page.
 Extract the bundle in your user directory then start the application
 by executing ``start.sh``. At the first start-up, a Wizard GUI asks
 minimal information to get you started.
+
+# Installation (Windows)
+
+If you are interested to use the DybApp on Windows, contact me
+directly (contact [at] istoa.eu).
 
 # Installation from source
 

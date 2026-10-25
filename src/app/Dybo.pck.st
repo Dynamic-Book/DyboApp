@@ -1,16 +1,16 @@
 'From Cuis7.9 [latest update: #8239] on 28 September 2026 at 10:20:37 pm'!
 'Description '!
-!provides: 'Dybo' 1 306!
-!requires: 'Gettext' 1 32 nil!
-!requires: 'OSProcess' 1 36 nil!
-!requires: 'Goodies' 1 12 nil!
-!requires: 'UI-Mold' 1 21 nil!
-!requires: 'DyboDoc' 1 296 nil!
-!requires: 'UI-Graphic-Import' 1 8 nil!
-!requires: 'Neo-CSV-Core' 1 2 nil!
-!requires: 'UI-Panel' 1 170 nil!
-!requires: 'Compression' 1 45 nil!
-!requires: 'Commander' 1 9 nil!
+!provides: 'Dybo' '1.306.0'!
+!requires: 'Gettext' '1.32.0' '1.*.*'!
+!requires: 'OSProcess' '1.36.0' '1.*.*'!
+!requires: 'Goodies' '1.12.0' '1.*.*'!
+!requires: 'UI-Mold' '1.21.0' '1.*.*'!
+!requires: 'DyboDoc' '1.296.0' '1.*.*'!
+!requires: 'UI-Graphic-Import' '1.8.0' '1.*.*'!
+!requires: 'Neo-CSV-Core' '1.2.0' '1.*.*'!
+!requires: 'UI-Panel' '1.170.0' '1.*.*'!
+!requires: 'Compression' '1.45.0' '1.*.*'!
+!requires: 'Commander' '1.9.0' '1.*.*'!
 SystemOrganization addCategory: #Dybo!
 SystemOrganization addCategory: #'Dybo-Data'!
 SystemOrganization addCategory: #'Dybo-Model'!

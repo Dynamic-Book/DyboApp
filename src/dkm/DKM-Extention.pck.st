@@ -1,6 +1,6 @@
 'From Cuis7.7 [latest update: #7843] on 22 March 2026 at 1:26:53 pm'!
 'Description '!
-!provides: 'DKM-Extention' 1 5!
+!provides: 'DKM-Extention' '1.5.0'!
 SystemOrganization addCategory: #'DKM-Extention'!
 
 

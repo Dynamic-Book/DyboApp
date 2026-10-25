@@ -1,6 +1,6 @@
 'From Cuis7.9 [latest update: #8239] on 27 September 2026 at 6:46:58 pm'!
 'Description '!
-!provides: 'DyboTools-Geometry' 1 83!
+!provides: 'DyboTools-Geometry' '1.83.0'!
 SystemOrganization addCategory: #'DyboTools-Geometry'!
 
 

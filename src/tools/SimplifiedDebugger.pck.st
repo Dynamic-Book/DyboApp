@@ -1,6 +1,6 @@
 'From Cuis7.3 [latest update: #7062] on 4 March 2025 at 8:11:09 pm'!
 'Description '!
-!provides: 'SimplifiedDebugger' 1 0!
+!provides: 'SimplifiedDebugger' '1.0.0'!
 SystemOrganization addCategory: #SimplifiedDebugger!
 
 
