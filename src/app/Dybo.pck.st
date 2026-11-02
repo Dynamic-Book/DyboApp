@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8279] on 25 October 2026 at 11:44:08 am'!
+'From Cuis7.9 [latest update: #8290] on 2 November 2026 at 8:08:22 pm'!
 'Description '!
-!provides: 'Dybo' '1.308.0'!
+!provides: 'Dybo' '1.309.0'!
 !requires: 'Gettext' '1.32.0' '1.*.*'!
 !requires: 'OSProcess' '1.36.0' '1.*.*'!
 !requires: 'Goodies' '1.12.0' '1.*.*'!
@@ -1650,6 +1650,16 @@ deleteProgressBar
 	progressBar ifNotNil: [
 		progressBar delete.
 		progressBar := nil]! !
+
+!DyboSystem class methodsFor: 'user interface' stamp: 'Dr. Geo User 2/Nov/2026, 6:25:20 pm (UTC)'!
+icon: svgDescription
+	| svg iconExtent |
+	svg := [SVGMainMorph fromStream: (ReadStream on: svgDescription)] 
+			on: SVGWarning 
+			do: [:warning | warning resume].
+	iconExtent := svg morphExtent ifNil:[ svg fullBoundsInOwner extent].
+	^ svg imageForm: (iconExtent normalized * 64) rounded depth: 32
+		! !
 
 !DyboSystem class methodsFor: 'user interface' stamp: 'hlsf 14/Aug/2023, 8:11:06 pm (UTC)'!
 iconToolbarSize

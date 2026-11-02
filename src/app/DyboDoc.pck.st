@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8279] on 25 October 2026 at 11:27:49 am'!
+'From Cuis7.9 [latest update: #8290] on 2 November 2026 at 8:08:31 pm'!
 'Description '!
-!provides: 'DyboDoc' '1.318.0'!
+!provides: 'DyboDoc' '1.319.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
 !requires: 'DyboTools-Geometry' '1.26.0' '1.*.*'!
 !requires: 'DKM-Math-Geometry' '1.17.0' '1.*.*'!
@@ -2539,21 +2539,9 @@ file
 file: aFileEntry
 	file := aFileEntry ! !
 
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 12/Oct/2025, 1:52:50 pm (UTC)'!
+!DKMScript methodsFor: 'accessing' stamp: 'Dr. Geo User 2/Nov/2026, 6:26:51 pm (UTC)'!
 icon
-	^ icon ifNil: [
-		self icon: presenter svgIcon.
-		icon]! !
-
-!DKMScript methodsFor: 'accessing' stamp: 'hlsf 4/Feb/2026, 2:12:43 pm (UTC)'!
-icon: svgDescription
-	| svg iconExtent |
-	svg := [SVGMainMorph fromStream: (ReadStream on: svgDescription)] 
-			on: SVGWarning 
-			do: [:warning | warning resume].
-	iconExtent := svg morphExtent ifNil:[ svg fullBoundsInOwner extent].
-	icon := svg imageForm: (iconExtent normalized * 64) rounded depth: 32
-		! !
+	^ icon ifNil: [icon := DyboSystem icon: presenter svgIcon]! !
 
 !DKMScript methodsFor: 'accessing' stamp: 'hlsf 22/Feb/2026, 8:00:34 am (UTC)'!
 myPath
