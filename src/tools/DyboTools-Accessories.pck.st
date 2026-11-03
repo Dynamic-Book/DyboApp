@@ -1,4 +1,4 @@
-'From Cuis7.9 [latest update: #8290] on 2 November 2026 at 8:08:39 pm'!
+'From Cuis7.9 [latest update: #8290] on 3 November 2026 at 11:04:57 am'!
 'Description '!
 !provides: 'DyboTools-Accessories' '1.0.0'!
 SystemOrganization addCategory: #'DyboTools-Accessories'!
@@ -67,13 +67,22 @@ handlesMouseDown: event
 	^ true
 ! !
 
-!CurtainMorph methodsFor: 'as yet unclassified' stamp: 'Dr. Geo User 2/Nov/2026, 6:54:17 pm (UTC)'!
+!CurtainMorph methodsFor: 'events' stamp: 'Dr. Geo User 2/Nov/2026, 6:54:17 pm (UTC)'!
 mouseButton1Up: event localPosition: localPosition
 	prevPosition := nil! !
 
-!CurtainMorph methodsFor: 'as yet unclassified' stamp: 'Dr. Geo User 2/Nov/2026, 7:01:49 pm (UTC)'!
+!CurtainMorph methodsFor: 'events' stamp: 'Dr. Geo User 2/Nov/2026, 7:01:49 pm (UTC)'!
 mouseMove: event localPosition: localPosition
 	event mouseButton1Pressed not ifTrue: [^ self ].
 	prevPosition 
 		ifNotNil:  [self occultingWithDirection: localPosition - prevPosition ].
 	prevPosition := localPosition! !
+
+!CurtainMorph methodsFor: 'accessing - properties' stamp: 'Dr. Geo User 3/Nov/2026, 9:22:17 am (UTC)'!
+name
+	^ 'Curtain' translated! !
+
+!CurtainMorph methodsFor: 'as yet unclassified' stamp: 'Dr. Geo User 3/Nov/2026, 9:27:50 am (UTC)'!
+is: aSymbol
+	^ aSymbol == #CurtainMorph or: [super is: aSymbol]
+	! !

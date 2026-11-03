@@ -1,4 +1,4 @@
-'From Cuis7.9 [latest update: #8290] on 2 November 2026 at 8:08:31 pm'!
+'From Cuis7.9 [latest update: #8290] on 3 November 2026 at 11:04:50 am'!
 'Description '!
 !provides: 'DyboDoc' '1.319.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
@@ -3396,20 +3396,22 @@ mouseScroll: evt localPosition: localEventPosition
 		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'Dr. Geo User 3/Nov/2026, 10:00:38 am (UTC)'!
 acceptDroppingAnnotator: annotator event: dropEvent
 	presenter pointerTool.
+	annotator scale: 2.
 	self addMorphFront: annotator.
 	annotator morphPosition:  (self internalizeFromWorld: dropEvent eventPosition) - annotator annotated fullBoundsInOwner center.
 	presenter unsaved
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'Dr. Geo User 3/Nov/2026, 10:00:50 am (UTC)'!
 acceptDroppingFromFlap: flapItem event: dropEvent
 	| dropMorph |
 	dropMorph := (flapItem object is: #DKMScript) 
 		ifTrue:  [presenter pointerTool.
-			AnnotatorMorph newOn: presenter for: flapItem object copy]
+			AnnotatorMorph newOn: presenter for: flapItem object copy ::
+				scale: 2]
 		ifFalse: [flapItem object copy].
 	self 	addMorphFront: dropMorph.
 	dropMorph morphPosition: (self internalizeFromWorld: dropEvent eventPosition) - dropMorph fullBoundsInOwner center.
@@ -3459,6 +3461,19 @@ resizePicture: aForm
 wantsDroppedMorph: aMorph event: evt
 	^ (aMorph is: #FlapItem)
 	or: [aMorph is: #AnnotatorMorph]! !
+
+!PageMorph methodsFor: 'as yet unclassified' stamp: 'Dr. Geo User 3/Nov/2026, 9:39:09 am (UTC)'!
+addMorphFront: newMorph
+"	Curtain(s) always at the front!!"
+	| curtains |
+	curtains := submorphs select: [:aMorph | aMorph is: #CurtainMorph].
+	curtains 
+		ifEmpty: [super addMorphFront: newMorph]
+		ifNotEmpty: [
+			curtains := curtains sort: [:curtainA : curtainB | 
+				(submorphs indexOf: curtainA) <  (submorphs indexOf: curtainB)].
+			self addMorph: newMorph behind: curtains first]
+	! !
 
 !PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 21/Jul/2026, 12:39:57 pm (UTC)'!
 newOn: documentPresenter model: aPageModel
@@ -4539,6 +4554,17 @@ initialize
 	pages add: currentPage.
 ! !
 
+!DocumentView methodsFor: 'initialization' stamp: 'Dr. Geo User 3/Nov/2026, 9:17:13 am (UTC)'!
+installAccessoriesFlap
+	| flap accessories |
+	accessories := Array 
+		with: CurtainMorph new.
+	flap := Flap label: ' Accessories ' translated objects: accessories .
+	container addMorph: flap.
+	flap borderColor: Color orange;
+		target: PageMorph.
+	^ flap! !
+
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 28/Jun/2026, 10:35:49 am (UTC)'!
 installGeometryToolsFlap
 	| flap tools |
@@ -4566,11 +4592,12 @@ installMiniView
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 21/Jun/2026, 8:25:52 am (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'Dr. Geo User 3/Nov/2026, 9:17:47 am (UTC)'!
 installPageContainer
 	container := PageContainer for: currentPage.
 	self installScriptsFlap;
-		installGeometryToolsFlap! !
+		installGeometryToolsFlap;
+		installAccessoriesFlap ! !
 
 !DocumentView methodsFor: 'initialization' stamp: 'hlsf 20/Oct/2026, 8:16:15 am (UTC)'!
 installScriptsFlap
