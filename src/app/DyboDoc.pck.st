@@ -1,4 +1,4 @@
-'From Cuis7.9 [latest update: #8290] on 3 November 2026 at 11:04:50 am'!
+'From Cuis7.9 [latest update: #8290] on 3 November 2026 at 7:05:57 pm'!
 'Description '!
 !provides: 'DyboDoc' '1.319.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
@@ -3238,30 +3238,6 @@ addStroke: aStroke
 drawOn: aCanvas
 "	Does nothing, my submorph draw themselves, as it is is usually the case "! !
 
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 23/Aug/2026, 4:56:04 pm (UTC)'!
-fitScreen
-	" Make the page entirely visible in the PageContainer "
-	| scaleX scaleY |
-	scaleX := (self pageContainer morphWidth / self morphWidth) asFloat.
-	scaleY := (self pageContainer morphHeight / self morphHeight) asFloat.
-	self 
-		morphPosition: 0@0;
-		scale: (scaleX min: scaleY)! !
-
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 23/Aug/2026, 4:55:04 pm (UTC)'!
-fitWidth
-		" Take PageContainer width for our current page "
-	self
-		morphPosition: 0@ (self morphPosition y);
-		scale: (self pageContainer morphWidth / self morphWidth ) asFloat
-! !
-
-!PageMorph methodsFor: 'geometry' stamp: 'hlsf 23/Aug/2026, 4:07:40 pm (UTC)'!
-scale: newScale
-	"(pageModel is: #PageModelPdf) ifTrue: [
-		pageModel resampleFrom: self scale to: newScale in: self documentModel path]."
-	super scale: newScale! !
-
 !PageMorph methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2024, 9:35:01 am (UTC)'!
 annotators
 	^submorphs select: [:morph | morph is: #AnnotatorMorph]! !
@@ -3322,79 +3298,8 @@ viewport
 		ifFalse: [	((self internalize: 0@0) max: 0@0) 
 			corner: ((self internalize: owner morphExtent) min: extent)]! !
 
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:24:43 pm (UTC)'!
-adjustExtent
-	self morphExtent: pageModel morphExtent.
-	paper morphExtent: pageModel morphExtent! !
-
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:24:53 pm (UTC)'!
-initialize
-	super initialize.
-	paper := PaperMorph newOn: presenter.
-	paper stroker: StrokerBezier3XP.
-	self addMorphBack: pageModel position: 0@0;
-		addMorphFront: paper position: 0@0.
-	self adjustExtent ! !
-
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:25:03 pm (UTC)'!
-reconcileExtent
-	extent = pageModel morphExtent ifFalse: [
-		"First time opening this page, do some adjustments "
-		self adjustExtent.
-		self fitWidth ]! !
-
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:37:57 pm (UTC)'!
-release
-" Free any ressource I am using when I am deleted"
-	pageModel release! !
-
-!PageMorph methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 1:03:10 pm (UTC)'!
-replacePageModelBy: newPageModel
-	self replaceSubmorph: pageModel by: newPageModel.
-	pageModel := newPageModel ! !
-
-!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 31/Jul/2026, 8:31:25 am (UTC)'!
-clipsSubmorphs
-	^ true! !
-
 !PageMorph methodsFor: 'drawing' stamp: 'hlsf 8/Dec/2024, 4:57:15 pm (UTC)'!
 drawOn: canvas! !
-
-!PageMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024, 8:25:19 am (UTC)'!
-is: aSymbol
-	^ aSymbol == #PageMorph or: [super is: aSymbol ]! !
-
-!PageMorph methodsFor: 'testing' stamp: 'hlsf 21/Jul/2026, 12:37:57 pm (UTC)'!
-isPageModel: aClass
-	^ pageModel class = aClass ! !
-
-!PageMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024, 8:08:01 am (UTC)'!
-clearSelection
-	" Annotators are kind of Paper "
-	self annotators do: [:each | each clearSelection].
-	paper clearSelection.! !
-
-!PageMorph methodsFor: 'selection' stamp: 'hlsf 18/Oct/2024, 9:32:03 pm (UTC)'!
-grabMorphsIn: rect
-" Select the morph in the rect and which are grabbable: StrokeGroup in the paper and Annotator in self "
-	| grabbed |
-	grabbed := OrderedCollection new.
-	grabbed addAll: (paper grabMorphsIn: rect);
-		addAll: (self annotators select: [:aMorph | rect containsRect: aMorph displayFullBounds]).
-	^ grabbed
-	! !
-
-!PageMorph methodsFor: 'event handling testing' stamp: 'hlsf 24/Oct/2024, 1:05:09 pm (UTC)'!
-handlesMouseScroll: scrollEvent
-	^ true! !
-
-!PageMorph methodsFor: 'events' stamp: 'hlsf 24/Oct/2024, 1:21:03 pm (UTC)'!
-mouseScroll: evt localPosition: localEventPosition
-	evt direction == #down
-		ifTrue: [ presenter zoomAction: -0.02 at: (self externalize:  localEventPosition) ].
-	evt direction == #up
-		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
-! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'Dr. Geo User 3/Nov/2026, 10:00:38 am (UTC)'!
 acceptDroppingAnnotator: annotator event: dropEvent
@@ -3462,18 +3367,123 @@ wantsDroppedMorph: aMorph event: evt
 	^ (aMorph is: #FlapItem)
 	or: [aMorph is: #AnnotatorMorph]! !
 
-!PageMorph methodsFor: 'as yet unclassified' stamp: 'Dr. Geo User 3/Nov/2026, 9:39:09 am (UTC)'!
+!PageMorph methodsFor: 'event handling testing' stamp: 'hlsf 24/Oct/2024, 1:05:09 pm (UTC)'!
+handlesMouseScroll: scrollEvent
+	^ true! !
+
+!PageMorph methodsFor: 'events' stamp: 'hlsf 24/Oct/2024, 1:21:03 pm (UTC)'!
+mouseScroll: evt localPosition: localEventPosition
+	evt direction == #down
+		ifTrue: [ presenter zoomAction: -0.02 at: (self externalize:  localEventPosition) ].
+	evt direction == #up
+		ifTrue: [ presenter zoomAction: 0.02 at: (self externalize: localEventPosition) ].
+! !
+
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 23/Aug/2026, 4:56:04 pm (UTC)'!
+fitScreen
+	" Make the page entirely visible in the PageContainer "
+	| scaleX scaleY |
+	scaleX := (self pageContainer morphWidth / self morphWidth) asFloat.
+	scaleY := (self pageContainer morphHeight / self morphHeight) asFloat.
+	self 
+		morphPosition: 0@0;
+		scale: (scaleX min: scaleY)! !
+
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 23/Aug/2026, 4:55:04 pm (UTC)'!
+fitWidth
+		" Take PageContainer width for our current page "
+	self
+		morphPosition: 0@ (self morphPosition y);
+		scale: (self pageContainer morphWidth / self morphWidth ) asFloat
+! !
+
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 23/Aug/2026, 4:07:40 pm (UTC)'!
+scale: newScale
+	"(pageModel is: #PageModelPdf) ifTrue: [
+		pageModel resampleFrom: self scale to: newScale in: self documentModel path]."
+	super scale: newScale! !
+
+!PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 31/Jul/2026, 8:31:25 am (UTC)'!
+clipsSubmorphs
+	^ true! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:24:43 pm (UTC)'!
+adjustExtent
+	self morphExtent: pageModel morphExtent.
+	paper morphExtent: pageModel morphExtent! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:24:53 pm (UTC)'!
+initialize
+	super initialize.
+	paper := PaperMorph newOn: presenter.
+	paper stroker: StrokerBezier3XP.
+	self addMorphBack: pageModel position: 0@0;
+		addMorphFront: paper position: 0@0.
+	self adjustExtent ! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:25:03 pm (UTC)'!
+reconcileExtent
+	extent = pageModel morphExtent ifFalse: [
+		"First time opening this page, do some adjustments "
+		self adjustExtent.
+		self fitWidth ]! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 12:37:57 pm (UTC)'!
+release
+" Free any ressource I am using when I am deleted"
+	pageModel release! !
+
+!PageMorph methodsFor: 'initialization' stamp: 'hlsf 21/Jul/2026, 1:03:10 pm (UTC)'!
+replacePageModelBy: newPageModel
+	self replaceSubmorph: pageModel by: newPageModel.
+	pageModel := newPageModel ! !
+
+!PageMorph methodsFor: 'selection' stamp: 'hlsf 19/Oct/2024, 8:08:01 am (UTC)'!
+clearSelection
+	" Annotators are kind of Paper "
+	self annotators do: [:each | each clearSelection].
+	paper clearSelection.! !
+
+!PageMorph methodsFor: 'selection' stamp: 'hlsf 18/Oct/2024, 9:32:03 pm (UTC)'!
+grabMorphsIn: rect
+" Select the morph in the rect and which are grabbable: StrokeGroup in the paper and Annotator in self "
+	| grabbed |
+	grabbed := OrderedCollection new.
+	grabbed addAll: (paper grabMorphsIn: rect);
+		addAll: (self annotators select: [:aMorph | rect containsRect: aMorph displayFullBounds]).
+	^ grabbed
+	! !
+
+!PageMorph methodsFor: 'submorphs-add/remove' stamp: 'Dr. Geo User 3/Nov/2026, 6:01:53 pm (UTC)'!
 addMorphFront: newMorph
 "	Curtain(s) always at the front!!"
 	| curtains |
 	curtains := submorphs select: [:aMorph | aMorph is: #CurtainMorph].
-	curtains 
-		ifEmpty: [super addMorphFront: newMorph]
-		ifNotEmpty: [
-			curtains := curtains sort: [:curtainA : curtainB | 
-				(submorphs indexOf: curtainA) <  (submorphs indexOf: curtainB)].
-			self addMorph: newMorph behind: curtains first]
-	! !
+	(newMorph is: #CurtainMorph) 
+		ifTrue: [	" The user wants to add a curtain to the page "
+			curtains ifEmpty: [super addMorphFront: newMorph]
+				ifNotEmpty: [ 
+					| adjustedEdge usedEdges |
+					usedEdges := curtains collect: [:aCurtain | aCurtain edge].
+					adjustedEdge := (newMorph edges difference: usedEdges) anyOne.
+					super addMorphFront: newMorph.
+					newMorph edge: adjustedEdge].
+				newMorph redrawNeeded ]
+		ifFalse: [
+			curtains 
+				ifEmpty: [super addMorphFront: newMorph]
+				ifNotEmpty: [
+					curtains := curtains sort: [:curtainA : curtainB | 
+						(submorphs indexOf: curtainA) >  (submorphs indexOf: curtainB)].
+					self addMorph: newMorph behind: curtains first] ]! !
+
+!PageMorph methodsFor: 'testing' stamp: 'hlsf 26/Sep/2024, 8:25:19 am (UTC)'!
+is: aSymbol
+	^ aSymbol == #PageMorph or: [super is: aSymbol ]! !
+
+!PageMorph methodsFor: 'testing' stamp: 'hlsf 21/Jul/2026, 12:37:57 pm (UTC)'!
+isPageModel: aClass
+	^ pageModel class = aClass ! !
 
 !PageMorph class methodsFor: 'instance creation' stamp: 'hlsf 21/Jul/2026, 12:39:57 pm (UTC)'!
 newOn: documentPresenter model: aPageModel

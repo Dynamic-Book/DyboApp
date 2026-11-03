@@ -1,4 +1,4 @@
-'From Cuis7.9 [latest update: #8290] on 3 November 2026 at 12:30:01 pm'!
+'From Cuis7.9 [latest update: #8290] on 3 November 2026 at 7:11:33 pm'!
 'Description '!
 !provides: 'DyboTools-Accessories' '1.0.0'!
 SystemOrganization addCategory: #'DyboTools-Accessories'!
@@ -21,18 +21,29 @@ I am rectangular morph occulting part of a page. I adhere to one edge of the pag
 - occulting: an integer number in [10 , 100]
 - color: color of the curtain!
 
-!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 11:07:57 am (UTC)'!
+!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 5:18:08 pm (UTC)'!
 colors
-	^ `{Color veryVeryLightGray . Color black . Color white}`! !
+	^ `Dictionary newFromPairs: {
+	'Gray' translated.  Color veryVeryLightGray . 
+	'Black' translated . Color black . 
+	'White' translated . Color white.
+	'Pink' translated . Color pink.
+	'Orange' translated . Color orange.
+	'System color' translated. Theme current paneBackgroundFrom: Theme current transcript}`! !
 
-!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 11:19:00 am (UTC)'!
+!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 5:23:22 pm (UTC)'!
+edge
+	^ edge! !
+
+!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 5:57:28 pm (UTC)'!
 edge: symbol
 	edge := symbol.
+	self adjustButtons.
 	self redrawNeeded ! !
 
-!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 11:25:04 am (UTC)'!
+!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 5:24:12 pm (UTC)'!
 edges
-	^ #(top bottom left right)! !
+	^ `#(top bottom left right)`! !
 
 !CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 9:22:17 am (UTC)'!
 name
@@ -44,12 +55,16 @@ occulting: number
 	self adjustButtons.
 	self redrawNeeded ! !
 
-!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 2/Nov/2026, 7:06:49 pm (UTC)'!
+!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 6:10:13 pm (UTC)'!
 occultingWithDirection: vector
 	edge = #bottom
-		ifTrue: [self occulting: occulting - (vector y / 20)].
+		ifTrue: [^ self occulting: occulting - (vector y / 20)].
 	edge = #top
-		ifTrue: [self occulting: occulting + (vector y / 20)]! !
+		ifTrue: [^ self occulting: occulting + (vector y / 20)].
+	edge = #left
+		ifTrue: [^ self occulting: occulting + (vector x / 40)].
+	edge = #right
+		ifTrue: [^ self occulting: occulting - (vector x / 40)].! !
 
 !CurtainMorph methodsFor: 'drawing' stamp: 'Dr. Geo User 3/Nov/2026, 11:17:09 am (UTC)'!
 drawOn: aCanvas 
@@ -75,49 +90,70 @@ mouseMove: event localPosition: localPosition
 		ifNotNil:  [self occultingWithDirection: localPosition - prevPosition ].
 	prevPosition := localPosition! !
 
-!CurtainMorph methodsFor: 'geometry' stamp: 'Dr. Geo User 3/Nov/2026, 10:49:08 am (UTC)'!
+!CurtainMorph methodsFor: 'geometry' stamp: 'Dr. Geo User 3/Nov/2026, 5:59:20 pm (UTC)'!
 adjustButtons
 	| buttonWidth position |
 	submorphs isEmptyOrNil ifTrue: [^ self].
 	buttonWidth := submorphs first morphWidth.
-	position := self localBounds topLeft + (buttonWidth * (0 @1) ).
+	position := self localBounds topLeft + (buttonWidth * (0 @ 1) ).
 	submorphs do: [:each | 
 		each morphPosition: position.
 		position := position translatedBy: buttonWidth + 4 @ 0]! !
 
-!CurtainMorph methodsFor: 'geometry' stamp: 'Dr. Geo User 2/Nov/2026, 6:38:38 pm (UTC)'!
+!CurtainMorph methodsFor: 'geometry' stamp: 'Dr. Geo User 3/Nov/2026, 5:44:46 pm (UTC)'!
 localBounds
-	^ self localBoundsBottom ! !
+	edge = #bottom
+		ifTrue: [^ self localBoundsBottom ].
+	edge = #top
+		ifTrue: [^ self localBoundsTop].
+	edge = #left
+		ifTrue: [^ self localBoundsLeft ].
+	edge = #right
+		ifTrue: [^ self localBoundsRight ].! !
 
-!CurtainMorph methodsFor: 'geometry' stamp: 'Dr. Geo User 3/Nov/2026, 10:52:01 am (UTC)'!
+!CurtainMorph methodsFor: 'geometry' stamp: 'Dr. Geo User 3/Nov/2026, 5:42:10 pm (UTC)'!
 localBoundsBottom
 	^ 2 @ (owner morphHeight * (100 - occulting) / 100) asInteger
-	corner: owner morphExtent - (2@2)! !
+	corner: owner morphExtent - 2 asPoint! !
 
-!CurtainMorph methodsFor: 'initialization' stamp: 'Dr. Geo User 3/Nov/2026, 11:04:41 am (UTC)'!
+!CurtainMorph methodsFor: 'geometry' stamp: 'Dr. Geo User 3/Nov/2026, 5:52:10 pm (UTC)'!
+localBoundsLeft
+	^ 2 @ 2
+	corner: (owner morphWidth * occulting / 100) asInteger @ (owner morphHeight - 2)! !
+
+!CurtainMorph methodsFor: 'geometry' stamp: 'Dr. Geo User 3/Nov/2026, 5:57:03 pm (UTC)'!
+localBoundsRight
+	^ 2 + (100 - occulting * owner morphWidth / 100) asInteger @ 2
+	corner:  owner morphExtent - 2 asPoint! !
+
+!CurtainMorph methodsFor: 'geometry' stamp: 'Dr. Geo User 3/Nov/2026, 5:47:55 pm (UTC)'!
+localBoundsTop
+	^ 2 @ 2
+	corner: owner morphWidth - 2 @ ((owner morphHeight * occulting / 100) asInteger - 2)! !
+
+!CurtainMorph methodsFor: 'initialization' stamp: 'Dr. Geo User 3/Nov/2026, 5:11:15 pm (UTC)'!
 initialize
 	super initialize.
 	edge := #bottom.
 	occulting := 20.
-	color := self colors first..
-	translucent := false.
+	color := self colors at: 'Gray' translated.
 	self insertButtons ! !
 
-!CurtainMorph methodsFor: 'initialization' stamp: 'Dr. Geo User 3/Nov/2026, 10:50:20 am (UTC)'!
+!CurtainMorph methodsFor: 'initialization' stamp: 'Dr. Geo User 3/Nov/2026, 5:19:02 pm (UTC)'!
 insertButtons
 	| btn buttonExtent |
 	buttonExtent := Theme current preferencesIcon extent * 3.
 	btn := ButtonMorph model: self action: #preferences ::
 		icon: (Theme current preferencesIcon magnifyBy: 2);
 		color: Color transparent;
-		selectedColor: Color orange;
+		selectedColor: Color orange lighter;
 		setBalloonText: 'Adjust the preferences of this curtain.' translated;
 		morphExtent: buttonExtent.
 	self addMorph: btn.	
 	btn := ButtonMorph model: self action: #delete ::
 		icon: (Theme current closeIcon magnifyBy: 2);
 		color: Color transparent ;
-		selectedColor: Color orange;
+		selectedColor: Color orange lighter;
 		setBalloonText: 'Close this curtain' translated;
 		morphExtent: buttonExtent.
 	self addMorph: btn
@@ -136,27 +172,29 @@ yAxisPointsUp
 noteNewOwner: pageMorph
 	self adjustButtons ! !
 
-!CurtainMorph methodsFor: 'menus' stamp: 'Dr. Geo User 3/Nov/2026, 11:28:51 am (UTC)'!
+!CurtainMorph methodsFor: 'menus' stamp: 'Dr. Geo User 3/Nov/2026, 5:14:04 pm (UTC)'!
+colorMenuString: colorName
+	^ (color = (self colors at: colorName)) asMenuItemTextPrefix, colorName! !
+
+!CurtainMorph methodsFor: 'menus' stamp: 'Dr. Geo User 3/Nov/2026, 5:05:12 pm (UTC)'!
 edgeMenuString: edgeSymbol
-	^ (edgeSymbol = edge) asMenuItemTextPrefix, ''! !
+	^ (edgeSymbol = edge) asMenuItemTextPrefix, (self edgeString: edgeSymbol)! !
 
-!CurtainMorph methodsFor: 'menus' stamp: 'Dr. Geo User 3/Nov/2026, 11:29:50 am (UTC)'!
+!CurtainMorph methodsFor: 'menus' stamp: 'Dr. Geo User 3/Nov/2026, 5:04:51 pm (UTC)'!
 edgeString: edgeSymbol
-	edgeSymbol = #top ifTrue: ['Haut' translated].
-	edgeSymbol = #bottom ifTrue: ['Haut' translated].
-	edgeSymbol = #top ifTrue: ['Haut' translated].
-	edgeSymbol = #top ifTrue: ['Haut' translated].! !
+	edgeSymbol = #top ifTrue: [^ 'Top' translated].
+	edgeSymbol = #bottom ifTrue: [^ 'Bottom' translated].
+	edgeSymbol = #right ifTrue: [^ 'Right' translated].
+	edgeSymbol = #left ifTrue: [^ 'Left' translated].! !
 
-!CurtainMorph methodsFor: 'menus' stamp: 'Dr. Geo User 3/Nov/2026, 11:28:51 am (UTC)'!
+!CurtainMorph methodsFor: 'menus' stamp: 'Dr. Geo User 3/Nov/2026, 5:15:31 pm (UTC)'!
 preferences
 	| menu |
 	menu := MenuMorph new.
-	menu 
-		defaultTarget: self;
-		add: 'Gray' translated action: #setColor: argument: 1;
-		add: 'Black' translated action: #setColor: argument: 2;
-		add: 'White' translated action: #setColor: argument: 3;
-		addLine.
+	self colors keysDo: [:aColorName |
+		menu 
+			addUpdating: #colorMenuString: target: self action: #setColor: argumentList: {aColorName}].
+	menu addLine.
 	self edges do: [:aSymbol |
 		menu 
 			addUpdating: #edgeMenuString: 
@@ -165,7 +203,7 @@ preferences
 	menu popUpInWorld 
 		! !
 
-!CurtainMorph methodsFor: 'menus' stamp: 'Dr. Geo User 3/Nov/2026, 11:06:37 am (UTC)'!
-setColor: index
-	color := self colors at: index.
+!CurtainMorph methodsFor: 'menus' stamp: 'Dr. Geo User 3/Nov/2026, 5:13:06 pm (UTC)'!
+setColor: colorName
+	color := self colors at: colorName.
 	self redrawNeeded ! !
