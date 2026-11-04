@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8290] on 3 November 2026 at 7:11:33 pm'!
+'From Cuis7.9 [latest update: #8290] on 4 November 2026 at 4:04:41 pm'!
 'Description '!
-!provides: 'DyboTools-Accessories' '1.0.0'!
+!provides: 'DyboTools-Accessories' '1.0.1'!
 SystemOrganization addCategory: #'DyboTools-Accessories'!
 
 
@@ -35,11 +35,11 @@ colors
 edge
 	^ edge! !
 
-!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 5:57:28 pm (UTC)'!
+!CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 4/Nov/2026, 2:57:58 pm (UTC)'!
 edge: symbol
 	edge := symbol.
-	self adjustButtons.
-	self redrawNeeded ! !
+	owner ifNotNil: [self adjustButtons.
+		self redrawNeeded]! !
 
 !CurtainMorph methodsFor: 'accessing' stamp: 'Dr. Geo User 3/Nov/2026, 5:24:12 pm (UTC)'!
 edges

@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8290] on 3 November 2026 at 7:05:57 pm'!
+'From Cuis7.9 [latest update: #8290] on 4 November 2026 at 4:04:32 pm'!
 'Description '!
-!provides: 'DyboDoc' '1.319.0'!
+!provides: 'DyboDoc' '1.320.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
 !requires: 'DyboTools-Geometry' '1.26.0' '1.*.*'!
 !requires: 'DKM-Math-Geometry' '1.17.0' '1.*.*'!
@@ -3310,16 +3310,18 @@ acceptDroppingAnnotator: annotator event: dropEvent
 	presenter unsaved
 ! !
 
-!PageMorph methodsFor: 'dropping/grabbing' stamp: 'Dr. Geo User 3/Nov/2026, 10:00:50 am (UTC)'!
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'Dr. Geo User 4/Nov/2026, 2:58:15 pm (UTC)'!
 acceptDroppingFromFlap: flapItem event: dropEvent
-	| dropMorph |
-	dropMorph := (flapItem object is: #DKMScript) 
+	| droppedMorph |
+	droppedMorph := (flapItem object is: #DKMScript) 
 		ifTrue:  [presenter pointerTool.
 			AnnotatorMorph newOn: presenter for: flapItem object copy ::
 				scale: 2]
 		ifFalse: [flapItem object copy].
-	self 	addMorphFront: dropMorph.
-	dropMorph morphPosition: (self internalizeFromWorld: dropEvent eventPosition) - dropMorph fullBoundsInOwner center.
+	(droppedMorph is: #CurtainMorph) ifTrue: [
+		self guessCurtainEdge: droppedMorph at: (self internalizeFromWorld: dropEvent eventPosition)].
+	self 	addMorphFront: droppedMorph.
+	droppedMorph morphPosition: (self internalizeFromWorld: dropEvent eventPosition) - droppedMorph fullBoundsInOwner center.
 	flapItem flap fold.
 	presenter unsaved! !
 
@@ -3349,6 +3351,18 @@ dropFiles: dropFilesEvent
 			annotator morphPosition: (self internalizeFromWorld: dropFilesEvent eventPosition) + positionShift.
 			positionShift := positionShift + (40@40)] ].
 	positionShift = (0@0) ifFalse: [presenter unsaved]! !
+
+!PageMorph methodsFor: 'dropping/grabbing' stamp: 'Dr. Geo User 4/Nov/2026, 2:49:45 pm (UTC)'!
+guessCurtainEdge: curtain at: localPosition
+	| distances | 
+	distances := Dictionary new ::
+		at: #top put: ( (localPosition nearestPointOnLineFrom: 0@0 to: extent x @ 0) dist: localPosition);
+		at: #left put: ( (localPosition nearestPointOnLineFrom: 0@0 to: 0 @ extent y) dist: localPosition);
+		at: #right put: ( (localPosition nearestPointOnLineFrom: extent x @ 0 to: extent) dist: localPosition);
+		at: #bottom put: ( (localPosition nearestPointOnLineFrom: extent to: 0 @ extent y) dist: localPosition);
+		yourself.
+	distances := distances associations sorted: [:assocA :assocB | assocA value < assocB value].
+	curtain edge: distances first key! !
 
 !PageMorph methodsFor: 'dropping/grabbing' stamp: 'hlsf 5/Sep/2026, 2:24:44 pm (UTC)'!
 resizePicture: aForm
@@ -3454,17 +3468,21 @@ grabMorphsIn: rect
 	^ grabbed
 	! !
 
-!PageMorph methodsFor: 'submorphs-add/remove' stamp: 'Dr. Geo User 3/Nov/2026, 6:01:53 pm (UTC)'!
+!PageMorph methodsFor: 'submorphs-add/remove' stamp: 'Dr. Geo User 4/Nov/2026, 3:00:21 pm (UTC)'!
 addMorphFront: newMorph
 "	Curtain(s) always at the front!!"
 	| curtains |
 	curtains := submorphs select: [:aMorph | aMorph is: #CurtainMorph].
 	(newMorph is: #CurtainMorph) 
 		ifTrue: [	" The user wants to add a curtain to the page "
-			curtains ifEmpty: [super addMorphFront: newMorph]
-				ifNotEmpty: [ 
-					| adjustedEdge usedEdges |
-					usedEdges := curtains collect: [:aCurtain | aCurtain edge].
+			| usedEdges |
+			usedEdges := curtains collect: [:aCurtain | aCurtain edge].
+			usedEdges size = 4 ifTrue: [^ self].
+			(curtains isEmpty 
+			or: [(usedEdges includes: newMorph edge) not]) 
+				ifTrue: [super addMorphFront: newMorph]
+				ifFalse: [ 
+					| adjustedEdge |					
 					adjustedEdge := (newMorph edges difference: usedEdges) anyOne.
 					super addMorphFront: newMorph.
 					newMorph edge: adjustedEdge].
