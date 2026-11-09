@@ -1,10 +1,11 @@
-'From Cuis7.9 [latest update: #8290] on 4 November 2026 at 4:04:32 pm'!
+'From Cuis7.9 [latest update: #8340] on 9 November 2026 at 9:55:51 pm'!
 'Description '!
 !provides: 'DyboDoc' '1.320.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
 !requires: 'DyboTools-Geometry' '1.26.0' '1.*.*'!
 !requires: 'DKM-Math-Geometry' '1.17.0' '1.*.*'!
 !requires: 'DKM-History-Timeline' '1.18.0' '1.*.*'!
+!requires: 'DyboTools-Accessories' '1.0.1' '1.*.*'!
 !requires: 'DKM-Physics-GasSimulation' '1.39.0' '1.*.*'!
 !requires: 'UI-Click-Select' '1.103.0' '1.*.*'!
 !requires: 'UI-Panel' '1.170.0' '1.*.*'!
@@ -660,140 +661,140 @@ DyImageMorph class
 	instanceVariableNames: ''!
 
 
-!Pen commentStamp: '<historical>' prior: 0!
+!Pen commentStamp: '<historical>'!
 Depending on the use of the pen, we have different threshold
 - color : color of the pen, including transparent color
 - width: standard fixed width
 - adjustWidth: does the width depends on the speed/pressure of the pen
 - threshold : the minimum squared distance between two stroke with paper morph at scale 1!
 
-!StrokerBezier2 commentStamp: 'hlsf 26/Mar/2026 10:46:11' prior: 0!
+!StrokerBezier2 commentStamp: 'hlsf 26/Mar/2026 10:46:11'!
 Given samples of mouse positions, I compute a new Bézier quadratic stroke . 
 My curve is only C0, not C1, so it has rough edge.
 I can be subclassed to adjust my behavior.!
 
-!StrokerBezier2XP commentStamp: 'hlsf 26/Mar/2026 10:46:24' prior: 0!
+!StrokerBezier2XP commentStamp: 'hlsf 26/Mar/2026 10:46:24'!
 Experiment on 2-Bezier. 
 Given samples of mouse positions and previous stroke, I compute a new Bézier quadratic stroke . 
 The Curve is C1, the common point of two bezier curves is recompute to ensure C1 : it is recomputed as 
 the middle of the controls point of the two curve. This smooth the curve but it makes  it unaccurate to the user hand stroke.
 So we migrate the control point a bit away from its sampled position.!
 
-!StrokerBezier3 commentStamp: 'hlsf 26/Mar/2026 10:46:29' prior: 0!
+!StrokerBezier3 commentStamp: 'hlsf 26/Mar/2026 10:46:29'!
 Compute a cubic Bézier curve.
 Given samples of mouse positions and previous stroke, I compute a new Bézier cubic stroke . 
 My curve is only C0, not C1, so it has rough edge.
 I can be subclassed to adjust my behavior.!
 
-!StrokerBezier3XP commentStamp: 'hlsf 26/Mar/2026 10:47:41' prior: 0!
+!StrokerBezier3XP commentStamp: 'hlsf 26/Mar/2026 10:47:41'!
 Given samples of mouse positions and previous stroke, I compute a new Bézier cubic stroke . 
 The common point of the consecutive curve is repositionned, to smooth a bit the curve, it is not exactly C1 though!
 
-!Document commentStamp: '<historical>' prior: 0!
+!Document commentStamp: '<historical>'!
 The Presenter of the Document to handle the controllers and associated callbacks of the tools.
 - saveReals: indicate to save me as a Proxy or as serialized data // Or saving as a PDF document (true)!
 
-!Command commentStamp: '<historical>' prior: 0!
+!Command commentStamp: '<historical>'!
 An abstract class to represent commands of user actions in a Document.
 domain is specific to the represented action, it can be a paper or a document.!
 
-!ErasingCommand commentStamp: '<historical>' prior: 0!
+!ErasingCommand commentStamp: '<historical>'!
 The command records erasing occuring between eraser down - eraser up event
 - domain is a paper morph instance where the erasing occured
 - deletedStrokes : a dictionany of deleted strokes (value) per stroke group (key). Those strokes can, and very likely, belong to several different stroke groups!
 
-!ErasingAnnotatorCommand commentStamp: '<historical>' prior: 0!
+!ErasingAnnotatorCommand commentStamp: '<historical>'!
 A command to record erasing on an AnnotatorMorph
 - domain: an annotator morph
 - bounds: the bounds of the annotator morph prior to the erasing. 
 The bounds once erasing is restored can be computed once the stroke group is added back to the domain (annotator morph)!
 
-!MoveAnnotatorCommand commentStamp: '<historical>' prior: 0!
+!MoveAnnotatorCommand commentStamp: '<historical>'!
 The command move a Annotator
 - domain is a page morph instance where is located the annotator
 - annotator : the annotator morph
 - delta: point, translation from former position
 !
 
-!MoveGroupCommand commentStamp: '<historical>' prior: 0!
+!MoveGroupCommand commentStamp: '<historical>'!
 The command move a group of Morphs (stroke groups and annotators) 
 - domain is a paper morph instance where the writing occured
 - selection : the group of translated morphs 
 - delta: point, translation from former position
 !
 
-!MoveGroupInAnnotatorCommand commentStamp: '<historical>' prior: 0!
+!MoveGroupInAnnotatorCommand commentStamp: '<historical>'!
 The command move a group of Morphs (stroke groups only) occuring within an Annotator object
 - domain: an annotator morph
 - bounds: the bounds of the annotator morph once move was done and bounds adjusted. 
 The bounds prior move can be computed once the stroke group is moved in the domain (annotator morph)!
 
-!WritingCommand commentStamp: '<historical>' prior: 0!
+!WritingCommand commentStamp: '<historical>'!
 The command records writing between pen down - pen up event
 - domain is a paper morph instance where the writing occured
 - strokeGroup : the group of strokes that was just writen
 !
 
-!WritingAnnotatorCommand commentStamp: 'hlsf 9/29/2024 18:16:46' prior: 0!
+!WritingAnnotatorCommand commentStamp: 'hlsf 9/29/2024 18:16:46'!
 A command to record writings on an AnnotatorMorph
 - domain: an annotator morph
 - bounds: the bounds of the annotator morph once writting was done and bounds adjusted. 
 The bounds prior writing can be computed once the stroke group is removed from the domain (annotator morph)!
 
-!CommandManager commentStamp: '<historical>' prior: 0!
+!CommandManager commentStamp: '<historical>'!
 A manager for user commands. At user actions, I create specific instances of command recorded in a stack.!
 
-!PageTool commentStamp: '<historical>' prior: 0!
+!PageTool commentStamp: '<historical>'!
 An abstraction of a tool to operate on a Page. Subclasses implement Pen, Eraser, etc. tools.!
 
-!EraserTool commentStamp: '<historical>' prior: 0!
+!EraserTool commentStamp: '<historical>'!
 With the EraserTool the users deletes handwriten notes, highlit zones.
 - bounds: when erasing on a AnnotatorMoprh, we need to know about its former bounds prior to erasing!
 
-!GroupTool commentStamp: '<historical>' prior: 0!
+!GroupTool commentStamp: '<historical>'!
 With the GroupTool the user defined a rectangle area to grab objects and to move them around
 - corner : a corner of the selection rectangle, the first selected one
 - selection: a collection of moved morph
 - paper: in which paper did the action occured. We need to remember about it because the user can decide without prior notice to select and drag morphs from different papers (paper to annotator, annotator to another annotater, annotator to paper), in that case we need to reset the selection process!
 
-!HighlighterTool commentStamp: '<historical>' prior: 0!
+!HighlighterTool commentStamp: '<historical>'!
 With the HighlghterTool the user empahsis handwriten notes or any other misc areas.!
 
-!PenTool commentStamp: '<historical>' prior: 0!
+!PenTool commentStamp: '<historical>'!
 With the PenTool the user writes handwriten notes.!
 
-!PointerTool commentStamp: '<historical>' prior: 0!
+!PointerTool commentStamp: '<historical>'!
 With the PointerTool, the user can 
 - grab Annotator to move them around with the annotated object
 - interact with the annotated object with its affordances 
 !
 
-!ShapeTool commentStamp: '<historical>' prior: 0!
+!ShapeTool commentStamp: '<historical>'!
 Let the user draw quickly basic geometric shape as line, (circle, rectangle to be implemented)
 - shape: a Morph class representing the type of shape I will draw. It responds to class side protocol
  #startPoint:endPoint: and the instance side protocol #endPoint:!
 
-!PageToolState commentStamp: '<historical>' prior: 0!
+!PageToolState commentStamp: '<historical>'!
 I a represent an abstracte state of a tool selected by the user.
 The context is the tool (penTool, eraserTool, ...) under which the state operate.!
 
-!EraserToolStateErasing commentStamp: 'hlsf 9/11/2024 21:16:43' prior: 0!
+!EraserToolStateErasing commentStamp: 'hlsf 9/11/2024 21:16:43'!
 We record the deleted strokes in a dictionary. 
 Its keys are the StrokeGroupMorphs and its values are collections of deleted strokes of the group.
 When all the strokes of a group are deleted, we just need to remember of the whole stroke group.!
 
-!GroupToolStateDragging commentStamp: '<historical>' prior: 0!
+!GroupToolStateDragging commentStamp: '<historical>'!
 The moprh under the Rectangular area can be dragged, or attributes changed!
 
-!GroupToolStateGrabbing commentStamp: '<historical>' prior: 0!
+!GroupToolStateGrabbing commentStamp: '<historical>'!
 A corner of the rectangular selection was set, the user moves the pointer to define the rectangular area
 to grab the morphs to select.!
 
-!PointerToolStateDragging commentStamp: '<historical>' prior: 0!
+!PointerToolStateDragging commentStamp: '<historical>'!
 We arrive at this state once the user press the pointer.
 We are either dragging the whole page or a grabbed annotator!
 
-!DKMScript commentStamp: '<historical>' prior: 0!
+!DKMScript commentStamp: '<historical>'!
 My instances represent each particular instance of a DKM, described with a specific code.
 Each instance of the same DKM are different by the code. 
 My metadata si extracted from my code, see class side.
@@ -806,7 +807,7 @@ Each script returns a View inserted in an Annotator itself added to a Document.
 
 !
 
-!DKMScriptLibrary commentStamp: 'hlsf 9/Mar/2026 21:07:00' prior: 0!
+!DKMScriptLibrary commentStamp: 'hlsf 9/Mar/2026 21:07:00'!
 I am a light libray of existing DKMScript instances on disk. These instances on disk are Smalltalk scripts coming with a header (in comment) with title, description, tags, author and its presenter class (a DKMPresenter subclass)
 
 I am light because I don't create instance of DKMScript for each representative in disk. Instead, I group the information about the scripts in a dictionary. Therefore, I scan for the existing files (DKM scripts) on the host by reading their file header, then I present them to the user in a hierarchy of menus
@@ -814,10 +815,10 @@ I am light because I don't create instance of DKMScript for each representative 
  - I scan in Dybo system place and user place
  - I categorize the scripts by parsing its file headers (in comment)!
 
-!CommandStack commentStamp: '<historical>' prior: 0!
+!CommandStack commentStamp: '<historical>'!
 I am stack of command to execute or to unexecute user action in a Document!
 
-!DocumentModel commentStamp: 'hlsf 23/Sep/2026, 4:38:30 pm (UTC)' prior: 0!
+!DocumentModel commentStamp: 'hlsf 23/Sep/2026, 4:38:30 pm (UTC)'!
 - owner: my onwer, a Topic or a Task
 - dirName : based on the creation time of a Document. It is used to create a dedicated directory on disk in the tasks or topic directory
 - title : the user can adjust it if needed. It falls back to dirName when nil
@@ -826,35 +827,35 @@ I am stack of command to execute or to unexecute user action in a Document!
  2. a class in the PageModel hierachy, the default background for each page of the Document
 !
 
-!Bezier2Morph commentStamp: '<historical>' prior: 0!
+!Bezier2Morph commentStamp: '<historical>'!
 A quadratic Bézier stroke!
 
-!Bezier3Morph commentStamp: '<historical>' prior: 0!
+!Bezier3Morph commentStamp: '<historical>'!
 A cubic Bézier stroke!
 
-!LineStrokeMorph commentStamp: 'hlsf 9/1/2024 09:40:28' prior: 0!
+!LineStrokeMorph commentStamp: 'hlsf 9/1/2024 09:40:28'!
 I draw the intermediate mouse strokes, right before the Bézier curve is computed. I avoid the visual discomfort between user stroked and computed Bézier curve.
 
 In a PaperMorph I draw the mouse strokes as connected straight lines. I request to the Paper morph, my owner, the existing samples of recorded mouse positions. I can only be owned by a Paper Morph.
 
 This is out sourced of the PaperMorph for speed rendering -> Need to check out if it is really the case!
 
-!StrokeGroupMorph commentStamp: '<historical>' prior: 0!
+!StrokeGroupMorph commentStamp: '<historical>'!
 I group the strokes (kind of BezierMorph) of a hand written stroke. A hand stroke happens between the pen down and pen up events.
 To avoid graphics artifacts at the junctions of the strokes, I draw directly the submorphs.
 In some circumstance, I reveal my submorphs and then I do not draw them directly.!
 
-!StrokeGroupContourMorph commentStamp: '<historical>' prior: 0!
+!StrokeGroupContourMorph commentStamp: '<historical>'!
 Contrary to my parent, I let my submorphs draw themseves so the contour detection can be used. My submorphs are not hidden.!
 
-!PageMorph commentStamp: '<historical>' prior: 0!
+!PageMorph commentStamp: '<historical>'!
 The view of a Page. A page is a unit of a Document.
 I always contain these two morphs of the same extent as me:
  - a page background providing the page extent and the background
  - a paper morph covering all its extent
  - a collection of annotator morph!
 
-!PaperMorph commentStamp: '<historical>' prior: 0!
+!PaperMorph commentStamp: '<historical>'!
 - stroker:  an object to compute a stroke
 - samples: an array of fixed size, collected mouse positions
 - samplesQty: quantity of required samples to compute a stroke
@@ -866,7 +867,7 @@ I always contain these two morphs of the same extent as me:
 (PaperMorph new stroker: StrokerBezier3XP ) openInWorld. "Cubic Bézier, expend out the control point"
 !
 
-!AnnotatorMorph commentStamp: 'hlsf 15/Jul/2026, 10:21:15 am (UTC)' prior: 0!
+!AnnotatorMorph commentStamp: 'hlsf 15/Jul/2026, 10:21:15 am (UTC)'!
 My goal is to annotate with handwriting a placed morph (annotatedMorph). 
 My extent is adjusted to cover my annotated object and also the user handwriting. 
 My extent expands to enclosed new handwritings. It shrinks when handwritings are deleted.
@@ -875,32 +876,32 @@ My extent expands to enclosed new handwritings. It shrinks when handwritings are
 - frozen: is my annotatedMorph in a frozen state, i.e. the user can interact with it, only it can 
 be annoted!
 
-!PageModel commentStamp: '<historical>' prior: 0!
+!PageModel commentStamp: '<historical>'!
 An abstract model for page background
 In essence it provides the extent and the background of a PageMorph.
 It is a Morph too so it draws the background and it is owned by a PageMorph!
 
-!PageModelGrid commentStamp: '<historical>' prior: 0!
+!PageModelGrid commentStamp: '<historical>'!
 A white background with blue grids!
 
-!PageModelHorizontalLine commentStamp: '<historical>' prior: 0!
+!PageModelHorizontalLine commentStamp: '<historical>'!
 A white background with blue horizontal lines!
 
-!PageModelPdf commentStamp: '<historical>' prior: 0!
+!PageModelPdf commentStamp: '<historical>'!
 - pageNumber : integer, the page number of the PDF page I represent!
 
-!PageContainer commentStamp: '<historical>' prior: 0!
+!PageContainer commentStamp: '<historical>'!
 I am a container for a Page, I expand on the DocumentView, then let the Page be moved and scaled in me.
 I also clip the page!
 
-!DocumentView commentStamp: '<historical>' prior: 0!
+!DocumentView commentStamp: '<historical>'!
 A document view comes with:
 - at the top, a toolbar to access a few set of tools (see #documentTools)
 - at the right/left (should depends on user preference)  and at the bottom, wheels to move the page and zoom in/out
 - at the bottom, a status bar
 - at the center, the page cover all the remaining area!
 
-!DKMScriptEditor commentStamp: '<historical>' prior: 0!
+!DKMScriptEditor commentStamp: '<historical>'!
 An editor to edit DKM script. 
 - At the left, the view to edit the Smalltalk script and at the right a receptacle to plug the view resulting of the compilation and execution of the script.
 - There is a toolbar to keep and execute the code.
@@ -914,7 +915,7 @@ An editor to edit DKM script.
 - debugger: a debugger window whose content is plug in the editor when appropriate
 !
 
-!DyImageMorph commentStamp: '<historical>' prior: 0!
+!DyImageMorph commentStamp: '<historical>'!
 An image morph to encapsulate in an annotator. Clean-up before serialization !
 
 !Pen methodsFor: 'accessing' stamp: 'hlsf 11/Apr/2023, 7:04:47 am (UTC)'!
