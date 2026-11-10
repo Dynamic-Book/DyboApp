@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8340] on 9 November 2026 at 9:55:51 pm'!
+'From Cuis7.9 [latest update: #8340] on 10 November 2026 at 10:02:39 pm'!
 'Description '!
-!provides: 'DyboDoc' '1.320.0'!
+!provides: 'DyboDoc' '1.321.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
 !requires: 'DyboTools-Geometry' '1.26.0' '1.*.*'!
 !requires: 'DKM-Math-Geometry' '1.17.0' '1.*.*'!
@@ -18,6 +18,7 @@ SystemOrganization addCategory: #'DyboDoc-Presenter-Command'!
 SystemOrganization addCategory: #'DyboDoc-Presenter-Tool'!
 SystemOrganization addCategory: #'DyboDoc-Script'!
 SystemOrganization addCategory: #'DyboDoc-View'!
+SystemOrganization addCategory: #'DyboDoc-Widget'!
 
 
 !classDefinition: #Pen category: #'DyboDoc-Model'!
@@ -640,6 +641,16 @@ LinearLayoutMorph subclass: #DocumentView
 DocumentView class
 	instanceVariableNames: ''!
 
+!classDefinition: #NavPreview category: #'DyboDoc-Widget'!
+ImageMorph subclass: #NavPreview
+	instanceVariableNames: 'original visible scale action'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'DyboDoc-Widget'!
+!classDefinition: 'NavPreview class' category: #'DyboDoc-Widget'!
+NavPreview class
+	instanceVariableNames: ''!
+
 !classDefinition: #DKMScriptEditor category: #'DyboDoc-Script'!
 DialogPanel subclass: #DKMScriptEditor
 	instanceVariableNames: 'annotator plugView codeView pane scriptProcess playButton codeAndViewPanel debugger docView'
@@ -900,6 +911,18 @@ A document view comes with:
 - at the right/left (should depends on user preference)  and at the bottom, wheels to move the page and zoom in/out
 - at the bottom, a status bar
 - at the center, the page cover all the remaining area!
+
+!NavPreview commentStamp: '<historical>'!
+I navigate a view which is only partialy visible. 
+I present a preview and an inner rectangular 
+I can drag arround to update the visible area.
+
+- image, (preview) a scaled down Form of the view I am navigating. The colors are lighter
+- original, preview with the original colors
+- visible, the visible rectangle area of the view
+- scale, the scale down factor 
+- action, action block to execute each time . It expects a point as argument, 
+the top left corner of the visible area!
 
 !DKMScriptEditor commentStamp: '<historical>'!
 An editor to edit DKM script. 
@@ -5098,6 +5121,34 @@ presenter: aPresenter
 !DocumentView class methodsFor: 'new-morph participation' stamp: 'hlsf 9/Jan/2025, 6:32:52 pm (UTC)'!
 includeInNewMorphMenu
 	^ false! !
+
+!NavPreview methodsFor: 'initialization' stamp: 'hlsf 10/Nov/2026, 8:19:26 pm (UTC)'!
+defaultBorderColor
+	^ Theme current paneBackgroundFrom: Theme current transcript! !
+
+!NavPreview methodsFor: 'initialization' stamp: 'hlsf 10/Nov/2026, 8:45:08 pm (UTC)'!
+defaultBorderWidth
+	^3! !
+
+!NavPreview methodsFor: 'accessing' stamp: 'hlsf 10/Nov/2026, 8:41:34 pm (UTC)'!
+image: aForm
+	scale := aForm width > aForm height 
+		ifTrue: [200.0 / aForm width ] 
+		ifFalse: [200.0 / aForm height].
+	super image: (aForm magnifyBy: scale).
+	original := image copy.
+	0 to: image width - 1 do: [:x |
+		0 to: image height - 1 do: [:y |
+			image colorAt: x@y put: (image colorAt: x@y) muchLighter ]]! !
+
+!NavPreview methodsFor: 'accessing' stamp: 'hlsf 10/Nov/2026, 8:51:16 pm (UTC)'!
+visibleArea: aRectangle
+" aRectangle in navigated view scale "
+	visible := aRectangle scaledBy: scale ! !
+
+!NavPreview methodsFor: 'as yet unclassified' stamp: 'hlsf 10/Nov/2026, 9:02:21 pm (UTC)'!
+handlesMouseStillDown: evt
+	^ true ! !
 
 !DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 21/Jul/2024, 9:00:38 pm (UTC)'!
 buildMorphicWindow
