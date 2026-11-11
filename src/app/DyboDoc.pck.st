@@ -1,4 +1,4 @@
-'From Cuis7.9 [latest update: #8340] on 10 November 2026 at 10:02:39 pm'!
+'From Cuis7.9 [latest update: #8340] on 11 November 2026 at 10:09:02 pm'!
 'Description '!
 !provides: 'DyboDoc' '1.321.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
@@ -643,7 +643,7 @@ DocumentView class
 
 !classDefinition: #NavPreview category: #'DyboDoc-Widget'!
 ImageMorph subclass: #NavPreview
-	instanceVariableNames: 'original visible scale action'
+	instanceVariableNames: 'original visibleArea scale action prevPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'DyboDoc-Widget'!
@@ -919,7 +919,7 @@ I can drag arround to update the visible area.
 
 - image, (preview) a scaled down Form of the view I am navigating. The colors are lighter
 - original, preview with the original colors
-- visible, the visible rectangle area of the view
+- visibleArea, the visible rectangle area of the view
 - scale, the scale down factor 
 - action, action block to execute each time . It expects a point as argument, 
 the top left corner of the visible area!
@@ -5130,6 +5130,10 @@ defaultBorderColor
 defaultBorderWidth
 	^3! !
 
+!NavPreview methodsFor: 'accessing' stamp: 'hlsf 11/Nov/2026, 8:21:57 pm (UTC)'!
+action: block
+	action := block! !
+
 !NavPreview methodsFor: 'accessing' stamp: 'hlsf 10/Nov/2026, 8:41:34 pm (UTC)'!
 image: aForm
 	scale := aForm width > aForm height 
@@ -5141,14 +5145,46 @@ image: aForm
 		0 to: image height - 1 do: [:y |
 			image colorAt: x@y put: (image colorAt: x@y) muchLighter ]]! !
 
-!NavPreview methodsFor: 'accessing' stamp: 'hlsf 10/Nov/2026, 8:51:16 pm (UTC)'!
+!NavPreview methodsFor: 'accessing' stamp: 'hlsf 11/Nov/2026, 8:21:34 pm (UTC)'!
 visibleArea: aRectangle
 " aRectangle in navigated view scale "
-	visible := aRectangle scaledBy: scale ! !
+	visibleArea := aRectangle scaledBy: scale ! !
 
-!NavPreview methodsFor: 'as yet unclassified' stamp: 'hlsf 10/Nov/2026, 9:02:21 pm (UTC)'!
-handlesMouseStillDown: evt
-	^ true ! !
+!NavPreview methodsFor: 'event handling testing' stamp: 'hlsf 11/Nov/2026, 8:14:23 pm (UTC)'!
+handlesMouseDown: evt
+	^ true! !
+
+!NavPreview methodsFor: 'events' stamp: 'hlsf 11/Nov/2026, 8:17:54 pm (UTC)'!
+mouseButton1Up: event localPosition: localPosition
+"	Stop operation, delete the nav preview "! !
+
+!NavPreview methodsFor: 'events' stamp: 'hlsf 11/Nov/2026, 9:08:02 pm (UTC)'!
+mouseMove: event localPosition: localPosition
+"	update the corner of the visible area"
+	
+	prevPosition ifNotNil: [
+		visibleArea := visibleArea translatedBy: ​ localPosition - prevPosition.
+		visibleArea := visibleArea translatedToBeWithin: (0@0 extent: image extent).
+		self redrawNeeded ].
+	prevPosition := localPosition! !
+
+!NavPreview methodsFor: 'drawing' stamp: 'hlsf 11/Nov/2026, 8:50:31 pm (UTC)'!
+drawOn: canvas
+	| highlitArea adjustedArea |
+	super drawOn: canvas.
+	adjustedArea := visibleArea translatedBy: borderWidth.
+	highlitArea := Form extent: visibleArea extent depth: 32.
+	highlitArea copy: visibleArea from: original to: 0@0 rule: Form over.
+	canvas image: highlitArea at: adjustedArea origin.
+	canvas frameRectangle: adjustedArea borderWidth: 1 color: Color black! !
+
+!NavPreview class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/Nov/2026, 8:24:38 pm (UTC)'!
+image: aForm visibleArea: aRectangle action: aBlock
+	^ self new
+		image: aForm;
+		visibleArea: aRectangle;
+		action: aBlock;
+		yourself ! !
 
 !DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 21/Jul/2024, 9:00:38 pm (UTC)'!
 buildMorphicWindow
