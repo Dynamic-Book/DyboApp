@@ -1,4 +1,4 @@
-'From Cuis7.9 [latest update: #8340] on 11 November 2026 at 10:09:02 pm'!
+'From Cuis7.9 [latest update: #8340] on 12 November 2026 at 10:24:24 pm'!
 'Description '!
 !provides: 'DyboDoc' '1.321.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
@@ -1452,6 +1452,18 @@ importPDF: aFileEntry
 		newPage := PageMorph newOn: self model: PageModelPdf new.
 		self view appendPage: newPage].
 	self view goFirstPage! !
+
+!Document methodsFor: 'actions ui' stamp: 'hlsf 12/Nov/2026, 9:14:30 pm (UTC)'!
+navigatePage
+	| navigator |
+	[DyboSystem exporting: true.
+	navigator := NavPreview 
+		image: self currentPage imageForm 
+		visibleArea:  self currentPage visibleArea 
+		action: [:position | self currentPage morphPosition: position negated * self currentPage scale]
+	] ensure: [DyboSystem exporting: false].
+	navigator morphPosition: self activeHand morphPosition.
+	navigator openInWorld! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:37:58 pm (UTC)'!
 nibSize: aNumber
@@ -3314,14 +3326,6 @@ unlockAnnoted
 " See if annotator may unlock their annoted object "
 	self annotators do: #reconcileToFrozeenState ! !
 
-!PageMorph methodsFor: 'accessing' stamp: 'hlsf 27/Sep/2026, 8:43:31 am (UTC)'!
-viewport
-" I represent my visible surface to the user, in own coordinates system "
-	^ DyboSystem isExporting 
-		ifTrue: [self localBounds] 
-		ifFalse: [	((self internalize: 0@0) max: 0@0) 
-			corner: ((self internalize: owner morphExtent) min: extent)]! !
-
 !PageMorph methodsFor: 'drawing' stamp: 'hlsf 8/Dec/2024, 4:57:15 pm (UTC)'!
 drawOn: canvas! !
 
@@ -3440,6 +3444,18 @@ scale: newScale
 	"(pageModel is: #PageModelPdf) ifTrue: [
 		pageModel resampleFrom: self scale to: newScale in: self documentModel path]."
 	super scale: newScale! !
+
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 27/Sep/2026, 8:43:31 am (UTC)'!
+viewport
+" I represent my visible surface to the user, in own coordinates system "
+	^ DyboSystem isExporting 
+		ifTrue: [self localBounds] 
+		ifFalse: [	((self internalize: 0@0) max: 0@0) 
+			corner: ((self internalize: owner morphExtent) min: extent)]! !
+
+!PageMorph methodsFor: 'geometry' stamp: 'hlsf 12/Nov/2026, 8:33:23 pm (UTC)'!
+visibleArea
+	^ (self internalize: 0@0) corner: (self internalize: self pageContainer morphExtent)! !
 
 !PageMorph methodsFor: 'geometry testing' stamp: 'hlsf 31/Jul/2026, 8:31:25 am (UTC)'!
 clipsSubmorphs
@@ -4668,10 +4684,10 @@ installScriptsFlap
 		target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 18/Apr/2026, 7:57:28 am (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/Nov/2026, 8:17:48 pm (UTC)'!
 installView
 " Install the complete view, for course document "
-	| row col |
+	| row col btn |
 	viewType := #full.
 	presenter view: self.
 	self 	addMorph: (self toolbarWith: self toolbarSpec)
@@ -4688,11 +4704,15 @@ installView
 	self addMorph: row.
 	
 	" status bar and horizontal wheel at the bottom "
+	btn := PluggableButtonMorph model: presenter action: #navigatePage ::
+		actWhen: #buttonDown;
+		icon: (DyboSystem icons getForm: #drag ofSize: 36);
+		buttonStyle: #none.
 	row := LayoutMorph newRow name: #wheelX.
 	row addMorph: self pageCounter layoutSpec: (LayoutSpec fixedWidth: 12) ;
 		addMorphUseAll: self statusBarInScroller;
 		addMorph:self horizontalWheel layoutSpec: (LayoutSpec fixedExtent: 120 @ 24);
-		addMorph: DyControlsManager spacer layoutSpec: (LayoutSpec fixedExtent: 24 asPoint).
+		addMorph: btn layoutSpec: (LayoutSpec fixedExtent: 24 asPoint).
 	self addMorph: row layoutSpec: (LayoutSpec fixedHeight: 24).
 	self adoptWidgetsColor: self defaultBorderColor.
 	presenter penTool.
@@ -5134,7 +5154,7 @@ defaultBorderWidth
 action: block
 	action := block! !
 
-!NavPreview methodsFor: 'accessing' stamp: 'hlsf 10/Nov/2026, 8:41:34 pm (UTC)'!
+!NavPreview methodsFor: 'accessing' stamp: 'hlsf 12/Nov/2026, 8:58:47 pm (UTC)'!
 image: aForm
 	scale := aForm width > aForm height 
 		ifTrue: [200.0 / aForm width ] 
@@ -5143,7 +5163,7 @@ image: aForm
 	original := image copy.
 	0 to: image width - 1 do: [:x |
 		0 to: image height - 1 do: [:y |
-			image colorAt: x@y put: (image colorAt: x@y) muchLighter ]]! !
+			image colorAt: x@y put: (image colorAt: x@y) lighter ]]! !
 
 !NavPreview methodsFor: 'accessing' stamp: 'hlsf 11/Nov/2026, 8:21:34 pm (UTC)'!
 visibleArea: aRectangle
@@ -5154,17 +5174,19 @@ visibleArea: aRectangle
 handlesMouseDown: evt
 	^ true! !
 
-!NavPreview methodsFor: 'events' stamp: 'hlsf 11/Nov/2026, 8:17:54 pm (UTC)'!
+!NavPreview methodsFor: 'events' stamp: 'hlsf 12/Nov/2026, 8:55:32 pm (UTC)'!
 mouseButton1Up: event localPosition: localPosition
-"	Stop operation, delete the nav preview "! !
+"	Stop operation, delete the nav preview "
+	self delete! !
 
-!NavPreview methodsFor: 'events' stamp: 'hlsf 11/Nov/2026, 9:08:02 pm (UTC)'!
+!NavPreview methodsFor: 'events' stamp: 'hlsf 12/Nov/2026, 7:10:09 pm (UTC)'!
 mouseMove: event localPosition: localPosition
 "	update the corner of the visible area"
 	
 	prevPosition ifNotNil: [
 		visibleArea := visibleArea translatedBy: ​ localPosition - prevPosition.
 		visibleArea := visibleArea translatedToBeWithin: (0@0 extent: image extent).
+		self executeAction.
 		self redrawNeeded ].
 	prevPosition := localPosition! !
 
@@ -5177,6 +5199,10 @@ drawOn: canvas
 	highlitArea copy: visibleArea from: original to: 0@0 rule: Form over.
 	canvas image: highlitArea at: adjustedArea origin.
 	canvas frameRectangle: adjustedArea borderWidth: 1 color: Color black! !
+
+!NavPreview methodsFor: 'as yet unclassified' stamp: 'hlsf 12/Nov/2026, 9:00:33 pm (UTC)'!
+executeAction
+	action value: visibleArea origin / scale ! !
 
 !NavPreview class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/Nov/2026, 8:24:38 pm (UTC)'!
 image: aForm visibleArea: aRectangle action: aBlock
