@@ -1,4 +1,4 @@
-'From Cuis7.9 [latest update: #8340] on 12 November 2026 at 10:24:24 pm'!
+'From Cuis7.9 [latest update: #8340] on 13 November 2026 at 10:19:26 pm'!
 'Description '!
 !provides: 'DyboDoc' '1.321.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
@@ -1453,17 +1453,14 @@ importPDF: aFileEntry
 		self view appendPage: newPage].
 	self view goFirstPage! !
 
-!Document methodsFor: 'actions ui' stamp: 'hlsf 12/Nov/2026, 9:14:30 pm (UTC)'!
+!Document methodsFor: 'actions ui' stamp: 'hlsf 13/Nov/2026, 8:53:43 pm (UTC)'!
 navigatePage
-	| navigator |
 	[DyboSystem exporting: true.
-	navigator := NavPreview 
+	NavPreview 
 		image: self currentPage imageForm 
-		visibleArea:  self currentPage visibleArea 
-		action: [:position | self currentPage morphPosition: position negated * self currentPage scale]
-	] ensure: [DyboSystem exporting: false].
-	navigator morphPosition: self activeHand morphPosition.
-	navigator openInWorld! !
+		visibleArea:  (self currentPage visibleArea scaledBy: self currentPage scale)
+		action: [:position | self currentPage morphPosition: position negated]
+	] ensure: [DyboSystem exporting: false]! !
 
 !Document methodsFor: 'actions ui' stamp: 'hlsf 14/Oct/2024, 7:37:58 pm (UTC)'!
 nibSize: aNumber
@@ -2509,11 +2506,11 @@ handleMouseAt: localPosition in: paper
 handlePress: localPosition in: paper
 	initialPosition := prevPosition := paper externalizeToWorld: localPosition ! !
 
-!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 25/Sep/2026, 8:54:08 pm (UTC)'!
+!PointerToolStateDragging methodsFor: 'handling' stamp: 'hlsf 13/Nov/2026, 7:41:40 pm (UTC)'!
 handleRelease: localPosition in: paper
 	self commandsManager 
 		move: context grabbed 
-		to:  (paper externalizeToWorld: 	localPosition) - initialPosition / paper owner scale
+		to:  (paper externalizeToWorld: localPosition) - initialPosition / paper owner scale
 		in: paper owner.
 	context grabbed ifNotNil: [context presenter unsaved].
 	context switchState: PointerToolStateNeutral ! !
@@ -4684,7 +4681,7 @@ installScriptsFlap
 		target: PageMorph.
 	^ flap! !
 
-!DocumentView methodsFor: 'initialization' stamp: 'hlsf 12/Nov/2026, 8:17:48 pm (UTC)'!
+!DocumentView methodsFor: 'initialization' stamp: 'hlsf 13/Nov/2026, 7:59:37 pm (UTC)'!
 installView
 " Install the complete view, for course document "
 	| row col btn |
@@ -4706,7 +4703,7 @@ installView
 	" status bar and horizontal wheel at the bottom "
 	btn := PluggableButtonMorph model: presenter action: #navigatePage ::
 		actWhen: #buttonDown;
-		icon: (DyboSystem icons getForm: #drag ofSize: 36);
+		icon: (DyboSystem icons getForm: #drag ofSize: 60);
 		buttonStyle: #none.
 	row := LayoutMorph newRow name: #wheelX.
 	row addMorph: self pageCounter layoutSpec: (LayoutSpec fixedWidth: 12) ;
@@ -5142,9 +5139,9 @@ presenter: aPresenter
 includeInNewMorphMenu
 	^ false! !
 
-!NavPreview methodsFor: 'initialization' stamp: 'hlsf 10/Nov/2026, 8:19:26 pm (UTC)'!
+!NavPreview methodsFor: 'initialization' stamp: 'hlsf 13/Nov/2026, 9:17:39 pm (UTC)'!
 defaultBorderColor
-	^ Theme current paneBackgroundFrom: Theme current transcript! !
+	^ Theme current buttonColorFrom:  Theme current transcript! !
 
 !NavPreview methodsFor: 'initialization' stamp: 'hlsf 10/Nov/2026, 8:45:08 pm (UTC)'!
 defaultBorderWidth
@@ -5154,7 +5151,7 @@ defaultBorderWidth
 action: block
 	action := block! !
 
-!NavPreview methodsFor: 'accessing' stamp: 'hlsf 12/Nov/2026, 8:58:47 pm (UTC)'!
+!NavPreview methodsFor: 'accessing' stamp: 'hlsf 13/Nov/2026, 9:11:14 pm (UTC)'!
 image: aForm
 	scale := aForm width > aForm height 
 		ifTrue: [200.0 / aForm width ] 
@@ -5163,7 +5160,11 @@ image: aForm
 	original := image copy.
 	0 to: image width - 1 do: [:x |
 		0 to: image height - 1 do: [:y |
-			image colorAt: x@y put: (image colorAt: x@y) lighter ]]! !
+			image colorAt: x@y put: (image colorAt: x@y) muchDarker ]]! !
+
+!NavPreview methodsFor: 'accessing' stamp: 'hlsf 13/Nov/2026, 8:46:12 pm (UTC)'!
+layerNumber
+	^ 50 ! !
 
 !NavPreview methodsFor: 'accessing' stamp: 'hlsf 11/Nov/2026, 8:21:34 pm (UTC)'!
 visibleArea: aRectangle
@@ -5174,23 +5175,27 @@ visibleArea: aRectangle
 handlesMouseDown: evt
 	^ true! !
 
+!NavPreview methodsFor: 'event handling testing' stamp: 'hlsf 13/Nov/2026, 8:48:24 pm (UTC)'!
+handlesMouseStillDown: evt
+	^ true! !
+
 !NavPreview methodsFor: 'events' stamp: 'hlsf 12/Nov/2026, 8:55:32 pm (UTC)'!
 mouseButton1Up: event localPosition: localPosition
 "	Stop operation, delete the nav preview "
 	self delete! !
 
-!NavPreview methodsFor: 'events' stamp: 'hlsf 12/Nov/2026, 7:10:09 pm (UTC)'!
+!NavPreview methodsFor: 'events' stamp: 'hlsf 13/Nov/2026, 7:36:17 pm (UTC)'!
 mouseMove: event localPosition: localPosition
 "	update the corner of the visible area"
 	
 	prevPosition ifNotNil: [
 		visibleArea := visibleArea translatedBy: ​ localPosition - prevPosition.
 		visibleArea := visibleArea translatedToBeWithin: (0@0 extent: image extent).
-		self executeAction.
-		self redrawNeeded ].
+		self redrawNeeded.
+		self executeAction].
 	prevPosition := localPosition! !
 
-!NavPreview methodsFor: 'drawing' stamp: 'hlsf 11/Nov/2026, 8:50:31 pm (UTC)'!
+!NavPreview methodsFor: 'drawing' stamp: 'hlsf 13/Nov/2026, 9:14:25 pm (UTC)'!
 drawOn: canvas
 	| highlitArea adjustedArea |
 	super drawOn: canvas.
@@ -5198,19 +5203,29 @@ drawOn: canvas
 	highlitArea := Form extent: visibleArea extent depth: 32.
 	highlitArea copy: visibleArea from: original to: 0@0 rule: Form over.
 	canvas image: highlitArea at: adjustedArea origin.
-	canvas frameRectangle: adjustedArea borderWidth: 1 color: Color black! !
+	canvas frameRectangle: adjustedArea borderWidth: 2 color: Color white! !
 
 !NavPreview methodsFor: 'as yet unclassified' stamp: 'hlsf 12/Nov/2026, 9:00:33 pm (UTC)'!
 executeAction
 	action value: visibleArea origin / scale ! !
 
-!NavPreview class methodsFor: 'as yet unclassified' stamp: 'hlsf 11/Nov/2026, 8:24:38 pm (UTC)'!
+!NavPreview class methodsFor: 'instance creation' stamp: 'hlsf 13/Nov/2026, 9:03:29 pm (UTC)'!
 image: aForm visibleArea: aRectangle action: aBlock
-	^ self new
+	| nav navBounds event|
+	nav := self new
 		image: aForm;
 		visibleArea: aRectangle;
 		action: aBlock;
-		yourself ! !
+		yourself.
+	navBounds := self activeHand morphPosition - (nav extentInWorld // 2) extent: nav extentInWorld.
+	navBounds := navBounds translatedToBeWithin: (RealEstateAgent maximumUsableAreaInWorld: self runningWorld).
+	nav morphPosition: navBounds origin.
+	nav openInWorld.
+	event := MouseButtonEvent new
+		mouseDownPosition: 0@0 
+		which: 0 buttons: 0 hand: self activeHand stamp: 0.
+	nav 	processMouseDown: event localPosition: 0@0.
+	^ nav! !
 
 !DKMScriptEditor methodsFor: 'GUI building' stamp: 'hlsf 21/Jul/2024, 9:00:38 pm (UTC)'!
 buildMorphicWindow
