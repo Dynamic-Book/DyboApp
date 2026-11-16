@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8340] on 13 November 2026 at 10:19:26 pm'!
+'From Cuis7.9 [latest update: #8340] on 16 November 2026 at 11:24:54 pm'!
 'Description '!
-!provides: 'DyboDoc' '1.321.0'!
+!provides: 'DyboDoc' '1.322.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
 !requires: 'DyboTools-Geometry' '1.26.0' '1.*.*'!
 !requires: 'DKM-Math-Geometry' '1.17.0' '1.*.*'!
@@ -4383,10 +4383,23 @@ initialize
 title
 	^ 'Graph paper' translated! !
 
+!PageModelPdf methodsFor: 'accessing' stamp: 'Dr. Geo User 16/Nov/2026, 9:43:56 pm (UTC)'!
+canvasScale
+	^ self valueOfProperty: #canvasScale! !
+
+!PageModelPdf methodsFor: 'accessing' stamp: 'Dr. Geo User 16/Nov/2026, 9:37:21 pm (UTC)'!
+canvasScale: aNumber
+	self setProperty: #canvasScale toValue: aNumber ! !
+
 !PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 26/Sep/2026, 1:37:58 pm (UTC)'!
 form
 	^ form ifNil: [
 		form := self sampleAt: dpi in: self presenter docFile path]! !
+
+!PageModelPdf methodsFor: 'accessing' stamp: 'Dr. Geo User 16/Nov/2026, 9:38:53 pm (UTC)'!
+isSmooth
+	^ self valueOfProperty: #isSmooth ifAbsent: [true]
+	! !
 
 !PageModelPdf methodsFor: 'accessing' stamp: 'hlsf 7/Sep/2026, 4:34:24 pm (UTC)'!
 preScaledForm
@@ -4396,20 +4409,29 @@ preScaledForm
 preScaledForm: aForm
 	self setProperty: #preScaledForm toValue: aForm! !
 
+!PageModelPdf methodsFor: 'accessing' stamp: 'Dr. Geo User 16/Nov/2026, 10:10:17 pm (UTC)'!
+smooth: boolean
+	self setProperty: #isSmooth toValue: boolean ! !
+
+!PageModelPdf methodsFor: 'accessing' stamp: 'Dr. Geo User 16/Nov/2026, 9:32:23 pm (UTC)'!
+smoothed: boolean
+	self setProperty: #isSmooth toValue: boolean ! !
+
 !PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 11:38:24 am (UTC)'!
 defaultExtent
 	^ 50@50! !
 
-!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 4:04:26 pm (UTC)'!
+!PageModelPdf methodsFor: 'initialization' stamp: 'Dr. Geo User 16/Nov/2026, 9:58:30 pm (UTC)'!
 initialize
 	super initialize.
-	dpi := 300! !
+	dpi := 300.
+	self startStepping ! !
 
 !PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:06:34 pm (UTC)'!
 updateExtent
 	extent := self form extent! !
 
-!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 7/Sep/2026, 4:55:24 pm (UTC)'!
+!PageModelPdf methodsFor: 'drawing' stamp: 'Dr. Geo User 16/Nov/2026, 10:11:03 pm (UTC)'!
 drawOn: canvas
 	| localViewport ct scale |
 	viewport := owner viewport.
@@ -4420,7 +4442,10 @@ drawOn: canvas
 	ct doesNotRotate ifTrue: [
 		scale := ct scale.
 		(self preScaledForm isNil or: [ self preScaledForm extent ~= (self form extent * scale) truncated ]) ifTrue: [
-			self preScaledForm: ​(self form magnifyBy: scale) ].
+			self preScaledForm: ​(self form magnifyBy: scale).
+			self canvasScale: scale.
+			'there too' print.
+			self smooth: false].
 		canvas geometryTransformation: (MorphicTranslation withTranslation: ct translation).
 		canvas image: self preScaledForm at: 0@0.
 		canvas geometryTransformation: ct]
@@ -4447,10 +4472,12 @@ sampleAt: newDpi in: documentPath
 	extent :=pdfForm extent.
 	^ pdfForm ! !
 
-!PageModelPdf methodsFor: 'object serialization' stamp: 'hlsf 7/Sep/2026, 4:26:11 pm (UTC)'!
+!PageModelPdf methodsFor: 'object serialization' stamp: 'Dr. Geo User 16/Nov/2026, 9:37:55 pm (UTC)'!
 prepareToBeSaved
 	form := nil.
-	self removeProperty: #preScaledForm! !
+	self removeProperty: #preScaledForm.
+	self removeProperty: #isSmooth.
+	self removeProperty: #canvasScale! !
 
 !PageModelPdf methodsFor: 'geometry testing' stamp: 'hlsf 3/Jan/2025, 12:46:25 pm (UTC)'!
 knowsOwnLocalBounds
@@ -4488,6 +4515,22 @@ resampleFrom: oldScale to: newScale in: documentPath
 		extent := form extent.
 		self scaleBy: (dpi / newDpi) asFloat.
 		dpi := newDpi]! !
+
+!PageModelPdf methodsFor: 'stepping' stamp: 'Dr. Geo User 16/Nov/2026, 10:17:12 pm (UTC)'!
+step
+	(form notNil and: [self isSmooth = false]) ifTrue: [
+		'there inStep' print.
+		self preScaledForm: ​(form 
+			magnify: form boundingBox 
+			by: self canvasScale
+			smoothing: 2).
+		self smooth: true.
+		self redrawNeeded].
+		! !
+
+!PageModelPdf methodsFor: 'stepping' stamp: 'Dr. Geo User 16/Nov/2026, 9:42:04 pm (UTC)'!
+stepTime
+	^ 5000! !
 
 !PageContainer methodsFor: 'geometry testing' stamp: 'hlsf 9/Feb/2025, 3:27:48 pm (UTC)'!
 clipsSubmorphs
