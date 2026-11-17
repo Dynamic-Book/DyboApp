@@ -1,4 +1,4 @@
-'From Cuis7.9 [latest update: #8340] on 16 November 2026 at 11:24:54 pm'!
+'From Cuis7.9 [latest update: #8369] on 17 November 2026 at 11:23:15 am'!
 'Description '!
 !provides: 'DyboDoc' '1.322.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
@@ -4421,17 +4421,16 @@ smoothed: boolean
 defaultExtent
 	^ 50@50! !
 
-!PageModelPdf methodsFor: 'initialization' stamp: 'Dr. Geo User 16/Nov/2026, 9:58:30 pm (UTC)'!
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 17/Nov/2026, 9:55:57 am (UTC)'!
 initialize
 	super initialize.
-	dpi := 300.
-	self startStepping ! !
+	dpi := 300! !
 
-!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 23/Aug/2026, 5:06:34 pm (UTC)'!
+!PageModelPdf methodsFor: 'initialization' stamp: 'hlsf 17/Nov/2026, 10:04:56 am (UTC)'!
 updateExtent
 	extent := self form extent! !
 
-!PageModelPdf methodsFor: 'drawing' stamp: 'Dr. Geo User 16/Nov/2026, 10:11:03 pm (UTC)'!
+!PageModelPdf methodsFor: 'drawing' stamp: 'hlsf 17/Nov/2026, 10:05:27 am (UTC)'!
 drawOn: canvas
 	| localViewport ct scale |
 	viewport := owner viewport.
@@ -4443,8 +4442,8 @@ drawOn: canvas
 		scale := ct scale.
 		(self preScaledForm isNil or: [ self preScaledForm extent ~= (self form extent * scale) truncated ]) ifTrue: [
 			self preScaledForm: ​(self form magnifyBy: scale).
+			self isStepping ifFalse: [self startStepping].
 			self canvasScale: scale.
-			'there too' print.
 			self smooth: false].
 		canvas geometryTransformation: (MorphicTranslation withTranslation: ct translation).
 		canvas image: self preScaledForm at: 0@0.
@@ -4516,10 +4515,9 @@ resampleFrom: oldScale to: newScale in: documentPath
 		self scaleBy: (dpi / newDpi) asFloat.
 		dpi := newDpi]! !
 
-!PageModelPdf methodsFor: 'stepping' stamp: 'Dr. Geo User 16/Nov/2026, 10:17:12 pm (UTC)'!
+!PageModelPdf methodsFor: 'stepping' stamp: 'hlsf 17/Nov/2026, 10:21:52 am (UTC)'!
 step
 	(form notNil and: [self isSmooth = false]) ifTrue: [
-		'there inStep' print.
 		self preScaledForm: ​(form 
 			magnify: form boundingBox 
 			by: self canvasScale
