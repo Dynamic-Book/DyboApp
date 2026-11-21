@@ -1,6 +1,6 @@
-'From Cuis7.9 [latest update: #8369] on 17 November 2026 at 11:23:15 am'!
+'From Cuis7.9 [latest update: #8388] on 21 November 2026 at 11:43:54 am'!
 'Description '!
-!provides: 'DyboDoc' '1.322.0'!
+!provides: 'DyboDoc' '1.323.0'!
 !requires: 'SimplifiedDebugger' '1.0.0' '1.*.*'!
 !requires: 'DyboTools-Geometry' '1.26.0' '1.*.*'!
 !requires: 'DKM-Math-Geometry' '1.17.0' '1.*.*'!
@@ -4515,13 +4515,13 @@ resampleFrom: oldScale to: newScale in: documentPath
 		self scaleBy: (dpi / newDpi) asFloat.
 		dpi := newDpi]! !
 
-!PageModelPdf methodsFor: 'stepping' stamp: 'hlsf 17/Nov/2026, 10:21:52 am (UTC)'!
+!PageModelPdf methodsFor: 'stepping' stamp: 'hlsf 21/Nov/2026, 10:41:15 am (UTC)'!
 step
 	(form notNil and: [self isSmooth = false]) ifTrue: [
 		self preScaledForm: ​(form 
 			magnify: form boundingBox 
 			by: self canvasScale
-			smoothing: 2).
+			smoothing: 4).
 		self smooth: true.
 		self redrawNeeded].
 		! !
